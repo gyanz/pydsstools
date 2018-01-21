@@ -65,7 +65,7 @@ API
       * labels_list
       * curves
   * Open(**kwargs) Class
-    * read_path(pathname,retrieveFlag=-1,boolRetrieveDoubles=1)
+    * read_path(pathname)
     * read_window(pathname,startDate,startTime,endDate,endTime)
     * put(TimeSeriesContainer tsc, storageFlag=0)  
     * copyRecordsFrom(Open copyFrom, pathnameFrom, pathnameTo="")
