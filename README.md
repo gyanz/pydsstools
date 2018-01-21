@@ -227,7 +227,7 @@ fid.close()
 
 ### Example 6 
 Pre-allocate Paired Data Series table
-
+```
 from pydsstools.heclib.dss import HecDss
 from pydsstools.core_heclib import PairedDataContainer
 from array import array
@@ -280,9 +280,9 @@ with Open(dss_file) as fid:
 Installation
 ===
 To install pymake directly from the git repository type:
-
-pip install 
-
+```
+python setup.py install 
+```
 
 Contribution
 ===
