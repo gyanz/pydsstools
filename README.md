@@ -13,8 +13,8 @@ API
     * members inherited from core_heclib.Open class
 * pydsstools.core_heclib
   * Time-Series
-    * TimeSeriesStruct
-      Object returned when time-series data is read
+    * TimeSeriesStruct 
+      (Object returned when time-series data is read)
       * numberValues
       * times
       * values
@@ -25,8 +25,8 @@ API
       * startDate
       * endDate
       * dtype
-    * TimeSeriesContainer(**kwargs)
-      Container used to store time-series data before writing to file
+    * TimeSeriesContainer(**kwargs) 
+      (Container used to store time-series data before writing to file)
       * pathname
       * interval
       * granularity_value
@@ -38,29 +38,29 @@ API
       * values
       * values (setter)
   * Paired Data Series
-    * PairedDataStruct
-      Object returned when paired data series is read
+    * PairedDataStruct 
+      (Object returned when paired data series is read)
       * curve_no()
       * data_no()
-      * get_data()
-        Returns tuple  consisting of ordinates,curves and labels
+      * get_data() 
+        (Returns tuple  consisting of ordinates,curves and labels)
         * labels
         * dataType
-    * PairedDataContainer
-      Container used to store paired data series before writing to file
+    * PairedDataContainer 
+      (Container used to store paired data series before writing to file)
       * pathname
       * curve_no
       * data_no
-      * curve_mv
-        Data (2-D numpy array object) with each row representing a curve of length data_no. The total number of rows must be equal to curve_no.
-      * independent_units
-        feet, ...
-      * independent_type
-        linear, ...
-      * dependent_units
-        feet, ...
-      * independent_axis
-        1-D python or numpy array containing independent axis values whose length must be equal to data_no.
+      * curve_mv 
+        (2-D numpy array object) with each row representing a curve of length data_no. The total number of rows must be equal to curve_no.)
+      * independent_units 
+        (feet, ...)
+      * independent_type 
+        (linear, ...)
+      * dependent_units 
+        (feet, ...)
+      * independent_axis 
+        (1-D python or numpy array containing independent axis values whose length must be equal to data_no.)
       * dependent_type
       * labels_list
       * curves
@@ -187,7 +187,7 @@ with HecDss.Open(dss_file) as fid:
 ```
 
 ### Example 4
-Read paired data from example.dss:
+Read paired data from example.dss
 ```
 from datetime import datetime
 from pydsstools.heclib.dss import HecDss
@@ -265,7 +265,7 @@ with Open(dss_file) as fid:
 ```
 
 ### Example 8 
-Delete pathname from example.dss
+Delete dss record from example.dss
 ```
 from pydsstools.heclib.dss.HecDss import Open
 from pydsstools.core_heclib import getPathnameCatalog
