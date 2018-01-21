@@ -297,4 +297,4 @@ Feel free to ask questions on the my email.
 
 License
 ===
-This program is a free software: you can modify and/or redistribute it under MIT license. 
+This program is a free software: you can modify and/or redistribute it under [MIT](LICENSE) license. 
