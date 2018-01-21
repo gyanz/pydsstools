@@ -52,7 +52,7 @@ API
       * curve_no
       * data_no
       * curve_mv 
-        (2-D numpy array object) with each row representing a curve of length data_no. The total number of rows must be equal to curve_no.)
+        (2-D numpy array object with each row representing a curve of length data_no. The total number of rows must be equal to curve_no.)
       * independent_units 
         (feet, ...)
       * independent_type 
