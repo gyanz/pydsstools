@@ -61,9 +61,9 @@ API
         feet, ...
       * independent_axis
         1-D python or numpy array containing independent axis values whose length must be equal to data_no.
-        * dependent_type
-        * labels_list
-        * curves
+      * dependent_type
+      * labels_list
+      * curves
   * Open(**kwargs) Class
     * read_path(pathname,retrieveFlag=-1,boolRetrieveDoubles=1)
     * read_window(pathname,startDate,startTime,endDate,endTime)
