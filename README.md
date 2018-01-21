@@ -78,7 +78,7 @@ API
 Usage
 ===
 
-Dss file for the examples available in examples folder.
+Sample dss file available in examples folder.
 
 ### Example 1
 Read and plot time-series data from example.dss
@@ -279,12 +279,15 @@ with Open(dss_file) as fid:
 
 Installation
 ===
-To install pymake directly from the git repository type:
 ```
 python setup.py install 
+
+or
+
+pip install https://github.com/gyanz/pydsstools/zipball/master  
 ```
 
-Contribution
+Contributing
 ===
 All contributions, bug reports, bug fixes, documentation improvements, enhancements and ideas are welcome.
 Feel free to ask questions on the my email.
