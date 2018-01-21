@@ -31,7 +31,11 @@ class Open(_Open):
         tb = np.asarray(curves).T 
         # The row in curves array contains curve data 
         # Transpose causes the curve data to be in columns (for DataFrame purpose)
-        indx=np.asarray(x).tolist()
+        if not label_list:
+            for i in range(len(label_list)+1):
+                label_list.append(' ')
+        
+        indx=list(x[0])
         df = pd.DataFrame(data=tb,index=indx,columns=label_list,dtype=dtype,copy=copy) #copy=True is necessary
         df.index.name="X"
         return df

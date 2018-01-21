@@ -105,7 +105,7 @@ with HecDss.Open(dss_file) as fid:
     print("times = {}".format(times))
     print("values = {}".format(values))
 
-    pytimes = [datetime(*getDateTimeValues(x,tsc.granularity_value)) for x in times]
+    pytimes = [datetime(*getDateTimeValues(x,tsc.granularity)) for x in times]
     print("times as python datetime = {}".format(pytimes))
     plt.plot(pytimes,values,"o")
     plt.ylabel(tsc.units)
@@ -136,7 +136,7 @@ tsc.interval = 1
 tsc.values =np.array(range(10),dtype=np.float32) 
 #values may be list,array, numpy array
 
-fid = Open(dss_file)
+fid = HecDss.Open(dss_file)
 status = fid.put(tsc)
 fid.close()
 ```
@@ -156,7 +156,7 @@ dss_file = "example.dss"
 tsc = TimeSeriesContainer()
 tsc.granularity_value = 60 #second i.e. minute granularity 
 tsc.numberValues = 10 
-tsc.fullName = "/IRREGULAR/TIMESERIES///IR-CENTURY/WRITE/" 
+tsc.pathname = "/IRREGULAR/TIMESERIES///IR-CENTURY/WRITE/" 
 #IR-MONTH, IR-YEAR, IR-DECADE, IR-CENTURY        
 tsc.units ="cfs" 
 tsc.type = "INST" 
@@ -199,6 +199,7 @@ pathname ="/PAIRED/DATA/STAGE-FLOW///READ/"
 fid = HecDss.Open(dss_file)
 # read paired data as pandas dataframe
 df = fid.read_pd_df(pathname)
+print(df)
 fid.close()
 ```
 
@@ -218,7 +219,7 @@ pdc = PairedDataContainer()
 
 pdc.pathname = pathname
 pdc.curve_no = 1
-pdc.independent_axis = array('f',[i/10.0 for i in range(1,11)])
+pdc.independent_axis = array('f',[i/10.0 for i in range(1,10)])
 pdc.data_no = len(pdc.independent_axis)
 pdc.curves = np.array([range(1,10)],dtype=np.float32) 
 fid.put_pd(pdc)
@@ -241,8 +242,9 @@ pdc.pathname = pathname
 pdc.curve_no = 10
 pdc.independent_axis = array('f',[i/10.0 for i in range(1,11)])
 pdc.data_no = len(pdc.independent_axis)
-pdc.labels_list=[chr(x) for x in range(65,65+10)]]
+pdc.labels_list=[chr(x) for x in range(65,65+10)]
 
+fid = HecDss.Open(dss_file)
 fid.prealloc_pd(pdc,max_column_label_len)
 fid.close()
 ```
