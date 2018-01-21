@@ -13,7 +13,7 @@ import sys
 if not sys.platform.startswith('win'):
     sys.exit('Sorry only Window is supported')
 
-if sys.version_info < (3,4) or sys.version_info > (3,4) or sys.maxsize > 2**32:
+if sys.version_info < (3,4) or sys.version_info >= (3,5) or sys.maxsize > 2**32:
     sys.exit('Sorry only 32-bit Python 3.4 on Window supported')  
 
 class BinaryDistribution(Distribution):
