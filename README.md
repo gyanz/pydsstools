@@ -292,7 +292,7 @@ pip install https://github.com/gyanz/pydsstools/zipball/master
 Contributing
 ===
 All contributions, bug reports, bug fixes, documentation improvements, enhancements and ideas are welcome.
-Feel free to ask questions on the my email.
+Feel free to ask questions on my [email](mailto:gyanBasyalz@gmail.com).
 
 
 License
