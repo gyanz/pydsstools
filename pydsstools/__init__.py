@@ -17,7 +17,7 @@ try:
     _heclib = ctypes.cdll.LoadLibrary(dll_path)
 
 except:
-    logger.error("Error loading heclib shared library")
+    logging.error("Error loading heclib shared library")
     _heclib = None
 
 else:
