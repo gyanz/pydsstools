@@ -1,17 +1,18 @@
 About pydsstools
 ===
 
-pydsstools is a Cython/Ctypes based Python library to manipulate [HEC-DSS](http://www.hec.usace.army.mil/software/hec-dssvue/) database file. It allows reading and writing of regular/irregular time-series and paired data series. This library works only with 32-bit Python 3.4 on Windows OS.
+pydsstools is a Cython/Ctypes based Python library to manipulate [HEC-DSS](http://www.hec.usace.army.mil/software/hec-dssvue/) database file. It allows reading and writing of regular/irregular time-series and paired data series. This library works only with  Python 3.4 on Windows OS.
 
 API
 ===
 * pydsstools.heclib.dss.HecDss
   * Open(**kwargs) Class
     * read_pd_df(pathname,dtype,copy)
+    * read_pd (alias for read_pd_df)
     * getPathnameList(pathname,sort)
     * deletePathname(pathname)
-    * members inherited from core_heclib.Open class
-* pydsstools.core_heclib
+    * members inherited from core.Open class
+* pydsstools.core
   * Time-Series
     * TimeSeriesStruct 
       (Object returned when time-series data is read)
@@ -81,7 +82,7 @@ Usage
 Sample dss file available in examples folder.
 
 ### Example 1
-Read and plot time-series data from example.dss
+Read and plot regular time-series data 
 
 ```
 from datetime import datetime
@@ -89,24 +90,24 @@ from pydsstools.heclib.dss import HecDss
 from pydsstools.heclib.util import getDateTimeValues
 import matplotlib.pyplot as plt
 from matplotlib import dates
+import numpy as np
 
 dss_file = "example.dss"
 
-pathname = "/REGULAR/TIMESERIES/FLOW/01JAN2006/1DAY/READ/"
+pathname = "/REGULAR/TIMESERIES/FLOW//1DAY/READ/"
 startDay = "10MAR2006"
 startTime ="24:00"
-endDay = "12MAR2006"
-endTime = "24:00" 
+endDay = "09APR2006"
+endTime = "24:00"
 
 with HecDss.Open(dss_file) as fid:
-    tsc = fid.read_window(pathname,startDay,startTime,endDay,endTime) 
+    tsc = fid.read_window(pathname,startDay,startTime,endDay,endTime)
+    #tsc = fid.read_path(pathname)
     times = tsc.times
     values = tsc.values
     print("times = {}".format(times))
     print("values = {}".format(values))
-
-    pytimes = [datetime(*getDateTimeValues(x,tsc.granularity)) for x in times]
-    print("times as python datetime = {}".format(pytimes))
+    pytimes = [datetime(*getDateTimeValues(x,tsc.granularity)) for x in times.tolist()]
     plt.plot(pytimes,values,"o")
     plt.ylabel(tsc.units)
     plt.gca().xaxis.set_major_locator(dates.DayLocator())
@@ -115,25 +116,25 @@ with HecDss.Open(dss_file) as fid:
 ```
 
 ### Example 2
-Write regular time-series data to example.dss
+Write regular time-series data
 ```
 import numpy as np
 from pydsstools.heclib.dss import HecDss
-from pydsstools.core_heclib import TimeSeriesContainer
+from pydsstools.core import TimeSeriesContainer
 
 dss_file = "example.dss"
 
 tsc = TimeSeriesContainer()
-tsc.granularity_value = 60 #seconds i.e. minute granularity 
-tsc.numberValues = 10 
+tsc.granularity_value = 60 #seconds i.e. minute granularity
+tsc.numberValues = 10
 tsc.startDateTime="01 JAN 2017 01:00"
-tsc.pathname = "/REGULAR/TIMESERIES/FLOW//1HOUR/WRITE/" 
-tsc.units = "cfs" 
-tsc.type = "INST" 
-tsc.interval = 1 
+tsc.pathname = "/REGULAR/TIMESERIES/FLOW//1HOUR/WRITE2/"
+tsc.units = "cfs"
+tsc.type = "INST"
+tsc.interval = 1
 #must a +ve integer for regular time-series
 #actual interval implied from E part of pathname
-tsc.values =np.array(range(10),dtype=np.float32) 
+tsc.values =np.array(range(10),dtype=np.float32)
 #values may be list,array, numpy array
 
 fid = HecDss.Open(dss_file)
@@ -142,27 +143,27 @@ fid.close()
 ```
 
 ### Example 3
-Write irregular time-series data to example.dss
+Write irregular time-series data
 ```
 from datetime import datetime,timedelta
 from array import array
 from random import randrange
-from pydsstools.heclib.dss import HecDss
-from pydsstools.core_heclib import TimeSeriesContainer
 from pydsstools.heclib.util import HecTime
+from pydsstools.heclib.dss import HecDss
+from pydsstools.core import TimeSeriesContainer
 
 dss_file = "example.dss"
 
 tsc = TimeSeriesContainer()
-tsc.granularity_value = 60 #second i.e. minute granularity 
-tsc.numberValues = 10 
-tsc.pathname = "/IRREGULAR/TIMESERIES///IR-CENTURY/WRITE/" 
-#IR-MONTH, IR-YEAR, IR-DECADE, IR-CENTURY        
-tsc.units ="cfs" 
-tsc.type = "INST" 
-tsc.interval = -1 
+tsc.granularity_value = 60 #second i.e. minute granularity
+tsc.numberValues = 10
+tsc.pathname = "/IRREGULAR/TIMESERIES///IR-CENTURY/WRITE/"
+#IR-MONTH, IR-YEAR, IR-DECADE, IR-CENTURY
+tsc.units ="cfs"
+tsc.type = "INST"
+tsc.interval = -1
 #-1 for specifying irregular time-series
-tsc.values = array("d",range(10)) 
+tsc.values = array("d",range(10))
 #values may be list, python array, or numpy array
 
 times = []
@@ -174,10 +175,10 @@ for x in range(tsc.numberValues):
     _rand= randrange(diff_seconds)
     new_date = begin+timedelta(seconds=_rand)
     hec_datetime = HecTime(new_date.strftime("%d %b %Y %H:%M"))
-    #default granularity is minute 
-    times.append(hec_datetime.datetimeValue) 
+    #default granularity is minute
+    times.append(hec_datetime.datetimeValue)
 
-times = sorted(times) 
+times = sorted(times)
 #time must be in ascending order in irregular tsc
 
 tsc.times = times
@@ -187,7 +188,7 @@ with HecDss.Open(dss_file) as fid:
 ```
 
 ### Example 4
-Read paired data from example.dss
+Read paired data
 ```
 from datetime import datetime
 from pydsstools.heclib.dss import HecDss
@@ -198,7 +199,7 @@ pathname ="/PAIRED/DATA/STAGE-FLOW///READ/"
 
 fid = HecDss.Open(dss_file)
 # read paired data as pandas dataframe
-df = fid.read_pd_df(pathname)
+df = fid.read_pd(pathname)
 print(df)
 fid.close()
 ```
@@ -206,10 +207,10 @@ fid.close()
 ### Example 5 
 Write paired data series
 ```
-from pydsstools.heclib.dss import HecDss
-from pydsstools.core_heclib import PairedDataContainer
 from array import array
 import numpy as np
+from pydsstools.heclib.dss import HecDss
+from pydsstools.core import PairedDataContainer
 
 dss_file = "example.dss"
 pathname ="/PAIRED/DATA/FREQ-FLOW///WRITE/"
@@ -221,17 +222,17 @@ pdc.pathname = pathname
 pdc.curve_no = 1
 pdc.independent_axis = array('f',[i/10.0 for i in range(1,10)])
 pdc.data_no = len(pdc.independent_axis)
-pdc.curves = np.array([range(1,10)],dtype=np.float32) 
+pdc.curves = np.array([range(1,10)],dtype=np.float32)
 fid.put_pd(pdc)
 fid.close()
 ``` 
 
 ### Example 6 
-Pre-allocate Paired Data Series table
+Pre-allocate paired data-series table
 ```
-from pydsstools.heclib.dss import HecDss
-from pydsstools.core_heclib import PairedDataContainer
 from array import array
+from pydsstools.heclib.dss import HecDss
+from pydsstools.core import PairedDataContainer
 
 dss_file = "example.dss"
 pathname ="/PAIRED/DATA/FREQ-FLOW///PREALLOC WRITE/"
@@ -250,10 +251,9 @@ fid.close()
 ```
 
 ### Example 7 
-Read pathname catalog from example.dss
+Read pathname catalog
 ```
 from pydsstools.heclib.dss.HecDss import Open
-from pydsstools.core_heclib import getPathnameCatalog
 
 dss_file = "example.dss"
 
@@ -265,10 +265,9 @@ with Open(dss_file) as fid:
 ```
 
 ### Example 8 
-Delete dss record from example.dss
+Delete dss record 
 ```
 from pydsstools.heclib.dss.HecDss import Open
-from pydsstools.core_heclib import getPathnameCatalog
 
 dss_file = "example.dss"
 

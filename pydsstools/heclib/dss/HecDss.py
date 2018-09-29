@@ -1,5 +1,5 @@
 """
- Open class object for HEC-DSS file 
+ Open class object for HEC-DSS file
 """
 __all__ = ['Open']
 
@@ -13,8 +13,8 @@ try:
 except:
     np = None
 
-from pydsstools.core_heclib import Open as _Open
-from pydsstools.core_heclib import CatalogStruct, getPathnameCatalog, deletePathname
+from pydsstools.core import Open as _Open
+from pydsstools.core import getPathnameCatalog, deletePathname
 
 class Open(_Open):
     def __init__(self,dssFilename,version=None):
@@ -28,17 +28,19 @@ class Open(_Open):
         """
         pds = super().read_pd(pathname)
         x,curves,label_list = pds.get_data()
-        tb = np.asarray(curves).T 
-        # The row in curves array contains curve data 
+        tb = np.asarray(curves).T
+        # The row in curves array contains curve data
         # Transpose causes the curve data to be in columns (for DataFrame purpose)
         if not label_list:
             for i in range(len(label_list)+1):
                 label_list.append(' ')
-        
+
         indx=list(x[0])
         df = pd.DataFrame(data=tb,index=indx,columns=label_list,dtype=dtype,copy=copy) #copy=True is necessary
         df.index.name="X"
         return df
+
+    read_pd = read_pd_df
 
     def getPathnameList(self,pathname,sort=0):
         # pathname string which can include wild card * for defining pattern

@@ -7,22 +7,11 @@ import os
 import sys
 import logging
 
-__all__ = ["_heclib","str2ascii"]
+__version__ = '0.3'
 
-_heclib = None
+__all__ = ["_heclib","str2ascii","__version__"]
 
-dll_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),"gheclib")
-
-try:
-    _heclib = ctypes.cdll.LoadLibrary(dll_path)
-
-except:
-    logging.error("Error loading heclib shared library",exc_info=True)
-    _heclib = None
-
-else:
-    pass
-
+from ._libdll import _heclib
 
 def str2ascii(file):
     if isinstance(file,str):

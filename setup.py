@@ -4,17 +4,24 @@ See:
 https://packaging.python.org/en/latest/distributing.html
 """
 
+from __future__ import print_function
 from setuptools import setup,find_packages
 from codecs import open
 from os import path
 from setuptools.dist import Distribution
 import sys
 
+#install_dir = path.join(sys.prefix,'Lib','site-packages','pydsstools')
+
 if not sys.platform.startswith('win'):
     sys.exit('Sorry only Window is supported')
 
-if sys.version_info < (3,4) or sys.version_info >= (3,5) or sys.maxsize > 2**32:
-    sys.exit('Sorry only 32-bit Python 3.4 on Window supported')  
+if sys.version_info < (3,4) or sys.version_info >= (3,5):
+    sys.exit('Sorry only Python 3.4 on Window supported')
+
+arch_x64 = False
+if sys.maxsize > 2**32:
+    arch_x64 = True
 
 class BinaryDistribution(Distribution):
     def is_pure(self):
@@ -23,7 +30,6 @@ class BinaryDistribution(Distribution):
     def has_ext_modules(self):
         return True
 
-proj_dir = path.abspath(path.dirname(__file__))
 
 with open(path.join(proj_dir,'README.md'), encoding='utf-8') as fid:
     long_description = fid.read()
@@ -31,12 +37,12 @@ with open(path.join(proj_dir,'README.md'), encoding='utf-8') as fid:
 setup(
     name='pydsstools',
 
-    version = '0.2',
+    version = '0.3',
 
     description ='Python library to read-write HEC-DSS database file',
-       
+
     long_description = long_description,
- 
+
     url = '',
 
     author = 'Gyan Basyal',
@@ -56,14 +62,14 @@ setup(
     packages = find_packages(),
 
 
-    package_data = {'':['*.txt','*.md','*.pyd','*.dll',
-                    'examples/*','LICENSE']},  
+    package_data = {'':['*.txt','*.md',
+                        'examples/*','LICENSE']},
 
     include_package_data = True,
 
     data_files=[],
 
 
-    distclass = BinaryDistribution,  
+    distclass = BinaryDistribution,
 
     )
