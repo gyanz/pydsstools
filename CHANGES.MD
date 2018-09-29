@@ -1,4 +1,4 @@
-pydsstool changelog
+pydsstools changelog
 ================
 
 0.3 (09-29-2018)
