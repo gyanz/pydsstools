@@ -12,6 +12,7 @@ from setuptools.dist import Distribution
 import sys
 
 #install_dir = path.join(sys.prefix,'Lib','site-packages','pydsstools')
+proj_dir = path.abspath(path.dirname(__file__))
 
 if not sys.platform.startswith('win'):
     sys.exit('Sorry only Window is supported')
