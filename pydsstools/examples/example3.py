@@ -4,7 +4,7 @@ Write irregular time-series data to example.dss
 from datetime import datetime,timedelta
 from array import array
 from random import randrange
-from pydsstools.heclib.util import HecTime
+from pydsstools.heclib.utils import HecTime
 from pydsstools.heclib.dss import HecDss
 from pydsstools.core import TimeSeriesContainer
 

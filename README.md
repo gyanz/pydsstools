@@ -1,80 +1,14 @@
 About pydsstools
 ===
 
-pydsstools is a Cython/Ctypes based Python library to manipulate [HEC-DSS](http://www.hec.usace.army.mil/software/hec-dssvue/) database file. It allows reading and writing of regular/irregular time-series and paired data series. This library works only with  Python 3.4 on Windows OS.
+pydsstools is an experimental Cython based Python library to manipulate [HEC-DSS](http://www.hec.usace.army.mil/software/hec-dssvue/) database file. It supports regular/irregular time-series, paired data series and spatial grid records (partially). Currently, this library works only with  Python 3.7+ 64-bit on Windows machine.
 
-API
+Changes
 ===
-* pydsstools.heclib.dss.HecDss
-  * Open(**kwargs) Class
-    * read_pd_df(pathname,dtype,copy)
-    * read_pd (alias for read_pd_df)
-    * getPathnameList(pathname,sort)
-    * deletePathname(pathname)
-    * members inherited from core.Open class
-* pydsstools.core
-  * Time-Series
-    * TimeSeriesStruct 
-      (Object returned when time-series data is read)
-      * numberValues
-      * times
-      * values
-      * type
-      * units
-      * pathname
-      * granularity       
-      * startDate
-      * endDate
-      * dtype
-    * TimeSeriesContainer(**kwargs) 
-      (Container used to store time-series data before writing to file)
-      * pathname
-      * interval
-      * granularity_value
-      * numberValues
-      * times
-      * startDateTime
-      * units
-      * type
-      * values
-      * values (setter)
-  * Paired Data Series
-    * PairedDataStruct 
-      (Object returned when paired data series is read)
-      * curve_no()
-      * data_no()
-      * get_data() 
-        (Returns tuple  consisting of ordinates,curves and labels)
-        * labels
-        * dataType
-    * PairedDataContainer 
-      (Container used to store paired data series before writing to file)
-      * pathname
-      * curve_no
-      * data_no
-      * curve_mv 
-        (2-D numpy array object with each row representing a curve of length data_no. The total number of rows must be equal to curve_no.)
-      * independent_units 
-        (feet, ...)
-      * independent_type 
-        (linear, ...)
-      * dependent_units 
-        (feet, ...)
-      * independent_axis 
-        (1-D python or numpy array containing independent axis values whose length must be equal to data_no.)
-      * dependent_type
-      * labels_list
-      * curves
-  * Open(**kwargs) Class
-    * read_path(pathname)
-    * read_window(pathname,startDate,startTime,endDate,endTime)
-    * put(TimeSeriesContainer tsc, storageFlag=0)  
-    * copyRecordsFrom(Open copyFrom, pathnameFrom, pathnameTo="")
-    * copyRecordsTo(Open copyTo, pathnameFrom, pathnameTo="")
-    * read_pd(pathname)
-    * prealloc_pd(PairedDataContainer pdc, label_size)
-    * put_one_pd(PairedDataContainer pdc, curve_no)
-    * put_pd(PairedDataContainer pdc)
+
+[**changelog**][changelog]
+
+   [changelog]: https://github.com/gyanz/pydsstools/blob/master/CHANGES.MD
 
 Usage
 ===
@@ -87,7 +21,6 @@ Read and plot regular time-series data
 ```
 from datetime import datetime
 from pydsstools.heclib.dss import HecDss
-from pydsstools.heclib.util import getDateTimeValues
 import matplotlib.pyplot as plt
 from matplotlib import dates
 import numpy as np
@@ -102,13 +35,13 @@ endTime = "24:00"
 
 with HecDss.Open(dss_file) as fid:
     tsc = fid.read_window(pathname,startDay,startTime,endDay,endTime)
-    #tsc = fid.read_path(pathname)
-    times = tsc.times
+    # or tsc = fid.read_path(pathname)
+    times = tsc.pytimes
     values = tsc.values
     print("times = {}".format(times))
     print("values = {}".format(values))
-    pytimes = [datetime(*getDateTimeValues(x,tsc.granularity)) for x in times.tolist()]
-    plt.plot(pytimes,values,"o")
+
+    plt.plot(times,values,"o")
     plt.ylabel(tsc.units)
     plt.gca().xaxis.set_major_locator(dates.DayLocator())
     plt.gca().xaxis.set_major_formatter(dates.DateFormatter("%d%b%Y"))
@@ -119,6 +52,7 @@ with HecDss.Open(dss_file) as fid:
 Write regular time-series data
 ```
 import numpy as np
+from datetime import datetime
 from pydsstools.heclib.dss import HecDss
 from pydsstools.core import TimeSeriesContainer
 
@@ -127,7 +61,7 @@ dss_file = "example.dss"
 tsc = TimeSeriesContainer()
 tsc.granularity_value = 60 #seconds i.e. minute granularity
 tsc.numberValues = 10
-tsc.startDateTime="01 JAN 2017 01:00"
+tsc.startDateTime=datetime.now().strftime('%d %b %Y %H:00')
 tsc.pathname = "/REGULAR/TIMESERIES/FLOW//1HOUR/WRITE2/"
 tsc.units = "cfs"
 tsc.type = "INST"
@@ -138,6 +72,7 @@ tsc.values =np.array(range(10),dtype=np.float32)
 #values may be list,array, numpy array
 
 fid = HecDss.Open(dss_file)
+fid.deletePathname(tsc.pathname)
 status = fid.put(tsc)
 fid.close()
 ```
@@ -192,7 +127,6 @@ Read paired data
 ```
 from datetime import datetime
 from pydsstools.heclib.dss import HecDss
-from pydsstools.heclib.util import getDateTimeValues
 
 dss_file = "example.dss"
 pathname ="/PAIRED/DATA/STAGE-FLOW///READ/"
@@ -277,6 +211,118 @@ with Open(dss_file) as fid:
     status = fid.deletePathname(pathname)
     print('return status = %d' % status)
 ```
+
+### Example 9 
+Read Spatial Grid 
+```
+from pydsstools.heclib.dss.HecDss import Open
+
+dss_file = "DailyTemp7.dss"
+
+pathname = "/SHG/MAXTEMP/DAILY/01APR1993:0000/01APR1993:2400/PRISM/"
+
+with Open(dss_file) as fid:
+    grid = fid.read_grid(pathname,0)
+```
+
+API
+===
+* pydsstools.heclib.dss.HecDss
+  * Open(**kwargs) Class
+    * read_pd_df(pathname,dtype,copy)
+    * read_pd (alias for read_pd_df)
+    * getPathnameList(pathname,sort)
+    * deletePathname(pathname)
+    * members inherited from core.Open class
+* pydsstools.core
+  * Time-Series
+    * TimeSeriesStruct 
+      (Object returned when time-series data is read)
+      * numberValues
+      * times
+      * values
+      * type
+      * units
+      * pathname
+      * granularity       
+      * startDate
+      * endDate
+      * dtype
+    * TimeSeriesContainer(**kwargs) 
+      (Container used to store time-series data before writing to file)
+      * pathname
+      * interval
+      * granularity_value
+      * numberValues
+      * times
+      * startDateTime
+      * units
+      * type
+      * values
+      * values (setter)
+  * Paired Data Series
+    * PairedDataStruct 
+      (Object returned when paired data series is read)
+      * curve_no()
+      * data_no()
+      * get_data() 
+        (Returns tuple  consisting of ordinates,curves and labels)
+        * labels
+        * dataType
+    * PairedDataContainer 
+      (Container used to store paired data series before writing to file)
+      * pathname
+      * curve_no
+      * data_no
+      * curve_mv 
+        (2-D numpy array object with each row representing a curve of length data_no. The total number of rows must be equal to curve_no.)
+      * independent_units 
+        (feet, ...)
+      * independent_type 
+        (linear, ...)
+      * dependent_units 
+        (feet, ...)
+      * independent_axis 
+        (1-D python or numpy array containing independent axis values whose length must be equal to data_no.)
+      * dependent_type
+      * labels_list
+      * curves
+  * Spatial Grid
+    * SpatialGridStruct 
+    * SpatialGridContainer 
+    * get_grid_version(Open fid,pathname)
+  * Open(**kwargs) Class
+    * read_path(pathname)
+    * read_window(pathname,startDate,startTime,endDate,endTime)
+    * put(TimeSeriesContainer tsc, storageFlag=0)  
+    * copyRecordsFrom(Open copyFrom, pathnameFrom, pathnameTo="")
+    * copyRecordsTo(Open copyTo, pathnameFrom, pathnameTo="")
+    * read_pd(pathname)
+    * prealloc_pd(PairedDataContainer pdc, label_size)
+    * put_one_pd(PairedDataContainer pdc, curve_no)
+    * put_pd(PairedDataContainer pdc)
+    * read_grid(pathname)
+  * HecTime(datetimeString,granularity_value=60) Class
+    * granularity_value
+    * datetimeValue
+    * python_datetime 
+    * formatDate(format = "%d%b%Y %H:%M")
+    * dateString()
+    * timeString()
+    * addTime(**kwargs)
+    * clone()
+    * following staticmethods ...
+    * parse_datetime_string(datetimeString,granularity_value=60)
+    * getDateTimeStringTuple(dateValue,granularity_value=60)
+    * getPyDateTimeFromString(dateString)
+    * getPyDateTimeFromValue(dateValue,granularity_value=60)
+    * getDateTimeValueTuple(dateValue,granularity_value=60)
+
+Dependencies
+===
+
+- [NumPy](https://www.numpy.org)
+- pandas
 
 Installation
 ===

@@ -17,12 +17,12 @@ proj_dir = path.abspath(path.dirname(__file__))
 if not sys.platform.startswith('win'):
     sys.exit('Sorry only Window is supported')
 
-if sys.version_info < (3,4) or sys.version_info >= (3,5):
-    sys.exit('Sorry only Python 3.4 on Window supported')
-
 arch_x64 = False
 if sys.maxsize > 2**32:
     arch_x64 = True
+
+if not arch_x64:
+    print('Currently, only the 64-bit Python is supported')
 
 class BinaryDistribution(Distribution):
     def is_pure(self):
@@ -38,7 +38,7 @@ with open(path.join(proj_dir,'README.md'), encoding='utf-8') as fid:
 setup(
     name='pydsstools',
 
-    version = '0.3',
+    version = '0.4',
 
     description ='Python library to read-write HEC-DSS database file',
 
@@ -57,15 +57,15 @@ setup(
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Water resources engineers :: Developers',
         'Operating System :: Windows',
-        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.7',
      ],
 
     packages = find_packages(),
 
 
     package_data = {'':['*.txt','*.md',
-                        '_lib/x86/*.dll','_lib/x86/*.pyd',
-                        '_lib/x64/*.dll','_lib/x64/*.pyd',
+                        '_lib/x86/*.pyd',
+                        '_lib/x64/*.pyd',
                         'examples/*','LICENSE']},
 
     include_package_data = True,
@@ -74,5 +74,9 @@ setup(
 
 
     distclass = BinaryDistribution,
+
+    install_requires = ['numpy', 'pandas'],
+
+    python_requires='~=3.7',
 
     )

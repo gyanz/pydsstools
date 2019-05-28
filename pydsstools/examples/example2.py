@@ -2,6 +2,7 @@
 Write regular time-series data to example.dss
 '''
 import numpy as np
+from datetime import datetime
 from pydsstools.heclib.dss import HecDss
 from pydsstools.core import TimeSeriesContainer
 
@@ -10,7 +11,7 @@ dss_file = "example.dss"
 tsc = TimeSeriesContainer()
 tsc.granularity_value = 60 #seconds i.e. minute granularity
 tsc.numberValues = 10
-tsc.startDateTime="01 JAN 2017 01:00"
+tsc.startDateTime=datetime.now().strftime('%d %b %Y %H:00')
 tsc.pathname = "/REGULAR/TIMESERIES/FLOW//1HOUR/WRITE2/"
 tsc.units = "cfs"
 tsc.type = "INST"
@@ -21,5 +22,6 @@ tsc.values =np.array(range(10),dtype=np.float32)
 #values may be list,array, numpy array
 
 fid = HecDss.Open(dss_file)
+fid.deletePathname(tsc.pathname)
 status = fid.put(tsc)
 fid.close()

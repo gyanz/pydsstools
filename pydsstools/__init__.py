@@ -2,16 +2,12 @@
 Copyright (c) 2017 Gyan Basyal
 
 """
-import ctypes
 import os
-import sys
 import logging
 
-__version__ = '0.3'
+__version__ = '0.4'
 
-__all__ = ["_heclib","str2ascii","__version__"]
-
-from ._libdll import _heclib
+__all__ = ["str2ascii","__version__"]
 
 def str2ascii(file):
     if isinstance(file,str):
@@ -22,4 +18,4 @@ def str2ascii(file):
         logging.error("Wrong filename or encoding (not ascii or byte) ")
 
 
-del ctypes,os
+del os

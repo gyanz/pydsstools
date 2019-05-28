@@ -13,8 +13,8 @@ try:
 except:
     np = None
 
-from pydsstools.core import Open as _Open
-from pydsstools.core import getPathnameCatalog, deletePathname
+from ...core import Open as _Open
+from ...core import getPathnameCatalog, deletePathname
 
 class Open(_Open):
     def __init__(self,dssFilename,version=None):
@@ -49,5 +49,7 @@ class Open(_Open):
         return path_list
 
     def deletePathname(self,pathname):
-        status = deletePathname(self,pathname)
-        return status
+        pathname = pathname.replace('//','/*/')
+        pathlist = self.getPathnameList(pathname)
+        for pth in pathlist:
+            status = deletePathname(self,pth)

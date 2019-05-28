@@ -3,7 +3,6 @@ Read paired data-series
 '''
 from datetime import datetime
 from pydsstools.heclib.dss import HecDss
-from pydsstools.heclib.util import getDateTimeValues
 
 dss_file = "example.dss"
 pathname ="/PAIRED/DATA/STAGE-FLOW///READ/"

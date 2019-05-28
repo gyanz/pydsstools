@@ -3,7 +3,6 @@ Read and plot regular time-series data from example.dss
 '''
 from datetime import datetime
 from pydsstools.heclib.dss import HecDss
-from pydsstools.heclib.util import getDateTimeValues
 import matplotlib.pyplot as plt
 from matplotlib import dates
 import numpy as np
@@ -19,13 +18,12 @@ endTime = "24:00"
 with HecDss.Open(dss_file) as fid:
     tsc = fid.read_window(pathname,startDay,startTime,endDay,endTime)
     #tsc = fid.read_path(pathname)
-    times = tsc.times
+    times = tsc.pytimes
     values = tsc.values
     print("times = {}".format(times))
     print("values = {}".format(values))
 
-    pytimes = [datetime(*getDateTimeValues(x,tsc.granularity)) for x in times.tolist()]
-    plt.plot(pytimes,values,"o")
+    plt.plot(times,values,"o")
     plt.ylabel(tsc.units)
     plt.gca().xaxis.set_major_locator(dates.DayLocator())
     plt.gca().xaxis.set_major_formatter(dates.DateFormatter("%d%b%Y"))

@@ -1,1 +1,1 @@
-__all__ = ['dssExceptions','util']
+__all__ = ['dssExceptions','utils']
