@@ -285,7 +285,7 @@ python setup.py install
 
 or
 
-pip install https://github.com/gyanz/pydsstools/zipball/master  
+pip install https://github.com/gyanz/pydsstools/zipball/0.3  
 ```
 
 Contributing
