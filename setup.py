@@ -75,7 +75,7 @@ setup(
 
     distclass = BinaryDistribution,
 
-    install_requires = ['numpy', 'pandas'],
+    install_requires = ['numpy', 'pandas', 'affine'],
 
     python_requires='~=3.7',
 
