@@ -28,5 +28,3 @@ else:
     from .._lib.x86.core_heclib import *
 
 del logging, os, sys, arch_x64
-
-

@@ -217,13 +217,18 @@ Read Spatial Grid
 ```
 from pydsstools.heclib.dss.HecDss import Open
 
-dss_file = "DailyTemp7.dss"
+dss_file = "spatialgrid0.dss"
 
 pathname = "/SHG/MAXTEMP/DAILY/01APR1993:0000/01APR1993:2400/PRISM/"
 
 with Open(dss_file) as fid:
-    grid = fid.read_grid(pathname,0)
+    dataset = fid.read_grid(pathname,0)
+	profile = dataset.profile
+	stats = dataset.stats
+	grid_array = dataset.read()
 ```
+![](images/grid_screenshot.png)
+
 
 API
 ===
@@ -288,7 +293,24 @@ API
       * labels_list
       * curves
   * Spatial Grid
-    * SpatialGridStruct 
+    * SpatialGridStruct
+		* rows()
+		* cols()
+		* origin(flipud=False)
+          X,Y coordinate of the origin. Coordinates of bottom-left corner when flipud is False. Coordinates of top-left corner when flipud is True.
+		* extent()
+		* ReadAsArray()
+          1D array where first element is the value of bottom-left cell of Grid
+		* ReadAsMatrix(flipud=False)
+          Numpy 2-D array obtained by casting above 1D array to shape (rows,columns). This array is inverted, i.e., bottom-left cell of Grid is [0,0] element. Use flipud = True to flip the array elements along the columns.
+		* nodata
+		* interval
+		  cell size
+		* units
+		* crs
+          coordinate refence system
+		* stats
+		  min, max, mean and range limit values
     * SpatialGridContainer 
     * get_grid_version(Open fid,pathname)
   * Open(**kwargs) Class

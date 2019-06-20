@@ -4,6 +4,7 @@ API
   * Open(**kwargs) Class
     * read_pd_df(pathname,dtype,copy)
     * read_pd (alias for read_pd_df)
+	* read_grid(pathname)
     * getPathnameList(pathname,sort)
     * deletePathname(pathname)
     * members inherited from core.Open class
@@ -61,7 +62,17 @@ API
       * labels_list
       * curves
   * Spatial Grid
-    * SpatialGridStruct 
+    * SpatialGridStruct
+		* read() - returns (cached) numpy array with grid origin at upper left corner
+		* xy(row,col,offset='center') - returns x,y coordinate of z pixel at row and col (same as rasterio)
+		* index (x,y,op=math.floor,precision=None) - returns row,col for pixel containing x,y coordinate (same as rasterio)
+		* crs - coordinate reference system string
+		* dtype - numpy array data type which is np.float32
+		* nodata
+		* bounds - gives extent of the grid
+		* units - unit of array data
+		* transform - affine transform matrix of form (dx, 0, xmin, 0, -dy, ymax)
+		* profile - dictionary of various attributes
     * SpatialGridContainer 
     * get_grid_version(Open fid,pathname)
   * Open(**kwargs) Class

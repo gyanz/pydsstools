@@ -1,6 +1,11 @@
 pydsstools changelog
 ================
 
+0.5 (06-19-2019)
+-----------------
+* HEC-DSS 7 C library dated 13 June 2019
+* Function to read HEC-DSS grid record
+
 0.4 (05-28-2019)
 -----------------
 * Compatible with Python 3.7 64-bit, Windows 10

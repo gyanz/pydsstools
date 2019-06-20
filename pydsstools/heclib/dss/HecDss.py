@@ -14,6 +14,7 @@ except:
     np = None
 
 from ...core import Open as _Open
+from ...core.grid import SpatialGridStruct
 from ...core import getPathnameCatalog, deletePathname
 
 class Open(_Open):
@@ -42,6 +43,11 @@ class Open(_Open):
 
     read_pd = read_pd_df
 
+    def read_grid(self,pathname):
+        sg_st = SpatialGridStruct()
+        super().read_grid(pathname,sg_st)
+        return sg_st
+
     def getPathnameList(self,pathname,sort=0):
         # pathname string which can include wild card * for defining pattern
         catalog = getPathnameCatalog(self,pathname,sort)
@@ -53,3 +59,4 @@ class Open(_Open):
         pathlist = self.getPathnameList(pathname)
         for pth in pathlist:
             status = deletePathname(self,pth)
+
