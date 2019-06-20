@@ -223,9 +223,8 @@ pathname = "/a/b/c/01jan2001:1200/01jan2001:1300/f/"
 
 with Open(dss_file) as fid:
     dataset = fid.read_grid(pathname,0)
-	profile = dataset.profile
-	stats = dataset.stats
-	grid_array = dataset.read()
+    grid_array = dataset.read()
+    profile = dataset.profile
 ```
 ![](images/grid_screenshot.PNG)
 
