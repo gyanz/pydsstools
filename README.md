@@ -219,7 +219,7 @@ from pydsstools.heclib.dss.HecDss import Open
 
 dss_file = "spatialgrid0.dss"
 
-pathname = "/SHG/MAXTEMP/DAILY/01APR1993:0000/01APR1993:2400/PRISM/"
+pathname = "/a/b/c/01jan2001:1200/01jan2001:1300/f/"
 
 with Open(dss_file) as fid:
     dataset = fid.read_grid(pathname,0)
@@ -227,7 +227,7 @@ with Open(dss_file) as fid:
 	stats = dataset.stats
 	grid_array = dataset.read()
 ```
-![](images/grid_screenshot.png)
+![](images/grid_screenshot.PNG)
 
 
 API
@@ -294,23 +294,16 @@ API
       * curves
   * Spatial Grid
     * SpatialGridStruct
-		* rows()
-		* cols()
-		* origin(flipud=False)
-          X,Y coordinate of the origin. Coordinates of bottom-left corner when flipud is False. Coordinates of top-left corner when flipud is True.
-		* extent()
-		* ReadAsArray()
-          1D array where first element is the value of bottom-left cell of Grid
-		* ReadAsMatrix(flipud=False)
-          Numpy 2-D array obtained by casting above 1D array to shape (rows,columns). This array is inverted, i.e., bottom-left cell of Grid is [0,0] element. Use flipud = True to flip the array elements along the columns.
+		* read() - returns (cached) numpy array with grid origin at upper left corner
+		* xy(row,col,offset='center') - returns x,y coordinate of z pixel at row and col (same as rasterio)
+		* index (x,y,op=math.floor,precision=None) - returns row,col for pixel containing x,y coordinate (same as rasterio)
+		* crs - coordinate reference system string
+		* dtype - numpy array data type which is np.float32
 		* nodata
-		* interval
-		  cell size
-		* units
-		* crs
-          coordinate refence system
-		* stats
-		  min, max, mean and range limit values
+		* bounds - gives extent of the grid
+		* units - unit of array data
+		* transform - affine transform matrix of form (dx, 0, xmin, 0, -dy, ymax)
+		* profile - dictionary of various attributes
     * SpatialGridContainer 
     * get_grid_version(Open fid,pathname)
   * Open(**kwargs) Class
@@ -345,6 +338,7 @@ Dependencies
 
 - [NumPy](https://www.numpy.org)
 - pandas
+- affine
 
 Installation
 ===
