@@ -5,7 +5,7 @@ Copyright (c) 2017 Gyan Basyal
 import os
 import logging
 
-__version__ = '0.4'
+__version__ = '0.6'
 
 __all__ = ["str2ascii","__version__"]
 

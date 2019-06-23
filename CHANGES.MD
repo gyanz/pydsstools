@@ -1,6 +1,10 @@
 pydsstools changelog
 ================
 
+0.6 (06-22-2019)
+-----------------
+* Added function to write HEC-DSS grid record
+
 0.5 (06-19-2019)
 -----------------
 * HEC-DSS 7 C library dated 13 June 2019
