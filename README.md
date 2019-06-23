@@ -222,9 +222,11 @@ dss_file = "spatialgrid0.dss"
 pathname = "/a/b/c/01jan2001:1200/01jan2001:1300/f/"
 
 with Open(dss_file) as fid:
-    dataset = fid.read_grid(pathname,0)
+    dataset = fid.read_grid(pathname)
 	dataset.read()
+    grid_array = dataset.read()
     dataset.profile
+    profile = dataset.profile
 ```
 ![](images/grid_screenshot.PNG)
 
