@@ -259,8 +259,8 @@ with Open(dss_file) as fid:
     #   flipud: 1 (default) -  flips the numpy array upside down as dss array layout is opposite
     #           0 - numpy array array is stored as is
 ```
-![](images/grid_save1.PNG)
-![](images/grid_save2.PNG)
+![](images/grid_save1.png)
+![](images/grid_save2.png)
 
 API
 ===
