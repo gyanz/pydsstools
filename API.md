@@ -86,6 +86,7 @@ API
     * put_one_pd(PairedDataContainer pdc, curve_no)
     * put_pd(PairedDataContainer pdc)
     * read_grid(pathname)
+    * put_grid(pathname,grid_array,profile_dict,flipud=1)
   * HecTime(datetimeString,granularity_value=60) Class
     * granularity_value
     * datetimeValue
