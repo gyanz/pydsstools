@@ -9,10 +9,14 @@ __all__ = ['core_heclib',
            'TimeSeriesStruct', #can't use this from python directly
            'PairedDataContainer',
            'PairedDataStruct', #can't use this from python directly
+           'SpatialGridStruct',
            'getPathnameCatalog',
            'deletePathname',
-           'dss_info','HecTime',
-           'SpatialGridStruct']
+           'dss_info',
+           'HecTime',
+           'DssStatusException', 
+           'GranularityException',
+           'ArgumentException']
 
 
 arch_x64 = False
