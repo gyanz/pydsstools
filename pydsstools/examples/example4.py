@@ -1,14 +1,16 @@
 '''
-Read paired data-series
+Read irregular time-series data
+
+
 '''
-from datetime import datetime
 from pydsstools.heclib.dss import HecDss
 
 dss_file = "example.dss"
-pathname ="/PAIRED/DATA/STAGE-FLOW///READ/"
+pathname = "/IRREGULAR/TIMESERIES/FLOW//IR-DECADE/Ex3/"
 
-fid = HecDss.Open(dss_file)
-# read paired data as pandas dataframe
-df = fid.read_pd(pathname)
-print(df)
-fid.close()
+with HecDss.Open(dss_file) as fid:
+    ts = fid.read_ts(pathname,regular=False,window_flag=0)
+    print(ts.pytimes)
+    print(ts.values)
+    print(ts.nodata)
+    print(ts.empty)

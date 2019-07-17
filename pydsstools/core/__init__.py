@@ -14,7 +14,8 @@ __all__ = ['core_heclib',
            'deletePathname',
            'dss_info',
            'HecTime',
-           'DssStatusException', 
+           'DssPathName',
+           'DssStatusException',
            'GranularityException',
            'ArgumentException']
 

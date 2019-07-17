@@ -1,21 +1,21 @@
 '''
-Pre-allocate paired data-series
+Read paired data-series
+
+Notes:
+    Row and column/curve indices start at 1 (not zero)
+
 '''
-from array import array
 from pydsstools.heclib.dss import HecDss
-from pydsstools.core import PairedDataContainer
 
 dss_file = "example.dss"
-pathname ="/PAIRED/DATA/FREQ-FLOW///PREALLOC WRITE/"
-max_column_label_len = 5
+pathname ="/PAIRED/DATA/FREQ-FLOW///Ex5/"
 
-pdc = PairedDataContainer()
-pdc.pathname = pathname
-pdc.curve_no = 10
-pdc.independent_axis = array('f',[i/10.0 for i in range(1,11)])
-pdc.data_no = len(pdc.independent_axis)
-pdc.labels_list=[chr(x) for x in range(65,65+10)]
+#labels_list = ['Column 1','Elevens']
 
-fid = HecDss.Open(dss_file)
-fid.prealloc_pd(pdc,max_column_label_len)
-fid.close()
+with HecDss.Open(dss_file) as fid:
+    read_all = fid.read_pd(pathname)
+
+    row1,row2 = (2,4)
+    col1,col2 = (1,2)
+    read_partial = fid.read_pd(pathname,window=(row1,row2,col1,col2))
+

@@ -1,6 +1,15 @@
 pydsstools changelog
 ================
 
+0.7 (07-16-2019)
+-----------------
+* Bug fix reading time-series data
+* Added nodata property in TimeSeriesStruct class to determine missing values
+* Allow reading irregular time-series even when pathname D-Part is empty
+* Pythonic API for reading and writing data 
+* Allow reading and editing subset of Paired data series
+* Masked array option for gridded dss record
+
 0.6 (06-22-2019)
 -----------------
 * Added function to write HEC-DSS grid record
