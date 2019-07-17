@@ -1,13 +1,20 @@
 '''
 Write Spatial Grid record
+
+Notes:
+    type options: PER-AVER, PER-CUM, INST-VAL,INST-CUM, FREQ, INVALID
+    flipud: 1 (default) -  flips the numpy array upside down as dss array layout is opposite
+            0 - numpy array array is stored as it is
+
+
 '''
 import numpy as np
 from pydsstools.heclib.dss.HecDss import Open
 
-dss_file = "spatialgrid0.dss"
+dss_file = "example.dss"
 
-pathname_in = "/a/b/c/01jan2001:1200/01jan2001:1300/f/"
-pathname_out = "/a/b/c/01jan2001:1200/01jan2001:1300/write/"
+pathname_in = "/GRID/RECORD/DATA/01jan2001:1200/01jan2001:1300/Ex9/"
+pathname_out = "/GRID/RECORD/DATA/01jan2019:1200/01jan2019:1300/Ex10/"
 
 with Open(dss_file) as fid:
     # get shape and profile from example grid dss record
@@ -22,7 +29,3 @@ with Open(dss_file) as fid:
     grid_out = np.random.rand(*grid_in.shape)*100
     fid.put_grid(pathname_out,grid_out,profile_out,flipud=1)
 
-    # NOTES:
-    #   type options: PER-AVER, PER-CUM, INST-VAL,INST-CUM, FREQ, INVALID
-    #   flipud: 1 (default) -  flips the numpy array upside down as dss array layout is opposite
-    #           0 - numpy array array is stored as is

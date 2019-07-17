@@ -1,30 +1,29 @@
 '''
-Read and plot regular time-series data from example.dss
+Write regular time-series data to example.dss
+
+Notes:
+     The interval must be [any] integer greater than 0 for regular time-series.
+     Actual time-series interval implied from E-Part of pathname
+     The values attribute can be list, array or numpy array
+
 '''
 from datetime import datetime
 from pydsstools.heclib.dss import HecDss
-import matplotlib.pyplot as plt
-from matplotlib import dates
-import numpy as np
+from pydsstools.core import TimeSeriesContainer,UNDEFINED
 
 dss_file = "example.dss"
+pathname = "/REGULAR/TIMESERIES/FLOW//1HOUR/Ex1/"
+tsc = TimeSeriesContainer()
+tsc.pathname = pathname
+tsc.startDateTime=datetime.now().strftime('%d %b %Y %H:00')
+tsc.numberValues = 5
+tsc.units = "cfs"
+tsc.type = "INST"
+tsc.interval = 1
+tsc.values = [100,UNDEFINED,500,5000,10000]
 
-pathname = "/REGULAR/TIMESERIES/FLOW//1DAY/READ/"
-startDay = "10MAR2006"
-startTime ="24:00"
-endDay = "09APR2006"
-endTime = "24:00"
-
-with HecDss.Open(dss_file) as fid:
-    tsc = fid.read_window(pathname,startDay,startTime,endDay,endTime)
-    #tsc = fid.read_path(pathname)
-    times = tsc.pytimes
-    values = tsc.values
-    print("times = {}".format(times))
-    print("values = {}".format(values))
-
-    plt.plot(times,values,"o")
-    plt.ylabel(tsc.units)
-    plt.gca().xaxis.set_major_locator(dates.DayLocator())
-    plt.gca().xaxis.set_major_formatter(dates.DateFormatter("%d%b%Y"))
-    plt.show()
+fid = HecDss.Open(dss_file)
+fid.deletePathname(tsc.pathname)
+status = fid.put(tsc)
+ts = fid.read_ts(pathname)
+fid.close()

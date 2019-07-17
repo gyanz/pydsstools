@@ -1,27 +1,20 @@
 '''
-Write regular time-series data to example.dss
+Read and plot regular time-series
 '''
-import numpy as np
-from datetime import datetime
 from pydsstools.heclib.dss import HecDss
-from pydsstools.core import TimeSeriesContainer
+import matplotlib.pyplot as plt
+import numpy as np
 
 dss_file = "example.dss"
-
-tsc = TimeSeriesContainer()
-tsc.granularity_value = 60 #seconds i.e. minute granularity
-tsc.numberValues = 10
-tsc.startDateTime=datetime.now().strftime('%d %b %Y %H:00')
-tsc.pathname = "/REGULAR/TIMESERIES/FLOW//1HOUR/WRITE2/"
-tsc.units = "cfs"
-tsc.type = "INST"
-tsc.interval = 1
-#must a +ve integer for regular time-series
-#actual interval implied from E part of pathname
-tsc.values =np.array(range(10),dtype=np.float32)
-#values may be list,array, numpy array
+pathname = "/REGULAR/TIMESERIES/FLOW//1HOUR/Ex1/"
+startDate = "15JUL2019 19:00:00"
+endDate = "15JUL2019 21:00:00"
 
 fid = HecDss.Open(dss_file)
-fid.deletePathname(tsc.pathname)
-status = fid.put(tsc)
+ts = fid.read_ts(pathname,window=(startDate,endDate),trim_missing=True)
+
+times = np.array(ts.pytimes)
+values = ts.values
+plt.plot(times[~ts.nodata],values[~ts.nodata],"o")
+plt.show()
 fid.close()
