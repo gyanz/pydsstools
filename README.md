@@ -41,7 +41,7 @@ tsc.values = [100,UNDEFINED,500,5000,10000]
 
 fid = HecDss.Open(dss_file)
 fid.deletePathname(tsc.pathname)
-status = fid.put(tsc)
+fid.put_ts(tsc)
 ts = fid.read_ts(pathname)
 fid.close()
 ```
