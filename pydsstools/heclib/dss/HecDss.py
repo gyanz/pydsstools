@@ -221,6 +221,10 @@ class Open(_Open):
         df.index.name="X"
         return df
 
+    def read_pd_labels(self,pathname):
+        _df = self.read_pd(pathname,window=(1,1,1,0))
+        df = pd.DataFrame(data=_df.columns,columns=['label'])
+        return df
 
     def put_pd(self,pdc_df_array,curve_index=None,**kwargs):
         """Write paired new or edit existing data series
