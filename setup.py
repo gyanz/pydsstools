@@ -63,8 +63,10 @@ setup(
 
 
     package_data = {'':['*.txt','*.md',
-                        '_lib/x86/*/*.pyd',
-                        '_lib/x64/*/*.pyd',
+                        '_lib/x86/py36/*.pyd',
+                        '_lib/x86/py37/*.pyd',
+                        '_lib/x64/py36/*.pyd',
+                        '_lib/x64/py37/*.pyd',
                         'examples/*','LICENSE']},
 
     include_package_data = True,
