@@ -27,7 +27,7 @@
 *.exe
 *.pxi
 *.o
-*.py[ocd]
+*.py[oc]
 *.so
 .build_cache_dir
 MANIFEST
