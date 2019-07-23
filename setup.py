@@ -80,4 +80,6 @@ setup(
 
     python_requires='>=3.6, <4',
 
+    zip_safe = False,
+
     )
