@@ -11,7 +11,6 @@ from os import path
 from setuptools.dist import Distribution
 import sys
 
-#install_dir = path.join(sys.prefix,'Lib','site-packages','pydsstools')
 proj_dir = path.abspath(path.dirname(__file__))
 
 if not sys.platform.startswith('win'):
@@ -38,7 +37,7 @@ with open(path.join(proj_dir,'README.md'), encoding='utf-8') as fid:
 setup(
     name='pydsstools',
 
-    version = '0.7',
+    version = '0.8',
 
     description ='Python library to read-write HEC-DSS database file',
 
@@ -77,6 +76,6 @@ setup(
 
     install_requires = ['numpy', 'pandas', 'affine'],
 
-    python_requires='~=3.7',
+    python_requires='>=3.6, <4',
 
     )
