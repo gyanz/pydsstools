@@ -1,6 +1,12 @@
 pydsstools changelog
 ================
 
+0.8 (07-23-2019)
+-----------------
+* Added support for Python 3.6
+* Function for paired data label 
+* Documentation update
+
 0.7 (07-16-2019)
 -----------------
 * Bug fix reading time-series data

@@ -1,7 +1,7 @@
 About pydsstools
 ===
 
-pydsstools is an experimental Cython based Python library to manipulate [HEC-DSS](http://www.hec.usace.army.mil/software/hec-dssvue/) database file. It supports regular/irregular time-series, paired data series and spatial grid records. Currently, this library works only with  Python 3.7+ 64-bit on Windows machine.
+pydsstools is an experimental Cython based Python library to manipulate [HEC-DSS](http://www.hec.usace.army.mil/software/hec-dssvue/) database file. It supports regular/irregular time-series, paired data series and spatial grid records. Currently, this library works with Python 3.6+ 64-bit on Windows machine. Future release will support Ubuntu LTS.   
 
 About HEC-DSS <sup>[1]</sup>
 ===
@@ -10,17 +10,17 @@ HEC-DSS is designed to be optimal for storing and retrieving large sets, or seri
 
 HEC-DSS uses a block of sequential data as the basic unit of storage. Each block contains a series of values of a single variable over a time span appropriate for most applications. The basic concept underlying HEC-DSS is the organization of data into records of continuous, applications-related elements as opposed to individually addressable data items. This approach is more efficient for scientific applications than a relational database system because it avoids the processing and storage overhead required to assemble an equivalent record from a relational database.
 
-Data is stored in blocks, or records, within a file and each record is identified by a unique name called a "pathname.”Each time data is stored or retrieved from the file, its pathname is used to access its data. Information about the record (e.g., units) is stored in a "header array.”This includes the name of the program writing the data, the number of times the data has been written to, and the last written date and time. HEC-DSS documents stored data completely via information contained in the pathname and stored in the header so no additional information is required to identify it. One data set is not directly related to another so there is no need to update other areas of the database when a new data set is stored. The self-documenting nature of the database allows information to be recognized and understood months or years after it was stored.
+Data is stored in blocks, or records, within a file and each record is identified by a unique name called a "pathname." Each time data is stored or retrieved from the file, its pathname is used to access its data. Information about the record (e.g., units) is stored in a "header array." This includes the name of the program writing the data, the number of times the data has been written to, and the last written date and time. HEC-DSS documents stored data completely via information contained in the pathname and stored in the header so no additional information is required to identify it. One data set is not directly related to another so there is no need to update other areas of the database when a new data set is stored. The self-documenting nature of the database allows information to be recognized and understood months or years after it was stored.
 
 Because of the self-documenting nature of the pathname and the conventions adopted, there is no need for a data dictionary or data definition file as required with other database systems. In fact, there are no database creation tasks or any database setup. Both HEC-DSS utility programs and applications that use HEC-DSS will generate and configure HEC-DSS database files automatically. There is also no pre-allocation of space; the software automatically expands the file size as needed.
 
-HEC-DSS references data sets, or records, by their pathnames. A pathname may consist of up to 391 characters and is, by convention, separated into six parts, which may be up to 64 characters each. Each part is delimited by a slashe "/", and is labeled "A" through "F, as follows: /A/B/C/D/E/F/
+HEC-DSS references data sets, or records, by their pathnames. A pathname may consist of up to 391 characters and is, by convention, separated into six parts, which may be up to 64 characters each. Each part is delimited by a slashe "/", and is labeled "A" through "F", as follows: /A/B/C/D/E/F/
 
 A list of the pathnames in a DSS file is called a “catalog. In version 6, the catalog was a separate file; in version 7, the catalog is constructed directly from pathnames in the file.
 
 Multi-user access mode is handled automatically by HEC-DSS. The user does not need to do anything to turn it on. Multi-user access allows multiple users, multiple processes, to read and write to the same HEC-DSS file at the same time. This is true for a network drive as well as a local drive. You can have a shared network HEC-DSS file that has several processes reading and writing to it at the same time. The only drawback is that file access may be slower, depending on the operating system.
 
- 1. USACE, Hydrologic Engineering Center (July, 2019). Draft HEC Data Storage System Programmer's Guide.
+ 1. USACE, Hydrologic Engineering Center (July, 2019). HEC Data Storage System Guide (Draft).
 
 Changes
 ===
