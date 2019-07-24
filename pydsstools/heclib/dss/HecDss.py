@@ -154,8 +154,8 @@ class Open(_Open):
                     pass
                 tm_vals = sorted(zip(times,values),key=lambda x:x[0])
 
-                self.times = [t for t,v in tm_vals]
-                self.values = [v for t,v in tm_vals]
+                tsc.times = [t for t,v in tm_vals]
+                tsc.values = [v for t,v in tm_vals]
 
         super().put(tsc)
 
