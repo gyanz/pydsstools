@@ -13,9 +13,6 @@ import sys
 
 proj_dir = path.abspath(path.dirname(__file__))
 
-if not sys.platform.startswith('win'):
-    sys.exit('Sorry only Window is supported')
-
 arch_x64 = False
 if sys.maxsize > 2**32:
     arch_x64 = True
@@ -65,8 +62,12 @@ setup(
     package_data = {'':['*.txt','*.md',
                         '_lib/x86/py36/*.pyd',
                         '_lib/x86/py37/*.pyd',
+                        '_lib/x86/py36/*.so',
+                        '_lib/x86/py37/*.so',
                         '_lib/x64/py36/*.pyd',
                         '_lib/x64/py37/*.pyd',
+                        '_lib/x64/py36/*.so',
+                        '_lib/x64/py37/*.so',
                         'examples/*','LICENSE']},
 
     include_package_data = True,
