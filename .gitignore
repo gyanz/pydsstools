@@ -25,9 +25,9 @@
 *.class
 *.dll
 *.exe
-*.pxi
+*.px[di]
 *.o
-*.py[oc]
+*.py[ocx]
 .build_cache_dir
 MANIFEST
 

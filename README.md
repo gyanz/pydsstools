@@ -1,7 +1,7 @@
 About pydsstools
 ===
 
-pydsstools is an experimental Cython based Python library to manipulate [HEC-DSS](http://www.hec.usace.army.mil/software/hec-dssvue/) database file. It supports regular/irregular time-series, paired data series and spatial grid records. It is compatible with 64-bit Python 3.6 and 3.7 in Windows machine. On Linux side, 64-bit Python 3.6 is supported. It has been tested in Ubuntu 18.04.2 LTS and Linux Mint 19. It might work in other distributions derived from Ubuntu.   
+pydsstools is an experimental Cython based Python library to manipulate [HEC-DSS](http://www.hec.usace.army.mil/software/hec-dssvue/) database file. It supports regular/irregular time-series, paired data series and spatial grid records. It is compatible with 64-bit Python 3.6 and 3.7 in Windows machine. On Linux side, Ubuntu 18.04.2 LTS and Linux Mint 19 are compatible. It might also work in other Linux distributions.   
 
 About HEC-DSS <sup>[1]</sup>
 ===
@@ -14,7 +14,7 @@ Data is stored in blocks, or records, within a file and each record is identifie
 
 Because of the self-documenting nature of the pathname and the conventions adopted, there is no need for a data dictionary or data definition file as required with other database systems. In fact, there are no database creation tasks or any database setup. Both HEC-DSS utility programs and applications that use HEC-DSS will generate and configure HEC-DSS database files automatically. There is also no pre-allocation of space; the software automatically expands the file size as needed.
 
-HEC-DSS references data sets, or records, by their pathnames. A pathname may consist of up to 391 characters and is, by convention, separated into six parts, which may be up to 64 characters each. Each part is delimited by a slashe "/", and is labeled "A" through "F", as follows: /A/B/C/D/E/F/
+HEC-DSS references data sets, or records, by their pathnames. A pathname may consist of up to 391 characters and is, by convention, separated into six parts, which may be up to 64 characters each. Each part is delimited by a slashe "/", and is labeled "A" through "F", as follows: /A/B/C/D/E/F/.
 
 A list of the pathnames in a DSS file is called a "catalog." In version 6, the catalog was a separate file; in version 7, the catalog is constructed directly from pathnames in the file.
 

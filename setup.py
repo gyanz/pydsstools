@@ -53,7 +53,7 @@ setup(
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Water resources engineers :: Developers',
         'Operating System :: Windows',
-        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3',
      ],
 
     packages = find_packages(),
@@ -79,7 +79,7 @@ setup(
 
     install_requires = ['numpy', 'pandas', 'affine'],
 
-    python_requires='>=3.6, <4',
+    python_requires='>=3.6, <3.8',
 
     zip_safe = False,
 

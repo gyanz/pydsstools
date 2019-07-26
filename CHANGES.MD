@@ -1,10 +1,10 @@
 pydsstools changelog
 ================
 
-0.9 (07-25-2019)
+0.9 (07-26-2019)
 -----------------
-* Support for Ubuntu 18.04 LTS with Python 3.6 64-bit
-* Compiled with gcc 7.2
+* Support for Ubuntu 18.04 LTS, Mint 19
+* Compiled with gcc 8.3
 
 0.8 (07-23-2019)
 -----------------
