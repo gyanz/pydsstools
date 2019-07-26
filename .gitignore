@@ -28,7 +28,6 @@
 *.pxi
 *.o
 *.py[oc]
-*.so
 .build_cache_dir
 MANIFEST
 

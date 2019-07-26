@@ -156,6 +156,10 @@ class Open(_Open):
 
                 self.times = [t for t,v in tm_vals]
                 self.values = [v for t,v in tm_vals]
+        else:
+            if not len(tsc.values) == tsc.numberValues:
+                logging.error('numberValues attribute of TimeSeriesContainer not equal to length of values')
+                return
 
         super().put(tsc)
 

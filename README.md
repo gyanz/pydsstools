@@ -1,7 +1,7 @@
 About pydsstools
 ===
 
-pydsstools is an experimental Cython based Python library to manipulate [HEC-DSS](http://www.hec.usace.army.mil/software/hec-dssvue/) database file. It supports regular/irregular time-series, paired data series and spatial grid records. Currently, this library works with Python 3.6+ 64-bit on Windows machine. Future release will support Ubuntu LTS.   
+pydsstools is an experimental Cython based Python library to manipulate [HEC-DSS](http://www.hec.usace.army.mil/software/hec-dssvue/) database file. It supports regular/irregular time-series, paired data series and spatial grid records. Currently, this library works with 64-bit Python 3.6 and 3.7 on Windows machine and Python 3.6 on Ubuntu 18.04.2.   
 
 About HEC-DSS <sup>[1]</sup>
 ===
@@ -51,7 +51,7 @@ dss_file = "example.dss"
 pathname = "/REGULAR/TIMESERIES/FLOW//1HOUR/Ex1/"
 tsc = TimeSeriesContainer()
 tsc.pathname = pathname
-tsc.startDateTime=datetime.now().strftime('%d %b %Y %H:00')
+tsc.startDateTime = "15JUL2019 19:00:00"
 tsc.numberValues = 5
 tsc.units = "cfs"
 tsc.type = "INST"
