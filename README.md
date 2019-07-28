@@ -1,7 +1,7 @@
 About pydsstools
 ===
 
-pydsstools is an experimental Cython based Python library to manipulate [HEC-DSS](http://www.hec.usace.army.mil/software/hec-dssvue/) database file. It supports regular/irregular time-series, paired data series and spatial grid records. It is compatible with 64-bit Python 3.6 and 3.7 in Windows machine. On Linux side, Ubuntu 18.04.2 LTS and Linux Mint 19 are compatible. It might also work in other Linux distributions.   
+pydsstools is an experimental Cython based Python library to manipulate [HEC-DSS](http://www.hec.usace.army.mil/software/hec-dssvue/) database file. It supports regular/irregular time-series, paired data series and spatial grid records. It is compatible with 64-bit Python 3.6 and 3.7 in Windows machine. On Linux side, Ubuntu 18.04.2 LTS and Linux Mint 19 are compatible. It might also work in other Linux distributions. zlib, math, quadmath, and gfortran libraries must be installed.   
 
 About HEC-DSS <sup>[1]</sup>
 ===
