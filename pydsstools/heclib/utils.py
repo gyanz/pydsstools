@@ -1,4 +1,4 @@
-from ..core import (HecTime, DssStatusException, GranularityException,ArgumentException)
+from ..core import (HecTime, DssStatusException, GranularityException,ArgumentException,DssLastError)
 
 #getDateTimeValueTuple = core_heclib.getDateTimeValueTuple # args: dateValue, granularity
 #getDateTimeStringTuple = core_heclib.getDateTimeStringTuple # args: dateValue, granularity

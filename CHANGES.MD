@@ -1,5 +1,11 @@
 pydsstools changelog
 ================
+1.0 (08-07-2019)
+-----------------
+* Cython source code made public
+* Added DssLastError class, which gives detain info about last input/output error
+* Debugged HecTime and method to write irregular time-series to prevent overflow of time value 
+* Added example 14
 
 0.9 (07-26-2019)
 -----------------

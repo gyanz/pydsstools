@@ -4,6 +4,7 @@
 __all__ = ['Open']
 
 import logging
+from copy import copy
 from array import array
 from datetime import datetime
 import numpy as np
@@ -20,19 +21,17 @@ class Open(_Open):
         # version 7 is selected.
         super().__init__(dssFilename,version)
 
-    def read_ts(self,pathname,window=None,datetime_format=None,trim_missing=True,regular=True,window_flag=0):
+    def read_ts(self,pathname,window=None,trim_missing=True,regular=True,window_flag=0):
         """Read time-series
 
         Parameter
         ---------
             pathname: string, dss record pathname
 
-            window: tupele of start and end dates. default None
+            window: tuple of start and end dates. default None
                     dates can be either python datetime object or string
                     If None, honors date or D-part of pathname.
 
-            datetime_format: string, default None
-                             Needed if start/end date(s) is string
             regular: bool, default True
                      If False, the read data is treated as irregular time-series.
 
@@ -95,15 +94,19 @@ class Open(_Open):
         return super().read_window(pathname,sday,stime,eday,etime,retrieve_flag)
 
 
-    def put_ts(self,tsc,sort_times=False):
+    def put_ts(self,tsc,prevent_overflow=True):
         """Write time-series
 
         Parameter
         ---------
             tsc: TimeSeriesContainer
 
-            sort_times: bool, default False
-                        Sorts the data in ascending order of time element
+            prevent_overflow: bool, default True, applies to irregular time-series only  
+                  times are int32 values with origin (or Julian Base date) at 01Jan1900 00:00:00, 
+                  and can overflow for large/extreme dates or small granularity. To prevent int32 overflow, 
+                  the supplied minimum date is used as the origin. This may still overflow if
+                  extreme dates are supplied. In such case, write time-series data one at a time or 
+                  in a group with less extreme date variation.
 
         Returns
         --------
@@ -114,54 +117,68 @@ class Open(_Open):
             >>> ts = fid.read_ts(pathname,window=('10MAR2006 24:00:00', '09APR2006 24:00:00'))
             >>> ts = fid.read_ts(pathname,regular=False)
         """
-        if not tsc.interval > 0:
-            granularity = tsc.granularity
+        
+        if tsc.interval > 0:
+            # Regular time-series
+            if not len(tsc.values) == tsc.numberValues:
+                logging.error('numberValues attribute of TimeSeriesContainer not equal to length of values')
+                return
+            super().put(tsc)
+
+        else:
+            # Irregular time-series
             times = tsc.times
-            count = tsc.numberValues
+            times_copy = copy(times)
+            values_copy = copy(tsc.values)
+            julianbasedate = 0
+            time_values = []
+
             if not times or not isinstance(times,(list,tuple)):
                 logging.error('times for irregular time-series is not non-empty list or tuple')
                 return
 
-            if not (count == len(times)):
+            if not (tsc.numberValues == len(times)):
                 logging.error('times does not have correct number of elements')
                 return
 
-
-            if isinstance(times[0],str):
-                _times = []
-                for i in range(count):
-                    tm = HecTime(times[i],granularity)
-                    _times.append(tm.datetimeValue)
-                times = _times
-
-            elif isinstance(times[0],datetime):
-                times = [HecTime.getHecTimeFromPyDateTime(pydt,granularity).datetimeValue for pydt in times]
-
-            elif isinstance(times[0], int):
-                logging.warn('Integer value times provided will be interpreted using provided granularity.')
-
-            else:
-                logging.error('Invalid element type in times provided')
+            if not isinstance(times[0],(str,datetime)):
+                logging.error('times element must be datetime string or python datetime object')
                 return
+            
+            if tsc.granularity == 1:
+                pathobj=DssPathName(tsc.pathname)
+                epart = pathobj.getEPart().strip().upper()
+                if epart in ['IR-MONTH','IR-YEAR','IR-DECADE','IR-CENTURY']:
+                    logging.error('Granularity must be minute or larger')
+                    return
 
-            tsc.times = times
+            if isinstance(times[0],str) and prevent_overflow:
+                times = [HecTime.getPyDateTimeFromString(x) for x in times]
 
-            if sort_times:
-                values = tsc.values
-                try:
-                    values = values.tolist()
-                except:
-                    pass
-                tm_vals = sorted(zip(times,values),key=lambda x:x[0])
+            if isinstance(times[0],datetime):
+                min_date = min(times)
+                _julianbasedate = min_date.strftime('%d%b%Y')
+                julianbasedate = HecTime.getJulianDaysFromDate(_julianbasedate)
+                tsc._startDateBase = _julianbasedate
 
-                tsc.times = [t for t,v in tm_vals]
-                tsc.values = [v for t,v in tm_vals]
-        else:
-            if not len(tsc.values) == tsc.numberValues:
-                logging.error('numberValues attribute of TimeSeriesContainer not equal to length of values')
-                return
+            for i in range(tsc.numberValues):
+                tm = HecTime(times[i],tsc.granularity,julianbasedate)
+                time_values.append(tm.datetimeValue)
 
-        super().put(tsc)
+            values = tsc.values
+            try:
+                values = values.tolist()
+            except:
+                pass
+            key_val = sorted(zip(time_values,values),key=lambda x:x[0])
+
+            try:
+                tsc.times = [t for t,v in key_val]
+                tsc.values = [v for t,v in key_val]
+                super().put(tsc)
+            finally:
+                tsc.times = times_copy
+                tsc.values = values_copy
 
 
     def read_pd(self,pathname,window=None,dtype=None):

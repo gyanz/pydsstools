@@ -25,9 +25,13 @@
 *.class
 *.dll
 *.exe
-*.px[di]
+*.px[i]
 *.o
-*.py[ocx]
+*.obj
+*.lib
+*.manifest
+*.exp
+*.py[oc]
 .build_cache_dir
 MANIFEST
 
@@ -85,4 +89,8 @@ Thumbs.db
 # Documentation generated files #
 #################################
 API.MD
-
+*.html
+!pydsstools/_lib/x64/py37/doc/
+!pydsstools/_lib/x64/py36/doc/
+!pydsstools/_lib/x86/py37/doc/
+!pydsstools/_lib/x86/py36/doc/

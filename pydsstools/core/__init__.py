@@ -13,7 +13,8 @@ __all__ = ['core_heclib',
            'DssPathName',
            'DssStatusException',
            'GranularityException',
-           'ArgumentException']
+           'ArgumentException',
+           'DssLastError']
 
 
 from .._lib import *

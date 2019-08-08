@@ -34,7 +34,7 @@ with open(path.join(proj_dir,'README.md'), encoding='utf-8') as fid:
 setup(
     name='pydsstools',
 
-    version = '0.9',
+    version = '1.0',
 
     description ='Python library to read-write HEC-DSS database file',
 
