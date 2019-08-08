@@ -67,8 +67,7 @@ cdef class DssLastError:
             return self.err[0].filename
             
     def __dealloc__(self):
-        if self.err:
-            PyMem_Free(self.err)
+        PyMem_Free(self.err)
 
 class DssStatusException(Exception):
     def __init__(self,status,message=None):
