@@ -342,16 +342,17 @@ body.cython { font-family: courier; font-size: 12; }
 <pre class="cython line score-0">&#xA0;<span class="">020</span>:               3: "FILE",</pre>
 <pre class="cython line score-0">&#xA0;<span class="">021</span>:               4: "MEMORY"}</pre>
 <pre class="cython line score-0">&#xA0;<span class="">022</span>: </pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">023</span>: cdef class DssLastError:</pre>
+<pre class="cython line score-0">&#xA0;<span class="">023</span>: @cython.freelist(2)</pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">024</span>: cdef class DssLastError:</pre>
 <pre class='cython code score-0 '>struct __pyx_obj_11core_heclib_DssLastError {
   PyObject_HEAD
   struct hec_zdssLastError *err;
 };
 
-</pre><pre class="cython line score-0">&#xA0;<span class="">024</span>:     cdef:</pre>
-<pre class="cython line score-0">&#xA0;<span class="">025</span>:         hec_zdssLastError *err</pre>
-<pre class="cython line score-0">&#xA0;<span class="">026</span>: </pre>
-<pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">027</span>:     def __cinit__(self,*args,**kwargs):</pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">025</span>:     cdef:</pre>
+<pre class="cython line score-0">&#xA0;<span class="">026</span>:         hec_zdssLastError *err</pre>
+<pre class="cython line score-0">&#xA0;<span class="">027</span>: </pre>
+<pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">028</span>:     def __cinit__(self,*args,**kwargs):</pre>
 <pre class='cython code score-7 '>/* Python wrapper */
 static int __pyx_pw_11core_heclib_12DssLastError_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static int __pyx_pw_11core_heclib_12DssLastError_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
@@ -387,20 +388,20 @@ static int __pyx_pf_11core_heclib_12DssLastError___cinit__(struct __pyx_obj_11co
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
-</pre><pre class="cython line score-5" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">028</span>:         self.err= &lt;hec_zdssLastError *&gt;PyMem_Malloc(sizeof(hec_zdssLastError))</pre>
+</pre><pre class="cython line score-5" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">029</span>:         self.err= &lt;hec_zdssLastError *&gt;PyMem_Malloc(sizeof(hec_zdssLastError))</pre>
 <pre class='cython code score-5 '>  __pyx_v_self-&gt;err = ((struct hec_zdssLastError *)<span class='py_c_api'>PyMem_Malloc</span>((sizeof(struct hec_zdssLastError))));
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">029</span>:         if not self.err:</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">030</span>:         if not self.err:</pre>
 <pre class='cython code score-0 '>  __pyx_t_1 = ((!(__pyx_v_self-&gt;err != 0)) != 0);
   if (unlikely(__pyx_t_1)) {
 /* … */
   }
-</pre><pre class="cython line score-5" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">030</span>:             raise MemoryError()</pre>
-<pre class='cython code score-5 '>    <span class='py_c_api'>PyErr_NoMemory</span>(); <span class='error_goto'>__PYX_ERR(1, 30, __pyx_L1_error)</span>
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">031</span>:         zerror(self.err)</pre>
+</pre><pre class="cython line score-5" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">031</span>:             raise MemoryError()</pre>
+<pre class='cython code score-5 '>    <span class='py_c_api'>PyErr_NoMemory</span>(); <span class='error_goto'>__PYX_ERR(1, 31, __pyx_L1_error)</span>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">032</span>:         zerror(self.err)</pre>
 <pre class='cython code score-0 '>  (void)(zerror(__pyx_v_self-&gt;err));
-</pre><pre class="cython line score-0">&#xA0;<span class="">032</span>: </pre>
-<pre class="cython line score-0">&#xA0;<span class="">033</span>:     property errorCode:</pre>
-<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">034</span>:         def __get__(self):</pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">033</span>: </pre>
+<pre class="cython line score-0">&#xA0;<span class="">034</span>:     property errorCode:</pre>
+<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">035</span>:         def __get__(self):</pre>
 <pre class='cython code score-3 '>/* Python wrapper */
 static PyObject *__pyx_pw_11core_heclib_12DssLastError_9errorCode_1__get__(PyObject *__pyx_v_self); /*proto*/
 static PyObject *__pyx_pw_11core_heclib_12DssLastError_9errorCode_1__get__(PyObject *__pyx_v_self) {
@@ -429,16 +430,16 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_9errorCode___get__(struct
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
-</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">035</span>:             return self.err[0].errorCode</pre>
+</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">036</span>:             return self.err[0].errorCode</pre>
 <pre class='cython code score-3 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
-  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyInt_From_int</span>((__pyx_v_self-&gt;err[0]).errorCode);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 35, __pyx_L1_error)</span>
+  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyInt_From_int</span>((__pyx_v_self-&gt;err[0]).errorCode);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 36, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
-</pre><pre class="cython line score-0">&#xA0;<span class="">036</span>: </pre>
-<pre class="cython line score-0">&#xA0;<span class="">037</span>:     property errorNumber:</pre>
-<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">038</span>:         def __get__(self):</pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">037</span>: </pre>
+<pre class="cython line score-0">&#xA0;<span class="">038</span>:     property errorNumber:</pre>
+<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">039</span>:         def __get__(self):</pre>
 <pre class='cython code score-3 '>/* Python wrapper */
 static PyObject *__pyx_pw_11core_heclib_12DssLastError_11errorNumber_1__get__(PyObject *__pyx_v_self); /*proto*/
 static PyObject *__pyx_pw_11core_heclib_12DssLastError_11errorNumber_1__get__(PyObject *__pyx_v_self) {
@@ -467,16 +468,16 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_11errorNumber___get__(str
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
-</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">039</span>:             return self.err[0].errorNumber</pre>
+</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">040</span>:             return self.err[0].errorNumber</pre>
 <pre class='cython code score-3 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
-  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyInt_From_int</span>((__pyx_v_self-&gt;err[0]).errorNumber);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 39, __pyx_L1_error)</span>
+  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyInt_From_int</span>((__pyx_v_self-&gt;err[0]).errorNumber);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 40, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
-</pre><pre class="cython line score-0">&#xA0;<span class="">040</span>: </pre>
-<pre class="cython line score-0">&#xA0;<span class="">041</span>:     property errorType:</pre>
-<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">042</span>:         def __get__(self):</pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">041</span>: </pre>
+<pre class="cython line score-0">&#xA0;<span class="">042</span>:     property errorType:</pre>
+<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">043</span>:         def __get__(self):</pre>
 <pre class='cython code score-3 '>/* Python wrapper */
 static PyObject *__pyx_pw_11core_heclib_12DssLastError_9errorType_1__get__(PyObject *__pyx_v_self); /*proto*/
 static PyObject *__pyx_pw_11core_heclib_12DssLastError_9errorType_1__get__(PyObject *__pyx_v_self) {
@@ -505,16 +506,16 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_9errorType___get__(struct
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
-</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">043</span>:             return self.err[0].errorType</pre>
+</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">044</span>:             return self.err[0].errorType</pre>
 <pre class='cython code score-3 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
-  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyInt_From_int</span>((__pyx_v_self-&gt;err[0]).errorType);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 43, __pyx_L1_error)</span>
+  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyInt_From_int</span>((__pyx_v_self-&gt;err[0]).errorType);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 44, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
-</pre><pre class="cython line score-0">&#xA0;<span class="">044</span>: </pre>
-<pre class="cython line score-0">&#xA0;<span class="">045</span>:     property severity:</pre>
-<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">046</span>:         def __get__(self):</pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">045</span>: </pre>
+<pre class="cython line score-0">&#xA0;<span class="">046</span>:     property severity:</pre>
+<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">047</span>:         def __get__(self):</pre>
 <pre class='cython code score-3 '>/* Python wrapper */
 static PyObject *__pyx_pw_11core_heclib_12DssLastError_8severity_1__get__(PyObject *__pyx_v_self); /*proto*/
 static PyObject *__pyx_pw_11core_heclib_12DssLastError_8severity_1__get__(PyObject *__pyx_v_self) {
@@ -543,16 +544,16 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_8severity___get__(struct 
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
-</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">047</span>:             return self.err[0].severity</pre>
+</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">048</span>:             return self.err[0].severity</pre>
 <pre class='cython code score-3 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
-  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyInt_From_int</span>((__pyx_v_self-&gt;err[0]).severity);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 47, __pyx_L1_error)</span>
+  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyInt_From_int</span>((__pyx_v_self-&gt;err[0]).severity);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 48, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
-</pre><pre class="cython line score-0">&#xA0;<span class="">048</span>: </pre>
-<pre class="cython line score-0">&#xA0;<span class="">049</span>:     property systemError:</pre>
-<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">050</span>:         def __get__(self):</pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">049</span>: </pre>
+<pre class="cython line score-0">&#xA0;<span class="">050</span>:     property systemError:</pre>
+<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">051</span>:         def __get__(self):</pre>
 <pre class='cython code score-3 '>/* Python wrapper */
 static PyObject *__pyx_pw_11core_heclib_12DssLastError_11systemError_1__get__(PyObject *__pyx_v_self); /*proto*/
 static PyObject *__pyx_pw_11core_heclib_12DssLastError_11systemError_1__get__(PyObject *__pyx_v_self) {
@@ -581,16 +582,16 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_11systemError___get__(str
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
-</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">051</span>:             return self.err[0].systemError</pre>
+</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">052</span>:             return self.err[0].systemError</pre>
 <pre class='cython code score-3 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
-  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyInt_From_int</span>((__pyx_v_self-&gt;err[0]).systemError);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 51, __pyx_L1_error)</span>
+  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyInt_From_int</span>((__pyx_v_self-&gt;err[0]).systemError);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 52, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
-</pre><pre class="cython line score-0">&#xA0;<span class="">052</span>: </pre>
-<pre class="cython line score-0">&#xA0;<span class="">053</span>:     property errorMessage:</pre>
-<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">054</span>:         def __get__(self):</pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">053</span>: </pre>
+<pre class="cython line score-0">&#xA0;<span class="">054</span>:     property errorMessage:</pre>
+<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">055</span>:         def __get__(self):</pre>
 <pre class='cython code score-3 '>/* Python wrapper */
 static PyObject *__pyx_pw_11core_heclib_12DssLastError_12errorMessage_1__get__(PyObject *__pyx_v_self); /*proto*/
 static PyObject *__pyx_pw_11core_heclib_12DssLastError_12errorMessage_1__get__(PyObject *__pyx_v_self) {
@@ -619,16 +620,16 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_12errorMessage___get__(st
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
-</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">055</span>:             return self.err[0].errorMessage</pre>
+</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">056</span>:             return self.err[0].errorMessage</pre>
 <pre class='cython code score-3 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
-  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_FromString</span>((__pyx_v_self-&gt;err[0]).errorMessage);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 55, __pyx_L1_error)</span>
+  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_FromString</span>((__pyx_v_self-&gt;err[0]).errorMessage);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 56, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
-</pre><pre class="cython line score-0">&#xA0;<span class="">056</span>: </pre>
-<pre class="cython line score-0">&#xA0;<span class="">057</span>:     property systemErrorMessage:</pre>
-<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">058</span>:         def __get__(self):</pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">057</span>: </pre>
+<pre class="cython line score-0">&#xA0;<span class="">058</span>:     property systemErrorMessage:</pre>
+<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">059</span>:         def __get__(self):</pre>
 <pre class='cython code score-3 '>/* Python wrapper */
 static PyObject *__pyx_pw_11core_heclib_12DssLastError_18systemErrorMessage_1__get__(PyObject *__pyx_v_self); /*proto*/
 static PyObject *__pyx_pw_11core_heclib_12DssLastError_18systemErrorMessage_1__get__(PyObject *__pyx_v_self) {
@@ -657,16 +658,16 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_18systemErrorMessage___ge
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
-</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">059</span>:             return self.err[0].systemErrorMessage</pre>
+</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">060</span>:             return self.err[0].systemErrorMessage</pre>
 <pre class='cython code score-3 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
-  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_FromString</span>((__pyx_v_self-&gt;err[0]).systemErrorMessage);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 59, __pyx_L1_error)</span>
+  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_FromString</span>((__pyx_v_self-&gt;err[0]).systemErrorMessage);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 60, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
-</pre><pre class="cython line score-0">&#xA0;<span class="">060</span>: </pre>
-<pre class="cython line score-0">&#xA0;<span class="">061</span>:     property lastPathname:</pre>
-<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">062</span>:         def __get__(self):</pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">061</span>: </pre>
+<pre class="cython line score-0">&#xA0;<span class="">062</span>:     property lastPathname:</pre>
+<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">063</span>:         def __get__(self):</pre>
 <pre class='cython code score-3 '>/* Python wrapper */
 static PyObject *__pyx_pw_11core_heclib_12DssLastError_12lastPathname_1__get__(PyObject *__pyx_v_self); /*proto*/
 static PyObject *__pyx_pw_11core_heclib_12DssLastError_12lastPathname_1__get__(PyObject *__pyx_v_self) {
@@ -695,16 +696,16 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_12lastPathname___get__(st
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
-</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">063</span>:             return self.err[0].lastPathname</pre>
+</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">064</span>:             return self.err[0].lastPathname</pre>
 <pre class='cython code score-3 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
-  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_FromString</span>((__pyx_v_self-&gt;err[0]).lastPathname);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 63, __pyx_L1_error)</span>
+  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_FromString</span>((__pyx_v_self-&gt;err[0]).lastPathname);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 64, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
-</pre><pre class="cython line score-0">&#xA0;<span class="">064</span>: </pre>
-<pre class="cython line score-0">&#xA0;<span class="">065</span>:     property filename:</pre>
-<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">066</span>:         def __get__(self):</pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">065</span>: </pre>
+<pre class="cython line score-0">&#xA0;<span class="">066</span>:     property filename:</pre>
+<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">067</span>:         def __get__(self):</pre>
 <pre class='cython code score-3 '>/* Python wrapper */
 static PyObject *__pyx_pw_11core_heclib_12DssLastError_8filename_1__get__(PyObject *__pyx_v_self); /*proto*/
 static PyObject *__pyx_pw_11core_heclib_12DssLastError_8filename_1__get__(PyObject *__pyx_v_self) {
@@ -733,15 +734,15 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_8filename___get__(struct 
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
-</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">067</span>:             return self.err[0].filename</pre>
+</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">068</span>:             return self.err[0].filename</pre>
 <pre class='cython code score-3 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
-  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_FromString</span>((__pyx_v_self-&gt;err[0]).filename);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 67, __pyx_L1_error)</span>
+  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_FromString</span>((__pyx_v_self-&gt;err[0]).filename);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 68, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
-</pre><pre class="cython line score-0">&#xA0;<span class="">068</span>: </pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">069</span>:     def __dealloc__(self):</pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">069</span>: </pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">070</span>:     def __dealloc__(self):</pre>
 <pre class='cython code score-0 '>/* Python wrapper */
 static void __pyx_pw_11core_heclib_12DssLastError_3__dealloc__(PyObject *__pyx_v_self); /*proto*/
 static void __pyx_pw_11core_heclib_12DssLastError_3__dealloc__(PyObject *__pyx_v_self) {
@@ -760,13 +761,8 @@ static void __pyx_pf_11core_heclib_12DssLastError_2__dealloc__(struct __pyx_obj_
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
 }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">070</span>:         if self.err:</pre>
-<pre class='cython code score-0 '>  __pyx_t_1 = (__pyx_v_self-&gt;err != 0);
-  if (__pyx_t_1) {
-/* … */
-  }
-</pre><pre class="cython line score-5" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">071</span>:             PyMem_Free(self.err)</pre>
-<pre class='cython code score-5 '>    <span class='py_c_api'>PyMem_Free</span>(__pyx_v_self-&gt;err);
+</pre><pre class="cython line score-5" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">071</span>:         PyMem_Free(self.err)</pre>
+<pre class='cython code score-5 '>  <span class='py_c_api'>PyMem_Free</span>(__pyx_v_self-&gt;err);
 </pre><pre class="cython line score-0">&#xA0;<span class="">072</span>: </pre>
 <pre class="cython line score-26" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">073</span>: class DssStatusException(Exception):</pre>
 <pre class='cython code score-26 '>  __pyx_t_3 = <span class='py_c_api'>PyTuple_New</span>(1);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 73, __pyx_L1_error)</span>
@@ -977,10 +973,10 @@ static PyObject *__pyx_pf_11core_heclib_18DssStatusException___init__(CYTHON_UNU
 </pre><pre class="cython line score-0">&#xA0;<span class="">078</span>: </pre>
 <pre class="cython line score-31" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">079</span>: def isError(int status):</pre>
 <pre class='cython code score-31 '>/* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_7isError(PyObject *__pyx_self, PyObject *__pyx_arg_status); /*proto*/
-static char __pyx_doc_11core_heclib_6isError[] = "isError(int status)";
-static PyMethodDef __pyx_mdef_11core_heclib_7isError = {"isError", (PyCFunction)__pyx_pw_11core_heclib_7isError, METH_O, __pyx_doc_11core_heclib_6isError};
-static PyObject *__pyx_pw_11core_heclib_7isError(PyObject *__pyx_self, PyObject *__pyx_arg_status) {
+static PyObject *__pyx_pw_11core_heclib_9isError(PyObject *__pyx_self, PyObject *__pyx_arg_status); /*proto*/
+static char __pyx_doc_11core_heclib_8isError[] = "isError(int status)";
+static PyMethodDef __pyx_mdef_11core_heclib_9isError = {"isError", (PyCFunction)__pyx_pw_11core_heclib_9isError, METH_O, __pyx_doc_11core_heclib_8isError};
+static PyObject *__pyx_pw_11core_heclib_9isError(PyObject *__pyx_self, PyObject *__pyx_arg_status) {
   int __pyx_v_status;
   PyObject *__pyx_r = 0;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
@@ -994,14 +990,14 @@ static PyObject *__pyx_pw_11core_heclib_7isError(PyObject *__pyx_self, PyObject 
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11core_heclib_6isError(__pyx_self, ((int)__pyx_v_status));
+  __pyx_r = __pyx_pf_11core_heclib_8isError(__pyx_self, ((int)__pyx_v_status));
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_6isError(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_status) {
+static PyObject *__pyx_pf_11core_heclib_8isError(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_status) {
   struct __pyx_obj_11core_heclib_DssLastError *__pyx_v_err_obj = 0;
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
@@ -1028,7 +1024,7 @@ static PyObject *__pyx_pf_11core_heclib_6isError(CYTHON_UNUSED PyObject *__pyx_s
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__105);
   <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__105);
 /* … */
-  __pyx_t_3 = PyCFunction_NewEx(&amp;__pyx_mdef_11core_heclib_7isError, NULL, __pyx_n_s_core_heclib);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 79, __pyx_L1_error)</span>
+  __pyx_t_3 = PyCFunction_NewEx(&amp;__pyx_mdef_11core_heclib_9isError, NULL, __pyx_n_s_core_heclib);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 79, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
   if (<span class='py_c_api'>PyDict_SetItem</span>(__pyx_d, __pyx_n_s_isError, __pyx_t_3) &lt; 0) <span class='error_goto'>__PYX_ERR(1, 79, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_3); __pyx_t_3 = 0;

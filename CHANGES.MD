@@ -1,5 +1,10 @@
 pydsstools changelog
 ================
+
+1.1 (08-11-2019)
+-----------------
+* Adding logging/messaging output levels
+
 1.0 (08-07-2019)
 -----------------
 * Cython source code made public

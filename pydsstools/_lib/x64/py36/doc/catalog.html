@@ -714,7 +714,7 @@ static void __pyx_pf_11core_heclib_13CatalogStruct_6__dealloc__(struct __pyx_obj
 <pre class='cython code score-0 '>    zstructFree(__pyx_v_self-&gt;cts);
 </pre><pre class="cython line score-0">&#xA0;<span class="">074</span>: </pre>
 <pre class="cython line score-50" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">075</span>: cpdef CatalogStruct getPathnameCatalog(Open fid,str pathWithWild, int sort=0):</pre>
-<pre class='cython code score-50 '>static PyObject *__pyx_pw_11core_heclib_27getPathnameCatalog(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+<pre class='cython code score-50 '>static PyObject *__pyx_pw_11core_heclib_29getPathnameCatalog(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static struct __pyx_obj_11core_heclib_CatalogStruct *__pyx_f_11core_heclib_getPathnameCatalog(struct __pyx_obj_11core_heclib_Open *__pyx_v_fid, PyObject *__pyx_v_pathWithWild, CYTHON_UNUSED int __pyx_skip_dispatch, struct __pyx_opt_args_11core_heclib_getPathnameCatalog *__pyx_optional_args) {
   int __pyx_v_sort = ((int)0);
   PY_LONG_LONG *__pyx_v_ifltab;
@@ -747,9 +747,9 @@ static struct __pyx_obj_11core_heclib_CatalogStruct *__pyx_f_11core_heclib_getPa
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_27getPathnameCatalog(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_11core_heclib_26getPathnameCatalog[] = "getPathnameCatalog(Open fid, unicode pathWithWild, int sort=0) -&gt; CatalogStruct";
-static PyObject *__pyx_pw_11core_heclib_27getPathnameCatalog(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_11core_heclib_29getPathnameCatalog(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_11core_heclib_28getPathnameCatalog[] = "getPathnameCatalog(Open fid, unicode pathWithWild, int sort=0) -&gt; CatalogStruct";
+static PyObject *__pyx_pw_11core_heclib_29getPathnameCatalog(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   struct __pyx_obj_11core_heclib_Open *__pyx_v_fid = 0;
   PyObject *__pyx_v_pathWithWild = 0;
   int __pyx_v_sort;
@@ -821,7 +821,7 @@ static PyObject *__pyx_pw_11core_heclib_27getPathnameCatalog(PyObject *__pyx_sel
   __pyx_L4_argument_unpacking_done:;
   if (unlikely(!<span class='pyx_c_api'>__Pyx_ArgTypeTest</span>(((PyObject *)__pyx_v_fid), __pyx_ptype_11core_heclib_Open, 1, "fid", 0))) <span class='error_goto'>__PYX_ERR(8, 75, __pyx_L1_error)</span>
   if (unlikely(!<span class='pyx_c_api'>__Pyx_ArgTypeTest</span>(((PyObject *)__pyx_v_pathWithWild), (&amp;PyUnicode_Type), 1, "pathWithWild", 1))) <span class='error_goto'>__PYX_ERR(8, 75, __pyx_L1_error)</span>
-  __pyx_r = __pyx_pf_11core_heclib_26getPathnameCatalog(__pyx_self, __pyx_v_fid, __pyx_v_pathWithWild, __pyx_v_sort);
+  __pyx_r = __pyx_pf_11core_heclib_28getPathnameCatalog(__pyx_self, __pyx_v_fid, __pyx_v_pathWithWild, __pyx_v_sort);
 
   /* function exit code */
   goto __pyx_L0;
@@ -832,7 +832,7 @@ static PyObject *__pyx_pw_11core_heclib_27getPathnameCatalog(PyObject *__pyx_sel
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_26getPathnameCatalog(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_11core_heclib_Open *__pyx_v_fid, PyObject *__pyx_v_pathWithWild, int __pyx_v_sort) {
+static PyObject *__pyx_pf_11core_heclib_28getPathnameCatalog(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_11core_heclib_Open *__pyx_v_fid, PyObject *__pyx_v_pathWithWild, int __pyx_v_sort) {
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("getPathnameCatalog", 0);
@@ -924,7 +924,7 @@ struct __pyx_opt_args_11core_heclib_getPathnameCatalog {
   goto __pyx_L0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">091</span>: </pre>
 <pre class="cython line score-36" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">092</span>: cpdef int deletePathname(Open fid,str pathname):</pre>
-<pre class='cython code score-36 '>static PyObject *__pyx_pw_11core_heclib_29deletePathname(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+<pre class='cython code score-36 '>static PyObject *__pyx_pw_11core_heclib_31deletePathname(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static int __pyx_f_11core_heclib_deletePathname(struct __pyx_obj_11core_heclib_Open *__pyx_v_fid, PyObject *__pyx_v_pathname, CYTHON_UNUSED int __pyx_skip_dispatch) {
   PY_LONG_LONG *__pyx_v_ifltab;
   char const *__pyx_v_path_name;
@@ -943,9 +943,9 @@ static int __pyx_f_11core_heclib_deletePathname(struct __pyx_obj_11core_heclib_O
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_29deletePathname(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_11core_heclib_28deletePathname[] = "deletePathname(Open fid, unicode pathname) -&gt; int";
-static PyObject *__pyx_pw_11core_heclib_29deletePathname(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_11core_heclib_31deletePathname(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_11core_heclib_30deletePathname[] = "deletePathname(Open fid, unicode pathname) -&gt; int";
+static PyObject *__pyx_pw_11core_heclib_31deletePathname(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   struct __pyx_obj_11core_heclib_Open *__pyx_v_fid = 0;
   PyObject *__pyx_v_pathname = 0;
   PyObject *__pyx_r = 0;
@@ -999,7 +999,7 @@ static PyObject *__pyx_pw_11core_heclib_29deletePathname(PyObject *__pyx_self, P
   __pyx_L4_argument_unpacking_done:;
   if (unlikely(!<span class='pyx_c_api'>__Pyx_ArgTypeTest</span>(((PyObject *)__pyx_v_fid), __pyx_ptype_11core_heclib_Open, 1, "fid", 0))) <span class='error_goto'>__PYX_ERR(8, 92, __pyx_L1_error)</span>
   if (unlikely(!<span class='pyx_c_api'>__Pyx_ArgTypeTest</span>(((PyObject *)__pyx_v_pathname), (&amp;PyUnicode_Type), 1, "pathname", 1))) <span class='error_goto'>__PYX_ERR(8, 92, __pyx_L1_error)</span>
-  __pyx_r = __pyx_pf_11core_heclib_28deletePathname(__pyx_self, __pyx_v_fid, __pyx_v_pathname);
+  __pyx_r = __pyx_pf_11core_heclib_30deletePathname(__pyx_self, __pyx_v_fid, __pyx_v_pathname);
 
   /* function exit code */
   goto __pyx_L0;
@@ -1010,7 +1010,7 @@ static PyObject *__pyx_pw_11core_heclib_29deletePathname(PyObject *__pyx_self, P
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_28deletePathname(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_11core_heclib_Open *__pyx_v_fid, PyObject *__pyx_v_pathname) {
+static PyObject *__pyx_pf_11core_heclib_30deletePathname(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_11core_heclib_Open *__pyx_v_fid, PyObject *__pyx_v_pathname) {
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("deletePathname", 0);

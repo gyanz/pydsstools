@@ -12,3 +12,4 @@ from collections import namedtuple
 import numpy as np 
 np.seterr(over='raise')
 cimport numpy as np 
+cimport cython

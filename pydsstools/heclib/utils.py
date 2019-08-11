@@ -1,15 +1,61 @@
-from ..core import (HecTime, DssStatusException, GranularityException,ArgumentException,DssLastError)
+import logging
+from ..core import (HecTime, DssStatusException, GranularityException,ArgumentException,DssLastError,setMessageLevel)
 
-#getDateTimeValueTuple = core_heclib.getDateTimeValueTuple # args: dateValue, granularity
-#getDateTimeStringTuple = core_heclib.getDateTimeStringTuple # args: dateValue, granularity
+__all__ = ['dss_logging','HecTime', 'DssStatusException', 'GranularityException', 'ArgumentException', 'DssLastError']
 
-# HecTime args: dateString, granularity
+log_level = {0: 'None',
+             1: 'Error',
+             2: 'Critical',
+             3: 'General',
+             4: 'Info',
+             5: 'Debug',
+             6: 'Diagnostic'}
 
-def pydatetime(*args):
-    if len(args) == 1 and isinstance(args[0],str):
-        # args: dateString
-        return HecTime.getPyDateTimeFromString(args[0])
+_log_level = dict(zip(log_level.values(),log_level.keys()))
 
-    # args: dateValue, granularity
-    return HecTime.getPyDateTimeFromValue(*args)
+log_method =  {0:  'ALL',
+               1:  'VER7',
+               2:  'READ_LOWLEVEL',
+               3:  'WRITE_LOWLEVEL',
+               4:  'READ',
+               5:  'WRITE',
+               6:  '_',
+               7:  'OPEN',
+               8:  'CHECK_RECORD',
+               9:  'LOCKING',
+              10: 'READ_TS',
+              11: 'WRITE_TS',
+              12: 'ALIAS',
+              13: 'COPY',
+              14: 'UTILITY',
+              15: 'CATALOG',
+              16: 'FILE_INTEGRITY'}
 
+class DssLogging(object):
+    def setLevel(self,level):
+        if level in log_level:
+            pass
+        elif level in _log_level:
+            level = _log_level[level]
+        else:
+            logging.warn('Invalid Dss Logging Level ignored')
+            return
+
+        logging.warn('***Setting DSS Logging***')
+        setMessagelevel(1,level)
+
+    def config(self,method,level):
+        if method in log_method:
+            if level in log_level:
+                pass
+            elif level in _log_level:
+                level = _log_level[level]
+            else:
+                logging.warn('Invalid Dss Logging Level ignored')
+                return
+            logging.warn('***Setting DSS Logging***')
+            setMessageLevel(method,level)
+        else:
+            logging.warn('Invalid Dss Logging Method ignored')
+
+dss_logging = DssLogging()

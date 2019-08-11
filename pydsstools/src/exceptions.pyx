@@ -20,6 +20,7 @@ ErrorTypes = {0: "None",
               3: "FILE",
               4: "MEMORY"}
 
+@cython.freelist(2)
 cdef class DssLastError:
     cdef:
         hec_zdssLastError *err
