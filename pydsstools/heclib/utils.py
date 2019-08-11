@@ -42,7 +42,7 @@ class DssLogging(object):
             return
 
         logging.warn('***Setting DSS Logging***')
-        setMessagelevel(1,level)
+        setMessagelevel(0,level)
 
     def config(self,method,level):
         if method in log_method:
