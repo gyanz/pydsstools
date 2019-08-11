@@ -15,11 +15,14 @@ from ...core.grid import SpatialGridStruct
 from ...core import getPathnameCatalog, deletePathname,PairedDataContainer,HecTime,DssPathName
 
 class Open(_Open):
-    def __init__(self,dssFilename,version=None):
+    def __init__(self,dssFilename,version=None,logging_method = 0,logging_level='General'):
         #version = HEC-DSS version  6 or 7, automatically selected based on
         #the existing file type. When version is not specified for new file,
         # version 7 is selected.
         super().__init__(dssFilename,version)
+        if logging_method != 0 or logging_level != 'General':
+            from ..utils import dss_logging
+            dss_logging.config(logging_method,logging_level)
 
     def read_ts(self,pathname,window=None,trim_missing=True,regular=True,window_flag=0):
         """Read time-series
@@ -146,6 +149,7 @@ class Open(_Open):
                 return
             
             if tsc.granularity == 1:
+                # TODO: Implement more restrictions with second granularity
                 pathobj=DssPathName(tsc.pathname)
                 epart = pathobj.getEPart().strip().upper()
                 if epart in ['IR-MONTH','IR-YEAR','IR-DECADE','IR-CENTURY']:

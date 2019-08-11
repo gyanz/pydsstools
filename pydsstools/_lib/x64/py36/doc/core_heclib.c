@@ -1572,8 +1572,8 @@ struct __pyx_obj_11core_heclib_Open {
 };
 
 
-/* "../utils.pyx":35
- *         logging.error("Wrong filename or encoding (not ascii or byte) ")
+/* "../utils.pyx":38
+ *     zsetMessageLevel(methodID, levelID)
  * 
  * cdef class dss_info:             # <<<<<<<<<<<<<<
  *     cdef:
@@ -1598,9 +1598,9 @@ struct __pyx_obj_11core_heclib_dss_info {
 };
 
 
-/* "../exceptions.pyx":23
- *               4: "MEMORY"}
+/* "../exceptions.pyx":24
  * 
+ * @cython.freelist(2)
  * cdef class DssLastError:             # <<<<<<<<<<<<<<
  *     cdef:
  *         hec_zdssLastError *err
@@ -3233,6 +3233,7 @@ static PyObject *__pyx_f_11core_heclib_pd_size(PY_LONG_LONG *, char *); /*proto*
 static struct __pyx_obj_11core_heclib_PairedDataStruct *__pyx_f_11core_heclib_preallocNewPairedData(struct __pyx_obj_11core_heclib_PairedDataContainer *); /*proto*/
 static struct __pyx_obj_11core_heclib_PairedDataStruct *__pyx_f_11core_heclib_createOnePairedData(PY_LONG_LONG *, struct __pyx_obj_11core_heclib_PairedDataContainer *, int, struct __pyx_opt_args_11core_heclib_createOnePairedData *__pyx_optional_args); /*proto*/
 static struct __pyx_obj_11core_heclib_PairedDataStruct *__pyx_f_11core_heclib_createNewFloatPairedData(struct __pyx_obj_11core_heclib_PairedDataContainer *); /*proto*/
+static void __pyx_f_11core_heclib_setMessageLevel(int, int, int __pyx_skip_dispatch); /*proto*/
 static int __pyx_f_11core_heclib_copyRecord(struct __pyx_obj_11core_heclib_Open *, struct __pyx_obj_11core_heclib_Open *, PyObject *, PyObject *); /*proto*/
 static int __pyx_f_11core_heclib_copyRecordTo(struct __pyx_obj_11core_heclib_Open *, PyObject *, PyObject *, PyObject *, int __pyx_skip_dispatch); /*proto*/
 static int __pyx_f_11core_heclib_get_grid_version(struct __pyx_obj_11core_heclib_Open *, PyObject *, int __pyx_skip_dispatch); /*proto*/
@@ -3528,6 +3529,7 @@ static const char __pyx_k_float32[] = "float32";
 static const char __pyx_k_float64[] = "float64";
 static const char __pyx_k_fortran[] = "fortran";
 static const char __pyx_k_isError[] = "isError";
+static const char __pyx_k_levelID[] = "levelID";
 static const char __pyx_k_logging[] = "logging";
 static const char __pyx_k_memview[] = "memview";
 static const char __pyx_k_message[] = "message";
@@ -3572,6 +3574,7 @@ static const char __pyx_k_getstate[] = "__getstate__";
 static const char __pyx_k_interval[] = "interval";
 static const char __pyx_k_itemsize[] = "itemsize";
 static const char __pyx_k_jul_days[] = "jul_days";
+static const char __pyx_k_methodID[] = "methodID";
 static const char __pyx_k_new_date[] = "_new_date";
 static const char __pyx_k_pathname[] = "pathname";
 static const char __pyx_k_property[] = "property";
@@ -4259,6 +4262,7 @@ static PyObject *__pyx_n_s_labels;
 static PyObject *__pyx_n_u_labels_list;
 static PyObject *__pyx_n_u_left;
 static PyObject *__pyx_kp_u_length;
+static PyObject *__pyx_n_s_levelID;
 static PyObject *__pyx_n_u_linear;
 static PyObject *__pyx_n_s_logging;
 static PyObject *__pyx_n_s_lower;
@@ -4271,6 +4275,7 @@ static PyObject *__pyx_n_u_mean;
 static PyObject *__pyx_n_s_memview;
 static PyObject *__pyx_n_s_message;
 static PyObject *__pyx_n_s_metaclass;
+static PyObject *__pyx_n_s_methodID;
 static PyObject *__pyx_n_u_min;
 static PyObject *__pyx_n_s_minute;
 static PyObject *__pyx_n_s_minutes;
@@ -4585,6 +4590,7 @@ static PyObject *__pyx_pf_11core_heclib_4Open_12write_status___get__(struct __py
 static PyObject *__pyx_pf_11core_heclib_4Open_36__reduce_cython__(struct __pyx_obj_11core_heclib_Open *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_11core_heclib_4Open_38__setstate_cython__(struct __pyx_obj_11core_heclib_Open *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
 static PyObject *__pyx_pf_11core_heclib_str2ascii(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_file); /* proto */
+static PyObject *__pyx_pf_11core_heclib_2setMessageLevel(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_methodID, int __pyx_v_levelID); /* proto */
 static int __pyx_pf_11core_heclib_8dss_info___init__(struct __pyx_obj_11core_heclib_dss_info *__pyx_v_self, struct __pyx_obj_11core_heclib_Open *__pyx_v_fid, char *__pyx_v_pathname); /* proto */
 static PyObject *__pyx_pf_11core_heclib_8dss_info_8dataType___get__(struct __pyx_obj_11core_heclib_dss_info *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_11core_heclib_8dss_info_9data_type___get__(struct __pyx_obj_11core_heclib_dss_info *__pyx_v_self); /* proto */
@@ -4601,8 +4607,8 @@ static PyObject *__pyx_pf_11core_heclib_8dss_info_14pdLabelsLength___get__(struc
 static PyObject *__pyx_pf_11core_heclib_8dss_info_6status___get__(struct __pyx_obj_11core_heclib_dss_info *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_11core_heclib_8dss_info_2__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_11core_heclib_dss_info *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_11core_heclib_8dss_info_4__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_11core_heclib_dss_info *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_pf_11core_heclib_2copyRecordTo(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_11core_heclib_Open *__pyx_v_copyFrom, PyObject *__pyx_v_copyToFile, PyObject *__pyx_v_pathnameFrom, PyObject *__pyx_v_pathnameTo); /* proto */
-static PyObject *__pyx_pf_11core_heclib_4get_grid_version(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_11core_heclib_Open *__pyx_v__open, PyObject *__pyx_v_pathname); /* proto */
+static PyObject *__pyx_pf_11core_heclib_4copyRecordTo(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_11core_heclib_Open *__pyx_v_copyFrom, PyObject *__pyx_v_copyToFile, PyObject *__pyx_v_pathnameFrom, PyObject *__pyx_v_pathnameTo); /* proto */
+static PyObject *__pyx_pf_11core_heclib_6get_grid_version(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_11core_heclib_Open *__pyx_v__open, PyObject *__pyx_v_pathname); /* proto */
 static PyObject *__pyx_pf_11core_heclib_11DssPathName___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_pathname); /* proto */
 static PyObject *__pyx_pf_11core_heclib_11DssPathName_2parse(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_11core_heclib_11DssPathName_4__repr__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
@@ -4633,19 +4639,19 @@ static void __pyx_pf_11core_heclib_12DssLastError_2__dealloc__(struct __pyx_obj_
 static PyObject *__pyx_pf_11core_heclib_12DssLastError_4__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_11core_heclib_DssLastError *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_11core_heclib_12DssLastError_6__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_11core_heclib_DssLastError *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
 static PyObject *__pyx_pf_11core_heclib_18DssStatusException___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_status, PyObject *__pyx_v_message); /* proto */
-static PyObject *__pyx_pf_11core_heclib_6isError(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_status); /* proto */
+static PyObject *__pyx_pf_11core_heclib_8isError(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_status); /* proto */
 static PyObject *__pyx_pf_11core_heclib_20GranularityException___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_granularity_value, PyObject *__pyx_v_message); /* proto */
 static PyObject *__pyx_pf_11core_heclib_16DssPathException___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_msg); /* proto */
 static PyObject *__pyx_pf_11core_heclib_16DssPathException_2__repr__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_11core_heclib_8_dateToJulian(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateString); /* proto */
-static PyObject *__pyx_pf_11core_heclib_10_julianToDate(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_days, int __pyx_v_fmt); /* proto */
-static PyObject *__pyx_pf_11core_heclib_12_getDateAndTime(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_timeMinOrSec, int __pyx_v_timeGranularitySeconds, int __pyx_v_julianBaseDate); /* proto */
-static PyObject *__pyx_pf_11core_heclib_14_datetimeToSeconds(CYTHON_UNUSED PyObject *__pyx_self, char *__pyx_v_datetimeString); /* proto */
-static PyObject *__pyx_pf_11core_heclib_16_datetimeToSeconds2(CYTHON_UNUSED PyObject *__pyx_self, char *__pyx_v_datetimeString); /* proto */
-static PyObject *__pyx_pf_11core_heclib_18getDateTimeStringTuple(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateValue, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate); /* proto */
-static PyObject *__pyx_pf_11core_heclib_20getPyDateTimeFromString(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateString); /* proto */
-static PyObject *__pyx_pf_11core_heclib_22getPyDateTimeFromValue(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateValue, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate); /* proto */
-static PyObject *__pyx_pf_11core_heclib_24getDateTimeValueTuple(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateValue, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate); /* proto */
+static PyObject *__pyx_pf_11core_heclib_10_dateToJulian(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateString); /* proto */
+static PyObject *__pyx_pf_11core_heclib_12_julianToDate(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_days, int __pyx_v_fmt); /* proto */
+static PyObject *__pyx_pf_11core_heclib_14_getDateAndTime(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_timeMinOrSec, int __pyx_v_timeGranularitySeconds, int __pyx_v_julianBaseDate); /* proto */
+static PyObject *__pyx_pf_11core_heclib_16_datetimeToSeconds(CYTHON_UNUSED PyObject *__pyx_self, char *__pyx_v_datetimeString); /* proto */
+static PyObject *__pyx_pf_11core_heclib_18_datetimeToSeconds2(CYTHON_UNUSED PyObject *__pyx_self, char *__pyx_v_datetimeString); /* proto */
+static PyObject *__pyx_pf_11core_heclib_20getDateTimeStringTuple(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateValue, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate); /* proto */
+static PyObject *__pyx_pf_11core_heclib_22getPyDateTimeFromString(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateString); /* proto */
+static PyObject *__pyx_pf_11core_heclib_24getPyDateTimeFromValue(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateValue, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate); /* proto */
+static PyObject *__pyx_pf_11core_heclib_26getDateTimeValueTuple(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateValue, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate); /* proto */
 static PyObject *__pyx_pf_11core_heclib_7HecTime___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_datetimeString, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate); /* proto */
 static PyObject *__pyx_pf_11core_heclib_7HecTime_2granularity(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_11core_heclib_7HecTime_4datetimeValue(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
@@ -4698,9 +4704,9 @@ static PyObject *__pyx_pf_11core_heclib_13CatalogStruct_4numberPathnames(struct 
 static void __pyx_pf_11core_heclib_13CatalogStruct_6__dealloc__(struct __pyx_obj_11core_heclib_CatalogStruct *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_11core_heclib_13CatalogStruct_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_11core_heclib_CatalogStruct *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_11core_heclib_13CatalogStruct_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_11core_heclib_CatalogStruct *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_pf_11core_heclib_26getPathnameCatalog(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_11core_heclib_Open *__pyx_v_fid, PyObject *__pyx_v_pathWithWild, int __pyx_v_sort); /* proto */
-static PyObject *__pyx_pf_11core_heclib_28deletePathname(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_11core_heclib_Open *__pyx_v_fid, PyObject *__pyx_v_pathname); /* proto */
-static PyObject *__pyx_pf_11core_heclib_30__pyx_unpickle_Open(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_11core_heclib_28getPathnameCatalog(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_11core_heclib_Open *__pyx_v_fid, PyObject *__pyx_v_pathWithWild, int __pyx_v_sort); /* proto */
+static PyObject *__pyx_pf_11core_heclib_30deletePathname(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_11core_heclib_Open *__pyx_v_fid, PyObject *__pyx_v_pathname); /* proto */
+static PyObject *__pyx_pf_11core_heclib_32__pyx_unpickle_Open(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
 static int __pyx_pf_7cpython_5array_5array___getbuffer__(arrayobject *__pyx_v_self, Py_buffer *__pyx_v_info, CYTHON_UNUSED int __pyx_v_flags); /* proto */
 static void __pyx_pf_7cpython_5array_5array_2__releasebuffer__(CYTHON_UNUSED arrayobject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
@@ -24080,7 +24086,7 @@ static PyObject *__pyx_pf_11core_heclib_str2ascii(CYTHON_UNUSED PyObject *__pyx_
  *     else:
  *         logging.error("Wrong filename or encoding (not ascii or byte) ")             # <<<<<<<<<<<<<<
  * 
- * cdef class dss_info:
+ * cpdef void setMessageLevel(int methodID,int levelID):
  */
   /*else*/ {
     __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_logging); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 33, __pyx_L1_error)
@@ -24129,7 +24135,126 @@ static PyObject *__pyx_pf_11core_heclib_str2ascii(CYTHON_UNUSED PyObject *__pyx_
   return __pyx_r;
 }
 
-/* "../utils.pyx":56
+/* "../utils.pyx":35
+ *         logging.error("Wrong filename or encoding (not ascii or byte) ")
+ * 
+ * cpdef void setMessageLevel(int methodID,int levelID):             # <<<<<<<<<<<<<<
+ *     zsetMessageLevel(methodID, levelID)
+ * 
+ */
+
+static PyObject *__pyx_pw_11core_heclib_3setMessageLevel(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static void __pyx_f_11core_heclib_setMessageLevel(int __pyx_v_methodID, int __pyx_v_levelID, CYTHON_UNUSED int __pyx_skip_dispatch) {
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("setMessageLevel", 0);
+
+  /* "../utils.pyx":36
+ * 
+ * cpdef void setMessageLevel(int methodID,int levelID):
+ *     zsetMessageLevel(methodID, levelID)             # <<<<<<<<<<<<<<
+ * 
+ * cdef class dss_info:
+ */
+  zsetMessageLevel(__pyx_v_methodID, __pyx_v_levelID);
+
+  /* "../utils.pyx":35
+ *         logging.error("Wrong filename or encoding (not ascii or byte) ")
+ * 
+ * cpdef void setMessageLevel(int methodID,int levelID):             # <<<<<<<<<<<<<<
+ *     zsetMessageLevel(methodID, levelID)
+ * 
+ */
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+}
+
+/* Python wrapper */
+static PyObject *__pyx_pw_11core_heclib_3setMessageLevel(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_11core_heclib_2setMessageLevel[] = "setMessageLevel(int methodID, int levelID) -> void";
+static PyObject *__pyx_pw_11core_heclib_3setMessageLevel(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  int __pyx_v_methodID;
+  int __pyx_v_levelID;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("setMessageLevel (wrapper)", 0);
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_methodID,&__pyx_n_s_levelID,0};
+    PyObject* values[2] = {0,0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        CYTHON_FALLTHROUGH;
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_methodID)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+        CYTHON_FALLTHROUGH;
+        case  1:
+        if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_levelID)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("setMessageLevel", 1, 2, 2, 1); __PYX_ERR(0, 35, __pyx_L3_error)
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "setMessageLevel") < 0)) __PYX_ERR(0, 35, __pyx_L3_error)
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+    }
+    __pyx_v_methodID = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_methodID == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 35, __pyx_L3_error)
+    __pyx_v_levelID = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_levelID == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 35, __pyx_L3_error)
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("setMessageLevel", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 35, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("core_heclib.setMessageLevel", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_11core_heclib_2setMessageLevel(__pyx_self, __pyx_v_methodID, __pyx_v_levelID);
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_11core_heclib_2setMessageLevel(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_methodID, int __pyx_v_levelID) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  __Pyx_RefNannySetupContext("setMessageLevel", 0);
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_11core_heclib_setMessageLevel(__pyx_v_methodID, __pyx_v_levelID, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 35, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("core_heclib.setMessageLevel", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "../utils.pyx":59
  *         readonly int status
  * 
  *     def __init__(self,Open fid,char *pathname):             # <<<<<<<<<<<<<<
@@ -24168,11 +24293,11 @@ static int __pyx_pw_11core_heclib_8dss_info_1__init__(PyObject *__pyx_v_self, Py
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_pathname)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, 1); __PYX_ERR(0, 56, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, 1); __PYX_ERR(0, 59, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 56, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 59, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -24181,17 +24306,17 @@ static int __pyx_pw_11core_heclib_8dss_info_1__init__(PyObject *__pyx_v_self, Py
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
     __pyx_v_fid = ((struct __pyx_obj_11core_heclib_Open *)values[0]);
-    __pyx_v_pathname = __Pyx_PyObject_AsWritableString(values[1]); if (unlikely((!__pyx_v_pathname) && PyErr_Occurred())) __PYX_ERR(0, 56, __pyx_L3_error)
+    __pyx_v_pathname = __Pyx_PyObject_AsWritableString(values[1]); if (unlikely((!__pyx_v_pathname) && PyErr_Occurred())) __PYX_ERR(0, 59, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 56, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 59, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("core_heclib.dss_info.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_fid), __pyx_ptype_11core_heclib_Open, 1, "fid", 0))) __PYX_ERR(0, 56, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_fid), __pyx_ptype_11core_heclib_Open, 1, "fid", 0))) __PYX_ERR(0, 59, __pyx_L1_error)
   __pyx_r = __pyx_pf_11core_heclib_8dss_info___init__(((struct __pyx_obj_11core_heclib_dss_info *)__pyx_v_self), __pyx_v_fid, __pyx_v_pathname);
 
   /* function exit code */
@@ -24211,7 +24336,7 @@ static int __pyx_pf_11core_heclib_8dss_info___init__(struct __pyx_obj_11core_hec
   int __pyx_t_3;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "../utils.pyx":57
+  /* "../utils.pyx":60
  * 
  *     def __init__(self,Open fid,char *pathname):
  *         self.recordSize = zstructRecordSizeNew(pathname)             # <<<<<<<<<<<<<<
@@ -24220,7 +24345,7 @@ static int __pyx_pf_11core_heclib_8dss_info___init__(struct __pyx_obj_11core_hec
  */
   __pyx_v_self->recordSize = zstructRecordSizeNew(__pyx_v_pathname);
 
-  /* "../utils.pyx":58
+  /* "../utils.pyx":61
  *     def __init__(self,Open fid,char *pathname):
  *         self.recordSize = zstructRecordSizeNew(pathname)
  *         self.status = zgetRecordSize(fid.ifltab,self.recordSize)             # <<<<<<<<<<<<<<
@@ -24229,7 +24354,7 @@ static int __pyx_pf_11core_heclib_8dss_info___init__(struct __pyx_obj_11core_hec
  */
   __pyx_v_self->status = zgetRecordSize(__pyx_v_fid->ifltab, __pyx_v_self->recordSize);
 
-  /* "../utils.pyx":59
+  /* "../utils.pyx":62
  *         self.recordSize = zstructRecordSizeNew(pathname)
  *         self.status = zgetRecordSize(fid.ifltab,self.recordSize)
  *         if not self.status == 0: # STATUS_OK != 0             # <<<<<<<<<<<<<<
@@ -24239,7 +24364,7 @@ static int __pyx_pf_11core_heclib_8dss_info___init__(struct __pyx_obj_11core_hec
   __pyx_t_1 = ((!((__pyx_v_self->status == 0) != 0)) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "../utils.pyx":60
+    /* "../utils.pyx":63
  *         self.status = zgetRecordSize(fid.ifltab,self.recordSize)
  *         if not self.status == 0: # STATUS_OK != 0
  *             zstructFree(self.recordSize)             # <<<<<<<<<<<<<<
@@ -24248,7 +24373,7 @@ static int __pyx_pf_11core_heclib_8dss_info___init__(struct __pyx_obj_11core_hec
  */
     zstructFree(__pyx_v_self->recordSize);
 
-    /* "../utils.pyx":61
+    /* "../utils.pyx":64
  *         if not self.status == 0: # STATUS_OK != 0
  *             zstructFree(self.recordSize)
  *             self.recordSize=NULL             # <<<<<<<<<<<<<<
@@ -24257,20 +24382,20 @@ static int __pyx_pf_11core_heclib_8dss_info___init__(struct __pyx_obj_11core_hec
  */
     __pyx_v_self->recordSize = NULL;
 
-    /* "../utils.pyx":62
+    /* "../utils.pyx":65
  *             zstructFree(self.recordSize)
  *             self.recordSize=NULL
  *             raise BaseException("Seems invalid Data Size Query!!")             # <<<<<<<<<<<<<<
  * 
  *         self.dataType = self.recordSize[0].dataType
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_BaseException, __pyx_tuple__19, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 62, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_BaseException, __pyx_tuple__19, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 65, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 62, __pyx_L1_error)
+    __PYX_ERR(0, 65, __pyx_L1_error)
 
-    /* "../utils.pyx":59
+    /* "../utils.pyx":62
  *         self.recordSize = zstructRecordSizeNew(pathname)
  *         self.status = zgetRecordSize(fid.ifltab,self.recordSize)
  *         if not self.status == 0: # STATUS_OK != 0             # <<<<<<<<<<<<<<
@@ -24279,7 +24404,7 @@ static int __pyx_pf_11core_heclib_8dss_info___init__(struct __pyx_obj_11core_hec
  */
   }
 
-  /* "../utils.pyx":64
+  /* "../utils.pyx":67
  *             raise BaseException("Seems invalid Data Size Query!!")
  * 
  *         self.dataType = self.recordSize[0].dataType             # <<<<<<<<<<<<<<
@@ -24289,7 +24414,7 @@ static int __pyx_pf_11core_heclib_8dss_info___init__(struct __pyx_obj_11core_hec
   __pyx_t_3 = (__pyx_v_self->recordSize[0]).dataType;
   __pyx_v_self->dataType = __pyx_t_3;
 
-  /* "../utils.pyx":65
+  /* "../utils.pyx":68
  * 
  *         self.dataType = self.recordSize[0].dataType
  *         if self.dataType == 200:             # <<<<<<<<<<<<<<
@@ -24299,7 +24424,7 @@ static int __pyx_pf_11core_heclib_8dss_info___init__(struct __pyx_obj_11core_hec
   switch (__pyx_v_self->dataType) {
     case 0xC8:
 
-    /* "../utils.pyx":66
+    /* "../utils.pyx":69
  *         self.dataType = self.recordSize[0].dataType
  *         if self.dataType == 200:
  *             self.data_type = b'float32'             # <<<<<<<<<<<<<<
@@ -24312,7 +24437,7 @@ static int __pyx_pf_11core_heclib_8dss_info___init__(struct __pyx_obj_11core_hec
     __Pyx_DECREF(__pyx_v_self->data_type);
     __pyx_v_self->data_type = __pyx_n_b_float32;
 
-    /* "../utils.pyx":65
+    /* "../utils.pyx":68
  * 
  *         self.dataType = self.recordSize[0].dataType
  *         if self.dataType == 200:             # <<<<<<<<<<<<<<
@@ -24322,7 +24447,7 @@ static int __pyx_pf_11core_heclib_8dss_info___init__(struct __pyx_obj_11core_hec
     break;
     case 0xCD:
 
-    /* "../utils.pyx":68
+    /* "../utils.pyx":71
  *             self.data_type = b'float32'
  *         elif self.dataType == 205:
  *             self.data_type = b'double'             # <<<<<<<<<<<<<<
@@ -24335,7 +24460,7 @@ static int __pyx_pf_11core_heclib_8dss_info___init__(struct __pyx_obj_11core_hec
     __Pyx_DECREF(__pyx_v_self->data_type);
     __pyx_v_self->data_type = __pyx_n_b_double;
 
-    /* "../utils.pyx":67
+    /* "../utils.pyx":70
  *         if self.dataType == 200:
  *             self.data_type = b'float32'
  *         elif self.dataType == 205:             # <<<<<<<<<<<<<<
@@ -24345,7 +24470,7 @@ static int __pyx_pf_11core_heclib_8dss_info___init__(struct __pyx_obj_11core_hec
     break;
     default:
 
-    /* "../utils.pyx":70
+    /* "../utils.pyx":73
  *             self.data_type = b'double'
  *         else:
  *             self.data_type = b'unknown'             # <<<<<<<<<<<<<<
@@ -24360,7 +24485,7 @@ static int __pyx_pf_11core_heclib_8dss_info___init__(struct __pyx_obj_11core_hec
     break;
   }
 
-  /* "../utils.pyx":72
+  /* "../utils.pyx":75
  *             self.data_type = b'unknown'
  * 
  *         self.version = self.recordSize[0].version             # <<<<<<<<<<<<<<
@@ -24370,7 +24495,7 @@ static int __pyx_pf_11core_heclib_8dss_info___init__(struct __pyx_obj_11core_hec
   __pyx_t_3 = (__pyx_v_self->recordSize[0]).version;
   __pyx_v_self->version = __pyx_t_3;
 
-  /* "../utils.pyx":73
+  /* "../utils.pyx":76
  * 
  *         self.version = self.recordSize[0].version
  *         self.numberRecordsFound = self.recordSize[0].numberRecordsFound             # <<<<<<<<<<<<<<
@@ -24380,7 +24505,7 @@ static int __pyx_pf_11core_heclib_8dss_info___init__(struct __pyx_obj_11core_hec
   __pyx_t_3 = (__pyx_v_self->recordSize[0]).numberRecordsFound;
   __pyx_v_self->numberRecordsFound = __pyx_t_3;
 
-  /* "../utils.pyx":74
+  /* "../utils.pyx":77
  *         self.version = self.recordSize[0].version
  *         self.numberRecordsFound = self.recordSize[0].numberRecordsFound
  *         self.tsValueSize = self.recordSize[0].tsValueSize             # <<<<<<<<<<<<<<
@@ -24390,7 +24515,7 @@ static int __pyx_pf_11core_heclib_8dss_info___init__(struct __pyx_obj_11core_hec
   __pyx_t_3 = (__pyx_v_self->recordSize[0]).tsValueSize;
   __pyx_v_self->tsValueSize = __pyx_t_3;
 
-  /* "../utils.pyx":75
+  /* "../utils.pyx":78
  *         self.numberRecordsFound = self.recordSize[0].numberRecordsFound
  *         self.tsValueSize = self.recordSize[0].tsValueSize
  *         self.tsValueElementSize = self.recordSize[0].tsValueElementSize             # <<<<<<<<<<<<<<
@@ -24400,14 +24525,14 @@ static int __pyx_pf_11core_heclib_8dss_info___init__(struct __pyx_obj_11core_hec
   __pyx_t_3 = (__pyx_v_self->recordSize[0]).tsValueElementSize;
   __pyx_v_self->tsValueElementSize = __pyx_t_3;
 
-  /* "../utils.pyx":77
+  /* "../utils.pyx":80
  *         self.tsValueElementSize = self.recordSize[0].tsValueElementSize
  * 
  *         self.pd_curve_no = self.recordSize[0].pdNumberCurves # bug: this is giving data_no             # <<<<<<<<<<<<<<
  *         self.pd_data_no = self.recordSize[0].pdNumberOrdinates # bug: this is giving curve_no
  *         self.ipdValueSize = self.recordSize[0].ipdValueSize
  */
-  __pyx_t_2 = __Pyx_PyInt_From_int((__pyx_v_self->recordSize[0]).pdNumberCurves); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 77, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int((__pyx_v_self->recordSize[0]).pdNumberCurves); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 80, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GIVEREF(__pyx_t_2);
   __Pyx_GOTREF(__pyx_v_self->pd_curve_no);
@@ -24415,14 +24540,14 @@ static int __pyx_pf_11core_heclib_8dss_info___init__(struct __pyx_obj_11core_hec
   __pyx_v_self->pd_curve_no = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "../utils.pyx":78
+  /* "../utils.pyx":81
  * 
  *         self.pd_curve_no = self.recordSize[0].pdNumberCurves # bug: this is giving data_no
  *         self.pd_data_no = self.recordSize[0].pdNumberOrdinates # bug: this is giving curve_no             # <<<<<<<<<<<<<<
  *         self.ipdValueSize = self.recordSize[0].ipdValueSize
  *         self.pdLabelsLength = self.recordSize[0].pdLabelsLength
  */
-  __pyx_t_2 = __Pyx_PyInt_From_int((__pyx_v_self->recordSize[0]).pdNumberOrdinates); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 78, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int((__pyx_v_self->recordSize[0]).pdNumberOrdinates); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 81, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GIVEREF(__pyx_t_2);
   __Pyx_GOTREF(__pyx_v_self->pd_data_no);
@@ -24430,14 +24555,14 @@ static int __pyx_pf_11core_heclib_8dss_info___init__(struct __pyx_obj_11core_hec
   __pyx_v_self->pd_data_no = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "../utils.pyx":79
+  /* "../utils.pyx":82
  *         self.pd_curve_no = self.recordSize[0].pdNumberCurves # bug: this is giving data_no
  *         self.pd_data_no = self.recordSize[0].pdNumberOrdinates # bug: this is giving curve_no
  *         self.ipdValueSize = self.recordSize[0].ipdValueSize             # <<<<<<<<<<<<<<
  *         self.pdLabelsLength = self.recordSize[0].pdLabelsLength
  * 
  */
-  __pyx_t_2 = __Pyx_PyInt_From_int((__pyx_v_self->recordSize[0]).ipdValueSize); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 79, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int((__pyx_v_self->recordSize[0]).ipdValueSize); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 82, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GIVEREF(__pyx_t_2);
   __Pyx_GOTREF(__pyx_v_self->ipdValueSize);
@@ -24445,7 +24570,7 @@ static int __pyx_pf_11core_heclib_8dss_info___init__(struct __pyx_obj_11core_hec
   __pyx_v_self->ipdValueSize = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "../utils.pyx":80
+  /* "../utils.pyx":83
  *         self.pd_data_no = self.recordSize[0].pdNumberOrdinates # bug: this is giving curve_no
  *         self.ipdValueSize = self.recordSize[0].ipdValueSize
  *         self.pdLabelsLength = self.recordSize[0].pdLabelsLength             # <<<<<<<<<<<<<<
@@ -24455,7 +24580,7 @@ static int __pyx_pf_11core_heclib_8dss_info___init__(struct __pyx_obj_11core_hec
   __pyx_t_3 = (__pyx_v_self->recordSize[0]).pdLabelsLength;
   __pyx_v_self->pdLabelsLength = __pyx_t_3;
 
-  /* "../utils.pyx":56
+  /* "../utils.pyx":59
  *         readonly int status
  * 
  *     def __init__(self,Open fid,char *pathname):             # <<<<<<<<<<<<<<
@@ -24475,7 +24600,7 @@ static int __pyx_pf_11core_heclib_8dss_info___init__(struct __pyx_obj_11core_hec
   return __pyx_r;
 }
 
-/* "../utils.pyx":39
+/* "../utils.pyx":42
  *         zStructRecordSize *recordSize
  *         # All data
  *         readonly int dataType             # <<<<<<<<<<<<<<
@@ -24502,7 +24627,7 @@ static PyObject *__pyx_pf_11core_heclib_8dss_info_8dataType___get__(struct __pyx
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->dataType); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 39, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->dataType); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 42, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -24519,7 +24644,7 @@ static PyObject *__pyx_pf_11core_heclib_8dss_info_8dataType___get__(struct __pyx
   return __pyx_r;
 }
 
-/* "../utils.pyx":40
+/* "../utils.pyx":43
  *         # All data
  *         readonly int dataType
  *         readonly bytes data_type             # <<<<<<<<<<<<<<
@@ -24556,7 +24681,7 @@ static PyObject *__pyx_pf_11core_heclib_8dss_info_9data_type___get__(struct __py
   return __pyx_r;
 }
 
-/* "../utils.pyx":41
+/* "../utils.pyx":44
  *         readonly int dataType
  *         readonly bytes data_type
  *         readonly int version             # <<<<<<<<<<<<<<
@@ -24583,7 +24708,7 @@ static PyObject *__pyx_pf_11core_heclib_8dss_info_7version___get__(struct __pyx_
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->version); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->version); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 44, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -24600,7 +24725,7 @@ static PyObject *__pyx_pf_11core_heclib_8dss_info_7version___get__(struct __pyx_
   return __pyx_r;
 }
 
-/* "../utils.pyx":42
+/* "../utils.pyx":45
  *         readonly bytes data_type
  *         readonly int version
  *         readonly int numberValues             # <<<<<<<<<<<<<<
@@ -24627,7 +24752,7 @@ static PyObject *__pyx_pf_11core_heclib_8dss_info_12numberValues___get__(struct 
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->numberValues); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 42, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->numberValues); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 45, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -24644,7 +24769,7 @@ static PyObject *__pyx_pf_11core_heclib_8dss_info_12numberValues___get__(struct 
   return __pyx_r;
 }
 
-/* "../utils.pyx":43
+/* "../utils.pyx":46
  *         readonly int version
  *         readonly int numberValues
  *         readonly int logicalNumberValues             # <<<<<<<<<<<<<<
@@ -24671,7 +24796,7 @@ static PyObject *__pyx_pf_11core_heclib_8dss_info_19logicalNumberValues___get__(
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->logicalNumberValues); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 43, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->logicalNumberValues); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 46, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -24688,7 +24813,7 @@ static PyObject *__pyx_pf_11core_heclib_8dss_info_19logicalNumberValues___get__(
   return __pyx_r;
 }
 
-/* "../utils.pyx":45
+/* "../utils.pyx":48
  *         readonly int logicalNumberValues
  *         # TS
  *         readonly int numberRecordsFound             # <<<<<<<<<<<<<<
@@ -24715,7 +24840,7 @@ static PyObject *__pyx_pf_11core_heclib_8dss_info_18numberRecordsFound___get__(s
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->numberRecordsFound); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 45, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->numberRecordsFound); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 48, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -24732,7 +24857,7 @@ static PyObject *__pyx_pf_11core_heclib_8dss_info_18numberRecordsFound___get__(s
   return __pyx_r;
 }
 
-/* "../utils.pyx":46
+/* "../utils.pyx":49
  *         # TS
  *         readonly int numberRecordsFound
  *         readonly int tsValueSize             # <<<<<<<<<<<<<<
@@ -24759,7 +24884,7 @@ static PyObject *__pyx_pf_11core_heclib_8dss_info_11tsValueSize___get__(struct _
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->tsValueSize); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 46, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->tsValueSize); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 49, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -24776,7 +24901,7 @@ static PyObject *__pyx_pf_11core_heclib_8dss_info_11tsValueSize___get__(struct _
   return __pyx_r;
 }
 
-/* "../utils.pyx":47
+/* "../utils.pyx":50
  *         readonly int numberRecordsFound
  *         readonly int tsValueSize
  *         readonly int tsValueElementSize             # <<<<<<<<<<<<<<
@@ -24803,7 +24928,7 @@ static PyObject *__pyx_pf_11core_heclib_8dss_info_18tsValueElementSize___get__(s
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->tsValueElementSize); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 47, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->tsValueElementSize); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -24820,7 +24945,7 @@ static PyObject *__pyx_pf_11core_heclib_8dss_info_18tsValueElementSize___get__(s
   return __pyx_r;
 }
 
-/* "../utils.pyx":49
+/* "../utils.pyx":52
  *         readonly int tsValueElementSize
  *         # PD
  *         readonly pd_curve_no             # <<<<<<<<<<<<<<
@@ -24857,7 +24982,7 @@ static PyObject *__pyx_pf_11core_heclib_8dss_info_11pd_curve_no___get__(struct _
   return __pyx_r;
 }
 
-/* "../utils.pyx":50
+/* "../utils.pyx":53
  *         # PD
  *         readonly pd_curve_no
  *         readonly pd_data_no             # <<<<<<<<<<<<<<
@@ -24894,7 +25019,7 @@ static PyObject *__pyx_pf_11core_heclib_8dss_info_10pd_data_no___get__(struct __
   return __pyx_r;
 }
 
-/* "../utils.pyx":51
+/* "../utils.pyx":54
  *         readonly pd_curve_no
  *         readonly pd_data_no
  *         readonly ipdValueSize             # <<<<<<<<<<<<<<
@@ -24931,7 +25056,7 @@ static PyObject *__pyx_pf_11core_heclib_8dss_info_12ipdValueSize___get__(struct 
   return __pyx_r;
 }
 
-/* "../utils.pyx":53
+/* "../utils.pyx":56
  *         readonly ipdValueSize
  *         #readonly pdBoolIndependentIsXaxis
  *         readonly int pdLabelsLength             # <<<<<<<<<<<<<<
@@ -24958,7 +25083,7 @@ static PyObject *__pyx_pf_11core_heclib_8dss_info_14pdLabelsLength___get__(struc
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->pdLabelsLength); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->pdLabelsLength); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 56, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -24975,7 +25100,7 @@ static PyObject *__pyx_pf_11core_heclib_8dss_info_14pdLabelsLength___get__(struc
   return __pyx_r;
 }
 
-/* "../utils.pyx":54
+/* "../utils.pyx":57
  *         #readonly pdBoolIndependentIsXaxis
  *         readonly int pdLabelsLength
  *         readonly int status             # <<<<<<<<<<<<<<
@@ -25002,7 +25127,7 @@ static PyObject *__pyx_pf_11core_heclib_8dss_info_6status___get__(struct __pyx_o
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->status); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->status); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 57, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -25128,7 +25253,7 @@ static PyObject *__pyx_pf_11core_heclib_8dss_info_4__setstate_cython__(CYTHON_UN
   return __pyx_r;
 }
 
-/* "../utils.pyx":83
+/* "../utils.pyx":86
  * 
  * 
  * cdef int copyRecord(Open copyFrom, Open copyTo, str pathnameFrom, str pathnameTo):             # <<<<<<<<<<<<<<
@@ -25148,7 +25273,7 @@ static int __pyx_f_11core_heclib_copyRecord(struct __pyx_obj_11core_heclib_Open 
   char *__pyx_t_2;
   __Pyx_RefNannySetupContext("copyRecord", 0);
 
-  /* "../utils.pyx":102
+  /* "../utils.pyx":105
  *     """
  *     cdef:
  *         long long *ifltabFrom = copyFrom.ifltab             # <<<<<<<<<<<<<<
@@ -25158,7 +25283,7 @@ static int __pyx_f_11core_heclib_copyRecord(struct __pyx_obj_11core_heclib_Open 
   __pyx_t_1 = __pyx_v_copyFrom->ifltab;
   __pyx_v_ifltabFrom = __pyx_t_1;
 
-  /* "../utils.pyx":103
+  /* "../utils.pyx":106
  *     cdef:
  *         long long *ifltabFrom = copyFrom.ifltab
  *         long long *ifltabTo = copyTo.ifltab             # <<<<<<<<<<<<<<
@@ -25168,27 +25293,27 @@ static int __pyx_f_11core_heclib_copyRecord(struct __pyx_obj_11core_heclib_Open 
   __pyx_t_1 = __pyx_v_copyTo->ifltab;
   __pyx_v_ifltabTo = __pyx_t_1;
 
-  /* "../utils.pyx":106
+  /* "../utils.pyx":109
  * 
  *     cdef:
  *         char *pathFrom = pathnameFrom             # <<<<<<<<<<<<<<
  *         char *pathTo = pathnameTo
  *         int status
  */
-  __pyx_t_2 = __Pyx_PyObject_AsWritableString(__pyx_v_pathnameFrom); if (unlikely((!__pyx_t_2) && PyErr_Occurred())) __PYX_ERR(0, 106, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_AsWritableString(__pyx_v_pathnameFrom); if (unlikely((!__pyx_t_2) && PyErr_Occurred())) __PYX_ERR(0, 109, __pyx_L1_error)
   __pyx_v_pathFrom = __pyx_t_2;
 
-  /* "../utils.pyx":107
+  /* "../utils.pyx":110
  *     cdef:
  *         char *pathFrom = pathnameFrom
  *         char *pathTo = pathnameTo             # <<<<<<<<<<<<<<
  *         int status
  *     status = zcopyRecord(ifltabFrom,ifltabTo,pathFrom,pathTo)
  */
-  __pyx_t_2 = __Pyx_PyObject_AsWritableString(__pyx_v_pathnameTo); if (unlikely((!__pyx_t_2) && PyErr_Occurred())) __PYX_ERR(0, 107, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_AsWritableString(__pyx_v_pathnameTo); if (unlikely((!__pyx_t_2) && PyErr_Occurred())) __PYX_ERR(0, 110, __pyx_L1_error)
   __pyx_v_pathTo = __pyx_t_2;
 
-  /* "../utils.pyx":109
+  /* "../utils.pyx":112
  *         char *pathTo = pathnameTo
  *         int status
  *     status = zcopyRecord(ifltabFrom,ifltabTo,pathFrom,pathTo)             # <<<<<<<<<<<<<<
@@ -25197,7 +25322,7 @@ static int __pyx_f_11core_heclib_copyRecord(struct __pyx_obj_11core_heclib_Open 
  */
   __pyx_v_status = zcopyRecord(__pyx_v_ifltabFrom, __pyx_v_ifltabTo, __pyx_v_pathFrom, __pyx_v_pathTo);
 
-  /* "../utils.pyx":110
+  /* "../utils.pyx":113
  *         int status
  *     status = zcopyRecord(ifltabFrom,ifltabTo,pathFrom,pathTo)
  *     return status             # <<<<<<<<<<<<<<
@@ -25207,7 +25332,7 @@ static int __pyx_f_11core_heclib_copyRecord(struct __pyx_obj_11core_heclib_Open 
   __pyx_r = __pyx_v_status;
   goto __pyx_L0;
 
-  /* "../utils.pyx":83
+  /* "../utils.pyx":86
  * 
  * 
  * cdef int copyRecord(Open copyFrom, Open copyTo, str pathnameFrom, str pathnameTo):             # <<<<<<<<<<<<<<
@@ -25224,7 +25349,7 @@ static int __pyx_f_11core_heclib_copyRecord(struct __pyx_obj_11core_heclib_Open 
   return __pyx_r;
 }
 
-/* "../utils.pyx":112
+/* "../utils.pyx":115
  *     return status
  * 
  * cpdef int copyRecordTo(Open copyFrom, str copyToFile, str pathnameFrom, str pathnameTo):             # <<<<<<<<<<<<<<
@@ -25232,7 +25357,7 @@ static int __pyx_f_11core_heclib_copyRecord(struct __pyx_obj_11core_heclib_Open 
  * 
  */
 
-static PyObject *__pyx_pw_11core_heclib_3copyRecordTo(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_11core_heclib_5copyRecordTo(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static int __pyx_f_11core_heclib_copyRecordTo(struct __pyx_obj_11core_heclib_Open *__pyx_v_copyFrom, PyObject *__pyx_v_copyToFile, PyObject *__pyx_v_pathnameFrom, PyObject *__pyx_v_pathnameTo, CYTHON_UNUSED int __pyx_skip_dispatch) {
   PY_LONG_LONG *__pyx_v_ifltabFrom;
   PY_LONG_LONG *__pyx_v_ifltabTo;
@@ -25258,7 +25383,7 @@ static int __pyx_f_11core_heclib_copyRecordTo(struct __pyx_obj_11core_heclib_Ope
   int __pyx_t_14;
   __Pyx_RefNannySetupContext("copyRecordTo", 0);
 
-  /* "../utils.pyx":132
+  /* "../utils.pyx":135
  * 
  *     cdef:
  *         long long *ifltabFrom = copyFrom.ifltab             # <<<<<<<<<<<<<<
@@ -25268,7 +25393,7 @@ static int __pyx_f_11core_heclib_copyRecordTo(struct __pyx_obj_11core_heclib_Ope
   __pyx_t_1 = __pyx_v_copyFrom->ifltab;
   __pyx_v_ifltabFrom = __pyx_t_1;
 
-  /* "../utils.pyx":133
+  /* "../utils.pyx":136
  *     cdef:
  *         long long *ifltabFrom = copyFrom.ifltab
  *         long long *ifltabTo=NULL             # <<<<<<<<<<<<<<
@@ -25277,27 +25402,27 @@ static int __pyx_f_11core_heclib_copyRecordTo(struct __pyx_obj_11core_heclib_Ope
  */
   __pyx_v_ifltabTo = NULL;
 
-  /* "../utils.pyx":136
+  /* "../utils.pyx":139
  *         Open fid
  *     cdef:
  *         char *pathFrom = pathnameFrom             # <<<<<<<<<<<<<<
  *         char *pathTo = pathnameTo
  *         int status
  */
-  __pyx_t_2 = __Pyx_PyObject_AsWritableString(__pyx_v_pathnameFrom); if (unlikely((!__pyx_t_2) && PyErr_Occurred())) __PYX_ERR(0, 136, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_AsWritableString(__pyx_v_pathnameFrom); if (unlikely((!__pyx_t_2) && PyErr_Occurred())) __PYX_ERR(0, 139, __pyx_L1_error)
   __pyx_v_pathFrom = __pyx_t_2;
 
-  /* "../utils.pyx":137
+  /* "../utils.pyx":140
  *     cdef:
  *         char *pathFrom = pathnameFrom
  *         char *pathTo = pathnameTo             # <<<<<<<<<<<<<<
  *         int status
  *     with Open(copyToFile) as fid:
  */
-  __pyx_t_2 = __Pyx_PyObject_AsWritableString(__pyx_v_pathnameTo); if (unlikely((!__pyx_t_2) && PyErr_Occurred())) __PYX_ERR(0, 137, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_AsWritableString(__pyx_v_pathnameTo); if (unlikely((!__pyx_t_2) && PyErr_Occurred())) __PYX_ERR(0, 140, __pyx_L1_error)
   __pyx_v_pathTo = __pyx_t_2;
 
-  /* "../utils.pyx":139
+  /* "../utils.pyx":142
  *         char *pathTo = pathnameTo
  *         int status
  *     with Open(copyToFile) as fid:             # <<<<<<<<<<<<<<
@@ -25305,11 +25430,11 @@ static int __pyx_f_11core_heclib_copyRecordTo(struct __pyx_obj_11core_heclib_Ope
  *         status = zcopyRecord(ifltabFrom,ifltabTo,pathFrom,pathTo)
  */
   /*with:*/ {
-    __pyx_t_3 = __Pyx_PyObject_CallOneArg(((PyObject *)__pyx_ptype_11core_heclib_Open), __pyx_v_copyToFile); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 139, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_CallOneArg(((PyObject *)__pyx_ptype_11core_heclib_Open), __pyx_v_copyToFile); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 142, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = __Pyx_PyObject_LookupSpecial(__pyx_t_3, __pyx_n_s_exit); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 139, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_LookupSpecial(__pyx_t_3, __pyx_n_s_exit); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 142, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_6 = __Pyx_PyObject_LookupSpecial(__pyx_t_3, __pyx_n_s_enter); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 139, __pyx_L3_error)
+    __pyx_t_6 = __Pyx_PyObject_LookupSpecial(__pyx_t_3, __pyx_n_s_enter); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 142, __pyx_L3_error)
     __Pyx_GOTREF(__pyx_t_6);
     __pyx_t_7 = NULL;
     if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_6))) {
@@ -25323,7 +25448,7 @@ static int __pyx_f_11core_heclib_copyRecordTo(struct __pyx_obj_11core_heclib_Ope
     }
     __pyx_t_5 = (__pyx_t_7) ? __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_7) : __Pyx_PyObject_CallNoArg(__pyx_t_6);
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
-    if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 139, __pyx_L3_error)
+    if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 142, __pyx_L3_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __pyx_t_6 = __pyx_t_5;
@@ -25338,11 +25463,11 @@ static int __pyx_f_11core_heclib_copyRecordTo(struct __pyx_obj_11core_heclib_Ope
         __Pyx_XGOTREF(__pyx_t_9);
         __Pyx_XGOTREF(__pyx_t_10);
         /*try:*/ {
-          if (!(likely(((__pyx_t_6) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_6, __pyx_ptype_11core_heclib_Open))))) __PYX_ERR(0, 139, __pyx_L7_error)
+          if (!(likely(((__pyx_t_6) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_6, __pyx_ptype_11core_heclib_Open))))) __PYX_ERR(0, 142, __pyx_L7_error)
           __pyx_v_fid = ((struct __pyx_obj_11core_heclib_Open *)__pyx_t_6);
           __pyx_t_6 = 0;
 
-          /* "../utils.pyx":140
+          /* "../utils.pyx":143
  *         int status
  *     with Open(copyToFile) as fid:
  *         ifltabTo = fid.ifltab             # <<<<<<<<<<<<<<
@@ -25352,7 +25477,7 @@ static int __pyx_f_11core_heclib_copyRecordTo(struct __pyx_obj_11core_heclib_Ope
           __pyx_t_1 = __pyx_v_fid->ifltab;
           __pyx_v_ifltabTo = __pyx_t_1;
 
-          /* "../utils.pyx":141
+          /* "../utils.pyx":144
  *     with Open(copyToFile) as fid:
  *         ifltabTo = fid.ifltab
  *         status = zcopyRecord(ifltabFrom,ifltabTo,pathFrom,pathTo)             # <<<<<<<<<<<<<<
@@ -25361,7 +25486,7 @@ static int __pyx_f_11core_heclib_copyRecordTo(struct __pyx_obj_11core_heclib_Ope
  */
           __pyx_v_status = zcopyRecord(__pyx_v_ifltabFrom, __pyx_v_ifltabTo, __pyx_v_pathFrom, __pyx_v_pathTo);
 
-          /* "../utils.pyx":142
+          /* "../utils.pyx":145
  *         ifltabTo = fid.ifltab
  *         status = zcopyRecord(ifltabFrom,ifltabTo,pathFrom,pathTo)
  *         return status             # <<<<<<<<<<<<<<
@@ -25371,7 +25496,7 @@ static int __pyx_f_11core_heclib_copyRecordTo(struct __pyx_obj_11core_heclib_Ope
           __pyx_r = __pyx_v_status;
           goto __pyx_L11_try_return;
 
-          /* "../utils.pyx":139
+          /* "../utils.pyx":142
  *         char *pathTo = pathnameTo
  *         int status
  *     with Open(copyToFile) as fid:             # <<<<<<<<<<<<<<
@@ -25386,20 +25511,20 @@ static int __pyx_f_11core_heclib_copyRecordTo(struct __pyx_obj_11core_heclib_Ope
         __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
         /*except:*/ {
           __Pyx_AddTraceback("core_heclib.copyRecordTo", __pyx_clineno, __pyx_lineno, __pyx_filename);
-          if (__Pyx_GetException(&__pyx_t_6, &__pyx_t_3, &__pyx_t_5) < 0) __PYX_ERR(0, 139, __pyx_L9_except_error)
+          if (__Pyx_GetException(&__pyx_t_6, &__pyx_t_3, &__pyx_t_5) < 0) __PYX_ERR(0, 142, __pyx_L9_except_error)
           __Pyx_GOTREF(__pyx_t_6);
           __Pyx_GOTREF(__pyx_t_3);
           __Pyx_GOTREF(__pyx_t_5);
-          __pyx_t_7 = PyTuple_Pack(3, __pyx_t_6, __pyx_t_3, __pyx_t_5); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 139, __pyx_L9_except_error)
+          __pyx_t_7 = PyTuple_Pack(3, __pyx_t_6, __pyx_t_3, __pyx_t_5); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 142, __pyx_L9_except_error)
           __Pyx_GOTREF(__pyx_t_7);
           __pyx_t_11 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_7, NULL);
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
           __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-          if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 139, __pyx_L9_except_error)
+          if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 142, __pyx_L9_except_error)
           __Pyx_GOTREF(__pyx_t_11);
           __pyx_t_12 = __Pyx_PyObject_IsTrue(__pyx_t_11);
           __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-          if (__pyx_t_12 < 0) __PYX_ERR(0, 139, __pyx_L9_except_error)
+          if (__pyx_t_12 < 0) __PYX_ERR(0, 142, __pyx_L9_except_error)
           __pyx_t_13 = ((!(__pyx_t_12 != 0)) != 0);
           if (__pyx_t_13) {
             __Pyx_GIVEREF(__pyx_t_6);
@@ -25407,7 +25532,7 @@ static int __pyx_f_11core_heclib_copyRecordTo(struct __pyx_obj_11core_heclib_Ope
             __Pyx_XGIVEREF(__pyx_t_5);
             __Pyx_ErrRestoreWithState(__pyx_t_6, __pyx_t_3, __pyx_t_5);
             __pyx_t_6 = 0; __pyx_t_3 = 0; __pyx_t_5 = 0; 
-            __PYX_ERR(0, 139, __pyx_L9_except_error)
+            __PYX_ERR(0, 142, __pyx_L9_except_error)
           }
           __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -25438,7 +25563,7 @@ static int __pyx_f_11core_heclib_copyRecordTo(struct __pyx_obj_11core_heclib_Ope
         if (__pyx_t_4) {
           __pyx_t_10 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_tuple__22, NULL);
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 139, __pyx_L1_error)
+          if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 142, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_10);
           __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
         }
@@ -25449,7 +25574,7 @@ static int __pyx_f_11core_heclib_copyRecordTo(struct __pyx_obj_11core_heclib_Ope
         if (__pyx_t_4) {
           __pyx_t_10 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_tuple__22, NULL);
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 139, __pyx_L1_error)
+          if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 142, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_10);
           __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
         }
@@ -25465,7 +25590,7 @@ static int __pyx_f_11core_heclib_copyRecordTo(struct __pyx_obj_11core_heclib_Ope
     __pyx_L16:;
   }
 
-  /* "../utils.pyx":112
+  /* "../utils.pyx":115
  *     return status
  * 
  * cpdef int copyRecordTo(Open copyFrom, str copyToFile, str pathnameFrom, str pathnameTo):             # <<<<<<<<<<<<<<
@@ -25490,9 +25615,9 @@ static int __pyx_f_11core_heclib_copyRecordTo(struct __pyx_obj_11core_heclib_Ope
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_3copyRecordTo(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_11core_heclib_2copyRecordTo[] = "copyRecordTo(Open copyFrom, unicode copyToFile, unicode pathnameFrom, unicode pathnameTo) -> int\nCopy a record from one hec-dss file (From-) to another (To-)\n\n    Parameter\n    ----------\n        copyFrom: \"Open\" class handle to hec-dss file where the data exist\n        copyTo: sting file path to destination hec-dss file\n        pathnameFrom: dss pathname of the data to be copied\n        pathnameTo: the pathname of the data in the desination dss file\n\n    Usage\n    -------\n        Available to both cython and CPython scripts\n\n    Returns\n    --------\n        integer status\n    ";
-static PyObject *__pyx_pw_11core_heclib_3copyRecordTo(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_11core_heclib_5copyRecordTo(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_11core_heclib_4copyRecordTo[] = "copyRecordTo(Open copyFrom, unicode copyToFile, unicode pathnameFrom, unicode pathnameTo) -> int\nCopy a record from one hec-dss file (From-) to another (To-)\n\n    Parameter\n    ----------\n        copyFrom: \"Open\" class handle to hec-dss file where the data exist\n        copyTo: sting file path to destination hec-dss file\n        pathnameFrom: dss pathname of the data to be copied\n        pathnameTo: the pathname of the data in the desination dss file\n\n    Usage\n    -------\n        Available to both cython and CPython scripts\n\n    Returns\n    --------\n        integer status\n    ";
+static PyObject *__pyx_pw_11core_heclib_5copyRecordTo(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   struct __pyx_obj_11core_heclib_Open *__pyx_v_copyFrom = 0;
   PyObject *__pyx_v_copyToFile = 0;
   PyObject *__pyx_v_pathnameFrom = 0;
@@ -25527,23 +25652,23 @@ static PyObject *__pyx_pw_11core_heclib_3copyRecordTo(PyObject *__pyx_self, PyOb
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_copyToFile)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("copyRecordTo", 1, 4, 4, 1); __PYX_ERR(0, 112, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("copyRecordTo", 1, 4, 4, 1); __PYX_ERR(0, 115, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_pathnameFrom)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("copyRecordTo", 1, 4, 4, 2); __PYX_ERR(0, 112, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("copyRecordTo", 1, 4, 4, 2); __PYX_ERR(0, 115, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_pathnameTo)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("copyRecordTo", 1, 4, 4, 3); __PYX_ERR(0, 112, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("copyRecordTo", 1, 4, 4, 3); __PYX_ERR(0, 115, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "copyRecordTo") < 0)) __PYX_ERR(0, 112, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "copyRecordTo") < 0)) __PYX_ERR(0, 115, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 4) {
       goto __pyx_L5_argtuple_error;
@@ -25560,17 +25685,17 @@ static PyObject *__pyx_pw_11core_heclib_3copyRecordTo(PyObject *__pyx_self, PyOb
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("copyRecordTo", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 112, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("copyRecordTo", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 115, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("core_heclib.copyRecordTo", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_copyFrom), __pyx_ptype_11core_heclib_Open, 1, "copyFrom", 0))) __PYX_ERR(0, 112, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_copyToFile), (&PyUnicode_Type), 1, "copyToFile", 1))) __PYX_ERR(0, 112, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pathnameFrom), (&PyUnicode_Type), 1, "pathnameFrom", 1))) __PYX_ERR(0, 112, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pathnameTo), (&PyUnicode_Type), 1, "pathnameTo", 1))) __PYX_ERR(0, 112, __pyx_L1_error)
-  __pyx_r = __pyx_pf_11core_heclib_2copyRecordTo(__pyx_self, __pyx_v_copyFrom, __pyx_v_copyToFile, __pyx_v_pathnameFrom, __pyx_v_pathnameTo);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_copyFrom), __pyx_ptype_11core_heclib_Open, 1, "copyFrom", 0))) __PYX_ERR(0, 115, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_copyToFile), (&PyUnicode_Type), 1, "copyToFile", 1))) __PYX_ERR(0, 115, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pathnameFrom), (&PyUnicode_Type), 1, "pathnameFrom", 1))) __PYX_ERR(0, 115, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pathnameTo), (&PyUnicode_Type), 1, "pathnameTo", 1))) __PYX_ERR(0, 115, __pyx_L1_error)
+  __pyx_r = __pyx_pf_11core_heclib_4copyRecordTo(__pyx_self, __pyx_v_copyFrom, __pyx_v_copyToFile, __pyx_v_pathnameFrom, __pyx_v_pathnameTo);
 
   /* function exit code */
   goto __pyx_L0;
@@ -25581,13 +25706,13 @@ static PyObject *__pyx_pw_11core_heclib_3copyRecordTo(PyObject *__pyx_self, PyOb
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_2copyRecordTo(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_11core_heclib_Open *__pyx_v_copyFrom, PyObject *__pyx_v_copyToFile, PyObject *__pyx_v_pathnameFrom, PyObject *__pyx_v_pathnameTo) {
+static PyObject *__pyx_pf_11core_heclib_4copyRecordTo(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_11core_heclib_Open *__pyx_v_copyFrom, PyObject *__pyx_v_copyToFile, PyObject *__pyx_v_pathnameFrom, PyObject *__pyx_v_pathnameTo) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("copyRecordTo", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_f_11core_heclib_copyRecordTo(__pyx_v_copyFrom, __pyx_v_copyToFile, __pyx_v_pathnameFrom, __pyx_v_pathnameTo, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 112, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_f_11core_heclib_copyRecordTo(__pyx_v_copyFrom, __pyx_v_copyToFile, __pyx_v_pathnameFrom, __pyx_v_pathnameTo, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 115, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -25604,7 +25729,7 @@ static PyObject *__pyx_pf_11core_heclib_2copyRecordTo(CYTHON_UNUSED PyObject *__
   return __pyx_r;
 }
 
-/* "../utils.pyx":144
+/* "../utils.pyx":147
  *         return status
  * 
  * cpdef int get_grid_version(Open _open, str pathname):             # <<<<<<<<<<<<<<
@@ -25612,7 +25737,7 @@ static PyObject *__pyx_pf_11core_heclib_2copyRecordTo(CYTHON_UNUSED PyObject *__
  *         long long *ifltab= _open.ifltab
  */
 
-static PyObject *__pyx_pw_11core_heclib_5get_grid_version(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_11core_heclib_7get_grid_version(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static int __pyx_f_11core_heclib_get_grid_version(struct __pyx_obj_11core_heclib_Open *__pyx_v__open, PyObject *__pyx_v_pathname, CYTHON_UNUSED int __pyx_skip_dispatch) {
   PY_LONG_LONG *__pyx_v_ifltab;
   char const *__pyx_v_path;
@@ -25626,7 +25751,7 @@ static int __pyx_f_11core_heclib_get_grid_version(struct __pyx_obj_11core_heclib
   int __pyx_t_3;
   __Pyx_RefNannySetupContext("get_grid_version", 0);
 
-  /* "../utils.pyx":146
+  /* "../utils.pyx":149
  * cpdef int get_grid_version(Open _open, str pathname):
  *     cdef:
  *         long long *ifltab= _open.ifltab             # <<<<<<<<<<<<<<
@@ -25636,17 +25761,17 @@ static int __pyx_f_11core_heclib_get_grid_version(struct __pyx_obj_11core_heclib
   __pyx_t_1 = __pyx_v__open->ifltab;
   __pyx_v_ifltab = __pyx_t_1;
 
-  /* "../utils.pyx":147
+  /* "../utils.pyx":150
  *     cdef:
  *         long long *ifltab= _open.ifltab
  *         const char *path = pathname             # <<<<<<<<<<<<<<
  *         int *zversion = <int*>malloc(sizeof(int*))
  *         int ver = -9999
  */
-  __pyx_t_2 = __Pyx_PyObject_AsString(__pyx_v_pathname); if (unlikely((!__pyx_t_2) && PyErr_Occurred())) __PYX_ERR(0, 147, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_AsString(__pyx_v_pathname); if (unlikely((!__pyx_t_2) && PyErr_Occurred())) __PYX_ERR(0, 150, __pyx_L1_error)
   __pyx_v_path = __pyx_t_2;
 
-  /* "../utils.pyx":148
+  /* "../utils.pyx":151
  *         long long *ifltab= _open.ifltab
  *         const char *path = pathname
  *         int *zversion = <int*>malloc(sizeof(int*))             # <<<<<<<<<<<<<<
@@ -25655,7 +25780,7 @@ static int __pyx_f_11core_heclib_get_grid_version(struct __pyx_obj_11core_heclib
  */
   __pyx_v_zversion = ((int *)malloc((sizeof(int *))));
 
-  /* "../utils.pyx":149
+  /* "../utils.pyx":152
  *         const char *path = pathname
  *         int *zversion = <int*>malloc(sizeof(int*))
  *         int ver = -9999             # <<<<<<<<<<<<<<
@@ -25664,7 +25789,7 @@ static int __pyx_f_11core_heclib_get_grid_version(struct __pyx_obj_11core_heclib
  */
   __pyx_v_ver = -9999;
 
-  /* "../utils.pyx":151
+  /* "../utils.pyx":154
  *         int ver = -9999
  *         int status
  *     status = zspatialGridRetrieveVersion(ifltab,path,zversion)             # <<<<<<<<<<<<<<
@@ -25673,7 +25798,7 @@ static int __pyx_f_11core_heclib_get_grid_version(struct __pyx_obj_11core_heclib
  */
   __pyx_v_status = zspatialGridRetrieveVersion(__pyx_v_ifltab, __pyx_v_path, __pyx_v_zversion);
 
-  /* "../utils.pyx":152
+  /* "../utils.pyx":155
  *         int status
  *     status = zspatialGridRetrieveVersion(ifltab,path,zversion)
  *     if zversion:             # <<<<<<<<<<<<<<
@@ -25683,7 +25808,7 @@ static int __pyx_f_11core_heclib_get_grid_version(struct __pyx_obj_11core_heclib
   __pyx_t_3 = (__pyx_v_zversion != 0);
   if (__pyx_t_3) {
 
-    /* "../utils.pyx":153
+    /* "../utils.pyx":156
  *     status = zspatialGridRetrieveVersion(ifltab,path,zversion)
  *     if zversion:
  *         ver = zversion[0]             # <<<<<<<<<<<<<<
@@ -25692,7 +25817,7 @@ static int __pyx_f_11core_heclib_get_grid_version(struct __pyx_obj_11core_heclib
  */
     __pyx_v_ver = (__pyx_v_zversion[0]);
 
-    /* "../utils.pyx":154
+    /* "../utils.pyx":157
  *     if zversion:
  *         ver = zversion[0]
  *         free(zversion)             # <<<<<<<<<<<<<<
@@ -25701,7 +25826,7 @@ static int __pyx_f_11core_heclib_get_grid_version(struct __pyx_obj_11core_heclib
  */
     free(__pyx_v_zversion);
 
-    /* "../utils.pyx":152
+    /* "../utils.pyx":155
  *         int status
  *     status = zspatialGridRetrieveVersion(ifltab,path,zversion)
  *     if zversion:             # <<<<<<<<<<<<<<
@@ -25710,7 +25835,7 @@ static int __pyx_f_11core_heclib_get_grid_version(struct __pyx_obj_11core_heclib
  */
   }
 
-  /* "../utils.pyx":155
+  /* "../utils.pyx":158
  *         ver = zversion[0]
  *         free(zversion)
  *     return ver             # <<<<<<<<<<<<<<
@@ -25720,7 +25845,7 @@ static int __pyx_f_11core_heclib_get_grid_version(struct __pyx_obj_11core_heclib
   __pyx_r = __pyx_v_ver;
   goto __pyx_L0;
 
-  /* "../utils.pyx":144
+  /* "../utils.pyx":147
  *         return status
  * 
  * cpdef int get_grid_version(Open _open, str pathname):             # <<<<<<<<<<<<<<
@@ -25738,9 +25863,9 @@ static int __pyx_f_11core_heclib_get_grid_version(struct __pyx_obj_11core_heclib
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_5get_grid_version(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_11core_heclib_4get_grid_version[] = "get_grid_version(Open _open, unicode pathname) -> int";
-static PyObject *__pyx_pw_11core_heclib_5get_grid_version(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_11core_heclib_7get_grid_version(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_11core_heclib_6get_grid_version[] = "get_grid_version(Open _open, unicode pathname) -> int";
+static PyObject *__pyx_pw_11core_heclib_7get_grid_version(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   struct __pyx_obj_11core_heclib_Open *__pyx_v__open = 0;
   PyObject *__pyx_v_pathname = 0;
   PyObject *__pyx_r = 0;
@@ -25769,11 +25894,11 @@ static PyObject *__pyx_pw_11core_heclib_5get_grid_version(PyObject *__pyx_self, 
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_pathname)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("get_grid_version", 1, 2, 2, 1); __PYX_ERR(0, 144, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("get_grid_version", 1, 2, 2, 1); __PYX_ERR(0, 147, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "get_grid_version") < 0)) __PYX_ERR(0, 144, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "get_grid_version") < 0)) __PYX_ERR(0, 147, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -25786,15 +25911,15 @@ static PyObject *__pyx_pw_11core_heclib_5get_grid_version(PyObject *__pyx_self, 
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("get_grid_version", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 144, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("get_grid_version", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 147, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("core_heclib.get_grid_version", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v__open), __pyx_ptype_11core_heclib_Open, 1, "_open", 0))) __PYX_ERR(0, 144, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pathname), (&PyUnicode_Type), 1, "pathname", 1))) __PYX_ERR(0, 144, __pyx_L1_error)
-  __pyx_r = __pyx_pf_11core_heclib_4get_grid_version(__pyx_self, __pyx_v__open, __pyx_v_pathname);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v__open), __pyx_ptype_11core_heclib_Open, 1, "_open", 0))) __PYX_ERR(0, 147, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pathname), (&PyUnicode_Type), 1, "pathname", 1))) __PYX_ERR(0, 147, __pyx_L1_error)
+  __pyx_r = __pyx_pf_11core_heclib_6get_grid_version(__pyx_self, __pyx_v__open, __pyx_v_pathname);
 
   /* function exit code */
   goto __pyx_L0;
@@ -25805,13 +25930,13 @@ static PyObject *__pyx_pw_11core_heclib_5get_grid_version(PyObject *__pyx_self, 
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_4get_grid_version(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_11core_heclib_Open *__pyx_v__open, PyObject *__pyx_v_pathname) {
+static PyObject *__pyx_pf_11core_heclib_6get_grid_version(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_11core_heclib_Open *__pyx_v__open, PyObject *__pyx_v_pathname) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("get_grid_version", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_f_11core_heclib_get_grid_version(__pyx_v__open, __pyx_v_pathname, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 144, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_f_11core_heclib_get_grid_version(__pyx_v__open, __pyx_v_pathname, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 147, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -25828,7 +25953,7 @@ static PyObject *__pyx_pf_11core_heclib_4get_grid_version(CYTHON_UNUSED PyObject
   return __pyx_r;
 }
 
-/* "../utils.pyx":158
+/* "../utils.pyx":161
  * 
  * class DssPathName(object):
  *     def __init__(self,pathname):             # <<<<<<<<<<<<<<
@@ -25869,11 +25994,11 @@ static PyObject *__pyx_pw_11core_heclib_11DssPathName_1__init__(PyObject *__pyx_
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_pathname)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, 1); __PYX_ERR(0, 158, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, 1); __PYX_ERR(0, 161, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 158, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 161, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -25886,7 +26011,7 @@ static PyObject *__pyx_pw_11core_heclib_11DssPathName_1__init__(PyObject *__pyx_
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 158, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 161, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("core_heclib.DssPathName.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -25907,35 +26032,35 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName___init__(CYTHON_UNUSED PyO
   PyObject *__pyx_t_3 = NULL;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "../utils.pyx":159
+  /* "../utils.pyx":162
  * class DssPathName(object):
  *     def __init__(self,pathname):
  *         self.pathname = pathname             # <<<<<<<<<<<<<<
  *         self.pathname_parts = []
  *         self.parse()
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_pathname, __pyx_v_pathname) < 0) __PYX_ERR(0, 159, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_pathname, __pyx_v_pathname) < 0) __PYX_ERR(0, 162, __pyx_L1_error)
 
-  /* "../utils.pyx":160
+  /* "../utils.pyx":163
  *     def __init__(self,pathname):
  *         self.pathname = pathname
  *         self.pathname_parts = []             # <<<<<<<<<<<<<<
  *         self.parse()
  * 
  */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 160, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 163, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts, __pyx_t_1) < 0) __PYX_ERR(0, 160, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts, __pyx_t_1) < 0) __PYX_ERR(0, 163, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "../utils.pyx":161
+  /* "../utils.pyx":164
  *         self.pathname = pathname
  *         self.pathname_parts = []
  *         self.parse()             # <<<<<<<<<<<<<<
  * 
  *     def parse(self):
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_parse); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 161, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_parse); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 164, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -25949,12 +26074,12 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName___init__(CYTHON_UNUSED PyO
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3) : __Pyx_PyObject_CallNoArg(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 161, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 164, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "../utils.pyx":158
+  /* "../utils.pyx":161
  * 
  * class DssPathName(object):
  *     def __init__(self,pathname):             # <<<<<<<<<<<<<<
@@ -25977,7 +26102,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName___init__(CYTHON_UNUSED PyO
   return __pyx_r;
 }
 
-/* "../utils.pyx":163
+/* "../utils.pyx":166
  *         self.parse()
  * 
  *     def parse(self):             # <<<<<<<<<<<<<<
@@ -26016,30 +26141,30 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_2parse(CYTHON_UNUSED PyObj
   Py_ssize_t __pyx_t_10;
   __Pyx_RefNannySetupContext("parse", 0);
 
-  /* "../utils.pyx":164
+  /* "../utils.pyx":167
  * 
  *     def parse(self):
  *         if not self.pathname:             # <<<<<<<<<<<<<<
  *             logging.warn('Invalid dss pathname')
  *             self.pathname = '/A/B/C/D/E/F/'
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 164, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 167, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 164, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 167, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_3 = ((!__pyx_t_2) != 0);
   if (__pyx_t_3) {
 
-    /* "../utils.pyx":165
+    /* "../utils.pyx":168
  *     def parse(self):
  *         if not self.pathname:
  *             logging.warn('Invalid dss pathname')             # <<<<<<<<<<<<<<
  *             self.pathname = '/A/B/C/D/E/F/'
  * 
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_logging); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 165, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_logging); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 168, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_warn); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 165, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_warn); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 168, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __pyx_t_4 = NULL;
@@ -26054,21 +26179,21 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_2parse(CYTHON_UNUSED PyObj
     }
     __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_4, __pyx_kp_u_Invalid_dss_pathname) : __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_kp_u_Invalid_dss_pathname);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 165, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 168, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "../utils.pyx":166
+    /* "../utils.pyx":169
  *         if not self.pathname:
  *             logging.warn('Invalid dss pathname')
  *             self.pathname = '/A/B/C/D/E/F/'             # <<<<<<<<<<<<<<
  * 
  *         if isinstance(self.pathname, DssPathName):
  */
-    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_pathname, __pyx_kp_u_A_B_C_D_E_F) < 0) __PYX_ERR(0, 166, __pyx_L1_error)
+    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_pathname, __pyx_kp_u_A_B_C_D_E_F) < 0) __PYX_ERR(0, 169, __pyx_L1_error)
 
-    /* "../utils.pyx":164
+    /* "../utils.pyx":167
  * 
  *     def parse(self):
  *         if not self.pathname:             # <<<<<<<<<<<<<<
@@ -26077,39 +26202,39 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_2parse(CYTHON_UNUSED PyObj
  */
   }
 
-  /* "../utils.pyx":168
+  /* "../utils.pyx":171
  *             self.pathname = '/A/B/C/D/E/F/'
  * 
  *         if isinstance(self.pathname, DssPathName):             # <<<<<<<<<<<<<<
  *             self.pathname = self.pathname.pathname
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 168, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 171, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_DssPathName); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 168, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_DssPathName); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 171, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_3 = PyObject_IsInstance(__pyx_t_1, __pyx_t_5); if (unlikely(__pyx_t_3 == ((int)-1))) __PYX_ERR(0, 168, __pyx_L1_error)
+  __pyx_t_3 = PyObject_IsInstance(__pyx_t_1, __pyx_t_5); if (unlikely(__pyx_t_3 == ((int)-1))) __PYX_ERR(0, 171, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_t_2 = (__pyx_t_3 != 0);
   if (__pyx_t_2) {
 
-    /* "../utils.pyx":169
+    /* "../utils.pyx":172
  * 
  *         if isinstance(self.pathname, DssPathName):
  *             self.pathname = self.pathname.pathname             # <<<<<<<<<<<<<<
  * 
  *         if (not self.pathname[0] == '/') or (not self.pathname[-1] == '/'):
  */
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 169, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 172, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_pathname); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 169, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_pathname); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 172, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_pathname, __pyx_t_1) < 0) __PYX_ERR(0, 169, __pyx_L1_error)
+    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_pathname, __pyx_t_1) < 0) __PYX_ERR(0, 172, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "../utils.pyx":168
+    /* "../utils.pyx":171
  *             self.pathname = '/A/B/C/D/E/F/'
  * 
  *         if isinstance(self.pathname, DssPathName):             # <<<<<<<<<<<<<<
@@ -26118,19 +26243,19 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_2parse(CYTHON_UNUSED PyObj
  */
   }
 
-  /* "../utils.pyx":171
+  /* "../utils.pyx":174
  *             self.pathname = self.pathname.pathname
  * 
  *         if (not self.pathname[0] == '/') or (not self.pathname[-1] == '/'):             # <<<<<<<<<<<<<<
  *             #logging.error('Invalid dss pathname: not starting or ending with character "/"',exc_info=True)
  *             logging.info('%s',self.pathname)
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 171, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_5 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 171, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_3 = (__Pyx_PyUnicode_Equals(__pyx_t_5, __pyx_kp_u__23, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 171, __pyx_L1_error)
+  __pyx_t_3 = (__Pyx_PyUnicode_Equals(__pyx_t_5, __pyx_kp_u__23, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_t_6 = ((!__pyx_t_3) != 0);
   if (!__pyx_t_6) {
@@ -26138,31 +26263,31 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_2parse(CYTHON_UNUSED PyObj
     __pyx_t_2 = __pyx_t_6;
     goto __pyx_L6_bool_binop_done;
   }
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 171, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_5, -1L, long, 1, __Pyx_PyInt_From_long, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 171, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_5, -1L, long, 1, __Pyx_PyInt_From_long, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_6 = (__Pyx_PyUnicode_Equals(__pyx_t_1, __pyx_kp_u__23, Py_EQ)); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 171, __pyx_L1_error)
+  __pyx_t_6 = (__Pyx_PyUnicode_Equals(__pyx_t_1, __pyx_kp_u__23, Py_EQ)); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_3 = ((!__pyx_t_6) != 0);
   __pyx_t_2 = __pyx_t_3;
   __pyx_L6_bool_binop_done:;
   if (unlikely(__pyx_t_2)) {
 
-    /* "../utils.pyx":173
+    /* "../utils.pyx":176
  *         if (not self.pathname[0] == '/') or (not self.pathname[-1] == '/'):
  *             #logging.error('Invalid dss pathname: not starting or ending with character "/"',exc_info=True)
  *             logging.info('%s',self.pathname)             # <<<<<<<<<<<<<<
  *             logging.error('Invalid dss pathname: not starting or ending with character "/"')
  *             raise DssPathException('Invalid dss pathname: not starting or ending with character "/"')
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_logging); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 173, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_logging); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 176, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_info); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 173, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_info); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 176, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 173, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 176, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_7 = NULL;
     __pyx_t_8 = 0;
@@ -26179,7 +26304,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_2parse(CYTHON_UNUSED PyObj
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_4)) {
       PyObject *__pyx_temp[3] = {__pyx_t_7, __pyx_kp_u_s, __pyx_t_5};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 173, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 176, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
@@ -26188,14 +26313,14 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_2parse(CYTHON_UNUSED PyObj
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
       PyObject *__pyx_temp[3] = {__pyx_t_7, __pyx_kp_u_s, __pyx_t_5};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 173, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 176, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     } else
     #endif
     {
-      __pyx_t_9 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 173, __pyx_L1_error)
+      __pyx_t_9 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 176, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_9);
       if (__pyx_t_7) {
         __Pyx_GIVEREF(__pyx_t_7); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_7); __pyx_t_7 = NULL;
@@ -26206,23 +26331,23 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_2parse(CYTHON_UNUSED PyObj
       __Pyx_GIVEREF(__pyx_t_5);
       PyTuple_SET_ITEM(__pyx_t_9, 1+__pyx_t_8, __pyx_t_5);
       __pyx_t_5 = 0;
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_9, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 173, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_9, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 176, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     }
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "../utils.pyx":174
+    /* "../utils.pyx":177
  *             #logging.error('Invalid dss pathname: not starting or ending with character "/"',exc_info=True)
  *             logging.info('%s',self.pathname)
  *             logging.error('Invalid dss pathname: not starting or ending with character "/"')             # <<<<<<<<<<<<<<
  *             raise DssPathException('Invalid dss pathname: not starting or ending with character "/"')
  * 
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_logging); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 174, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_logging); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 177, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_error); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 174, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_error); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 177, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_9);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __pyx_t_4 = NULL;
@@ -26237,19 +26362,19 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_2parse(CYTHON_UNUSED PyObj
     }
     __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_9, __pyx_t_4, __pyx_kp_u_Invalid_dss_pathname_not_startin) : __Pyx_PyObject_CallOneArg(__pyx_t_9, __pyx_kp_u_Invalid_dss_pathname_not_startin);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 174, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 177, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "../utils.pyx":175
+    /* "../utils.pyx":178
  *             logging.info('%s',self.pathname)
  *             logging.error('Invalid dss pathname: not starting or ending with character "/"')
  *             raise DssPathException('Invalid dss pathname: not starting or ending with character "/"')             # <<<<<<<<<<<<<<
  * 
  *         parts = self.pathname.split('/')[1:-1]
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_n_s_DssPathException); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 175, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_n_s_DssPathException); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 178, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_9);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_9))) {
@@ -26263,14 +26388,14 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_2parse(CYTHON_UNUSED PyObj
     }
     __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_9, __pyx_t_4, __pyx_kp_u_Invalid_dss_pathname_not_startin) : __Pyx_PyObject_CallOneArg(__pyx_t_9, __pyx_kp_u_Invalid_dss_pathname_not_startin);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 175, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 178, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 175, __pyx_L1_error)
+    __PYX_ERR(0, 178, __pyx_L1_error)
 
-    /* "../utils.pyx":171
+    /* "../utils.pyx":174
  *             self.pathname = self.pathname.pathname
  * 
  *         if (not self.pathname[0] == '/') or (not self.pathname[-1] == '/'):             # <<<<<<<<<<<<<<
@@ -26279,16 +26404,16 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_2parse(CYTHON_UNUSED PyObj
  */
   }
 
-  /* "../utils.pyx":177
+  /* "../utils.pyx":180
  *             raise DssPathException('Invalid dss pathname: not starting or ending with character "/"')
  * 
  *         parts = self.pathname.split('/')[1:-1]             # <<<<<<<<<<<<<<
  *         if not len(parts) == 6:
  *             #logging.error('Invalid dss pathname: No of pathname parts not equal to six',exc_info=True)
  */
-  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 177, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 180, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_9, __pyx_n_s_split); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 177, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_9, __pyx_n_s_split); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 180, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
   __pyx_t_9 = NULL;
@@ -26303,36 +26428,36 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_2parse(CYTHON_UNUSED PyObj
   }
   __pyx_t_1 = (__pyx_t_9) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_9, __pyx_kp_u__23) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_kp_u__23);
   __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 177, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 180, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_GetSlice(__pyx_t_1, 1, -1L, NULL, NULL, &__pyx_slice__24, 1, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 177, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetSlice(__pyx_t_1, 1, -1L, NULL, NULL, &__pyx_slice__24, 1, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 180, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_parts = __pyx_t_4;
   __pyx_t_4 = 0;
 
-  /* "../utils.pyx":178
+  /* "../utils.pyx":181
  * 
  *         parts = self.pathname.split('/')[1:-1]
  *         if not len(parts) == 6:             # <<<<<<<<<<<<<<
  *             #logging.error('Invalid dss pathname: No of pathname parts not equal to six',exc_info=True)
  *             logging.error('Invalid dss pathname: No of pathname parts not equal to six')
  */
-  __pyx_t_10 = PyObject_Length(__pyx_v_parts); if (unlikely(__pyx_t_10 == ((Py_ssize_t)-1))) __PYX_ERR(0, 178, __pyx_L1_error)
+  __pyx_t_10 = PyObject_Length(__pyx_v_parts); if (unlikely(__pyx_t_10 == ((Py_ssize_t)-1))) __PYX_ERR(0, 181, __pyx_L1_error)
   __pyx_t_2 = ((!((__pyx_t_10 == 6) != 0)) != 0);
   if (unlikely(__pyx_t_2)) {
 
-    /* "../utils.pyx":180
+    /* "../utils.pyx":183
  *         if not len(parts) == 6:
  *             #logging.error('Invalid dss pathname: No of pathname parts not equal to six',exc_info=True)
  *             logging.error('Invalid dss pathname: No of pathname parts not equal to six')             # <<<<<<<<<<<<<<
  *             raise DssPathException('Invalid dss pathname: No of pathname parts not equal to six')
  * 
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_logging); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 180, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_logging); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 183, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_error); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 180, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_error); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 183, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_9);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_t_1 = NULL;
@@ -26347,19 +26472,19 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_2parse(CYTHON_UNUSED PyObj
     }
     __pyx_t_4 = (__pyx_t_1) ? __Pyx_PyObject_Call2Args(__pyx_t_9, __pyx_t_1, __pyx_kp_u_Invalid_dss_pathname_No_of_pathn) : __Pyx_PyObject_CallOneArg(__pyx_t_9, __pyx_kp_u_Invalid_dss_pathname_No_of_pathn);
     __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 180, __pyx_L1_error)
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 183, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "../utils.pyx":181
+    /* "../utils.pyx":184
  *             #logging.error('Invalid dss pathname: No of pathname parts not equal to six',exc_info=True)
  *             logging.error('Invalid dss pathname: No of pathname parts not equal to six')
  *             raise DssPathException('Invalid dss pathname: No of pathname parts not equal to six')             # <<<<<<<<<<<<<<
  * 
  *         self.pathname_parts = parts
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_n_s_DssPathException); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 181, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_n_s_DssPathException); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 184, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_9);
     __pyx_t_1 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_9))) {
@@ -26373,14 +26498,14 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_2parse(CYTHON_UNUSED PyObj
     }
     __pyx_t_4 = (__pyx_t_1) ? __Pyx_PyObject_Call2Args(__pyx_t_9, __pyx_t_1, __pyx_kp_u_Invalid_dss_pathname_No_of_pathn) : __Pyx_PyObject_CallOneArg(__pyx_t_9, __pyx_kp_u_Invalid_dss_pathname_No_of_pathn);
     __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 181, __pyx_L1_error)
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 184, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     __Pyx_Raise(__pyx_t_4, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __PYX_ERR(0, 181, __pyx_L1_error)
+    __PYX_ERR(0, 184, __pyx_L1_error)
 
-    /* "../utils.pyx":178
+    /* "../utils.pyx":181
  * 
  *         parts = self.pathname.split('/')[1:-1]
  *         if not len(parts) == 6:             # <<<<<<<<<<<<<<
@@ -26389,16 +26514,16 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_2parse(CYTHON_UNUSED PyObj
  */
   }
 
-  /* "../utils.pyx":183
+  /* "../utils.pyx":186
  *             raise DssPathException('Invalid dss pathname: No of pathname parts not equal to six')
  * 
  *         self.pathname_parts = parts             # <<<<<<<<<<<<<<
  * 
  *     def __repr__(self):
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts, __pyx_v_parts) < 0) __PYX_ERR(0, 183, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts, __pyx_v_parts) < 0) __PYX_ERR(0, 186, __pyx_L1_error)
 
-  /* "../utils.pyx":163
+  /* "../utils.pyx":166
  *         self.parse()
  * 
  *     def parse(self):             # <<<<<<<<<<<<<<
@@ -26424,7 +26549,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_2parse(CYTHON_UNUSED PyObj
   return __pyx_r;
 }
 
-/* "../utils.pyx":185
+/* "../utils.pyx":188
  *         self.pathname_parts = parts
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
@@ -26459,7 +26584,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_4__repr__(CYTHON_UNUSED Py
   PyObject *__pyx_t_5 = NULL;
   __Pyx_RefNannySetupContext("__repr__", 0);
 
-  /* "../utils.pyx":186
+  /* "../utils.pyx":189
  * 
  *     def __repr__(self):
  *         string_rep = '/'             # <<<<<<<<<<<<<<
@@ -26469,22 +26594,22 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_4__repr__(CYTHON_UNUSED Py
   __Pyx_INCREF(__pyx_kp_u__23);
   __pyx_v_string_rep = __pyx_kp_u__23;
 
-  /* "../utils.pyx":187
+  /* "../utils.pyx":190
  *     def __repr__(self):
  *         string_rep = '/'
  *         for x in self.pathname_parts:             # <<<<<<<<<<<<<<
  *             string_rep += x + '/'
  *         return string_rep
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 187, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 190, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (likely(PyList_CheckExact(__pyx_t_1)) || PyTuple_CheckExact(__pyx_t_1)) {
     __pyx_t_2 = __pyx_t_1; __Pyx_INCREF(__pyx_t_2); __pyx_t_3 = 0;
     __pyx_t_4 = NULL;
   } else {
-    __pyx_t_3 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 187, __pyx_L1_error)
+    __pyx_t_3 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 190, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 187, __pyx_L1_error)
+    __pyx_t_4 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 190, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   for (;;) {
@@ -26492,17 +26617,17 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_4__repr__(CYTHON_UNUSED Py
       if (likely(PyList_CheckExact(__pyx_t_2))) {
         if (__pyx_t_3 >= PyList_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_1 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 187, __pyx_L1_error)
+        __pyx_t_1 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 190, __pyx_L1_error)
         #else
-        __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 187, __pyx_L1_error)
+        __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 190, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         #endif
       } else {
         if (__pyx_t_3 >= PyTuple_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 187, __pyx_L1_error)
+        __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 190, __pyx_L1_error)
         #else
-        __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 187, __pyx_L1_error)
+        __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 190, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         #endif
       }
@@ -26512,7 +26637,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_4__repr__(CYTHON_UNUSED Py
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 187, __pyx_L1_error)
+          else __PYX_ERR(0, 190, __pyx_L1_error)
         }
         break;
       }
@@ -26521,22 +26646,22 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_4__repr__(CYTHON_UNUSED Py
     __Pyx_XDECREF_SET(__pyx_v_x, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "../utils.pyx":188
+    /* "../utils.pyx":191
  *         string_rep = '/'
  *         for x in self.pathname_parts:
  *             string_rep += x + '/'             # <<<<<<<<<<<<<<
  *         return string_rep
  * 
  */
-    __pyx_t_1 = PyNumber_Add(__pyx_v_x, __pyx_kp_u__23); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 188, __pyx_L1_error)
+    __pyx_t_1 = PyNumber_Add(__pyx_v_x, __pyx_kp_u__23); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 191, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_5 = PyNumber_InPlaceAdd(__pyx_v_string_rep, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 188, __pyx_L1_error)
+    __pyx_t_5 = PyNumber_InPlaceAdd(__pyx_v_string_rep, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 191, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF_SET(__pyx_v_string_rep, __pyx_t_5);
     __pyx_t_5 = 0;
 
-    /* "../utils.pyx":187
+    /* "../utils.pyx":190
  *     def __repr__(self):
  *         string_rep = '/'
  *         for x in self.pathname_parts:             # <<<<<<<<<<<<<<
@@ -26546,7 +26671,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_4__repr__(CYTHON_UNUSED Py
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "../utils.pyx":189
+  /* "../utils.pyx":192
  *         for x in self.pathname_parts:
  *             string_rep += x + '/'
  *         return string_rep             # <<<<<<<<<<<<<<
@@ -26558,7 +26683,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_4__repr__(CYTHON_UNUSED Py
   __pyx_r = __pyx_v_string_rep;
   goto __pyx_L0;
 
-  /* "../utils.pyx":185
+  /* "../utils.pyx":188
  *         self.pathname_parts = parts
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
@@ -26581,7 +26706,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_4__repr__(CYTHON_UNUSED Py
   return __pyx_r;
 }
 
-/* "../utils.pyx":191
+/* "../utils.pyx":194
  *         return string_rep
  * 
  *     def text(self):             # <<<<<<<<<<<<<<
@@ -26612,7 +26737,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_6text(CYTHON_UNUSED PyObje
   PyObject *__pyx_t_3 = NULL;
   __Pyx_RefNannySetupContext("text", 0);
 
-  /* "../utils.pyx":192
+  /* "../utils.pyx":195
  * 
  *     def text(self):
  *         return self.__repr__()             # <<<<<<<<<<<<<<
@@ -26620,7 +26745,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_6text(CYTHON_UNUSED PyObje
  *     def setAPart(self,A):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_repr); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 192, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_repr); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 195, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -26634,14 +26759,14 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_6text(CYTHON_UNUSED PyObje
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3) : __Pyx_PyObject_CallNoArg(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 192, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 195, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../utils.pyx":191
+  /* "../utils.pyx":194
  *         return string_rep
  * 
  *     def text(self):             # <<<<<<<<<<<<<<
@@ -26662,7 +26787,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_6text(CYTHON_UNUSED PyObje
   return __pyx_r;
 }
 
-/* "../utils.pyx":194
+/* "../utils.pyx":197
  *         return self.__repr__()
  * 
  *     def setAPart(self,A):             # <<<<<<<<<<<<<<
@@ -26703,11 +26828,11 @@ static PyObject *__pyx_pw_11core_heclib_11DssPathName_9setAPart(PyObject *__pyx_
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_A)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("setAPart", 1, 2, 2, 1); __PYX_ERR(0, 194, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("setAPart", 1, 2, 2, 1); __PYX_ERR(0, 197, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "setAPart") < 0)) __PYX_ERR(0, 194, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "setAPart") < 0)) __PYX_ERR(0, 197, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -26720,7 +26845,7 @@ static PyObject *__pyx_pw_11core_heclib_11DssPathName_9setAPart(PyObject *__pyx_
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("setAPart", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 194, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("setAPart", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 197, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("core_heclib.DssPathName.setAPart", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -26739,19 +26864,19 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_8setAPart(CYTHON_UNUSED Py
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("setAPart", 0);
 
-  /* "../utils.pyx":195
+  /* "../utils.pyx":198
  * 
  *     def setAPart(self,A):
  *         self.pathname_parts[0]=A             # <<<<<<<<<<<<<<
  * 
  *     def setBPart(self,B):
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 195, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 198, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (unlikely(__Pyx_SetItemInt(__pyx_t_1, 0, __pyx_v_A, long, 1, __Pyx_PyInt_From_long, 0, 0, 1) < 0)) __PYX_ERR(0, 195, __pyx_L1_error)
+  if (unlikely(__Pyx_SetItemInt(__pyx_t_1, 0, __pyx_v_A, long, 1, __Pyx_PyInt_From_long, 0, 0, 1) < 0)) __PYX_ERR(0, 198, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "../utils.pyx":194
+  /* "../utils.pyx":197
  *         return self.__repr__()
  * 
  *     def setAPart(self,A):             # <<<<<<<<<<<<<<
@@ -26772,7 +26897,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_8setAPart(CYTHON_UNUSED Py
   return __pyx_r;
 }
 
-/* "../utils.pyx":197
+/* "../utils.pyx":200
  *         self.pathname_parts[0]=A
  * 
  *     def setBPart(self,B):             # <<<<<<<<<<<<<<
@@ -26813,11 +26938,11 @@ static PyObject *__pyx_pw_11core_heclib_11DssPathName_11setBPart(PyObject *__pyx
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_B)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("setBPart", 1, 2, 2, 1); __PYX_ERR(0, 197, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("setBPart", 1, 2, 2, 1); __PYX_ERR(0, 200, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "setBPart") < 0)) __PYX_ERR(0, 197, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "setBPart") < 0)) __PYX_ERR(0, 200, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -26830,7 +26955,7 @@ static PyObject *__pyx_pw_11core_heclib_11DssPathName_11setBPart(PyObject *__pyx
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("setBPart", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 197, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("setBPart", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 200, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("core_heclib.DssPathName.setBPart", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -26849,19 +26974,19 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_10setBPart(CYTHON_UNUSED P
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("setBPart", 0);
 
-  /* "../utils.pyx":198
+  /* "../utils.pyx":201
  * 
  *     def setBPart(self,B):
  *         self.pathname_parts[1]=B             # <<<<<<<<<<<<<<
  * 
  *     def setCPart(self,C):
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 198, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 201, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (unlikely(__Pyx_SetItemInt(__pyx_t_1, 1, __pyx_v_B, long, 1, __Pyx_PyInt_From_long, 0, 0, 1) < 0)) __PYX_ERR(0, 198, __pyx_L1_error)
+  if (unlikely(__Pyx_SetItemInt(__pyx_t_1, 1, __pyx_v_B, long, 1, __Pyx_PyInt_From_long, 0, 0, 1) < 0)) __PYX_ERR(0, 201, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "../utils.pyx":197
+  /* "../utils.pyx":200
  *         self.pathname_parts[0]=A
  * 
  *     def setBPart(self,B):             # <<<<<<<<<<<<<<
@@ -26882,7 +27007,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_10setBPart(CYTHON_UNUSED P
   return __pyx_r;
 }
 
-/* "../utils.pyx":200
+/* "../utils.pyx":203
  *         self.pathname_parts[1]=B
  * 
  *     def setCPart(self,C):             # <<<<<<<<<<<<<<
@@ -26923,11 +27048,11 @@ static PyObject *__pyx_pw_11core_heclib_11DssPathName_13setCPart(PyObject *__pyx
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_C)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("setCPart", 1, 2, 2, 1); __PYX_ERR(0, 200, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("setCPart", 1, 2, 2, 1); __PYX_ERR(0, 203, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "setCPart") < 0)) __PYX_ERR(0, 200, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "setCPart") < 0)) __PYX_ERR(0, 203, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -26940,7 +27065,7 @@ static PyObject *__pyx_pw_11core_heclib_11DssPathName_13setCPart(PyObject *__pyx
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("setCPart", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 200, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("setCPart", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 203, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("core_heclib.DssPathName.setCPart", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -26959,19 +27084,19 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_12setCPart(CYTHON_UNUSED P
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("setCPart", 0);
 
-  /* "../utils.pyx":201
+  /* "../utils.pyx":204
  * 
  *     def setCPart(self,C):
  *         self.pathname_parts[2]=C             # <<<<<<<<<<<<<<
  * 
  *     def setDPart(self,D):
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 201, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 204, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (unlikely(__Pyx_SetItemInt(__pyx_t_1, 2, __pyx_v_C, long, 1, __Pyx_PyInt_From_long, 0, 0, 1) < 0)) __PYX_ERR(0, 201, __pyx_L1_error)
+  if (unlikely(__Pyx_SetItemInt(__pyx_t_1, 2, __pyx_v_C, long, 1, __Pyx_PyInt_From_long, 0, 0, 1) < 0)) __PYX_ERR(0, 204, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "../utils.pyx":200
+  /* "../utils.pyx":203
  *         self.pathname_parts[1]=B
  * 
  *     def setCPart(self,C):             # <<<<<<<<<<<<<<
@@ -26992,7 +27117,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_12setCPart(CYTHON_UNUSED P
   return __pyx_r;
 }
 
-/* "../utils.pyx":203
+/* "../utils.pyx":206
  *         self.pathname_parts[2]=C
  * 
  *     def setDPart(self,D):             # <<<<<<<<<<<<<<
@@ -27033,11 +27158,11 @@ static PyObject *__pyx_pw_11core_heclib_11DssPathName_15setDPart(PyObject *__pyx
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_D)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("setDPart", 1, 2, 2, 1); __PYX_ERR(0, 203, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("setDPart", 1, 2, 2, 1); __PYX_ERR(0, 206, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "setDPart") < 0)) __PYX_ERR(0, 203, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "setDPart") < 0)) __PYX_ERR(0, 206, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -27050,7 +27175,7 @@ static PyObject *__pyx_pw_11core_heclib_11DssPathName_15setDPart(PyObject *__pyx
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("setDPart", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 203, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("setDPart", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 206, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("core_heclib.DssPathName.setDPart", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -27069,19 +27194,19 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_14setDPart(CYTHON_UNUSED P
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("setDPart", 0);
 
-  /* "../utils.pyx":204
+  /* "../utils.pyx":207
  * 
  *     def setDPart(self,D):
  *         self.pathname_parts[3]=D             # <<<<<<<<<<<<<<
  * 
  *     def setEPart(self,E):
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 204, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 207, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (unlikely(__Pyx_SetItemInt(__pyx_t_1, 3, __pyx_v_D, long, 1, __Pyx_PyInt_From_long, 0, 0, 1) < 0)) __PYX_ERR(0, 204, __pyx_L1_error)
+  if (unlikely(__Pyx_SetItemInt(__pyx_t_1, 3, __pyx_v_D, long, 1, __Pyx_PyInt_From_long, 0, 0, 1) < 0)) __PYX_ERR(0, 207, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "../utils.pyx":203
+  /* "../utils.pyx":206
  *         self.pathname_parts[2]=C
  * 
  *     def setDPart(self,D):             # <<<<<<<<<<<<<<
@@ -27102,7 +27227,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_14setDPart(CYTHON_UNUSED P
   return __pyx_r;
 }
 
-/* "../utils.pyx":206
+/* "../utils.pyx":209
  *         self.pathname_parts[3]=D
  * 
  *     def setEPart(self,E):             # <<<<<<<<<<<<<<
@@ -27143,11 +27268,11 @@ static PyObject *__pyx_pw_11core_heclib_11DssPathName_17setEPart(PyObject *__pyx
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_E)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("setEPart", 1, 2, 2, 1); __PYX_ERR(0, 206, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("setEPart", 1, 2, 2, 1); __PYX_ERR(0, 209, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "setEPart") < 0)) __PYX_ERR(0, 206, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "setEPart") < 0)) __PYX_ERR(0, 209, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -27160,7 +27285,7 @@ static PyObject *__pyx_pw_11core_heclib_11DssPathName_17setEPart(PyObject *__pyx
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("setEPart", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 206, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("setEPart", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 209, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("core_heclib.DssPathName.setEPart", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -27179,19 +27304,19 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_16setEPart(CYTHON_UNUSED P
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("setEPart", 0);
 
-  /* "../utils.pyx":207
+  /* "../utils.pyx":210
  * 
  *     def setEPart(self,E):
  *         self.pathname_parts[4]=E             # <<<<<<<<<<<<<<
  * 
  *     def setFPart(self,F):
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 207, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 210, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (unlikely(__Pyx_SetItemInt(__pyx_t_1, 4, __pyx_v_E, long, 1, __Pyx_PyInt_From_long, 0, 0, 1) < 0)) __PYX_ERR(0, 207, __pyx_L1_error)
+  if (unlikely(__Pyx_SetItemInt(__pyx_t_1, 4, __pyx_v_E, long, 1, __Pyx_PyInt_From_long, 0, 0, 1) < 0)) __PYX_ERR(0, 210, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "../utils.pyx":206
+  /* "../utils.pyx":209
  *         self.pathname_parts[3]=D
  * 
  *     def setEPart(self,E):             # <<<<<<<<<<<<<<
@@ -27212,7 +27337,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_16setEPart(CYTHON_UNUSED P
   return __pyx_r;
 }
 
-/* "../utils.pyx":209
+/* "../utils.pyx":212
  *         self.pathname_parts[4]=E
  * 
  *     def setFPart(self,F):             # <<<<<<<<<<<<<<
@@ -27253,11 +27378,11 @@ static PyObject *__pyx_pw_11core_heclib_11DssPathName_19setFPart(PyObject *__pyx
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_F)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("setFPart", 1, 2, 2, 1); __PYX_ERR(0, 209, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("setFPart", 1, 2, 2, 1); __PYX_ERR(0, 212, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "setFPart") < 0)) __PYX_ERR(0, 209, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "setFPart") < 0)) __PYX_ERR(0, 212, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -27270,7 +27395,7 @@ static PyObject *__pyx_pw_11core_heclib_11DssPathName_19setFPart(PyObject *__pyx
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("setFPart", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 209, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("setFPart", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 212, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("core_heclib.DssPathName.setFPart", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -27289,19 +27414,19 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_18setFPart(CYTHON_UNUSED P
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("setFPart", 0);
 
-  /* "../utils.pyx":210
+  /* "../utils.pyx":213
  * 
  *     def setFPart(self,F):
  *         self.pathname_parts[5]=F             # <<<<<<<<<<<<<<
  * 
  *     def getAPart(self):
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 210, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 213, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (unlikely(__Pyx_SetItemInt(__pyx_t_1, 5, __pyx_v_F, long, 1, __Pyx_PyInt_From_long, 0, 0, 1) < 0)) __PYX_ERR(0, 210, __pyx_L1_error)
+  if (unlikely(__Pyx_SetItemInt(__pyx_t_1, 5, __pyx_v_F, long, 1, __Pyx_PyInt_From_long, 0, 0, 1) < 0)) __PYX_ERR(0, 213, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "../utils.pyx":209
+  /* "../utils.pyx":212
  *         self.pathname_parts[4]=E
  * 
  *     def setFPart(self,F):             # <<<<<<<<<<<<<<
@@ -27322,7 +27447,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_18setFPart(CYTHON_UNUSED P
   return __pyx_r;
 }
 
-/* "../utils.pyx":212
+/* "../utils.pyx":215
  *         self.pathname_parts[5]=F
  * 
  *     def getAPart(self):             # <<<<<<<<<<<<<<
@@ -27352,7 +27477,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_20getAPart(CYTHON_UNUSED P
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("getAPart", 0);
 
-  /* "../utils.pyx":213
+  /* "../utils.pyx":216
  * 
  *     def getAPart(self):
  *         return self.pathname_parts[0]             # <<<<<<<<<<<<<<
@@ -27360,16 +27485,16 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_20getAPart(CYTHON_UNUSED P
  *     def getBPart(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 213, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 216, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 213, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 216, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "../utils.pyx":212
+  /* "../utils.pyx":215
  *         self.pathname_parts[5]=F
  * 
  *     def getAPart(self):             # <<<<<<<<<<<<<<
@@ -27389,7 +27514,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_20getAPart(CYTHON_UNUSED P
   return __pyx_r;
 }
 
-/* "../utils.pyx":215
+/* "../utils.pyx":218
  *         return self.pathname_parts[0]
  * 
  *     def getBPart(self):             # <<<<<<<<<<<<<<
@@ -27419,7 +27544,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_22getBPart(CYTHON_UNUSED P
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("getBPart", 0);
 
-  /* "../utils.pyx":216
+  /* "../utils.pyx":219
  * 
  *     def getBPart(self):
  *         return self.pathname_parts[1]             # <<<<<<<<<<<<<<
@@ -27427,16 +27552,16 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_22getBPart(CYTHON_UNUSED P
  *     def getCPart(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 216, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 219, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 216, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 219, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "../utils.pyx":215
+  /* "../utils.pyx":218
  *         return self.pathname_parts[0]
  * 
  *     def getBPart(self):             # <<<<<<<<<<<<<<
@@ -27456,7 +27581,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_22getBPart(CYTHON_UNUSED P
   return __pyx_r;
 }
 
-/* "../utils.pyx":218
+/* "../utils.pyx":221
  *         return self.pathname_parts[1]
  * 
  *     def getCPart(self):             # <<<<<<<<<<<<<<
@@ -27486,7 +27611,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_24getCPart(CYTHON_UNUSED P
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("getCPart", 0);
 
-  /* "../utils.pyx":219
+  /* "../utils.pyx":222
  * 
  *     def getCPart(self):
  *         return self.pathname_parts[2]             # <<<<<<<<<<<<<<
@@ -27494,16 +27619,16 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_24getCPart(CYTHON_UNUSED P
  *     def getDPart(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 219, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 222, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 219, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 222, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "../utils.pyx":218
+  /* "../utils.pyx":221
  *         return self.pathname_parts[1]
  * 
  *     def getCPart(self):             # <<<<<<<<<<<<<<
@@ -27523,7 +27648,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_24getCPart(CYTHON_UNUSED P
   return __pyx_r;
 }
 
-/* "../utils.pyx":221
+/* "../utils.pyx":224
  *         return self.pathname_parts[2]
  * 
  *     def getDPart(self):             # <<<<<<<<<<<<<<
@@ -27553,7 +27678,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_26getDPart(CYTHON_UNUSED P
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("getDPart", 0);
 
-  /* "../utils.pyx":222
+  /* "../utils.pyx":225
  * 
  *     def getDPart(self):
  *         return self.pathname_parts[3]             # <<<<<<<<<<<<<<
@@ -27561,16 +27686,16 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_26getDPart(CYTHON_UNUSED P
  *     def getEPart(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 222, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 225, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 3, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 222, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 3, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 225, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "../utils.pyx":221
+  /* "../utils.pyx":224
  *         return self.pathname_parts[2]
  * 
  *     def getDPart(self):             # <<<<<<<<<<<<<<
@@ -27590,7 +27715,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_26getDPart(CYTHON_UNUSED P
   return __pyx_r;
 }
 
-/* "../utils.pyx":224
+/* "../utils.pyx":227
  *         return self.pathname_parts[3]
  * 
  *     def getEPart(self):             # <<<<<<<<<<<<<<
@@ -27620,7 +27745,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_28getEPart(CYTHON_UNUSED P
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("getEPart", 0);
 
-  /* "../utils.pyx":225
+  /* "../utils.pyx":228
  * 
  *     def getEPart(self):
  *         return self.pathname_parts[4]             # <<<<<<<<<<<<<<
@@ -27628,16 +27753,16 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_28getEPart(CYTHON_UNUSED P
  *     def getFPart(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 225, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 228, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 4, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 225, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 4, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 228, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "../utils.pyx":224
+  /* "../utils.pyx":227
  *         return self.pathname_parts[3]
  * 
  *     def getEPart(self):             # <<<<<<<<<<<<<<
@@ -27657,7 +27782,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_28getEPart(CYTHON_UNUSED P
   return __pyx_r;
 }
 
-/* "../utils.pyx":227
+/* "../utils.pyx":230
  *         return self.pathname_parts[4]
  * 
  *     def getFPart(self):             # <<<<<<<<<<<<<<
@@ -27687,23 +27812,23 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_30getFPart(CYTHON_UNUSED P
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("getFPart", 0);
 
-  /* "../utils.pyx":228
+  /* "../utils.pyx":231
  * 
  *     def getFPart(self):
  *         return self.pathname_parts[5]             # <<<<<<<<<<<<<<
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 228, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pathname_parts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 231, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 5, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 228, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 5, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 231, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "../utils.pyx":227
+  /* "../utils.pyx":230
  *         return self.pathname_parts[4]
  * 
  *     def getFPart(self):             # <<<<<<<<<<<<<<
@@ -27723,7 +27848,7 @@ static PyObject *__pyx_pf_11core_heclib_11DssPathName_30getFPart(CYTHON_UNUSED P
   return __pyx_r;
 }
 
-/* "../exceptions.pyx":27
+/* "../exceptions.pyx":28
  *         hec_zdssLastError *err
  * 
  *     def __cinit__(self,*args,**kwargs):             # <<<<<<<<<<<<<<
@@ -27757,7 +27882,7 @@ static int __pyx_pf_11core_heclib_12DssLastError___cinit__(struct __pyx_obj_11co
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "../exceptions.pyx":28
+  /* "../exceptions.pyx":29
  * 
  *     def __cinit__(self,*args,**kwargs):
  *         self.err= <hec_zdssLastError *>PyMem_Malloc(sizeof(hec_zdssLastError))             # <<<<<<<<<<<<<<
@@ -27766,7 +27891,7 @@ static int __pyx_pf_11core_heclib_12DssLastError___cinit__(struct __pyx_obj_11co
  */
   __pyx_v_self->err = ((struct hec_zdssLastError *)PyMem_Malloc((sizeof(struct hec_zdssLastError))));
 
-  /* "../exceptions.pyx":29
+  /* "../exceptions.pyx":30
  *     def __cinit__(self,*args,**kwargs):
  *         self.err= <hec_zdssLastError *>PyMem_Malloc(sizeof(hec_zdssLastError))
  *         if not self.err:             # <<<<<<<<<<<<<<
@@ -27776,16 +27901,16 @@ static int __pyx_pf_11core_heclib_12DssLastError___cinit__(struct __pyx_obj_11co
   __pyx_t_1 = ((!(__pyx_v_self->err != 0)) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "../exceptions.pyx":30
+    /* "../exceptions.pyx":31
  *         self.err= <hec_zdssLastError *>PyMem_Malloc(sizeof(hec_zdssLastError))
  *         if not self.err:
  *             raise MemoryError()             # <<<<<<<<<<<<<<
  *         zerror(self.err)
  * 
  */
-    PyErr_NoMemory(); __PYX_ERR(1, 30, __pyx_L1_error)
+    PyErr_NoMemory(); __PYX_ERR(1, 31, __pyx_L1_error)
 
-    /* "../exceptions.pyx":29
+    /* "../exceptions.pyx":30
  *     def __cinit__(self,*args,**kwargs):
  *         self.err= <hec_zdssLastError *>PyMem_Malloc(sizeof(hec_zdssLastError))
  *         if not self.err:             # <<<<<<<<<<<<<<
@@ -27794,7 +27919,7 @@ static int __pyx_pf_11core_heclib_12DssLastError___cinit__(struct __pyx_obj_11co
  */
   }
 
-  /* "../exceptions.pyx":31
+  /* "../exceptions.pyx":32
  *         if not self.err:
  *             raise MemoryError()
  *         zerror(self.err)             # <<<<<<<<<<<<<<
@@ -27803,7 +27928,7 @@ static int __pyx_pf_11core_heclib_12DssLastError___cinit__(struct __pyx_obj_11co
  */
   (void)(zerror(__pyx_v_self->err));
 
-  /* "../exceptions.pyx":27
+  /* "../exceptions.pyx":28
  *         hec_zdssLastError *err
  * 
  *     def __cinit__(self,*args,**kwargs):             # <<<<<<<<<<<<<<
@@ -27822,7 +27947,7 @@ static int __pyx_pf_11core_heclib_12DssLastError___cinit__(struct __pyx_obj_11co
   return __pyx_r;
 }
 
-/* "../exceptions.pyx":34
+/* "../exceptions.pyx":35
  * 
  *     property errorCode:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -27849,7 +27974,7 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_9errorCode___get__(struct
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "../exceptions.pyx":35
+  /* "../exceptions.pyx":36
  *     property errorCode:
  *         def __get__(self):
  *             return self.err[0].errorCode             # <<<<<<<<<<<<<<
@@ -27857,13 +27982,13 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_9errorCode___get__(struct
  *     property errorNumber:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int((__pyx_v_self->err[0]).errorCode); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 35, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int((__pyx_v_self->err[0]).errorCode); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 36, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../exceptions.pyx":34
+  /* "../exceptions.pyx":35
  * 
  *     property errorCode:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -27882,7 +28007,7 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_9errorCode___get__(struct
   return __pyx_r;
 }
 
-/* "../exceptions.pyx":38
+/* "../exceptions.pyx":39
  * 
  *     property errorNumber:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -27909,7 +28034,7 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_11errorNumber___get__(str
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "../exceptions.pyx":39
+  /* "../exceptions.pyx":40
  *     property errorNumber:
  *         def __get__(self):
  *             return self.err[0].errorNumber             # <<<<<<<<<<<<<<
@@ -27917,13 +28042,13 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_11errorNumber___get__(str
  *     property errorType:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int((__pyx_v_self->err[0]).errorNumber); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 39, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int((__pyx_v_self->err[0]).errorNumber); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 40, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../exceptions.pyx":38
+  /* "../exceptions.pyx":39
  * 
  *     property errorNumber:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -27942,7 +28067,7 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_11errorNumber___get__(str
   return __pyx_r;
 }
 
-/* "../exceptions.pyx":42
+/* "../exceptions.pyx":43
  * 
  *     property errorType:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -27969,7 +28094,7 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_9errorType___get__(struct
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "../exceptions.pyx":43
+  /* "../exceptions.pyx":44
  *     property errorType:
  *         def __get__(self):
  *             return self.err[0].errorType             # <<<<<<<<<<<<<<
@@ -27977,13 +28102,13 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_9errorType___get__(struct
  *     property severity:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int((__pyx_v_self->err[0]).errorType); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 43, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int((__pyx_v_self->err[0]).errorType); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 44, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../exceptions.pyx":42
+  /* "../exceptions.pyx":43
  * 
  *     property errorType:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -28002,7 +28127,7 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_9errorType___get__(struct
   return __pyx_r;
 }
 
-/* "../exceptions.pyx":46
+/* "../exceptions.pyx":47
  * 
  *     property severity:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -28029,7 +28154,7 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_8severity___get__(struct 
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "../exceptions.pyx":47
+  /* "../exceptions.pyx":48
  *     property severity:
  *         def __get__(self):
  *             return self.err[0].severity             # <<<<<<<<<<<<<<
@@ -28037,13 +28162,13 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_8severity___get__(struct 
  *     property systemError:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int((__pyx_v_self->err[0]).severity); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 47, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int((__pyx_v_self->err[0]).severity); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 48, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../exceptions.pyx":46
+  /* "../exceptions.pyx":47
  * 
  *     property severity:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -28062,7 +28187,7 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_8severity___get__(struct 
   return __pyx_r;
 }
 
-/* "../exceptions.pyx":50
+/* "../exceptions.pyx":51
  * 
  *     property systemError:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -28089,7 +28214,7 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_11systemError___get__(str
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "../exceptions.pyx":51
+  /* "../exceptions.pyx":52
  *     property systemError:
  *         def __get__(self):
  *             return self.err[0].systemError             # <<<<<<<<<<<<<<
@@ -28097,13 +28222,13 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_11systemError___get__(str
  *     property errorMessage:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int((__pyx_v_self->err[0]).systemError); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 51, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int((__pyx_v_self->err[0]).systemError); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 52, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../exceptions.pyx":50
+  /* "../exceptions.pyx":51
  * 
  *     property systemError:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -28122,7 +28247,7 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_11systemError___get__(str
   return __pyx_r;
 }
 
-/* "../exceptions.pyx":54
+/* "../exceptions.pyx":55
  * 
  *     property errorMessage:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -28149,7 +28274,7 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_12errorMessage___get__(st
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "../exceptions.pyx":55
+  /* "../exceptions.pyx":56
  *     property errorMessage:
  *         def __get__(self):
  *             return self.err[0].errorMessage             # <<<<<<<<<<<<<<
@@ -28157,13 +28282,13 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_12errorMessage___get__(st
  *     property systemErrorMessage:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_FromString((__pyx_v_self->err[0]).errorMessage); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 55, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_FromString((__pyx_v_self->err[0]).errorMessage); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 56, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../exceptions.pyx":54
+  /* "../exceptions.pyx":55
  * 
  *     property errorMessage:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -28182,7 +28307,7 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_12errorMessage___get__(st
   return __pyx_r;
 }
 
-/* "../exceptions.pyx":58
+/* "../exceptions.pyx":59
  * 
  *     property systemErrorMessage:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -28209,7 +28334,7 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_18systemErrorMessage___ge
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "../exceptions.pyx":59
+  /* "../exceptions.pyx":60
  *     property systemErrorMessage:
  *         def __get__(self):
  *             return self.err[0].systemErrorMessage             # <<<<<<<<<<<<<<
@@ -28217,13 +28342,13 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_18systemErrorMessage___ge
  *     property lastPathname:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_FromString((__pyx_v_self->err[0]).systemErrorMessage); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 59, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_FromString((__pyx_v_self->err[0]).systemErrorMessage); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 60, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../exceptions.pyx":58
+  /* "../exceptions.pyx":59
  * 
  *     property systemErrorMessage:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -28242,7 +28367,7 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_18systemErrorMessage___ge
   return __pyx_r;
 }
 
-/* "../exceptions.pyx":62
+/* "../exceptions.pyx":63
  * 
  *     property lastPathname:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -28269,7 +28394,7 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_12lastPathname___get__(st
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "../exceptions.pyx":63
+  /* "../exceptions.pyx":64
  *     property lastPathname:
  *         def __get__(self):
  *             return self.err[0].lastPathname             # <<<<<<<<<<<<<<
@@ -28277,13 +28402,13 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_12lastPathname___get__(st
  *     property filename:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_FromString((__pyx_v_self->err[0]).lastPathname); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 63, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_FromString((__pyx_v_self->err[0]).lastPathname); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 64, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../exceptions.pyx":62
+  /* "../exceptions.pyx":63
  * 
  *     property lastPathname:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -28302,7 +28427,7 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_12lastPathname___get__(st
   return __pyx_r;
 }
 
-/* "../exceptions.pyx":66
+/* "../exceptions.pyx":67
  * 
  *     property filename:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -28329,7 +28454,7 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_8filename___get__(struct 
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "../exceptions.pyx":67
+  /* "../exceptions.pyx":68
  *     property filename:
  *         def __get__(self):
  *             return self.err[0].filename             # <<<<<<<<<<<<<<
@@ -28337,13 +28462,13 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_8filename___get__(struct 
  *     def __dealloc__(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_FromString((__pyx_v_self->err[0]).filename); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 67, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_FromString((__pyx_v_self->err[0]).filename); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 68, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../exceptions.pyx":66
+  /* "../exceptions.pyx":67
  * 
  *     property filename:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -28362,12 +28487,12 @@ static PyObject *__pyx_pf_11core_heclib_12DssLastError_8filename___get__(struct 
   return __pyx_r;
 }
 
-/* "../exceptions.pyx":69
+/* "../exceptions.pyx":70
  *             return self.err[0].filename
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
- *         if self.err:
- *             PyMem_Free(self.err)
+ *         PyMem_Free(self.err)
+ * 
  */
 
 /* Python wrapper */
@@ -28383,43 +28508,23 @@ static void __pyx_pw_11core_heclib_12DssLastError_3__dealloc__(PyObject *__pyx_v
 
 static void __pyx_pf_11core_heclib_12DssLastError_2__dealloc__(struct __pyx_obj_11core_heclib_DssLastError *__pyx_v_self) {
   __Pyx_RefNannyDeclarations
-  int __pyx_t_1;
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "../exceptions.pyx":70
+  /* "../exceptions.pyx":71
  * 
  *     def __dealloc__(self):
- *         if self.err:             # <<<<<<<<<<<<<<
- *             PyMem_Free(self.err)
- * 
- */
-  __pyx_t_1 = (__pyx_v_self->err != 0);
-  if (__pyx_t_1) {
-
-    /* "../exceptions.pyx":71
- *     def __dealloc__(self):
- *         if self.err:
- *             PyMem_Free(self.err)             # <<<<<<<<<<<<<<
+ *         PyMem_Free(self.err)             # <<<<<<<<<<<<<<
  * 
  * class DssStatusException(Exception):
  */
-    PyMem_Free(__pyx_v_self->err);
+  PyMem_Free(__pyx_v_self->err);
 
-    /* "../exceptions.pyx":70
- * 
- *     def __dealloc__(self):
- *         if self.err:             # <<<<<<<<<<<<<<
- *             PyMem_Free(self.err)
- * 
- */
-  }
-
-  /* "../exceptions.pyx":69
+  /* "../exceptions.pyx":70
  *             return self.err[0].filename
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
- *         if self.err:
- *             PyMem_Free(self.err)
+ *         PyMem_Free(self.err)
+ * 
  */
 
   /* function exit code */
@@ -28753,10 +28858,10 @@ static PyObject *__pyx_pf_11core_heclib_18DssStatusException___init__(CYTHON_UNU
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_7isError(PyObject *__pyx_self, PyObject *__pyx_arg_status); /*proto*/
-static char __pyx_doc_11core_heclib_6isError[] = "isError(int status)";
-static PyMethodDef __pyx_mdef_11core_heclib_7isError = {"isError", (PyCFunction)__pyx_pw_11core_heclib_7isError, METH_O, __pyx_doc_11core_heclib_6isError};
-static PyObject *__pyx_pw_11core_heclib_7isError(PyObject *__pyx_self, PyObject *__pyx_arg_status) {
+static PyObject *__pyx_pw_11core_heclib_9isError(PyObject *__pyx_self, PyObject *__pyx_arg_status); /*proto*/
+static char __pyx_doc_11core_heclib_8isError[] = "isError(int status)";
+static PyMethodDef __pyx_mdef_11core_heclib_9isError = {"isError", (PyCFunction)__pyx_pw_11core_heclib_9isError, METH_O, __pyx_doc_11core_heclib_8isError};
+static PyObject *__pyx_pw_11core_heclib_9isError(PyObject *__pyx_self, PyObject *__pyx_arg_status) {
   int __pyx_v_status;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -28770,14 +28875,14 @@ static PyObject *__pyx_pw_11core_heclib_7isError(PyObject *__pyx_self, PyObject 
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11core_heclib_6isError(__pyx_self, ((int)__pyx_v_status));
+  __pyx_r = __pyx_pf_11core_heclib_8isError(__pyx_self, ((int)__pyx_v_status));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_6isError(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_status) {
+static PyObject *__pyx_pf_11core_heclib_8isError(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_status) {
   struct __pyx_obj_11core_heclib_DssLastError *__pyx_v_err_obj = 0;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -29402,7 +29507,7 @@ static PyObject *__pyx_pf_11core_heclib_16DssPathException_2__repr__(CYTHON_UNUS
  *     Converts Date string to days since Julian base date,which is defined by HEC
  */
 
-static PyObject *__pyx_pw_11core_heclib_9_dateToJulian(PyObject *__pyx_self, PyObject *__pyx_v_dateString); /*proto*/
+static PyObject *__pyx_pw_11core_heclib_11_dateToJulian(PyObject *__pyx_self, PyObject *__pyx_v_dateString); /*proto*/
 static int __pyx_f_11core_heclib__dateToJulian(PyObject *__pyx_v_dateString, CYTHON_UNUSED int __pyx_skip_dispatch) {
   char *__pyx_v_dstr;
   int __pyx_v_result;
@@ -29458,14 +29563,14 @@ static int __pyx_f_11core_heclib__dateToJulian(PyObject *__pyx_v_dateString, CYT
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_9_dateToJulian(PyObject *__pyx_self, PyObject *__pyx_v_dateString); /*proto*/
-static char __pyx_doc_11core_heclib_8_dateToJulian[] = "_dateToJulian(unicode dateString) -> int\n\n    Converts Date string to days since Julian base date,which is defined by HEC\n    as Dec 31, 1899 (time 00:00 or beginning of day)\n\n    Returns:\n        It returns integer days since the beginning of Julian Base Date\n\n    DateString Rules (?):\n        Valid: \"02JAN1969\", \"2JAN1969\", \"02 JAN 1969\",\"02 JANUARY 1969\"\n        Invalid: don't use 2 digit year and don't include time in the string\n    \n    Examples:\n         returns 10 for Jan 10, 1900\n         returns 0 for \"31DEC1899\"\n         returns 1 for \"01JAN1900\" \n    ";
-static PyObject *__pyx_pw_11core_heclib_9_dateToJulian(PyObject *__pyx_self, PyObject *__pyx_v_dateString) {
+static PyObject *__pyx_pw_11core_heclib_11_dateToJulian(PyObject *__pyx_self, PyObject *__pyx_v_dateString); /*proto*/
+static char __pyx_doc_11core_heclib_10_dateToJulian[] = "_dateToJulian(unicode dateString) -> int\n\n    Converts Date string to days since Julian base date,which is defined by HEC\n    as Dec 31, 1899 (time 00:00 or beginning of day)\n\n    Returns:\n        It returns integer days since the beginning of Julian Base Date\n\n    DateString Rules (?):\n        Valid: \"02JAN1969\", \"2JAN1969\", \"02 JAN 1969\",\"02 JANUARY 1969\"\n        Invalid: don't use 2 digit year and don't include time in the string\n    \n    Examples:\n         returns 10 for Jan 10, 1900\n         returns 0 for \"31DEC1899\"\n         returns 1 for \"01JAN1900\" \n    ";
+static PyObject *__pyx_pw_11core_heclib_11_dateToJulian(PyObject *__pyx_self, PyObject *__pyx_v_dateString) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("_dateToJulian (wrapper)", 0);
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_dateString), (&PyUnicode_Type), 1, "dateString", 1))) __PYX_ERR(2, 27, __pyx_L1_error)
-  __pyx_r = __pyx_pf_11core_heclib_8_dateToJulian(__pyx_self, ((PyObject*)__pyx_v_dateString));
+  __pyx_r = __pyx_pf_11core_heclib_10_dateToJulian(__pyx_self, ((PyObject*)__pyx_v_dateString));
 
   /* function exit code */
   goto __pyx_L0;
@@ -29476,7 +29581,7 @@ static PyObject *__pyx_pw_11core_heclib_9_dateToJulian(PyObject *__pyx_self, PyO
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_8_dateToJulian(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateString) {
+static PyObject *__pyx_pf_11core_heclib_10_dateToJulian(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateString) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -29507,7 +29612,7 @@ static PyObject *__pyx_pf_11core_heclib_8_dateToJulian(CYTHON_UNUSED PyObject *_
  *         char cdate[13]
  */
 
-static PyObject *__pyx_pw_11core_heclib_11_julianToDate(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_11core_heclib_13_julianToDate(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static PyObject *__pyx_f_11core_heclib__julianToDate(int __pyx_v_days, CYTHON_UNUSED int __pyx_skip_dispatch, struct __pyx_opt_args_11core_heclib__julianToDate *__pyx_optional_args) {
   int __pyx_v_fmt = ((int)4);
   char __pyx_v_cdate[13];
@@ -29575,9 +29680,9 @@ static PyObject *__pyx_f_11core_heclib__julianToDate(int __pyx_v_days, CYTHON_UN
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_11_julianToDate(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_11core_heclib_10_julianToDate[] = "_julianToDate(int days, int fmt=4) -> unicode";
-static PyObject *__pyx_pw_11core_heclib_11_julianToDate(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_11core_heclib_13_julianToDate(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_11core_heclib_12_julianToDate[] = "_julianToDate(int days, int fmt=4) -> unicode";
+static PyObject *__pyx_pw_11core_heclib_13_julianToDate(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   int __pyx_v_days;
   int __pyx_v_fmt;
   PyObject *__pyx_r = 0;
@@ -29636,14 +29741,14 @@ static PyObject *__pyx_pw_11core_heclib_11_julianToDate(PyObject *__pyx_self, Py
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11core_heclib_10_julianToDate(__pyx_self, __pyx_v_days, __pyx_v_fmt);
+  __pyx_r = __pyx_pf_11core_heclib_12_julianToDate(__pyx_self, __pyx_v_days, __pyx_v_fmt);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_10_julianToDate(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_days, int __pyx_v_fmt) {
+static PyObject *__pyx_pf_11core_heclib_12_julianToDate(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_days, int __pyx_v_fmt) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -29677,7 +29782,7 @@ static PyObject *__pyx_pf_11core_heclib_10_julianToDate(CYTHON_UNUSED PyObject *
  *         #char *dstr = dateString
  */
 
-static PyObject *__pyx_pw_11core_heclib_13_getDateAndTime(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_11core_heclib_15_getDateAndTime(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static PyObject *__pyx_f_11core_heclib__getDateAndTime(int __pyx_v_timeMinOrSec, int __pyx_v_timeGranularitySeconds, CYTHON_UNUSED int __pyx_skip_dispatch, struct __pyx_opt_args_11core_heclib__getDateAndTime *__pyx_optional_args) {
   int __pyx_v_julianBaseDate = ((int)0);
   char __pyx_v_cdate[13];
@@ -29802,9 +29907,9 @@ static PyObject *__pyx_f_11core_heclib__getDateAndTime(int __pyx_v_timeMinOrSec,
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_13_getDateAndTime(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_11core_heclib_12_getDateAndTime[] = "_getDateAndTime(int timeMinOrSec, int timeGranularitySeconds, int julianBaseDate=0) -> tuple";
-static PyObject *__pyx_pw_11core_heclib_13_getDateAndTime(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_11core_heclib_15_getDateAndTime(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_11core_heclib_14_getDateAndTime[] = "_getDateAndTime(int timeMinOrSec, int timeGranularitySeconds, int julianBaseDate=0) -> tuple";
+static PyObject *__pyx_pw_11core_heclib_15_getDateAndTime(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   int __pyx_v_timeMinOrSec;
   int __pyx_v_timeGranularitySeconds;
   int __pyx_v_julianBaseDate;
@@ -29874,14 +29979,14 @@ static PyObject *__pyx_pw_11core_heclib_13_getDateAndTime(PyObject *__pyx_self, 
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11core_heclib_12_getDateAndTime(__pyx_self, __pyx_v_timeMinOrSec, __pyx_v_timeGranularitySeconds, __pyx_v_julianBaseDate);
+  __pyx_r = __pyx_pf_11core_heclib_14_getDateAndTime(__pyx_self, __pyx_v_timeMinOrSec, __pyx_v_timeGranularitySeconds, __pyx_v_julianBaseDate);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_12_getDateAndTime(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_timeMinOrSec, int __pyx_v_timeGranularitySeconds, int __pyx_v_julianBaseDate) {
+static PyObject *__pyx_pf_11core_heclib_14_getDateAndTime(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_timeMinOrSec, int __pyx_v_timeGranularitySeconds, int __pyx_v_julianBaseDate) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -29915,7 +30020,7 @@ static PyObject *__pyx_pf_11core_heclib_12_getDateAndTime(CYTHON_UNUSED PyObject
  *         int julian[1]
  */
 
-static PyObject *__pyx_pw_11core_heclib_15_datetimeToSeconds(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString); /*proto*/
+static PyObject *__pyx_pw_11core_heclib_17_datetimeToSeconds(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString); /*proto*/
 static int __pyx_f_11core_heclib__datetimeToSeconds(char *__pyx_v_datetimeString, CYTHON_UNUSED int __pyx_skip_dispatch) {
   int __pyx_v_julian[1];
   int __pyx_v_seconds[1];
@@ -29989,9 +30094,9 @@ static int __pyx_f_11core_heclib__datetimeToSeconds(char *__pyx_v_datetimeString
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_15_datetimeToSeconds(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString); /*proto*/
-static char __pyx_doc_11core_heclib_14_datetimeToSeconds[] = "_datetimeToSeconds(char *datetimeString) -> int";
-static PyObject *__pyx_pw_11core_heclib_15_datetimeToSeconds(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString) {
+static PyObject *__pyx_pw_11core_heclib_17_datetimeToSeconds(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString); /*proto*/
+static char __pyx_doc_11core_heclib_16_datetimeToSeconds[] = "_datetimeToSeconds(char *datetimeString) -> int";
+static PyObject *__pyx_pw_11core_heclib_17_datetimeToSeconds(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString) {
   char *__pyx_v_datetimeString;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -30005,14 +30110,14 @@ static PyObject *__pyx_pw_11core_heclib_15_datetimeToSeconds(PyObject *__pyx_sel
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11core_heclib_14_datetimeToSeconds(__pyx_self, ((char *)__pyx_v_datetimeString));
+  __pyx_r = __pyx_pf_11core_heclib_16_datetimeToSeconds(__pyx_self, ((char *)__pyx_v_datetimeString));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_14_datetimeToSeconds(CYTHON_UNUSED PyObject *__pyx_self, char *__pyx_v_datetimeString) {
+static PyObject *__pyx_pf_11core_heclib_16_datetimeToSeconds(CYTHON_UNUSED PyObject *__pyx_self, char *__pyx_v_datetimeString) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -30043,7 +30148,7 @@ static PyObject *__pyx_pf_11core_heclib_14_datetimeToSeconds(CYTHON_UNUSED PyObj
  *         int julian[1]
  */
 
-static PyObject *__pyx_pw_11core_heclib_17_datetimeToSeconds2(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString); /*proto*/
+static PyObject *__pyx_pw_11core_heclib_19_datetimeToSeconds2(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString); /*proto*/
 static PyObject *__pyx_f_11core_heclib__datetimeToSeconds2(char *__pyx_v_datetimeString, CYTHON_UNUSED int __pyx_skip_dispatch) {
   int __pyx_v_julian[1];
   int __pyx_v_seconds[1];
@@ -30131,9 +30236,9 @@ static PyObject *__pyx_f_11core_heclib__datetimeToSeconds2(char *__pyx_v_datetim
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_17_datetimeToSeconds2(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString); /*proto*/
-static char __pyx_doc_11core_heclib_16_datetimeToSeconds2[] = "_datetimeToSeconds2(char *datetimeString) -> tuple";
-static PyObject *__pyx_pw_11core_heclib_17_datetimeToSeconds2(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString) {
+static PyObject *__pyx_pw_11core_heclib_19_datetimeToSeconds2(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString); /*proto*/
+static char __pyx_doc_11core_heclib_18_datetimeToSeconds2[] = "_datetimeToSeconds2(char *datetimeString) -> tuple";
+static PyObject *__pyx_pw_11core_heclib_19_datetimeToSeconds2(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString) {
   char *__pyx_v_datetimeString;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -30147,14 +30252,14 @@ static PyObject *__pyx_pw_11core_heclib_17_datetimeToSeconds2(PyObject *__pyx_se
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11core_heclib_16_datetimeToSeconds2(__pyx_self, ((char *)__pyx_v_datetimeString));
+  __pyx_r = __pyx_pf_11core_heclib_18_datetimeToSeconds2(__pyx_self, ((char *)__pyx_v_datetimeString));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_16_datetimeToSeconds2(CYTHON_UNUSED PyObject *__pyx_self, char *__pyx_v_datetimeString) {
+static PyObject *__pyx_pf_11core_heclib_18_datetimeToSeconds2(CYTHON_UNUSED PyObject *__pyx_self, char *__pyx_v_datetimeString) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -30233,10 +30338,10 @@ static int __pyx_f_11core_heclib__yearMonthDayToJulian(int __pyx_v_year, int __p
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_19getDateTimeStringTuple(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_11core_heclib_18getDateTimeStringTuple[] = "getDateTimeStringTuple(dateValue, granularity=60, julianBaseDate=0)\n\n    Returns:\n        Tuple consisting of date and time string (unicode strings)\n        date string format: 03Jan1969\n        time string format: 11:20:00 (second granularity) or \n                            1120 (minute granularity)\n\n    Notes:\n        #granularity value limited to:\n            # 1 (SECOND_GRANULARITY)\n            # 0 or 60 (MINUTE_GRANULARITY) DEFAULT \n        # what about hour and day granularity\077\077\077\077\n    ";
-static PyMethodDef __pyx_mdef_11core_heclib_19getDateTimeStringTuple = {"getDateTimeStringTuple", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_19getDateTimeStringTuple, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_18getDateTimeStringTuple};
-static PyObject *__pyx_pw_11core_heclib_19getDateTimeStringTuple(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_11core_heclib_21getDateTimeStringTuple(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_11core_heclib_20getDateTimeStringTuple[] = "getDateTimeStringTuple(dateValue, granularity=60, julianBaseDate=0)\n\n    Returns:\n        Tuple consisting of date and time string (unicode strings)\n        date string format: 03Jan1969\n        time string format: 11:20:00 (second granularity) or \n                            1120 (minute granularity)\n\n    Notes:\n        #granularity value limited to:\n            # 1 (SECOND_GRANULARITY)\n            # 0 or 60 (MINUTE_GRANULARITY) DEFAULT \n        # what about hour and day granularity\077\077\077\077\n    ";
+static PyMethodDef __pyx_mdef_11core_heclib_21getDateTimeStringTuple = {"getDateTimeStringTuple", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_21getDateTimeStringTuple, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_20getDateTimeStringTuple};
+static PyObject *__pyx_pw_11core_heclib_21getDateTimeStringTuple(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_dateValue = 0;
   PyObject *__pyx_v_granularity = 0;
   PyObject *__pyx_v_julianBaseDate = 0;
@@ -30305,14 +30410,14 @@ static PyObject *__pyx_pw_11core_heclib_19getDateTimeStringTuple(PyObject *__pyx
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11core_heclib_18getDateTimeStringTuple(__pyx_self, __pyx_v_dateValue, __pyx_v_granularity, __pyx_v_julianBaseDate);
+  __pyx_r = __pyx_pf_11core_heclib_20getDateTimeStringTuple(__pyx_self, __pyx_v_dateValue, __pyx_v_granularity, __pyx_v_julianBaseDate);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_18getDateTimeStringTuple(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateValue, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate) {
+static PyObject *__pyx_pf_11core_heclib_20getDateTimeStringTuple(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateValue, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate) {
   PyObject *__pyx_v_datestr = NULL;
   PyObject *__pyx_v_timestr = NULL;
   PyObject *__pyx_r = NULL;
@@ -30453,21 +30558,21 @@ static PyObject *__pyx_pf_11core_heclib_18getDateTimeStringTuple(CYTHON_UNUSED P
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_21getPyDateTimeFromString(PyObject *__pyx_self, PyObject *__pyx_v_dateString); /*proto*/
-static char __pyx_doc_11core_heclib_20getPyDateTimeFromString[] = "getPyDateTimeFromString(dateString)";
-static PyMethodDef __pyx_mdef_11core_heclib_21getPyDateTimeFromString = {"getPyDateTimeFromString", (PyCFunction)__pyx_pw_11core_heclib_21getPyDateTimeFromString, METH_O, __pyx_doc_11core_heclib_20getPyDateTimeFromString};
-static PyObject *__pyx_pw_11core_heclib_21getPyDateTimeFromString(PyObject *__pyx_self, PyObject *__pyx_v_dateString) {
+static PyObject *__pyx_pw_11core_heclib_23getPyDateTimeFromString(PyObject *__pyx_self, PyObject *__pyx_v_dateString); /*proto*/
+static char __pyx_doc_11core_heclib_22getPyDateTimeFromString[] = "getPyDateTimeFromString(dateString)";
+static PyMethodDef __pyx_mdef_11core_heclib_23getPyDateTimeFromString = {"getPyDateTimeFromString", (PyCFunction)__pyx_pw_11core_heclib_23getPyDateTimeFromString, METH_O, __pyx_doc_11core_heclib_22getPyDateTimeFromString};
+static PyObject *__pyx_pw_11core_heclib_23getPyDateTimeFromString(PyObject *__pyx_self, PyObject *__pyx_v_dateString) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("getPyDateTimeFromString (wrapper)", 0);
-  __pyx_r = __pyx_pf_11core_heclib_20getPyDateTimeFromString(__pyx_self, ((PyObject *)__pyx_v_dateString));
+  __pyx_r = __pyx_pf_11core_heclib_22getPyDateTimeFromString(__pyx_self, ((PyObject *)__pyx_v_dateString));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_20getPyDateTimeFromString(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateString) {
+static PyObject *__pyx_pf_11core_heclib_22getPyDateTimeFromString(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateString) {
   PyObject *__pyx_v_datetime_obj = NULL;
   CYTHON_UNUSED PyObject *__pyx_v__ = NULL;
   PyObject *__pyx_v_msg = NULL;
@@ -31372,10 +31477,10 @@ static PyObject *__pyx_pf_11core_heclib_20getPyDateTimeFromString(CYTHON_UNUSED 
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_23getPyDateTimeFromValue(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_11core_heclib_22getPyDateTimeFromValue[] = "getPyDateTimeFromValue(dateValue, granularity=60, julianBaseDate=0)";
-static PyMethodDef __pyx_mdef_11core_heclib_23getPyDateTimeFromValue = {"getPyDateTimeFromValue", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_23getPyDateTimeFromValue, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_22getPyDateTimeFromValue};
-static PyObject *__pyx_pw_11core_heclib_23getPyDateTimeFromValue(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_11core_heclib_25getPyDateTimeFromValue(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_11core_heclib_24getPyDateTimeFromValue[] = "getPyDateTimeFromValue(dateValue, granularity=60, julianBaseDate=0)";
+static PyMethodDef __pyx_mdef_11core_heclib_25getPyDateTimeFromValue = {"getPyDateTimeFromValue", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_25getPyDateTimeFromValue, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_24getPyDateTimeFromValue};
+static PyObject *__pyx_pw_11core_heclib_25getPyDateTimeFromValue(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_dateValue = 0;
   PyObject *__pyx_v_granularity = 0;
   PyObject *__pyx_v_julianBaseDate = 0;
@@ -31444,14 +31549,14 @@ static PyObject *__pyx_pw_11core_heclib_23getPyDateTimeFromValue(PyObject *__pyx
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11core_heclib_22getPyDateTimeFromValue(__pyx_self, __pyx_v_dateValue, __pyx_v_granularity, __pyx_v_julianBaseDate);
+  __pyx_r = __pyx_pf_11core_heclib_24getPyDateTimeFromValue(__pyx_self, __pyx_v_dateValue, __pyx_v_granularity, __pyx_v_julianBaseDate);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_22getPyDateTimeFromValue(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateValue, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate) {
+static PyObject *__pyx_pf_11core_heclib_24getPyDateTimeFromValue(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateValue, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate) {
   PyObject *__pyx_v_tup = NULL;
   PyObject *__pyx_v_datetimestr = NULL;
   PyObject *__pyx_v_datetime_obj = NULL;
@@ -31643,10 +31748,10 @@ static PyObject *__pyx_pf_11core_heclib_22getPyDateTimeFromValue(CYTHON_UNUSED P
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_25getDateTimeValueTuple(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_11core_heclib_24getDateTimeValueTuple[] = "getDateTimeValueTuple(dateValue, granularity=60, julianBaseDate=0)\n\n    Returns:\n        Tuples of following type - \n            YYYY,MM,DD,HH,MM,SS for 1 second granularity\n            YYYY,MM,DD,HH,MM for 60 second granularity\n\n    ";
-static PyMethodDef __pyx_mdef_11core_heclib_25getDateTimeValueTuple = {"getDateTimeValueTuple", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_25getDateTimeValueTuple, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_24getDateTimeValueTuple};
-static PyObject *__pyx_pw_11core_heclib_25getDateTimeValueTuple(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_11core_heclib_27getDateTimeValueTuple(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_11core_heclib_26getDateTimeValueTuple[] = "getDateTimeValueTuple(dateValue, granularity=60, julianBaseDate=0)\n\n    Returns:\n        Tuples of following type - \n            YYYY,MM,DD,HH,MM,SS for 1 second granularity\n            YYYY,MM,DD,HH,MM for 60 second granularity\n\n    ";
+static PyMethodDef __pyx_mdef_11core_heclib_27getDateTimeValueTuple = {"getDateTimeValueTuple", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_27getDateTimeValueTuple, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_26getDateTimeValueTuple};
+static PyObject *__pyx_pw_11core_heclib_27getDateTimeValueTuple(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_dateValue = 0;
   PyObject *__pyx_v_granularity = 0;
   PyObject *__pyx_v_julianBaseDate = 0;
@@ -31715,14 +31820,14 @@ static PyObject *__pyx_pw_11core_heclib_25getDateTimeValueTuple(PyObject *__pyx_
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11core_heclib_24getDateTimeValueTuple(__pyx_self, __pyx_v_dateValue, __pyx_v_granularity, __pyx_v_julianBaseDate);
+  __pyx_r = __pyx_pf_11core_heclib_26getDateTimeValueTuple(__pyx_self, __pyx_v_dateValue, __pyx_v_granularity, __pyx_v_julianBaseDate);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_24getDateTimeValueTuple(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateValue, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate) {
+static PyObject *__pyx_pf_11core_heclib_26getDateTimeValueTuple(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateValue, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate) {
   PyObject *__pyx_v_datestr = NULL;
   PyObject *__pyx_v_timestr = NULL;
   PyObject *__pyx_v_day = NULL;
@@ -42874,7 +42979,7 @@ static PyObject *__pyx_pf_11core_heclib_13CatalogStruct_10__setstate_cython__(CY
  *         long long *ifltab = fid.ifltab
  */
 
-static PyObject *__pyx_pw_11core_heclib_27getPathnameCatalog(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_11core_heclib_29getPathnameCatalog(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static struct __pyx_obj_11core_heclib_CatalogStruct *__pyx_f_11core_heclib_getPathnameCatalog(struct __pyx_obj_11core_heclib_Open *__pyx_v_fid, PyObject *__pyx_v_pathWithWild, CYTHON_UNUSED int __pyx_skip_dispatch, struct __pyx_opt_args_11core_heclib_getPathnameCatalog *__pyx_optional_args) {
   int __pyx_v_sort = ((int)0);
   PY_LONG_LONG *__pyx_v_ifltab;
@@ -43056,9 +43161,9 @@ static struct __pyx_obj_11core_heclib_CatalogStruct *__pyx_f_11core_heclib_getPa
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_27getPathnameCatalog(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_11core_heclib_26getPathnameCatalog[] = "getPathnameCatalog(Open fid, unicode pathWithWild, int sort=0) -> CatalogStruct";
-static PyObject *__pyx_pw_11core_heclib_27getPathnameCatalog(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_11core_heclib_29getPathnameCatalog(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_11core_heclib_28getPathnameCatalog[] = "getPathnameCatalog(Open fid, unicode pathWithWild, int sort=0) -> CatalogStruct";
+static PyObject *__pyx_pw_11core_heclib_29getPathnameCatalog(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   struct __pyx_obj_11core_heclib_Open *__pyx_v_fid = 0;
   PyObject *__pyx_v_pathWithWild = 0;
   int __pyx_v_sort;
@@ -43130,7 +43235,7 @@ static PyObject *__pyx_pw_11core_heclib_27getPathnameCatalog(PyObject *__pyx_sel
   __pyx_L4_argument_unpacking_done:;
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_fid), __pyx_ptype_11core_heclib_Open, 1, "fid", 0))) __PYX_ERR(8, 75, __pyx_L1_error)
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pathWithWild), (&PyUnicode_Type), 1, "pathWithWild", 1))) __PYX_ERR(8, 75, __pyx_L1_error)
-  __pyx_r = __pyx_pf_11core_heclib_26getPathnameCatalog(__pyx_self, __pyx_v_fid, __pyx_v_pathWithWild, __pyx_v_sort);
+  __pyx_r = __pyx_pf_11core_heclib_28getPathnameCatalog(__pyx_self, __pyx_v_fid, __pyx_v_pathWithWild, __pyx_v_sort);
 
   /* function exit code */
   goto __pyx_L0;
@@ -43141,7 +43246,7 @@ static PyObject *__pyx_pw_11core_heclib_27getPathnameCatalog(PyObject *__pyx_sel
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_26getPathnameCatalog(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_11core_heclib_Open *__pyx_v_fid, PyObject *__pyx_v_pathWithWild, int __pyx_v_sort) {
+static PyObject *__pyx_pf_11core_heclib_28getPathnameCatalog(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_11core_heclib_Open *__pyx_v_fid, PyObject *__pyx_v_pathWithWild, int __pyx_v_sort) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -43175,7 +43280,7 @@ static PyObject *__pyx_pf_11core_heclib_26getPathnameCatalog(CYTHON_UNUSED PyObj
  *         long long *ifltab = fid.ifltab
  */
 
-static PyObject *__pyx_pw_11core_heclib_29deletePathname(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_11core_heclib_31deletePathname(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static int __pyx_f_11core_heclib_deletePathname(struct __pyx_obj_11core_heclib_Open *__pyx_v_fid, PyObject *__pyx_v_pathname, CYTHON_UNUSED int __pyx_skip_dispatch) {
   PY_LONG_LONG *__pyx_v_ifltab;
   char const *__pyx_v_path_name;
@@ -43242,9 +43347,9 @@ static int __pyx_f_11core_heclib_deletePathname(struct __pyx_obj_11core_heclib_O
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_29deletePathname(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_11core_heclib_28deletePathname[] = "deletePathname(Open fid, unicode pathname) -> int";
-static PyObject *__pyx_pw_11core_heclib_29deletePathname(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_11core_heclib_31deletePathname(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_11core_heclib_30deletePathname[] = "deletePathname(Open fid, unicode pathname) -> int";
+static PyObject *__pyx_pw_11core_heclib_31deletePathname(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   struct __pyx_obj_11core_heclib_Open *__pyx_v_fid = 0;
   PyObject *__pyx_v_pathname = 0;
   PyObject *__pyx_r = 0;
@@ -43298,7 +43403,7 @@ static PyObject *__pyx_pw_11core_heclib_29deletePathname(PyObject *__pyx_self, P
   __pyx_L4_argument_unpacking_done:;
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_fid), __pyx_ptype_11core_heclib_Open, 1, "fid", 0))) __PYX_ERR(8, 92, __pyx_L1_error)
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pathname), (&PyUnicode_Type), 1, "pathname", 1))) __PYX_ERR(8, 92, __pyx_L1_error)
-  __pyx_r = __pyx_pf_11core_heclib_28deletePathname(__pyx_self, __pyx_v_fid, __pyx_v_pathname);
+  __pyx_r = __pyx_pf_11core_heclib_30deletePathname(__pyx_self, __pyx_v_fid, __pyx_v_pathname);
 
   /* function exit code */
   goto __pyx_L0;
@@ -43309,7 +43414,7 @@ static PyObject *__pyx_pw_11core_heclib_29deletePathname(PyObject *__pyx_self, P
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_28deletePathname(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_11core_heclib_Open *__pyx_v_fid, PyObject *__pyx_v_pathname) {
+static PyObject *__pyx_pf_11core_heclib_30deletePathname(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_11core_heclib_Open *__pyx_v_fid, PyObject *__pyx_v_pathname) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -43339,10 +43444,10 @@ static PyObject *__pyx_pf_11core_heclib_28deletePathname(CYTHON_UNUSED PyObject 
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_31__pyx_unpickle_Open(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_11core_heclib_30__pyx_unpickle_Open[] = "__pyx_unpickle_Open(__pyx_type, long __pyx_checksum, __pyx_state)";
-static PyMethodDef __pyx_mdef_11core_heclib_31__pyx_unpickle_Open = {"__pyx_unpickle_Open", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_31__pyx_unpickle_Open, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_30__pyx_unpickle_Open};
-static PyObject *__pyx_pw_11core_heclib_31__pyx_unpickle_Open(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_11core_heclib_33__pyx_unpickle_Open(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_11core_heclib_32__pyx_unpickle_Open[] = "__pyx_unpickle_Open(__pyx_type, long __pyx_checksum, __pyx_state)";
+static PyMethodDef __pyx_mdef_11core_heclib_33__pyx_unpickle_Open = {"__pyx_unpickle_Open", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_33__pyx_unpickle_Open, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_32__pyx_unpickle_Open};
+static PyObject *__pyx_pw_11core_heclib_33__pyx_unpickle_Open(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v___pyx_type = 0;
   long __pyx_v___pyx_checksum;
   PyObject *__pyx_v___pyx_state = 0;
@@ -43405,14 +43510,14 @@ static PyObject *__pyx_pw_11core_heclib_31__pyx_unpickle_Open(PyObject *__pyx_se
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11core_heclib_30__pyx_unpickle_Open(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
+  __pyx_r = __pyx_pf_11core_heclib_32__pyx_unpickle_Open(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_30__pyx_unpickle_Open(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_11core_heclib_32__pyx_unpickle_Open(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_v___pyx_PickleError = 0;
   PyObject *__pyx_v___pyx_result = 0;
   PyObject *__pyx_r = NULL;
@@ -61638,14 +61743,23 @@ static PyTypeObject __pyx_type_11core_heclib_dss_info = {
   #endif
 };
 
+static struct __pyx_obj_11core_heclib_DssLastError *__pyx_freelist_11core_heclib_DssLastError[2];
+static int __pyx_freecount_11core_heclib_DssLastError = 0;
+
 static PyObject *__pyx_tp_new_11core_heclib_DssLastError(PyTypeObject *t, PyObject *a, PyObject *k) {
   PyObject *o;
-  if (likely((t->tp_flags & Py_TPFLAGS_IS_ABSTRACT) == 0)) {
-    o = (*t->tp_alloc)(t, 0);
+  if (CYTHON_COMPILING_IN_CPYTHON && likely((__pyx_freecount_11core_heclib_DssLastError > 0) & (t->tp_basicsize == sizeof(struct __pyx_obj_11core_heclib_DssLastError)) & ((t->tp_flags & (Py_TPFLAGS_IS_ABSTRACT | Py_TPFLAGS_HEAPTYPE)) == 0))) {
+    o = (PyObject*)__pyx_freelist_11core_heclib_DssLastError[--__pyx_freecount_11core_heclib_DssLastError];
+    memset(o, 0, sizeof(struct __pyx_obj_11core_heclib_DssLastError));
+    (void) PyObject_INIT(o, t);
   } else {
-    o = (PyObject *) PyBaseObject_Type.tp_new(t, __pyx_empty_tuple, 0);
+    if (likely((t->tp_flags & Py_TPFLAGS_IS_ABSTRACT) == 0)) {
+      o = (*t->tp_alloc)(t, 0);
+    } else {
+      o = (PyObject *) PyBaseObject_Type.tp_new(t, __pyx_empty_tuple, 0);
+    }
+    if (unlikely(!o)) return 0;
   }
-  if (unlikely(!o)) return 0;
   if (unlikely(__pyx_pw_11core_heclib_12DssLastError_1__cinit__(o, a, k) < 0)) goto bad;
   return o;
   bad:
@@ -61667,7 +61781,11 @@ static void __pyx_tp_dealloc_11core_heclib_DssLastError(PyObject *o) {
     --Py_REFCNT(o);
     PyErr_Restore(etype, eval, etb);
   }
-  (*Py_TYPE(o)->tp_free)(o);
+  if (CYTHON_COMPILING_IN_CPYTHON && ((__pyx_freecount_11core_heclib_DssLastError < 2) & (Py_TYPE(o)->tp_basicsize == sizeof(struct __pyx_obj_11core_heclib_DssLastError)) & ((Py_TYPE(o)->tp_flags & (Py_TPFLAGS_IS_ABSTRACT | Py_TPFLAGS_HEAPTYPE)) == 0))) {
+    __pyx_freelist_11core_heclib_DssLastError[__pyx_freecount_11core_heclib_DssLastError++] = ((struct __pyx_obj_11core_heclib_DssLastError *)o);
+  } else {
+    (*Py_TYPE(o)->tp_free)(o);
+  }
 }
 
 static PyObject *__pyx_getprop_11core_heclib_12DssLastError_errorCode(PyObject *o, CYTHON_UNUSED void *x) {
@@ -62795,15 +62913,16 @@ static PyTypeObject __pyx_type___pyx_memoryviewslice = {
 };
 
 static PyMethodDef __pyx_methods[] = {
-  {"copyRecordTo", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_3copyRecordTo, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_2copyRecordTo},
-  {"get_grid_version", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_5get_grid_version, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_4get_grid_version},
-  {"_dateToJulian", (PyCFunction)__pyx_pw_11core_heclib_9_dateToJulian, METH_O, __pyx_doc_11core_heclib_8_dateToJulian},
-  {"_julianToDate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_11_julianToDate, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_10_julianToDate},
-  {"_getDateAndTime", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_13_getDateAndTime, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_12_getDateAndTime},
-  {"_datetimeToSeconds", (PyCFunction)__pyx_pw_11core_heclib_15_datetimeToSeconds, METH_O, __pyx_doc_11core_heclib_14_datetimeToSeconds},
-  {"_datetimeToSeconds2", (PyCFunction)__pyx_pw_11core_heclib_17_datetimeToSeconds2, METH_O, __pyx_doc_11core_heclib_16_datetimeToSeconds2},
-  {"getPathnameCatalog", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_27getPathnameCatalog, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_26getPathnameCatalog},
-  {"deletePathname", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_29deletePathname, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_28deletePathname},
+  {"setMessageLevel", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_3setMessageLevel, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_2setMessageLevel},
+  {"copyRecordTo", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_5copyRecordTo, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_4copyRecordTo},
+  {"get_grid_version", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_7get_grid_version, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_6get_grid_version},
+  {"_dateToJulian", (PyCFunction)__pyx_pw_11core_heclib_11_dateToJulian, METH_O, __pyx_doc_11core_heclib_10_dateToJulian},
+  {"_julianToDate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_13_julianToDate, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_12_julianToDate},
+  {"_getDateAndTime", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_15_getDateAndTime, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_14_getDateAndTime},
+  {"_datetimeToSeconds", (PyCFunction)__pyx_pw_11core_heclib_17_datetimeToSeconds, METH_O, __pyx_doc_11core_heclib_16_datetimeToSeconds},
+  {"_datetimeToSeconds2", (PyCFunction)__pyx_pw_11core_heclib_19_datetimeToSeconds2, METH_O, __pyx_doc_11core_heclib_18_datetimeToSeconds2},
+  {"getPathnameCatalog", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_29getPathnameCatalog, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_28getPathnameCatalog},
+  {"deletePathname", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_31deletePathname, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_30deletePathname},
   {0, 0, 0, 0}
 };
 
@@ -63236,6 +63355,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_u_labels_list, __pyx_k_labels_list, sizeof(__pyx_k_labels_list), 0, 1, 0, 1},
   {&__pyx_n_u_left, __pyx_k_left, sizeof(__pyx_k_left), 0, 1, 0, 1},
   {&__pyx_kp_u_length, __pyx_k_length, sizeof(__pyx_k_length), 0, 1, 0, 0},
+  {&__pyx_n_s_levelID, __pyx_k_levelID, sizeof(__pyx_k_levelID), 0, 0, 1, 1},
   {&__pyx_n_u_linear, __pyx_k_linear, sizeof(__pyx_k_linear), 0, 1, 0, 1},
   {&__pyx_n_s_logging, __pyx_k_logging, sizeof(__pyx_k_logging), 0, 0, 1, 1},
   {&__pyx_n_s_lower, __pyx_k_lower, sizeof(__pyx_k_lower), 0, 0, 1, 1},
@@ -63248,6 +63368,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_memview, __pyx_k_memview, sizeof(__pyx_k_memview), 0, 0, 1, 1},
   {&__pyx_n_s_message, __pyx_k_message, sizeof(__pyx_k_message), 0, 0, 1, 1},
   {&__pyx_n_s_metaclass, __pyx_k_metaclass, sizeof(__pyx_k_metaclass), 0, 0, 1, 1},
+  {&__pyx_n_s_methodID, __pyx_k_methodID, sizeof(__pyx_k_methodID), 0, 0, 1, 1},
   {&__pyx_n_u_min, __pyx_k_min, sizeof(__pyx_k_min), 0, 1, 0, 1},
   {&__pyx_n_s_minute, __pyx_k_minute, sizeof(__pyx_k_minute), 0, 0, 1, 1},
   {&__pyx_n_s_minutes, __pyx_k_minutes, sizeof(__pyx_k_minutes), 0, 0, 1, 1},
@@ -63436,14 +63557,14 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_object = __Pyx_GetBuiltinName(__pyx_n_s_object); if (!__pyx_builtin_object) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_builtin_object = __Pyx_GetBuiltinName(__pyx_n_s_object); if (!__pyx_builtin_object) __PYX_ERR(0, 160, __pyx_L1_error)
   __pyx_builtin_BaseException = __Pyx_GetBuiltinName(__pyx_n_s_BaseException); if (!__pyx_builtin_BaseException) __PYX_ERR(1, 103, __pyx_L1_error)
   __pyx_builtin_property = __Pyx_GetBuiltinName(__pyx_n_s_property); if (!__pyx_builtin_property) __PYX_ERR(2, 205, __pyx_L1_error)
   __pyx_builtin_staticmethod = __Pyx_GetBuiltinName(__pyx_n_s_staticmethod); if (!__pyx_builtin_staticmethod) __PYX_ERR(2, 277, __pyx_L1_error)
   __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) __PYX_ERR(3, 2, __pyx_L1_error)
   __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(4, 269, __pyx_L1_error)
   __pyx_builtin_print = __Pyx_GetBuiltinName(__pyx_n_s_print); if (!__pyx_builtin_print) __PYX_ERR(4, 327, __pyx_L1_error)
-  __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(1, 30, __pyx_L1_error)
+  __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(1, 31, __pyx_L1_error)
   __pyx_builtin_super = __Pyx_GetBuiltinName(__pyx_n_s_super); if (!__pyx_builtin_super) __PYX_ERR(1, 75, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(2, 183, __pyx_L1_error)
   __pyx_builtin___class__ = __Pyx_GetBuiltinName(__pyx_n_s_class); if (!__pyx_builtin___class__) __PYX_ERR(2, 265, __pyx_L1_error)
@@ -63607,14 +63728,14 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__18);
   __Pyx_GIVEREF(__pyx_tuple__18);
 
-  /* "../utils.pyx":62
+  /* "../utils.pyx":65
  *             zstructFree(self.recordSize)
  *             self.recordSize=NULL
  *             raise BaseException("Seems invalid Data Size Query!!")             # <<<<<<<<<<<<<<
  * 
  *         self.dataType = self.recordSize[0].dataType
  */
-  __pyx_tuple__19 = PyTuple_Pack(1, __pyx_kp_u_Seems_invalid_Data_Size_Query); if (unlikely(!__pyx_tuple__19)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_tuple__19 = PyTuple_Pack(1, __pyx_kp_u_Seems_invalid_Data_Size_Query); if (unlikely(!__pyx_tuple__19)) __PYX_ERR(0, 65, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__19);
   __Pyx_GIVEREF(__pyx_tuple__19);
 
@@ -63637,25 +63758,25 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__21);
   __Pyx_GIVEREF(__pyx_tuple__21);
 
-  /* "../utils.pyx":139
+  /* "../utils.pyx":142
  *         char *pathTo = pathnameTo
  *         int status
  *     with Open(copyToFile) as fid:             # <<<<<<<<<<<<<<
  *         ifltabTo = fid.ifltab
  *         status = zcopyRecord(ifltabFrom,ifltabTo,pathFrom,pathTo)
  */
-  __pyx_tuple__22 = PyTuple_Pack(3, Py_None, Py_None, Py_None); if (unlikely(!__pyx_tuple__22)) __PYX_ERR(0, 139, __pyx_L1_error)
+  __pyx_tuple__22 = PyTuple_Pack(3, Py_None, Py_None, Py_None); if (unlikely(!__pyx_tuple__22)) __PYX_ERR(0, 142, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__22);
   __Pyx_GIVEREF(__pyx_tuple__22);
 
-  /* "../utils.pyx":177
+  /* "../utils.pyx":180
  *             raise DssPathException('Invalid dss pathname: not starting or ending with character "/"')
  * 
  *         parts = self.pathname.split('/')[1:-1]             # <<<<<<<<<<<<<<
  *         if not len(parts) == 6:
  *             #logging.error('Invalid dss pathname: No of pathname parts not equal to six',exc_info=True)
  */
-  __pyx_slice__24 = PySlice_New(__pyx_int_1, __pyx_int_neg_1, Py_None); if (unlikely(!__pyx_slice__24)) __PYX_ERR(0, 177, __pyx_L1_error)
+  __pyx_slice__24 = PySlice_New(__pyx_int_1, __pyx_int_neg_1, Py_None); if (unlikely(!__pyx_slice__24)) __PYX_ERR(0, 180, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_slice__24);
   __Pyx_GIVEREF(__pyx_slice__24);
 
@@ -64077,208 +64198,208 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__67);
   __pyx_codeobj__68 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__67, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_str2ascii, 27, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__68)) __PYX_ERR(0, 27, __pyx_L1_error)
 
-  /* "../utils.pyx":157
+  /* "../utils.pyx":160
  *     return ver
  * 
  * class DssPathName(object):             # <<<<<<<<<<<<<<
  *     def __init__(self,pathname):
  *         self.pathname = pathname
  */
-  __pyx_tuple__69 = PyTuple_Pack(1, __pyx_builtin_object); if (unlikely(!__pyx_tuple__69)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_tuple__69 = PyTuple_Pack(1, __pyx_builtin_object); if (unlikely(!__pyx_tuple__69)) __PYX_ERR(0, 160, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__69);
   __Pyx_GIVEREF(__pyx_tuple__69);
 
-  /* "../utils.pyx":158
+  /* "../utils.pyx":161
  * 
  * class DssPathName(object):
  *     def __init__(self,pathname):             # <<<<<<<<<<<<<<
  *         self.pathname = pathname
  *         self.pathname_parts = []
  */
-  __pyx_tuple__70 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_pathname); if (unlikely(!__pyx_tuple__70)) __PYX_ERR(0, 158, __pyx_L1_error)
+  __pyx_tuple__70 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_pathname); if (unlikely(!__pyx_tuple__70)) __PYX_ERR(0, 161, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__70);
   __Pyx_GIVEREF(__pyx_tuple__70);
-  __pyx_codeobj__71 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__70, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_init, 158, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__71)) __PYX_ERR(0, 158, __pyx_L1_error)
+  __pyx_codeobj__71 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__70, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_init, 161, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__71)) __PYX_ERR(0, 161, __pyx_L1_error)
 
-  /* "../utils.pyx":163
+  /* "../utils.pyx":166
  *         self.parse()
  * 
  *     def parse(self):             # <<<<<<<<<<<<<<
  *         if not self.pathname:
  *             logging.warn('Invalid dss pathname')
  */
-  __pyx_tuple__72 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_parts); if (unlikely(!__pyx_tuple__72)) __PYX_ERR(0, 163, __pyx_L1_error)
+  __pyx_tuple__72 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_parts); if (unlikely(!__pyx_tuple__72)) __PYX_ERR(0, 166, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__72);
   __Pyx_GIVEREF(__pyx_tuple__72);
-  __pyx_codeobj__73 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__72, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_parse, 163, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__73)) __PYX_ERR(0, 163, __pyx_L1_error)
+  __pyx_codeobj__73 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__72, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_parse, 166, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__73)) __PYX_ERR(0, 166, __pyx_L1_error)
 
-  /* "../utils.pyx":185
+  /* "../utils.pyx":188
  *         self.pathname_parts = parts
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
  *         string_rep = '/'
  *         for x in self.pathname_parts:
  */
-  __pyx_tuple__74 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_string_rep, __pyx_n_s_x); if (unlikely(!__pyx_tuple__74)) __PYX_ERR(0, 185, __pyx_L1_error)
+  __pyx_tuple__74 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_string_rep, __pyx_n_s_x); if (unlikely(!__pyx_tuple__74)) __PYX_ERR(0, 188, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__74);
   __Pyx_GIVEREF(__pyx_tuple__74);
-  __pyx_codeobj__75 = (PyObject*)__Pyx_PyCode_New(1, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__74, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_repr, 185, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__75)) __PYX_ERR(0, 185, __pyx_L1_error)
+  __pyx_codeobj__75 = (PyObject*)__Pyx_PyCode_New(1, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__74, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_repr, 188, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__75)) __PYX_ERR(0, 188, __pyx_L1_error)
 
-  /* "../utils.pyx":191
+  /* "../utils.pyx":194
  *         return string_rep
  * 
  *     def text(self):             # <<<<<<<<<<<<<<
  *         return self.__repr__()
  * 
  */
-  __pyx_tuple__76 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__76)) __PYX_ERR(0, 191, __pyx_L1_error)
+  __pyx_tuple__76 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__76)) __PYX_ERR(0, 194, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__76);
   __Pyx_GIVEREF(__pyx_tuple__76);
-  __pyx_codeobj__77 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__76, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_text, 191, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__77)) __PYX_ERR(0, 191, __pyx_L1_error)
+  __pyx_codeobj__77 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__76, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_text, 194, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__77)) __PYX_ERR(0, 194, __pyx_L1_error)
 
-  /* "../utils.pyx":194
+  /* "../utils.pyx":197
  *         return self.__repr__()
  * 
  *     def setAPart(self,A):             # <<<<<<<<<<<<<<
  *         self.pathname_parts[0]=A
  * 
  */
-  __pyx_tuple__78 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_A); if (unlikely(!__pyx_tuple__78)) __PYX_ERR(0, 194, __pyx_L1_error)
+  __pyx_tuple__78 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_A); if (unlikely(!__pyx_tuple__78)) __PYX_ERR(0, 197, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__78);
   __Pyx_GIVEREF(__pyx_tuple__78);
-  __pyx_codeobj__79 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__78, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_setAPart, 194, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__79)) __PYX_ERR(0, 194, __pyx_L1_error)
+  __pyx_codeobj__79 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__78, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_setAPart, 197, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__79)) __PYX_ERR(0, 197, __pyx_L1_error)
 
-  /* "../utils.pyx":197
+  /* "../utils.pyx":200
  *         self.pathname_parts[0]=A
  * 
  *     def setBPart(self,B):             # <<<<<<<<<<<<<<
  *         self.pathname_parts[1]=B
  * 
  */
-  __pyx_tuple__80 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_B); if (unlikely(!__pyx_tuple__80)) __PYX_ERR(0, 197, __pyx_L1_error)
+  __pyx_tuple__80 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_B); if (unlikely(!__pyx_tuple__80)) __PYX_ERR(0, 200, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__80);
   __Pyx_GIVEREF(__pyx_tuple__80);
-  __pyx_codeobj__81 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__80, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_setBPart, 197, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__81)) __PYX_ERR(0, 197, __pyx_L1_error)
+  __pyx_codeobj__81 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__80, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_setBPart, 200, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__81)) __PYX_ERR(0, 200, __pyx_L1_error)
 
-  /* "../utils.pyx":200
+  /* "../utils.pyx":203
  *         self.pathname_parts[1]=B
  * 
  *     def setCPart(self,C):             # <<<<<<<<<<<<<<
  *         self.pathname_parts[2]=C
  * 
  */
-  __pyx_tuple__82 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_C); if (unlikely(!__pyx_tuple__82)) __PYX_ERR(0, 200, __pyx_L1_error)
+  __pyx_tuple__82 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_C); if (unlikely(!__pyx_tuple__82)) __PYX_ERR(0, 203, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__82);
   __Pyx_GIVEREF(__pyx_tuple__82);
-  __pyx_codeobj__83 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__82, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_setCPart, 200, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__83)) __PYX_ERR(0, 200, __pyx_L1_error)
+  __pyx_codeobj__83 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__82, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_setCPart, 203, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__83)) __PYX_ERR(0, 203, __pyx_L1_error)
 
-  /* "../utils.pyx":203
+  /* "../utils.pyx":206
  *         self.pathname_parts[2]=C
  * 
  *     def setDPart(self,D):             # <<<<<<<<<<<<<<
  *         self.pathname_parts[3]=D
  * 
  */
-  __pyx_tuple__84 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_D); if (unlikely(!__pyx_tuple__84)) __PYX_ERR(0, 203, __pyx_L1_error)
+  __pyx_tuple__84 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_D); if (unlikely(!__pyx_tuple__84)) __PYX_ERR(0, 206, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__84);
   __Pyx_GIVEREF(__pyx_tuple__84);
-  __pyx_codeobj__85 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__84, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_setDPart, 203, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__85)) __PYX_ERR(0, 203, __pyx_L1_error)
+  __pyx_codeobj__85 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__84, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_setDPart, 206, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__85)) __PYX_ERR(0, 206, __pyx_L1_error)
 
-  /* "../utils.pyx":206
+  /* "../utils.pyx":209
  *         self.pathname_parts[3]=D
  * 
  *     def setEPart(self,E):             # <<<<<<<<<<<<<<
  *         self.pathname_parts[4]=E
  * 
  */
-  __pyx_tuple__86 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_E); if (unlikely(!__pyx_tuple__86)) __PYX_ERR(0, 206, __pyx_L1_error)
+  __pyx_tuple__86 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_E); if (unlikely(!__pyx_tuple__86)) __PYX_ERR(0, 209, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__86);
   __Pyx_GIVEREF(__pyx_tuple__86);
-  __pyx_codeobj__87 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__86, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_setEPart, 206, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__87)) __PYX_ERR(0, 206, __pyx_L1_error)
+  __pyx_codeobj__87 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__86, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_setEPart, 209, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__87)) __PYX_ERR(0, 209, __pyx_L1_error)
 
-  /* "../utils.pyx":209
+  /* "../utils.pyx":212
  *         self.pathname_parts[4]=E
  * 
  *     def setFPart(self,F):             # <<<<<<<<<<<<<<
  *         self.pathname_parts[5]=F
  * 
  */
-  __pyx_tuple__88 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_F); if (unlikely(!__pyx_tuple__88)) __PYX_ERR(0, 209, __pyx_L1_error)
+  __pyx_tuple__88 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_F); if (unlikely(!__pyx_tuple__88)) __PYX_ERR(0, 212, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__88);
   __Pyx_GIVEREF(__pyx_tuple__88);
-  __pyx_codeobj__89 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__88, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_setFPart, 209, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__89)) __PYX_ERR(0, 209, __pyx_L1_error)
+  __pyx_codeobj__89 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__88, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_setFPart, 212, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__89)) __PYX_ERR(0, 212, __pyx_L1_error)
 
-  /* "../utils.pyx":212
+  /* "../utils.pyx":215
  *         self.pathname_parts[5]=F
  * 
  *     def getAPart(self):             # <<<<<<<<<<<<<<
  *         return self.pathname_parts[0]
  * 
  */
-  __pyx_tuple__90 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__90)) __PYX_ERR(0, 212, __pyx_L1_error)
+  __pyx_tuple__90 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__90)) __PYX_ERR(0, 215, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__90);
   __Pyx_GIVEREF(__pyx_tuple__90);
-  __pyx_codeobj__91 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__90, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_getAPart, 212, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__91)) __PYX_ERR(0, 212, __pyx_L1_error)
+  __pyx_codeobj__91 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__90, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_getAPart, 215, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__91)) __PYX_ERR(0, 215, __pyx_L1_error)
 
-  /* "../utils.pyx":215
+  /* "../utils.pyx":218
  *         return self.pathname_parts[0]
  * 
  *     def getBPart(self):             # <<<<<<<<<<<<<<
  *         return self.pathname_parts[1]
  * 
  */
-  __pyx_tuple__92 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__92)) __PYX_ERR(0, 215, __pyx_L1_error)
+  __pyx_tuple__92 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__92)) __PYX_ERR(0, 218, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__92);
   __Pyx_GIVEREF(__pyx_tuple__92);
-  __pyx_codeobj__93 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__92, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_getBPart, 215, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__93)) __PYX_ERR(0, 215, __pyx_L1_error)
+  __pyx_codeobj__93 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__92, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_getBPart, 218, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__93)) __PYX_ERR(0, 218, __pyx_L1_error)
 
-  /* "../utils.pyx":218
+  /* "../utils.pyx":221
  *         return self.pathname_parts[1]
  * 
  *     def getCPart(self):             # <<<<<<<<<<<<<<
  *         return self.pathname_parts[2]
  * 
  */
-  __pyx_tuple__94 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__94)) __PYX_ERR(0, 218, __pyx_L1_error)
+  __pyx_tuple__94 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__94)) __PYX_ERR(0, 221, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__94);
   __Pyx_GIVEREF(__pyx_tuple__94);
-  __pyx_codeobj__95 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__94, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_getCPart, 218, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__95)) __PYX_ERR(0, 218, __pyx_L1_error)
+  __pyx_codeobj__95 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__94, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_getCPart, 221, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__95)) __PYX_ERR(0, 221, __pyx_L1_error)
 
-  /* "../utils.pyx":221
+  /* "../utils.pyx":224
  *         return self.pathname_parts[2]
  * 
  *     def getDPart(self):             # <<<<<<<<<<<<<<
  *         return self.pathname_parts[3]
  * 
  */
-  __pyx_tuple__96 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__96)) __PYX_ERR(0, 221, __pyx_L1_error)
+  __pyx_tuple__96 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__96)) __PYX_ERR(0, 224, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__96);
   __Pyx_GIVEREF(__pyx_tuple__96);
-  __pyx_codeobj__97 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__96, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_getDPart, 221, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__97)) __PYX_ERR(0, 221, __pyx_L1_error)
+  __pyx_codeobj__97 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__96, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_getDPart, 224, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__97)) __PYX_ERR(0, 224, __pyx_L1_error)
 
-  /* "../utils.pyx":224
+  /* "../utils.pyx":227
  *         return self.pathname_parts[3]
  * 
  *     def getEPart(self):             # <<<<<<<<<<<<<<
  *         return self.pathname_parts[4]
  * 
  */
-  __pyx_tuple__98 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__98)) __PYX_ERR(0, 224, __pyx_L1_error)
+  __pyx_tuple__98 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__98)) __PYX_ERR(0, 227, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__98);
   __Pyx_GIVEREF(__pyx_tuple__98);
-  __pyx_codeobj__99 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__98, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_getEPart, 224, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__99)) __PYX_ERR(0, 224, __pyx_L1_error)
+  __pyx_codeobj__99 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__98, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_getEPart, 227, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__99)) __PYX_ERR(0, 227, __pyx_L1_error)
 
-  /* "../utils.pyx":227
+  /* "../utils.pyx":230
  *         return self.pathname_parts[4]
  * 
  *     def getFPart(self):             # <<<<<<<<<<<<<<
  *         return self.pathname_parts[5]
  * 
  */
-  __pyx_tuple__100 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__100)) __PYX_ERR(0, 227, __pyx_L1_error)
+  __pyx_tuple__100 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__100)) __PYX_ERR(0, 230, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__100);
   __Pyx_GIVEREF(__pyx_tuple__100);
-  __pyx_codeobj__101 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__100, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_getFPart, 227, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__101)) __PYX_ERR(0, 227, __pyx_L1_error)
+  __pyx_codeobj__101 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__100, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro, __pyx_n_s_getFPart, 230, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__101)) __PYX_ERR(0, 230, __pyx_L1_error)
 
   /* "../exceptions.pyx":74
  * 
@@ -64922,25 +65043,25 @@ static int __Pyx_modinit_type_init_code(void) {
   if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Open, (PyObject *)&__pyx_type_11core_heclib_Open) < 0) __PYX_ERR(7, 3, __pyx_L1_error)
   if (__Pyx_setup_reduce((PyObject*)&__pyx_type_11core_heclib_Open) < 0) __PYX_ERR(7, 3, __pyx_L1_error)
   __pyx_ptype_11core_heclib_Open = &__pyx_type_11core_heclib_Open;
-  if (PyType_Ready(&__pyx_type_11core_heclib_dss_info) < 0) __PYX_ERR(0, 35, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_11core_heclib_dss_info) < 0) __PYX_ERR(0, 38, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_11core_heclib_dss_info.tp_print = 0;
   #endif
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_11core_heclib_dss_info.tp_dictoffset && __pyx_type_11core_heclib_dss_info.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_11core_heclib_dss_info.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_dss_info, (PyObject *)&__pyx_type_11core_heclib_dss_info) < 0) __PYX_ERR(0, 35, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_11core_heclib_dss_info) < 0) __PYX_ERR(0, 35, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_dss_info, (PyObject *)&__pyx_type_11core_heclib_dss_info) < 0) __PYX_ERR(0, 38, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_11core_heclib_dss_info) < 0) __PYX_ERR(0, 38, __pyx_L1_error)
   __pyx_ptype_11core_heclib_dss_info = &__pyx_type_11core_heclib_dss_info;
-  if (PyType_Ready(&__pyx_type_11core_heclib_DssLastError) < 0) __PYX_ERR(1, 23, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_11core_heclib_DssLastError) < 0) __PYX_ERR(1, 24, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_11core_heclib_DssLastError.tp_print = 0;
   #endif
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_11core_heclib_DssLastError.tp_dictoffset && __pyx_type_11core_heclib_DssLastError.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_11core_heclib_DssLastError.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_DssLastError, (PyObject *)&__pyx_type_11core_heclib_DssLastError) < 0) __PYX_ERR(1, 23, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_11core_heclib_DssLastError) < 0) __PYX_ERR(1, 23, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_DssLastError, (PyObject *)&__pyx_type_11core_heclib_DssLastError) < 0) __PYX_ERR(1, 24, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_11core_heclib_DssLastError) < 0) __PYX_ERR(1, 24, __pyx_L1_error)
   __pyx_ptype_11core_heclib_DssLastError = &__pyx_type_11core_heclib_DssLastError;
   __pyx_vtabptr_11core_heclib_SpatialGridStruct = &__pyx_vtable_11core_heclib_SpatialGridStruct;
   __pyx_vtable_11core_heclib_SpatialGridStruct.length = (int (*)(struct __pyx_obj_11core_heclib_SpatialGridStruct *))__pyx_f_11core_heclib_17SpatialGridStruct_length;
@@ -65456,6 +65577,7 @@ if (!__Pyx_RefNanny) {
  * import numpy as np
  * np.seterr(over='raise')             # <<<<<<<<<<<<<<
  * cimport numpy as np
+ * cimport cython
  */
   __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(15, 13, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -65540,220 +65662,220 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_str2ascii, __pyx_t_3) < 0) __PYX_ERR(0, 27, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "../utils.pyx":157
+  /* "../utils.pyx":160
  *     return ver
  * 
  * class DssPathName(object):             # <<<<<<<<<<<<<<
  *     def __init__(self,pathname):
  *         self.pathname = pathname
  */
-  __pyx_t_3 = __Pyx_CalculateMetaclass(NULL, __pyx_tuple__69); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CalculateMetaclass(NULL, __pyx_tuple__69); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 160, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_1 = __Pyx_Py3MetaclassPrepare(__pyx_t_3, __pyx_tuple__69, __pyx_n_s_DssPathName, __pyx_n_s_DssPathName, (PyObject *) NULL, __pyx_n_s_core_heclib, (PyObject *) NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_Py3MetaclassPrepare(__pyx_t_3, __pyx_tuple__69, __pyx_n_s_DssPathName, __pyx_n_s_DssPathName, (PyObject *) NULL, __pyx_n_s_core_heclib, (PyObject *) NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 160, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
 
-  /* "../utils.pyx":158
+  /* "../utils.pyx":161
  * 
  * class DssPathName(object):
  *     def __init__(self,pathname):             # <<<<<<<<<<<<<<
  *         self.pathname = pathname
  *         self.pathname_parts = []
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_1__init__, 0, __pyx_n_s_DssPathName___init, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__71)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 158, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_1__init__, 0, __pyx_n_s_DssPathName___init, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__71)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 161, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_init, __pyx_t_2) < 0) __PYX_ERR(0, 158, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_init, __pyx_t_2) < 0) __PYX_ERR(0, 161, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "../utils.pyx":163
+  /* "../utils.pyx":166
  *         self.parse()
  * 
  *     def parse(self):             # <<<<<<<<<<<<<<
  *         if not self.pathname:
  *             logging.warn('Invalid dss pathname')
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_3parse, 0, __pyx_n_s_DssPathName_parse, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__73)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 163, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_3parse, 0, __pyx_n_s_DssPathName_parse, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__73)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 166, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_parse, __pyx_t_2) < 0) __PYX_ERR(0, 163, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_parse, __pyx_t_2) < 0) __PYX_ERR(0, 166, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "../utils.pyx":185
+  /* "../utils.pyx":188
  *         self.pathname_parts = parts
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
  *         string_rep = '/'
  *         for x in self.pathname_parts:
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_5__repr__, 0, __pyx_n_s_DssPathName___repr, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__75)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 185, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_5__repr__, 0, __pyx_n_s_DssPathName___repr, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__75)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 188, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_repr, __pyx_t_2) < 0) __PYX_ERR(0, 185, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_repr, __pyx_t_2) < 0) __PYX_ERR(0, 188, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "../utils.pyx":191
+  /* "../utils.pyx":194
  *         return string_rep
  * 
  *     def text(self):             # <<<<<<<<<<<<<<
  *         return self.__repr__()
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_7text, 0, __pyx_n_s_DssPathName_text, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__77)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 191, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_7text, 0, __pyx_n_s_DssPathName_text, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__77)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 194, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_text, __pyx_t_2) < 0) __PYX_ERR(0, 191, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_text, __pyx_t_2) < 0) __PYX_ERR(0, 194, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "../utils.pyx":194
+  /* "../utils.pyx":197
  *         return self.__repr__()
  * 
  *     def setAPart(self,A):             # <<<<<<<<<<<<<<
  *         self.pathname_parts[0]=A
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_9setAPart, 0, __pyx_n_s_DssPathName_setAPart, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__79)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 194, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_9setAPart, 0, __pyx_n_s_DssPathName_setAPart, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__79)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 197, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_setAPart, __pyx_t_2) < 0) __PYX_ERR(0, 194, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_setAPart, __pyx_t_2) < 0) __PYX_ERR(0, 197, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "../utils.pyx":197
+  /* "../utils.pyx":200
  *         self.pathname_parts[0]=A
  * 
  *     def setBPart(self,B):             # <<<<<<<<<<<<<<
  *         self.pathname_parts[1]=B
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_11setBPart, 0, __pyx_n_s_DssPathName_setBPart, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__81)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 197, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_11setBPart, 0, __pyx_n_s_DssPathName_setBPart, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__81)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 200, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_setBPart, __pyx_t_2) < 0) __PYX_ERR(0, 197, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_setBPart, __pyx_t_2) < 0) __PYX_ERR(0, 200, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "../utils.pyx":200
+  /* "../utils.pyx":203
  *         self.pathname_parts[1]=B
  * 
  *     def setCPart(self,C):             # <<<<<<<<<<<<<<
  *         self.pathname_parts[2]=C
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_13setCPart, 0, __pyx_n_s_DssPathName_setCPart, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__83)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 200, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_13setCPart, 0, __pyx_n_s_DssPathName_setCPart, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__83)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 203, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_setCPart, __pyx_t_2) < 0) __PYX_ERR(0, 200, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_setCPart, __pyx_t_2) < 0) __PYX_ERR(0, 203, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "../utils.pyx":203
+  /* "../utils.pyx":206
  *         self.pathname_parts[2]=C
  * 
  *     def setDPart(self,D):             # <<<<<<<<<<<<<<
  *         self.pathname_parts[3]=D
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_15setDPart, 0, __pyx_n_s_DssPathName_setDPart, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__85)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 203, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_15setDPart, 0, __pyx_n_s_DssPathName_setDPart, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__85)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 206, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_setDPart, __pyx_t_2) < 0) __PYX_ERR(0, 203, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_setDPart, __pyx_t_2) < 0) __PYX_ERR(0, 206, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "../utils.pyx":206
+  /* "../utils.pyx":209
  *         self.pathname_parts[3]=D
  * 
  *     def setEPart(self,E):             # <<<<<<<<<<<<<<
  *         self.pathname_parts[4]=E
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_17setEPart, 0, __pyx_n_s_DssPathName_setEPart, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__87)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 206, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_17setEPart, 0, __pyx_n_s_DssPathName_setEPart, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__87)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 209, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_setEPart, __pyx_t_2) < 0) __PYX_ERR(0, 206, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_setEPart, __pyx_t_2) < 0) __PYX_ERR(0, 209, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "../utils.pyx":209
+  /* "../utils.pyx":212
  *         self.pathname_parts[4]=E
  * 
  *     def setFPart(self,F):             # <<<<<<<<<<<<<<
  *         self.pathname_parts[5]=F
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_19setFPart, 0, __pyx_n_s_DssPathName_setFPart, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__89)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 209, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_19setFPart, 0, __pyx_n_s_DssPathName_setFPart, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__89)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 212, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_setFPart, __pyx_t_2) < 0) __PYX_ERR(0, 209, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_setFPart, __pyx_t_2) < 0) __PYX_ERR(0, 212, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "../utils.pyx":212
+  /* "../utils.pyx":215
  *         self.pathname_parts[5]=F
  * 
  *     def getAPart(self):             # <<<<<<<<<<<<<<
  *         return self.pathname_parts[0]
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_21getAPart, 0, __pyx_n_s_DssPathName_getAPart, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__91)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 212, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_21getAPart, 0, __pyx_n_s_DssPathName_getAPart, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__91)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 215, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_getAPart, __pyx_t_2) < 0) __PYX_ERR(0, 212, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_getAPart, __pyx_t_2) < 0) __PYX_ERR(0, 215, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "../utils.pyx":215
+  /* "../utils.pyx":218
  *         return self.pathname_parts[0]
  * 
  *     def getBPart(self):             # <<<<<<<<<<<<<<
  *         return self.pathname_parts[1]
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_23getBPart, 0, __pyx_n_s_DssPathName_getBPart, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__93)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 215, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_23getBPart, 0, __pyx_n_s_DssPathName_getBPart, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__93)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 218, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_getBPart, __pyx_t_2) < 0) __PYX_ERR(0, 215, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_getBPart, __pyx_t_2) < 0) __PYX_ERR(0, 218, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "../utils.pyx":218
+  /* "../utils.pyx":221
  *         return self.pathname_parts[1]
  * 
  *     def getCPart(self):             # <<<<<<<<<<<<<<
  *         return self.pathname_parts[2]
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_25getCPart, 0, __pyx_n_s_DssPathName_getCPart, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__95)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 218, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_25getCPart, 0, __pyx_n_s_DssPathName_getCPart, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__95)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 221, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_getCPart, __pyx_t_2) < 0) __PYX_ERR(0, 218, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_getCPart, __pyx_t_2) < 0) __PYX_ERR(0, 221, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "../utils.pyx":221
+  /* "../utils.pyx":224
  *         return self.pathname_parts[2]
  * 
  *     def getDPart(self):             # <<<<<<<<<<<<<<
  *         return self.pathname_parts[3]
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_27getDPart, 0, __pyx_n_s_DssPathName_getDPart, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__97)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 221, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_27getDPart, 0, __pyx_n_s_DssPathName_getDPart, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__97)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 224, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_getDPart, __pyx_t_2) < 0) __PYX_ERR(0, 221, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_getDPart, __pyx_t_2) < 0) __PYX_ERR(0, 224, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "../utils.pyx":224
+  /* "../utils.pyx":227
  *         return self.pathname_parts[3]
  * 
  *     def getEPart(self):             # <<<<<<<<<<<<<<
  *         return self.pathname_parts[4]
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_29getEPart, 0, __pyx_n_s_DssPathName_getEPart, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__99)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 224, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_29getEPart, 0, __pyx_n_s_DssPathName_getEPart, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__99)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 227, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_getEPart, __pyx_t_2) < 0) __PYX_ERR(0, 224, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_getEPart, __pyx_t_2) < 0) __PYX_ERR(0, 227, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "../utils.pyx":227
+  /* "../utils.pyx":230
  *         return self.pathname_parts[4]
  * 
  *     def getFPart(self):             # <<<<<<<<<<<<<<
  *         return self.pathname_parts[5]
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_31getFPart, 0, __pyx_n_s_DssPathName_getFPart, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__101)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 227, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11core_heclib_11DssPathName_31getFPart, 0, __pyx_n_s_DssPathName_getFPart, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__101)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 230, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_getFPart, __pyx_t_2) < 0) __PYX_ERR(0, 227, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_getFPart, __pyx_t_2) < 0) __PYX_ERR(0, 230, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "../utils.pyx":157
+  /* "../utils.pyx":160
  *     return ver
  * 
  * class DssPathName(object):             # <<<<<<<<<<<<<<
  *     def __init__(self,pathname):
  *         self.pathname = pathname
  */
-  __pyx_t_2 = __Pyx_Py3ClassCreate(__pyx_t_3, __pyx_n_s_DssPathName, __pyx_tuple__69, __pyx_t_1, NULL, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_Py3ClassCreate(__pyx_t_3, __pyx_n_s_DssPathName, __pyx_tuple__69, __pyx_t_1, NULL, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 160, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_DssPathName, __pyx_t_2) < 0) __PYX_ERR(0, 157, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_DssPathName, __pyx_t_2) < 0) __PYX_ERR(0, 160, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -65821,7 +65943,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /* "../exceptions.pyx":73
- *             PyMem_Free(self.err)
+ *         PyMem_Free(self.err)
  * 
  * class DssStatusException(Exception):             # <<<<<<<<<<<<<<
  *     def __init__(self,status,message=None):
@@ -65856,7 +65978,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
   /* "../exceptions.pyx":73
- *             PyMem_Free(self.err)
+ *         PyMem_Free(self.err)
  * 
  * class DssStatusException(Exception):             # <<<<<<<<<<<<<<
  *     def __init__(self,status,message=None):
@@ -65879,7 +66001,7 @@ if (!__Pyx_RefNanny) {
  *     # TODO: Improve this
  *     cdef:
  */
-  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_11core_heclib_7isError, NULL, __pyx_n_s_core_heclib); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 79, __pyx_L1_error)
+  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_11core_heclib_9isError, NULL, __pyx_n_s_core_heclib); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 79, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_isError, __pyx_t_3) < 0) __PYX_ERR(1, 79, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -66062,7 +66184,7 @@ if (!__Pyx_RefNanny) {
  *     """
  *     Returns:
  */
-  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_11core_heclib_19getDateTimeStringTuple, NULL, __pyx_n_s_core_heclib); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 105, __pyx_L1_error)
+  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_11core_heclib_21getDateTimeStringTuple, NULL, __pyx_n_s_core_heclib); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 105, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_getDateTimeStringTuple, __pyx_t_3) < 0) __PYX_ERR(2, 105, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -66074,7 +66196,7 @@ if (!__Pyx_RefNanny) {
  *     # Returns python datetime object from string
  *     try:
  */
-  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_11core_heclib_21getPyDateTimeFromString, NULL, __pyx_n_s_core_heclib); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 127, __pyx_L1_error)
+  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_11core_heclib_23getPyDateTimeFromString, NULL, __pyx_n_s_core_heclib); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_getPyDateTimeFromString, __pyx_t_3) < 0) __PYX_ERR(2, 127, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -66086,7 +66208,7 @@ if (!__Pyx_RefNanny) {
  *     tup = getDateTimeStringTuple(dateValue,granularity,julianBaseDate)
  *     if tup[0]:
  */
-  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_11core_heclib_23getPyDateTimeFromValue, NULL, __pyx_n_s_core_heclib); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 160, __pyx_L1_error)
+  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_11core_heclib_25getPyDateTimeFromValue, NULL, __pyx_n_s_core_heclib); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 160, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_getPyDateTimeFromValue, __pyx_t_3) < 0) __PYX_ERR(2, 160, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -66098,7 +66220,7 @@ if (!__Pyx_RefNanny) {
  *     """
  *     Returns:
  */
-  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_11core_heclib_25getDateTimeValueTuple, NULL, __pyx_n_s_core_heclib); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 168, __pyx_L1_error)
+  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_11core_heclib_27getDateTimeValueTuple, NULL, __pyx_n_s_core_heclib); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 168, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_getDateTimeValueTuple, __pyx_t_3) < 0) __PYX_ERR(2, 168, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -66628,7 +66750,7 @@ if (!__Pyx_RefNanny) {
  *     cdef object __pyx_PickleError
  *     cdef object __pyx_result
  */
-  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_11core_heclib_31__pyx_unpickle_Open, NULL, __pyx_n_s_core_heclib); if (unlikely(!__pyx_t_3)) __PYX_ERR(3, 1, __pyx_L1_error)
+  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_11core_heclib_33__pyx_unpickle_Open, NULL, __pyx_n_s_core_heclib); if (unlikely(!__pyx_t_3)) __PYX_ERR(3, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_pyx_unpickle_Open, __pyx_t_3) < 0) __PYX_ERR(3, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;

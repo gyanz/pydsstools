@@ -354,7 +354,7 @@ body.cython { font-family: courier; font-size: 12; }
 <pre class="cython line score-0">&#xA0;<span class="">025</span>:                     "December":12}</pre>
 <pre class="cython line score-0">&#xA0;<span class="">026</span>: </pre>
 <pre class="cython line score-10" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">027</span>: cpdef int _dateToJulian(str dateString):</pre>
-<pre class='cython code score-10 '>static PyObject *__pyx_pw_11core_heclib_9_dateToJulian(PyObject *__pyx_self, PyObject *__pyx_v_dateString); /*proto*/
+<pre class='cython code score-10 '>static PyObject *__pyx_pw_11core_heclib_11_dateToJulian(PyObject *__pyx_self, PyObject *__pyx_v_dateString); /*proto*/
 static int __pyx_f_11core_heclib__dateToJulian(PyObject *__pyx_v_dateString, CYTHON_UNUSED int __pyx_skip_dispatch) {
   char *__pyx_v_dstr;
   int __pyx_v_result;
@@ -372,14 +372,14 @@ static int __pyx_f_11core_heclib__dateToJulian(PyObject *__pyx_v_dateString, CYT
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_9_dateToJulian(PyObject *__pyx_self, PyObject *__pyx_v_dateString); /*proto*/
-static char __pyx_doc_11core_heclib_8_dateToJulian[] = "_dateToJulian(unicode dateString) -&gt; int\n\n    Converts Date string to days since Julian base date,which is defined by HEC\n    as Dec 31, 1899 (time 00:00 or beginning of day)\n\n    Returns:\n        It returns integer days since the beginning of Julian Base Date\n\n    DateString Rules (?):\n        Valid: \"02JAN1969\", \"2JAN1969\", \"02 JAN 1969\",\"02 JANUARY 1969\"\n        Invalid: don't use 2 digit year and don't include time in the string\n    \n    Examples:\n         returns 10 for Jan 10, 1900\n         returns 0 for \"31DEC1899\"\n         returns 1 for \"01JAN1900\" \n    ";
-static PyObject *__pyx_pw_11core_heclib_9_dateToJulian(PyObject *__pyx_self, PyObject *__pyx_v_dateString) {
+static PyObject *__pyx_pw_11core_heclib_11_dateToJulian(PyObject *__pyx_self, PyObject *__pyx_v_dateString); /*proto*/
+static char __pyx_doc_11core_heclib_10_dateToJulian[] = "_dateToJulian(unicode dateString) -&gt; int\n\n    Converts Date string to days since Julian base date,which is defined by HEC\n    as Dec 31, 1899 (time 00:00 or beginning of day)\n\n    Returns:\n        It returns integer days since the beginning of Julian Base Date\n\n    DateString Rules (?):\n        Valid: \"02JAN1969\", \"2JAN1969\", \"02 JAN 1969\",\"02 JANUARY 1969\"\n        Invalid: don't use 2 digit year and don't include time in the string\n    \n    Examples:\n         returns 10 for Jan 10, 1900\n         returns 0 for \"31DEC1899\"\n         returns 1 for \"01JAN1900\" \n    ";
+static PyObject *__pyx_pw_11core_heclib_11_dateToJulian(PyObject *__pyx_self, PyObject *__pyx_v_dateString) {
   PyObject *__pyx_r = 0;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("_dateToJulian (wrapper)", 0);
   if (unlikely(!<span class='pyx_c_api'>__Pyx_ArgTypeTest</span>(((PyObject *)__pyx_v_dateString), (&amp;PyUnicode_Type), 1, "dateString", 1))) <span class='error_goto'>__PYX_ERR(2, 27, __pyx_L1_error)</span>
-  __pyx_r = __pyx_pf_11core_heclib_8_dateToJulian(__pyx_self, ((PyObject*)__pyx_v_dateString));
+  __pyx_r = __pyx_pf_11core_heclib_10_dateToJulian(__pyx_self, ((PyObject*)__pyx_v_dateString));
 
   /* function exit code */
   goto __pyx_L0;
@@ -390,7 +390,7 @@ static PyObject *__pyx_pw_11core_heclib_9_dateToJulian(PyObject *__pyx_self, PyO
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_8_dateToJulian(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateString) {
+static PyObject *__pyx_pf_11core_heclib_10_dateToJulian(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateString) {
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("_dateToJulian", 0);
@@ -439,7 +439,7 @@ static PyObject *__pyx_pf_11core_heclib_8_dateToJulian(CYTHON_UNUSED PyObject *_
   goto __pyx_L0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">049</span>: </pre>
 <pre class="cython line score-43" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">050</span>: cpdef str _julianToDate(int days, int fmt=4):</pre>
-<pre class='cython code score-43 '>static PyObject *__pyx_pw_11core_heclib_11_julianToDate(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+<pre class='cython code score-43 '>static PyObject *__pyx_pw_11core_heclib_13_julianToDate(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static PyObject *__pyx_f_11core_heclib__julianToDate(int __pyx_v_days, CYTHON_UNUSED int __pyx_skip_dispatch, struct __pyx_opt_args_11core_heclib__julianToDate *__pyx_optional_args) {
   int __pyx_v_fmt = ((int)4);
   char __pyx_v_cdate[13];
@@ -466,9 +466,9 @@ static PyObject *__pyx_f_11core_heclib__julianToDate(int __pyx_v_days, CYTHON_UN
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_11_julianToDate(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_11core_heclib_10_julianToDate[] = "_julianToDate(int days, int fmt=4) -&gt; unicode";
-static PyObject *__pyx_pw_11core_heclib_11_julianToDate(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_11core_heclib_13_julianToDate(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_11core_heclib_12_julianToDate[] = "_julianToDate(int days, int fmt=4) -&gt; unicode";
+static PyObject *__pyx_pw_11core_heclib_13_julianToDate(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   int __pyx_v_days;
   int __pyx_v_fmt;
   PyObject *__pyx_r = 0;
@@ -527,14 +527,14 @@ static PyObject *__pyx_pw_11core_heclib_11_julianToDate(PyObject *__pyx_self, Py
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11core_heclib_10_julianToDate(__pyx_self, __pyx_v_days, __pyx_v_fmt);
+  __pyx_r = __pyx_pf_11core_heclib_12_julianToDate(__pyx_self, __pyx_v_days, __pyx_v_fmt);
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_10_julianToDate(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_days, int __pyx_v_fmt) {
+static PyObject *__pyx_pf_11core_heclib_12_julianToDate(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_days, int __pyx_v_fmt) {
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("_julianToDate", 0);
@@ -580,7 +580,7 @@ struct __pyx_opt_args_11core_heclib__julianToDate {
 </pre><pre class="cython line score-0">&#xA0;<span class="">058</span>: </pre>
 <pre class="cython line score-0">&#xA0;<span class="">059</span>: </pre>
 <pre class="cython line score-58" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">060</span>: cpdef tuple _getDateAndTime(int timeMinOrSec, int timeGranularitySeconds, int julianBaseDate = 0):</pre>
-<pre class='cython code score-58 '>static PyObject *__pyx_pw_11core_heclib_13_getDateAndTime(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+<pre class='cython code score-58 '>static PyObject *__pyx_pw_11core_heclib_15_getDateAndTime(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static PyObject *__pyx_f_11core_heclib__getDateAndTime(int __pyx_v_timeMinOrSec, int __pyx_v_timeGranularitySeconds, CYTHON_UNUSED int __pyx_skip_dispatch, struct __pyx_opt_args_11core_heclib__getDateAndTime *__pyx_optional_args) {
   int __pyx_v_julianBaseDate = ((int)0);
   char __pyx_v_cdate[13];
@@ -611,9 +611,9 @@ static PyObject *__pyx_f_11core_heclib__getDateAndTime(int __pyx_v_timeMinOrSec,
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_13_getDateAndTime(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_11core_heclib_12_getDateAndTime[] = "_getDateAndTime(int timeMinOrSec, int timeGranularitySeconds, int julianBaseDate=0) -&gt; tuple";
-static PyObject *__pyx_pw_11core_heclib_13_getDateAndTime(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_11core_heclib_15_getDateAndTime(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_11core_heclib_14_getDateAndTime[] = "_getDateAndTime(int timeMinOrSec, int timeGranularitySeconds, int julianBaseDate=0) -&gt; tuple";
+static PyObject *__pyx_pw_11core_heclib_15_getDateAndTime(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   int __pyx_v_timeMinOrSec;
   int __pyx_v_timeGranularitySeconds;
   int __pyx_v_julianBaseDate;
@@ -683,14 +683,14 @@ static PyObject *__pyx_pw_11core_heclib_13_getDateAndTime(PyObject *__pyx_self, 
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11core_heclib_12_getDateAndTime(__pyx_self, __pyx_v_timeMinOrSec, __pyx_v_timeGranularitySeconds, __pyx_v_julianBaseDate);
+  __pyx_r = __pyx_pf_11core_heclib_14_getDateAndTime(__pyx_self, __pyx_v_timeMinOrSec, __pyx_v_timeGranularitySeconds, __pyx_v_julianBaseDate);
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_12_getDateAndTime(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_timeMinOrSec, int __pyx_v_timeGranularitySeconds, int __pyx_v_julianBaseDate) {
+static PyObject *__pyx_pf_11core_heclib_14_getDateAndTime(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_timeMinOrSec, int __pyx_v_timeGranularitySeconds, int __pyx_v_julianBaseDate) {
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("_getDateAndTime", 0);
@@ -765,7 +765,7 @@ struct __pyx_opt_args_11core_heclib__getDateAndTime {
   goto __pyx_L0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">075</span>: </pre>
 <pre class="cython line score-15" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">076</span>: cpdef int _datetimeToSeconds(char *datetimeString):</pre>
-<pre class='cython code score-15 '>static PyObject *__pyx_pw_11core_heclib_15_datetimeToSeconds(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString); /*proto*/
+<pre class='cython code score-15 '>static PyObject *__pyx_pw_11core_heclib_17_datetimeToSeconds(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString); /*proto*/
 static int __pyx_f_11core_heclib__datetimeToSeconds(char *__pyx_v_datetimeString, CYTHON_UNUSED int __pyx_skip_dispatch) {
   int __pyx_v_julian[1];
   int __pyx_v_seconds[1];
@@ -781,9 +781,9 @@ static int __pyx_f_11core_heclib__datetimeToSeconds(char *__pyx_v_datetimeString
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_15_datetimeToSeconds(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString); /*proto*/
-static char __pyx_doc_11core_heclib_14_datetimeToSeconds[] = "_datetimeToSeconds(char *datetimeString) -&gt; int";
-static PyObject *__pyx_pw_11core_heclib_15_datetimeToSeconds(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString) {
+static PyObject *__pyx_pw_11core_heclib_17_datetimeToSeconds(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString); /*proto*/
+static char __pyx_doc_11core_heclib_16_datetimeToSeconds[] = "_datetimeToSeconds(char *datetimeString) -&gt; int";
+static PyObject *__pyx_pw_11core_heclib_17_datetimeToSeconds(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString) {
   char *__pyx_v_datetimeString;
   PyObject *__pyx_r = 0;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
@@ -797,14 +797,14 @@ static PyObject *__pyx_pw_11core_heclib_15_datetimeToSeconds(PyObject *__pyx_sel
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11core_heclib_14_datetimeToSeconds(__pyx_self, ((char *)__pyx_v_datetimeString));
+  __pyx_r = __pyx_pf_11core_heclib_16_datetimeToSeconds(__pyx_self, ((char *)__pyx_v_datetimeString));
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_14_datetimeToSeconds(CYTHON_UNUSED PyObject *__pyx_self, char *__pyx_v_datetimeString) {
+static PyObject *__pyx_pf_11core_heclib_16_datetimeToSeconds(CYTHON_UNUSED PyObject *__pyx_self, char *__pyx_v_datetimeString) {
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("_datetimeToSeconds", 0);
@@ -845,7 +845,7 @@ static PyObject *__pyx_pf_11core_heclib_14_datetimeToSeconds(CYTHON_UNUSED PyObj
   goto __pyx_L0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">087</span>: </pre>
 <pre class="cython line score-18" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">088</span>: cpdef tuple _datetimeToSeconds2(char *datetimeString):</pre>
-<pre class='cython code score-18 '>static PyObject *__pyx_pw_11core_heclib_17_datetimeToSeconds2(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString); /*proto*/
+<pre class='cython code score-18 '>static PyObject *__pyx_pw_11core_heclib_19_datetimeToSeconds2(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString); /*proto*/
 static PyObject *__pyx_f_11core_heclib__datetimeToSeconds2(char *__pyx_v_datetimeString, CYTHON_UNUSED int __pyx_skip_dispatch) {
   int __pyx_v_julian[1];
   int __pyx_v_seconds[1];
@@ -867,9 +867,9 @@ static PyObject *__pyx_f_11core_heclib__datetimeToSeconds2(char *__pyx_v_datetim
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_17_datetimeToSeconds2(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString); /*proto*/
-static char __pyx_doc_11core_heclib_16_datetimeToSeconds2[] = "_datetimeToSeconds2(char *datetimeString) -&gt; tuple";
-static PyObject *__pyx_pw_11core_heclib_17_datetimeToSeconds2(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString) {
+static PyObject *__pyx_pw_11core_heclib_19_datetimeToSeconds2(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString); /*proto*/
+static char __pyx_doc_11core_heclib_18_datetimeToSeconds2[] = "_datetimeToSeconds2(char *datetimeString) -&gt; tuple";
+static PyObject *__pyx_pw_11core_heclib_19_datetimeToSeconds2(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString) {
   char *__pyx_v_datetimeString;
   PyObject *__pyx_r = 0;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
@@ -883,14 +883,14 @@ static PyObject *__pyx_pw_11core_heclib_17_datetimeToSeconds2(PyObject *__pyx_se
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11core_heclib_16_datetimeToSeconds2(__pyx_self, ((char *)__pyx_v_datetimeString));
+  __pyx_r = __pyx_pf_11core_heclib_18_datetimeToSeconds2(__pyx_self, ((char *)__pyx_v_datetimeString));
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_16_datetimeToSeconds2(CYTHON_UNUSED PyObject *__pyx_self, char *__pyx_v_datetimeString) {
+static PyObject *__pyx_pf_11core_heclib_18_datetimeToSeconds2(CYTHON_UNUSED PyObject *__pyx_self, char *__pyx_v_datetimeString) {
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("_datetimeToSeconds2", 0);
@@ -964,10 +964,10 @@ static PyObject *__pyx_pf_11core_heclib_16_datetimeToSeconds2(CYTHON_UNUSED PyOb
 <pre class="cython line score-0">&#xA0;<span class="">104</span>: </pre>
 <pre class="cython line score-46" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">105</span>: def getDateTimeStringTuple(dateValue,granularity=60,julianBaseDate=0):</pre>
 <pre class='cython code score-46 '>/* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_19getDateTimeStringTuple(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_11core_heclib_18getDateTimeStringTuple[] = "getDateTimeStringTuple(dateValue, granularity=60, julianBaseDate=0)\n\n    Returns:\n        Tuple consisting of date and time string (unicode strings)\n        date string format: 03Jan1969\n        time string format: 11:20:00 (second granularity) or \n                            1120 (minute granularity)\n\n    Notes:\n        #granularity value limited to:\n            # 1 (SECOND_GRANULARITY)\n            # 0 or 60 (MINUTE_GRANULARITY) DEFAULT \n        # what about hour and day granularity\077\077\077\077\n    ";
-static PyMethodDef __pyx_mdef_11core_heclib_19getDateTimeStringTuple = {"getDateTimeStringTuple", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_19getDateTimeStringTuple, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_18getDateTimeStringTuple};
-static PyObject *__pyx_pw_11core_heclib_19getDateTimeStringTuple(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_11core_heclib_21getDateTimeStringTuple(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_11core_heclib_20getDateTimeStringTuple[] = "getDateTimeStringTuple(dateValue, granularity=60, julianBaseDate=0)\n\n    Returns:\n        Tuple consisting of date and time string (unicode strings)\n        date string format: 03Jan1969\n        time string format: 11:20:00 (second granularity) or \n                            1120 (minute granularity)\n\n    Notes:\n        #granularity value limited to:\n            # 1 (SECOND_GRANULARITY)\n            # 0 or 60 (MINUTE_GRANULARITY) DEFAULT \n        # what about hour and day granularity\077\077\077\077\n    ";
+static PyMethodDef __pyx_mdef_11core_heclib_21getDateTimeStringTuple = {"getDateTimeStringTuple", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_21getDateTimeStringTuple, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_20getDateTimeStringTuple};
+static PyObject *__pyx_pw_11core_heclib_21getDateTimeStringTuple(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_dateValue = 0;
   PyObject *__pyx_v_granularity = 0;
   PyObject *__pyx_v_julianBaseDate = 0;
@@ -1036,14 +1036,14 @@ static PyObject *__pyx_pw_11core_heclib_19getDateTimeStringTuple(PyObject *__pyx
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11core_heclib_18getDateTimeStringTuple(__pyx_self, __pyx_v_dateValue, __pyx_v_granularity, __pyx_v_julianBaseDate);
+  __pyx_r = __pyx_pf_11core_heclib_20getDateTimeStringTuple(__pyx_self, __pyx_v_dateValue, __pyx_v_granularity, __pyx_v_julianBaseDate);
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_18getDateTimeStringTuple(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateValue, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate) {
+static PyObject *__pyx_pf_11core_heclib_20getDateTimeStringTuple(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateValue, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate) {
   PyObject *__pyx_v_datestr = NULL;
   PyObject *__pyx_v_timestr = NULL;
   PyObject *__pyx_r = NULL;
@@ -1069,7 +1069,7 @@ static PyObject *__pyx_pf_11core_heclib_18getDateTimeStringTuple(CYTHON_UNUSED P
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__114);
   <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__114);
 /* … */
-  __pyx_t_3 = PyCFunction_NewEx(&amp;__pyx_mdef_11core_heclib_19getDateTimeStringTuple, NULL, __pyx_n_s_core_heclib);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 105, __pyx_L1_error)</span>
+  __pyx_t_3 = PyCFunction_NewEx(&amp;__pyx_mdef_11core_heclib_21getDateTimeStringTuple, NULL, __pyx_n_s_core_heclib);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 105, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
   if (<span class='py_c_api'>PyDict_SetItem</span>(__pyx_d, __pyx_n_s_getDateTimeStringTuple, __pyx_t_3) &lt; 0) <span class='error_goto'>__PYX_ERR(2, 105, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_3); __pyx_t_3 = 0;
@@ -1151,21 +1151,21 @@ static PyObject *__pyx_pf_11core_heclib_18getDateTimeStringTuple(CYTHON_UNUSED P
 </pre><pre class="cython line score-0">&#xA0;<span class="">126</span>: </pre>
 <pre class="cython line score-36" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">127</span>: def getPyDateTimeFromString(dateString):</pre>
 <pre class='cython code score-36 '>/* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_21getPyDateTimeFromString(PyObject *__pyx_self, PyObject *__pyx_v_dateString); /*proto*/
-static char __pyx_doc_11core_heclib_20getPyDateTimeFromString[] = "getPyDateTimeFromString(dateString)";
-static PyMethodDef __pyx_mdef_11core_heclib_21getPyDateTimeFromString = {"getPyDateTimeFromString", (PyCFunction)__pyx_pw_11core_heclib_21getPyDateTimeFromString, METH_O, __pyx_doc_11core_heclib_20getPyDateTimeFromString};
-static PyObject *__pyx_pw_11core_heclib_21getPyDateTimeFromString(PyObject *__pyx_self, PyObject *__pyx_v_dateString) {
+static PyObject *__pyx_pw_11core_heclib_23getPyDateTimeFromString(PyObject *__pyx_self, PyObject *__pyx_v_dateString); /*proto*/
+static char __pyx_doc_11core_heclib_22getPyDateTimeFromString[] = "getPyDateTimeFromString(dateString)";
+static PyMethodDef __pyx_mdef_11core_heclib_23getPyDateTimeFromString = {"getPyDateTimeFromString", (PyCFunction)__pyx_pw_11core_heclib_23getPyDateTimeFromString, METH_O, __pyx_doc_11core_heclib_22getPyDateTimeFromString};
+static PyObject *__pyx_pw_11core_heclib_23getPyDateTimeFromString(PyObject *__pyx_self, PyObject *__pyx_v_dateString) {
   PyObject *__pyx_r = 0;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("getPyDateTimeFromString (wrapper)", 0);
-  __pyx_r = __pyx_pf_11core_heclib_20getPyDateTimeFromString(__pyx_self, ((PyObject *)__pyx_v_dateString));
+  __pyx_r = __pyx_pf_11core_heclib_22getPyDateTimeFromString(__pyx_self, ((PyObject *)__pyx_v_dateString));
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_20getPyDateTimeFromString(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateString) {
+static PyObject *__pyx_pf_11core_heclib_22getPyDateTimeFromString(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateString) {
   PyObject *__pyx_v_datetime_obj = NULL;
   CYTHON_UNUSED PyObject *__pyx_v__ = NULL;
   PyObject *__pyx_v_msg = NULL;
@@ -1215,7 +1215,7 @@ static PyObject *__pyx_pf_11core_heclib_20getPyDateTimeFromString(CYTHON_UNUSED 
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__117);
   <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__117);
 /* … */
-  __pyx_t_3 = PyCFunction_NewEx(&amp;__pyx_mdef_11core_heclib_21getPyDateTimeFromString, NULL, __pyx_n_s_core_heclib);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 127, __pyx_L1_error)</span>
+  __pyx_t_3 = PyCFunction_NewEx(&amp;__pyx_mdef_11core_heclib_23getPyDateTimeFromString, NULL, __pyx_n_s_core_heclib);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 127, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
   if (<span class='py_c_api'>PyDict_SetItem</span>(__pyx_d, __pyx_n_s_getPyDateTimeFromString, __pyx_t_3) &lt; 0) <span class='error_goto'>__PYX_ERR(2, 127, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_3); __pyx_t_3 = 0;
@@ -1797,10 +1797,10 @@ static PyObject *__pyx_pf_11core_heclib_20getPyDateTimeFromString(CYTHON_UNUSED 
 <pre class="cython line score-0">&#xA0;<span class="">159</span>: </pre>
 <pre class="cython line score-49" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">160</span>: def getPyDateTimeFromValue(dateValue,granularity=60,julianBaseDate=0):</pre>
 <pre class='cython code score-49 '>/* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_23getPyDateTimeFromValue(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_11core_heclib_22getPyDateTimeFromValue[] = "getPyDateTimeFromValue(dateValue, granularity=60, julianBaseDate=0)";
-static PyMethodDef __pyx_mdef_11core_heclib_23getPyDateTimeFromValue = {"getPyDateTimeFromValue", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_23getPyDateTimeFromValue, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_22getPyDateTimeFromValue};
-static PyObject *__pyx_pw_11core_heclib_23getPyDateTimeFromValue(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_11core_heclib_25getPyDateTimeFromValue(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_11core_heclib_24getPyDateTimeFromValue[] = "getPyDateTimeFromValue(dateValue, granularity=60, julianBaseDate=0)";
+static PyMethodDef __pyx_mdef_11core_heclib_25getPyDateTimeFromValue = {"getPyDateTimeFromValue", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_25getPyDateTimeFromValue, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_24getPyDateTimeFromValue};
+static PyObject *__pyx_pw_11core_heclib_25getPyDateTimeFromValue(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_dateValue = 0;
   PyObject *__pyx_v_granularity = 0;
   PyObject *__pyx_v_julianBaseDate = 0;
@@ -1869,14 +1869,14 @@ static PyObject *__pyx_pw_11core_heclib_23getPyDateTimeFromValue(PyObject *__pyx
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11core_heclib_22getPyDateTimeFromValue(__pyx_self, __pyx_v_dateValue, __pyx_v_granularity, __pyx_v_julianBaseDate);
+  __pyx_r = __pyx_pf_11core_heclib_24getPyDateTimeFromValue(__pyx_self, __pyx_v_dateValue, __pyx_v_granularity, __pyx_v_julianBaseDate);
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_22getPyDateTimeFromValue(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateValue, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate) {
+static PyObject *__pyx_pf_11core_heclib_24getPyDateTimeFromValue(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateValue, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate) {
   PyObject *__pyx_v_tup = NULL;
   PyObject *__pyx_v_datetimestr = NULL;
   PyObject *__pyx_v_datetime_obj = NULL;
@@ -1907,7 +1907,7 @@ static PyObject *__pyx_pf_11core_heclib_22getPyDateTimeFromValue(CYTHON_UNUSED P
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__119);
   <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__119);
 /* … */
-  __pyx_t_3 = PyCFunction_NewEx(&amp;__pyx_mdef_11core_heclib_23getPyDateTimeFromValue, NULL, __pyx_n_s_core_heclib);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 160, __pyx_L1_error)</span>
+  __pyx_t_3 = PyCFunction_NewEx(&amp;__pyx_mdef_11core_heclib_25getPyDateTimeFromValue, NULL, __pyx_n_s_core_heclib);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 160, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
   if (<span class='py_c_api'>PyDict_SetItem</span>(__pyx_d, __pyx_n_s_getPyDateTimeFromValue, __pyx_t_3) &lt; 0) <span class='error_goto'>__PYX_ERR(2, 160, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_3); __pyx_t_3 = 0;
@@ -2016,10 +2016,10 @@ static PyObject *__pyx_pf_11core_heclib_22getPyDateTimeFromValue(CYTHON_UNUSED P
 <pre class="cython line score-0">&#xA0;<span class="">167</span>: </pre>
 <pre class="cython line score-56" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">168</span>: def getDateTimeValueTuple(dateValue,granularity=60,julianBaseDate=0):</pre>
 <pre class='cython code score-56 '>/* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_25getDateTimeValueTuple(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_11core_heclib_24getDateTimeValueTuple[] = "getDateTimeValueTuple(dateValue, granularity=60, julianBaseDate=0)\n\n    Returns:\n        Tuples of following type - \n            YYYY,MM,DD,HH,MM,SS for 1 second granularity\n            YYYY,MM,DD,HH,MM for 60 second granularity\n\n    ";
-static PyMethodDef __pyx_mdef_11core_heclib_25getDateTimeValueTuple = {"getDateTimeValueTuple", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_25getDateTimeValueTuple, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_24getDateTimeValueTuple};
-static PyObject *__pyx_pw_11core_heclib_25getDateTimeValueTuple(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_11core_heclib_27getDateTimeValueTuple(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_11core_heclib_26getDateTimeValueTuple[] = "getDateTimeValueTuple(dateValue, granularity=60, julianBaseDate=0)\n\n    Returns:\n        Tuples of following type - \n            YYYY,MM,DD,HH,MM,SS for 1 second granularity\n            YYYY,MM,DD,HH,MM for 60 second granularity\n\n    ";
+static PyMethodDef __pyx_mdef_11core_heclib_27getDateTimeValueTuple = {"getDateTimeValueTuple", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_27getDateTimeValueTuple, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_26getDateTimeValueTuple};
+static PyObject *__pyx_pw_11core_heclib_27getDateTimeValueTuple(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_dateValue = 0;
   PyObject *__pyx_v_granularity = 0;
   PyObject *__pyx_v_julianBaseDate = 0;
@@ -2088,14 +2088,14 @@ static PyObject *__pyx_pw_11core_heclib_25getDateTimeValueTuple(PyObject *__pyx_
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11core_heclib_24getDateTimeValueTuple(__pyx_self, __pyx_v_dateValue, __pyx_v_granularity, __pyx_v_julianBaseDate);
+  __pyx_r = __pyx_pf_11core_heclib_26getDateTimeValueTuple(__pyx_self, __pyx_v_dateValue, __pyx_v_granularity, __pyx_v_julianBaseDate);
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_24getDateTimeValueTuple(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateValue, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate) {
+static PyObject *__pyx_pf_11core_heclib_26getDateTimeValueTuple(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateValue, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate) {
   PyObject *__pyx_v_datestr = NULL;
   PyObject *__pyx_v_timestr = NULL;
   PyObject *__pyx_v_day = NULL;
@@ -2138,7 +2138,7 @@ static PyObject *__pyx_pf_11core_heclib_24getDateTimeValueTuple(CYTHON_UNUSED Py
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__121);
   <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__121);
 /* … */
-  __pyx_t_3 = PyCFunction_NewEx(&amp;__pyx_mdef_11core_heclib_25getDateTimeValueTuple, NULL, __pyx_n_s_core_heclib);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 168, __pyx_L1_error)</span>
+  __pyx_t_3 = PyCFunction_NewEx(&amp;__pyx_mdef_11core_heclib_27getDateTimeValueTuple, NULL, __pyx_n_s_core_heclib);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 168, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
   if (<span class='py_c_api'>PyDict_SetItem</span>(__pyx_d, __pyx_n_s_getDateTimeValueTuple, __pyx_t_3) &lt; 0) <span class='error_goto'>__PYX_ERR(2, 168, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_3); __pyx_t_3 = 0;

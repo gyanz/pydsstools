@@ -32,6 +32,9 @@ def str2ascii(file):
     else:
         logging.error("Wrong filename or encoding (not ascii or byte) ")
 
+cpdef void setMessageLevel(int methodID,int levelID):
+    zsetMessageLevel(methodID, levelID)
+
 cdef class dss_info:
     cdef: 
         zStructRecordSize *recordSize

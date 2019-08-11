@@ -15,6 +15,7 @@ cdef extern from "heclib.h":
     int zerrorSeverity(int errorCode)
     int zerrorCheck()
     int zerror(hec_zdssLastError *errorStruct)   
+    void zsetMessageLevel(int methodID, int levelID)
 
 cdef extern from "zerrorCodes.h":
     struct hec_zdssLastError:

@@ -14,7 +14,8 @@ __all__ = ['core_heclib',
            'DssStatusException',
            'GranularityException',
            'ArgumentException',
-           'DssLastError']
+           'DssLastError',
+           'setMessageLevel']
 
 
 from .._lib import *
