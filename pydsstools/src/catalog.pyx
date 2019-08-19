@@ -58,6 +58,18 @@ cdef class CatalogStruct:
 
         return pathList
 
+    cpdef list getRecordType(self):
+        cdef:
+            list typeList = []
+            int num = self.numberPathnames()
+            int i 
+
+        if num:
+            #for i in range(0,num):
+            typeList.append(self.cts[0].recordType[0])
+
+        return typeList
+
     cpdef int numberPathnames(self):
         cdef int num = 0
         if self.cts:
@@ -72,7 +84,8 @@ cdef class CatalogStruct:
         if self.cts:
             zstructFree(self.cts)
 
-cpdef CatalogStruct getPathnameCatalog(Open fid,str pathWithWild, int sort=0):
+cpdef CatalogStruct getPathnameCatalog(Open fid,str pathWithWild, int sort=0, 
+                                       int statusWanted=0, int typeWantedStart=0, int typeWantedEnd=0):
     cdef:
         long long *ifltab = fid.ifltab
         char *pathname = pathWithWild
@@ -82,6 +95,11 @@ cpdef CatalogStruct getPathnameCatalog(Open fid,str pathWithWild, int sort=0):
 
     # set warning with this check??
     cts = zstructCatalogNew()
+    #if statusWanted or typeWantedStart or typeWantedEnd:
+    cts[0].statusWanted = statusWanted 
+    cts[0].typeWantedStart = typeWantedStart 
+    cts[0].typeWantedEnd = typeWantedEnd  
+
     negative_or_numberPathnames = zcatalog(ifltab,pathname,cts,sort)
     if negative_or_numberPathnames < 0: 
        logging.warning('Error with retrieving catalog, CODE = %d' % negative_or_numberPathnames) 

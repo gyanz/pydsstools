@@ -20,4 +20,4 @@ export ext_module=$DEST_FOLDER/$ext_name.so
 
 cython -3 ../core_heclib.pyx -o $ext_c_file
 
-gcc -Wall -Wl,--unresolved-symbols=report-all,--warn-unresolved-symbols,--warn-once -shared -fPIC $ext_c_file -I"$DSS7_INCL" -I"$PY_INCL" -I"$PY_NPY_INCL" -L "$DSS7_LIB" -lheclib -lgfortran -lm -lquadmath -lz -o "$ext_module"
+gcc -Wall -Wl,--unresolved-symbols=report-all,--warn-unresolved-symbols,--warn-once -shared -fPIC $ext_c_file -I"$DSS7_INCL" -I"$PY_INCL" -I"$PY_NPY_INCL" -L "$DSS7_LIB" -lheclib -lpthread -lgfortran -lm -lquadmath -lz -o "$ext_module"

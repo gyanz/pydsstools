@@ -16,6 +16,7 @@ cdef class Open:
     """
     cdef:
         long long ifltab[500]
+        readonly int version
         readonly int file_status
         readonly int read_status
         readonly int write_status
@@ -28,6 +29,7 @@ cdef class Open:
         else:
             self.file_status = zopen(self.ifltab, dssFilename)
         isError(self.file_status)
+        self.version = zgetVersion(self.ifltab)
 
     def __enter__(self):
         return self
@@ -38,6 +40,10 @@ cdef class Open:
     def close(self):
         if self.ifltab != NULL:
             zclose(self.ifltab)
+
+    def __version__(self):
+        return    
+        #return zgetFullVersion(self.ifltab)        
 
     def get_status(self):
         return (self.file_status,self.read_status,self.write_status)
@@ -238,14 +244,6 @@ cdef class Open:
         pdc.curves_ptr = NULL
         pdc.curves_mv = None
 
-    cpdef dict pd_info(self, str pathname):
-        result = pd_size(self.ifltab,pathname) 
-        data = {}
-        data['curve_no'] = result[0]
-        data['data_no'] = result[1]
-        data['dtype'] = result[3]
-        return data
-
     cpdef void read_grid(self,const char *pathname, SpatialGridStruct sg_st, int boolRetrieveData=1) except *:
         cdef:
             zStructSpatialGrid *zsgs = NULL 
@@ -257,6 +255,43 @@ cdef class Open:
     cpdef int put_grid(self,str pathname, np.ndarray data, dict profile, int flipud=1) except *:
         # TODO: Error check
         saveSpatialGrid(self.ifltab,pathname, data, profile, flipud)
+
+    cpdef dict dss_info(self, str pathname):
+        return dss_info(self,pathname)
+
+    cpdef dict pd_info(self, str pathname):
+        result = pd_size(self,pathname) 
+        data = {}
+        data['curve_no'] = result[0]
+        data['data_no'] = result[1]
+        data['dtype'] = result[3]
+        return data
+
+    cpdef int _record_type_code(self,str pathname):
+        cdef int typecode
+        typecode = zdataType(self.ifltab,pathname)
+        return typecode
+
+    cpdef str _record_type(self,str pathname):
+        cdef:
+            int typecode
+            str dtype
+
+        typecode = zdataType(self.ifltab,pathname)
+
+        if typecode >= 100 and typecode < 200:
+            dtype = 'TS'
+
+        elif typecode >= 200 and typecode < 300:
+            dtype = 'PD'
+
+        elif typecode >= 400 and typecode < 450:
+            dtype = 'GRID'
+
+        else:
+            dtype = 'OTHER'
+
+        return dtype
 
     def __dealloc__(self):
         if self.ifltab != NULL:

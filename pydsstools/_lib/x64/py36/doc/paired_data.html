@@ -3817,125 +3817,8 @@ struct __pyx_opt_args_11core_heclib_19PairedDataContainer_setValues {
 <pre class='cython code score-0 '>  __pyx_r = 0;
   goto __pyx_L0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">371</span>: </pre>
-<pre class="cython line score-8" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">372</span>: cdef list pd_size(long long *ifltab,char *pathname):</pre>
-<pre class='cython code score-8 '>static PyObject *__pyx_f_11core_heclib_pd_size(PY_LONG_LONG *__pyx_v_ifltab, char *__pyx_v_pathname) {
-  zStructRecordSize *__pyx_v_recordSize;
-  int __pyx_v_curve_no;
-  int __pyx_v_data_no;
-  int __pyx_v_data_type;
-  char *__pyx_v_dtype;
-  PyObject *__pyx_v_return_list = 0;
-  int __pyx_v_status;
-  PyObject *__pyx_r = NULL;
-  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
-  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("pd_size", 0);
-/* … */
-  /* function exit code */
-  __pyx_L1_error:;
-  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_2);
-  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_4);
-  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_5);
-  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_6);
-  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_7);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core_heclib.pd_size", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = 0;
-  __pyx_L0:;
-  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_v_return_list);
-  <span class='refnanny'>__Pyx_XGIVEREF</span>(__pyx_r);
-  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
-  return __pyx_r;
-}
-</pre><pre class="cython line score-0">&#xA0;<span class="">373</span>:     cdef:</pre>
-<pre class="cython line score-0">&#xA0;<span class="">374</span>:         zStructRecordSize *recordSize</pre>
-<pre class="cython line score-0">&#xA0;<span class="">375</span>:         int curve_no</pre>
-<pre class="cython line score-0">&#xA0;<span class="">376</span>:         int data_no</pre>
-<pre class="cython line score-0">&#xA0;<span class="">377</span>:         int data_type</pre>
-<pre class="cython line score-0">&#xA0;<span class="">378</span>:         char *dtype</pre>
-<pre class="cython line score-0">&#xA0;<span class="">379</span>:         list return_list</pre>
-<pre class="cython line score-0">&#xA0;<span class="">380</span>:         int status</pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">381</span>:     recordSize = zstructRecordSizeNew(pathname)</pre>
-<pre class='cython code score-0 '>  __pyx_v_recordSize = zstructRecordSizeNew(__pyx_v_pathname);
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">382</span>:     status = zgetRecordSize(ifltab,recordSize)</pre>
-<pre class='cython code score-0 '>  __pyx_v_status = zgetRecordSize(__pyx_v_ifltab, __pyx_v_recordSize);
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">383</span>:     if not status == 0: # STATUS_OK != 0</pre>
-<pre class='cython code score-0 '>  __pyx_t_1 = ((!((__pyx_v_status == 0) != 0)) != 0);
-  if (unlikely(__pyx_t_1)) {
-/* … */
-  }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">384</span>:         zstructFree(recordSize)</pre>
-<pre class='cython code score-0 '>    zstructFree(__pyx_v_recordSize);
-</pre><pre class="cython line score-10" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">385</span>:         raise BaseException("Seems invalid Paired Data Size Query!!")</pre>
-<pre class='cython code score-10 '>    __pyx_t_2 = <span class='pyx_c_api'>__Pyx_PyObject_Call</span>(__pyx_builtin_BaseException, __pyx_tuple__18, NULL);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(4, 385, __pyx_L1_error)</span>
-    <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
-    <span class='pyx_c_api'>__Pyx_Raise</span>(__pyx_t_2, 0, 0, 0);
-    <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_2); __pyx_t_2 = 0;
-    <span class='error_goto'>__PYX_ERR(4, 385, __pyx_L1_error)</span>
-/* … */
-  __pyx_tuple__18 = <span class='py_c_api'>PyTuple_Pack</span>(1, __pyx_kp_u_Seems_invalid_Paired_Data_Size_Q);<span class='error_goto'> if (unlikely(!__pyx_tuple__18)) __PYX_ERR(4, 385, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__18);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__18);
-</pre><pre class="cython line score-0">&#xA0;<span class="">386</span>: </pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">387</span>:     data_no = recordSize[0].pdNumberCurves # bug: this is giving data_no</pre>
-<pre class='cython code score-0 '>  __pyx_t_3 = (__pyx_v_recordSize[0]).pdNumberCurves;
-  __pyx_v_data_no = __pyx_t_3;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">388</span>:     curve_no = recordSize[0].pdNumberOrdinates # bug: this is giving curve_no</pre>
-<pre class='cython code score-0 '>  __pyx_t_3 = (__pyx_v_recordSize[0]).pdNumberOrdinates;
-  __pyx_v_curve_no = __pyx_t_3;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">389</span>:     data_type = recordSize[0].dataType</pre>
-<pre class='cython code score-0 '>  __pyx_t_3 = (__pyx_v_recordSize[0]).dataType;
-  __pyx_v_data_type = __pyx_t_3;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">390</span>:     if data_type == 200:</pre>
-<pre class='cython code score-0 '>  switch (__pyx_v_data_type) {
-    case 0xC8:
-/* … */
-    break;
-    case 0xCD:
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">391</span>:         dtype = 'float32'</pre>
-<pre class='cython code score-0 '>    __pyx_v_dtype = ((char *)"float32");
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">392</span>:     elif data_type == 205:</pre>
-<pre class='cython code score-0 '>    break;
-    default:
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">393</span>:         dtype = 'double'</pre>
-<pre class='cython code score-0 '>    __pyx_v_dtype = ((char *)"double");
-</pre><pre class="cython line score-0">&#xA0;<span class="">394</span>:     else:</pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">395</span>:         dtype = 'unknown'</pre>
-<pre class='cython code score-0 '>    __pyx_v_dtype = ((char *)"unknown");
-    break;
-  }
-</pre><pre class="cython line score-0">&#xA0;<span class="">396</span>: </pre>
-<pre class="cython line score-17" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">397</span>:     return_list = [curve_no,data_no,data_type,dtype]</pre>
-<pre class='cython code score-17 '>  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_PyInt_From_int</span>(__pyx_v_curve_no);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(4, 397, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
-  __pyx_t_4 = <span class='pyx_c_api'>__Pyx_PyInt_From_int</span>(__pyx_v_data_no);<span class='error_goto'> if (unlikely(!__pyx_t_4)) __PYX_ERR(4, 397, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_4);
-  __pyx_t_5 = <span class='pyx_c_api'>__Pyx_PyInt_From_int</span>(__pyx_v_data_type);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(4, 397, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_5);
-  __pyx_t_6 = <span class='pyx_c_api'>__Pyx_PyStr_FromString</span>(__pyx_v_dtype);<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(4, 397, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
-  __pyx_t_7 = <span class='py_c_api'>PyList_New</span>(4);<span class='error_goto'> if (unlikely(!__pyx_t_7)) __PYX_ERR(4, 397, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_7);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_t_2);
-  <span class='py_macro_api'>PyList_SET_ITEM</span>(__pyx_t_7, 0, __pyx_t_2);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_t_4);
-  <span class='py_macro_api'>PyList_SET_ITEM</span>(__pyx_t_7, 1, __pyx_t_4);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_t_5);
-  <span class='py_macro_api'>PyList_SET_ITEM</span>(__pyx_t_7, 2, __pyx_t_5);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_t_6);
-  <span class='py_macro_api'>PyList_SET_ITEM</span>(__pyx_t_7, 3, __pyx_t_6);
-  __pyx_t_2 = 0;
-  __pyx_t_4 = 0;
-  __pyx_t_5 = 0;
-  __pyx_t_6 = 0;
-  __pyx_v_return_list = ((PyObject*)__pyx_t_7);
-  __pyx_t_7 = 0;
-</pre><pre class="cython line score-0">&#xA0;<span class="">398</span>:     #print("curve no = {} | data no = {}\n".format(curve_no,data_no))</pre>
-<pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">399</span>:     return return_list</pre>
-<pre class='cython code score-2 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
-  <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_v_return_list);
-  __pyx_r = __pyx_v_return_list;
-  goto __pyx_L0;
-</pre><pre class="cython line score-0">&#xA0;<span class="">400</span>: </pre>
-<pre class="cython line score-4" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">401</span>: cdef PairedDataStruct preallocNewPairedData(PairedDataContainer pdc):</pre>
+<pre class="cython line score-0">&#xA0;<span class="">372</span>: </pre>
+<pre class="cython line score-4" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">373</span>: cdef PairedDataStruct preallocNewPairedData(PairedDataContainer pdc):</pre>
 <pre class='cython code score-4 '>static struct __pyx_obj_11core_heclib_PairedDataStruct *__pyx_f_11core_heclib_preallocNewPairedData(struct __pyx_obj_11core_heclib_PairedDataContainer *__pyx_v_pdc) {
   zStructPairedData *__pyx_v_zpds;
   struct __pyx_obj_11core_heclib_PairedDataStruct *__pyx_v_pd_st = 0;
@@ -3962,15 +3845,15 @@ struct __pyx_opt_args_11core_heclib_19PairedDataContainer_setValues {
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
-</pre><pre class="cython line score-0">&#xA0;<span class="">402</span>:     cdef:</pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">403</span>:         zStructPairedData *zpds=NULL</pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">374</span>:     cdef:</pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">375</span>:         zStructPairedData *zpds=NULL</pre>
 <pre class='cython code score-0 '>  __pyx_v_zpds = NULL;
-</pre><pre class="cython line score-0">&#xA0;<span class="">404</span>:         PairedDataStruct pd_st</pre>
-<pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">405</span>:         char *pathname = pdc.pathname</pre>
-<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;pathname); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 405, __pyx_L1_error)</span>
+</pre><pre class="cython line score-0">&#xA0;<span class="">376</span>:         PairedDataStruct pd_st</pre>
+<pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">377</span>:         char *pathname = pdc.pathname</pre>
+<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;pathname); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 377, __pyx_L1_error)</span>
   __pyx_v_pathname = __pyx_t_1;
-</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">406</span>:         float *independent_axis = &amp;pdc.independent_axis_mv[0]</pre>
-<pre class='cython code score-7 '>  if (unlikely(!__pyx_v_pdc-&gt;independent_axis_mv.memview)) {<span class='py_c_api'>PyErr_SetString</span>(PyExc_AttributeError,"Memoryview is not initialized");<span class='error_goto'>__PYX_ERR(4, 406, __pyx_L1_error)</span>}
+</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">378</span>:         float *independent_axis = &amp;pdc.independent_axis_mv[0]</pre>
+<pre class='cython code score-7 '>  if (unlikely(!__pyx_v_pdc-&gt;independent_axis_mv.memview)) {<span class='py_c_api'>PyErr_SetString</span>(PyExc_AttributeError,"Memoryview is not initialized");<span class='error_goto'>__PYX_ERR(4, 378, __pyx_L1_error)</span>}
   __pyx_t_2 = 0;
   __pyx_t_3 = -1;
   if (__pyx_t_2 &lt; 0) {
@@ -3979,71 +3862,71 @@ struct __pyx_opt_args_11core_heclib_19PairedDataContainer_setValues {
   } else if (unlikely(__pyx_t_2 &gt;= __pyx_v_pdc-&gt;independent_axis_mv.shape[0])) __pyx_t_3 = 0;
   if (unlikely(__pyx_t_3 != -1)) {
     <span class='pyx_c_api'>__Pyx_RaiseBufferIndexError</span>(__pyx_t_3);
-    <span class='error_goto'>__PYX_ERR(4, 406, __pyx_L1_error)</span>
+    <span class='error_goto'>__PYX_ERR(4, 378, __pyx_L1_error)</span>
   }
   __pyx_v_independent_axis = (&amp;(*((float *) ( /* dim=0 */ (__pyx_v_pdc-&gt;independent_axis_mv.data + __pyx_t_2 * __pyx_v_pdc-&gt;independent_axis_mv.strides[0]) ))));
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">407</span>:         int data_no = pdc.data_no</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">379</span>:         int data_no = pdc.data_no</pre>
 <pre class='cython code score-0 '>  __pyx_t_3 = __pyx_v_pdc-&gt;data_no;
   __pyx_v_data_no = __pyx_t_3;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">408</span>:         int curve_no = pdc.curve_no</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">380</span>:         int curve_no = pdc.curve_no</pre>
 <pre class='cython code score-0 '>  __pyx_t_3 = __pyx_v_pdc-&gt;curve_no;
   __pyx_v_curve_no = __pyx_t_3;
-</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">409</span>:         char *independent_units = pdc.independent_units</pre>
-<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;independent_units); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 409, __pyx_L1_error)</span>
+</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">381</span>:         char *independent_units = pdc.independent_units</pre>
+<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;independent_units); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 381, __pyx_L1_error)</span>
   __pyx_v_independent_units = __pyx_t_1;
-</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">410</span>:         char *independent_type = pdc.independent_type</pre>
-<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;independent_type); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 410, __pyx_L1_error)</span>
+</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">382</span>:         char *independent_type = pdc.independent_type</pre>
+<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;independent_type); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 382, __pyx_L1_error)</span>
   __pyx_v_independent_type = __pyx_t_1;
-</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">411</span>:         char *dependent_units = pdc.dependent_units</pre>
-<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;dependent_units); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 411, __pyx_L1_error)</span>
+</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">383</span>:         char *dependent_units = pdc.dependent_units</pre>
+<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;dependent_units); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 383, __pyx_L1_error)</span>
   __pyx_v_dependent_units = __pyx_t_1;
-</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">412</span>:         char *dependent_type = pdc.dependent_type</pre>
-<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;dependent_type); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 412, __pyx_L1_error)</span>
+</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">384</span>:         char *dependent_type = pdc.dependent_type</pre>
+<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;dependent_type); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 384, __pyx_L1_error)</span>
   __pyx_v_dependent_type = __pyx_t_1;
-</pre><pre class="cython line score-0">&#xA0;<span class="">413</span>: </pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">414</span>:     zpds = zstructPdNew(pathname)</pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">385</span>: </pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">386</span>:     zpds = zstructPdNew(pathname)</pre>
 <pre class='cython code score-0 '>  __pyx_v_zpds = zstructPdNew(__pyx_v_pathname);
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">415</span>:     zpds[0].numberCurves = curve_no</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">387</span>:     zpds[0].numberCurves = curve_no</pre>
 <pre class='cython code score-0 '>  (__pyx_v_zpds[0]).numberCurves = __pyx_v_curve_no;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">416</span>:     zpds[0].numberOrdinates = data_no</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">388</span>:     zpds[0].numberOrdinates = data_no</pre>
 <pre class='cython code score-0 '>  (__pyx_v_zpds[0]).numberOrdinates = __pyx_v_data_no;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">417</span>:     zpds[0].floatOrdinates = independent_axis</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">389</span>:     zpds[0].floatOrdinates = independent_axis</pre>
 <pre class='cython code score-0 '>  (__pyx_v_zpds[0]).floatOrdinates = __pyx_v_independent_axis;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">418</span>:     zpds[0].doubleOrdinates = NULL</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">390</span>:     zpds[0].doubleOrdinates = NULL</pre>
 <pre class='cython code score-0 '>  (__pyx_v_zpds[0]).doubleOrdinates = NULL;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">419</span>:     zpds[0].unitsIndependent = independent_units</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">391</span>:     zpds[0].unitsIndependent = independent_units</pre>
 <pre class='cython code score-0 '>  (__pyx_v_zpds[0]).unitsIndependent = __pyx_v_independent_units;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">420</span>:     zpds[0].typeIndependent = independent_type</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">392</span>:     zpds[0].typeIndependent = independent_type</pre>
 <pre class='cython code score-0 '>  (__pyx_v_zpds[0]).typeIndependent = __pyx_v_independent_type;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">421</span>:     zpds[0].unitsDependent = dependent_units</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">393</span>:     zpds[0].unitsDependent = dependent_units</pre>
 <pre class='cython code score-0 '>  (__pyx_v_zpds[0]).unitsDependent = __pyx_v_dependent_units;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">422</span>:     zpds[0].typeDependent = dependent_type</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">394</span>:     zpds[0].typeDependent = dependent_type</pre>
 <pre class='cython code score-0 '>  (__pyx_v_zpds[0]).typeDependent = __pyx_v_dependent_type;
-</pre><pre class="cython line score-0">&#xA0;<span class="">423</span>: </pre>
-<pre class="cython line score-0">&#xA0;<span class="">424</span>:     # additional check</pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">425</span>:     if pdc.labelsLength&gt;0:</pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">395</span>: </pre>
+<pre class="cython line score-0">&#xA0;<span class="">396</span>:     # additional check</pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">397</span>:     if pdc.labelsLength&gt;0:</pre>
 <pre class='cython code score-0 '>  __pyx_t_4 = ((__pyx_v_pdc-&gt;labelsLength &gt; 0) != 0);
   if (__pyx_t_4) {
 /* … */
   }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">426</span>:         zpds[0].labelsLength = pdc.labelsLength</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">398</span>:         zpds[0].labelsLength = pdc.labelsLength</pre>
 <pre class='cython code score-0 '>    __pyx_t_3 = __pyx_v_pdc-&gt;labelsLength;
     (__pyx_v_zpds[0]).labelsLength = __pyx_t_3;
-</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">427</span>:         zpds[0].labels = &lt;char *&gt;pdc.labels</pre>
-<pre class='cython code score-7 '>    __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;labels); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 427, __pyx_L1_error)</span>
+</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">399</span>:         zpds[0].labels = &lt;char *&gt;pdc.labels</pre>
+<pre class='cython code score-7 '>    __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;labels); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 399, __pyx_L1_error)</span>
     (__pyx_v_zpds[0]).labels = ((char *)__pyx_t_1);
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">428</span>:     pd_st = createPDS(zpds)</pre>
-<pre class='cython code score-0 '>  __pyx_t_5 = ((PyObject *)__pyx_f_11core_heclib_createPDS(__pyx_v_zpds));<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(4, 428, __pyx_L1_error)</span>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">400</span>:     pd_st = createPDS(zpds)</pre>
+<pre class='cython code score-0 '>  __pyx_t_5 = ((PyObject *)__pyx_f_11core_heclib_createPDS(__pyx_v_zpds));<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(4, 400, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_5);
   __pyx_v_pd_st = ((struct __pyx_obj_11core_heclib_PairedDataStruct *)__pyx_t_5);
   __pyx_t_5 = 0;
-</pre><pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">429</span>:     return pd_st</pre>
+</pre><pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">401</span>:     return pd_st</pre>
 <pre class='cython code score-2 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(((PyObject *)__pyx_r));
   <span class='pyx_macro_api'>__Pyx_INCREF</span>(((PyObject *)__pyx_v_pd_st));
   __pyx_r = __pyx_v_pd_st;
   goto __pyx_L0;
-</pre><pre class="cython line score-0">&#xA0;<span class="">430</span>: </pre>
-<pre class="cython line score-4" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">431</span>: cdef PairedDataStruct createOnePairedData(long long *ifltab,PairedDataContainer pdc,int curve_index,int start_ord_index=0,int end_ord_index=0):</pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">402</span>: </pre>
+<pre class="cython line score-4" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">403</span>: cdef PairedDataStruct createOnePairedData(long long *ifltab,PairedDataContainer pdc,int curve_index,int start_ord_index=0,int end_ord_index=0):</pre>
 <pre class='cython code score-4 '>static struct __pyx_obj_11core_heclib_PairedDataStruct *__pyx_f_11core_heclib_createOnePairedData(CYTHON_UNUSED PY_LONG_LONG *__pyx_v_ifltab, struct __pyx_obj_11core_heclib_PairedDataContainer *__pyx_v_pdc, int __pyx_v_curve_index, struct __pyx_opt_args_11core_heclib_createOnePairedData *__pyx_optional_args) {
   int __pyx_v_start_ord_index = ((int)0);
   int __pyx_v_end_ord_index = ((int)0);
@@ -4080,66 +3963,66 @@ struct __pyx_opt_args_11core_heclib_createOnePairedData {
   int start_ord_index;
   int end_ord_index;
 };
-</pre><pre class="cython line score-0">&#xA0;<span class="">432</span>:     cdef:</pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">433</span>:         zStructPairedData *zpds=NULL</pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">404</span>:     cdef:</pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">405</span>:         zStructPairedData *zpds=NULL</pre>
 <pre class='cython code score-0 '>  __pyx_v_zpds = NULL;
-</pre><pre class="cython line score-0">&#xA0;<span class="">434</span>:         PairedDataStruct pd_st</pre>
-<pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">435</span>:         char *pathname = pdc.pathname</pre>
-<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;pathname); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 435, __pyx_L1_error)</span>
+</pre><pre class="cython line score-0">&#xA0;<span class="">406</span>:         PairedDataStruct pd_st</pre>
+<pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">407</span>:         char *pathname = pdc.pathname</pre>
+<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;pathname); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 407, __pyx_L1_error)</span>
   __pyx_v_pathname = __pyx_t_1;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">436</span>:         float *curves = pdc.curves_ptr</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">408</span>:         float *curves = pdc.curves_ptr</pre>
 <pre class='cython code score-0 '>  __pyx_t_2 = __pyx_v_pdc-&gt;curves_ptr;
   __pyx_v_curves = __pyx_t_2;
-</pre><pre class="cython line score-0">&#xA0;<span class="">437</span>: </pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">438</span>:     zpds = zstructPdNew(pathname)</pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">409</span>: </pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">410</span>:     zpds = zstructPdNew(pathname)</pre>
 <pre class='cython code score-0 '>  __pyx_v_zpds = zstructPdNew(__pyx_v_pathname);
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">439</span>:     zpds[0].startingCurve = curve_index</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">411</span>:     zpds[0].startingCurve = curve_index</pre>
 <pre class='cython code score-0 '>  (__pyx_v_zpds[0]).startingCurve = __pyx_v_curve_index;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">440</span>:     zpds[0].endingCurve = curve_index</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">412</span>:     zpds[0].endingCurve = curve_index</pre>
 <pre class='cython code score-0 '>  (__pyx_v_zpds[0]).endingCurve = __pyx_v_curve_index;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">441</span>:     if start_ord_index:</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">413</span>:     if start_ord_index:</pre>
 <pre class='cython code score-0 '>  __pyx_t_3 = (__pyx_v_start_ord_index != 0);
   if (__pyx_t_3) {
 /* … */
   }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">442</span>:         zpds[0].startingOrdinate = start_ord_index</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">414</span>:         zpds[0].startingOrdinate = start_ord_index</pre>
 <pre class='cython code score-0 '>    (__pyx_v_zpds[0]).startingOrdinate = __pyx_v_start_ord_index;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">443</span>:         zpds[0].endingOrdinate = end_ord_index</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">415</span>:         zpds[0].endingOrdinate = end_ord_index</pre>
 <pre class='cython code score-0 '>    (__pyx_v_zpds[0]).endingOrdinate = __pyx_v_end_ord_index;
-</pre><pre class="cython line score-0">&#xA0;<span class="">444</span>: </pre>
-<pre class="cython line score-0">&#xA0;<span class="">445</span>: </pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">446</span>:     zpds[0].floatValues  = curves</pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">416</span>: </pre>
+<pre class="cython line score-0">&#xA0;<span class="">417</span>: </pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">418</span>:     zpds[0].floatValues  = curves</pre>
 <pre class='cython code score-0 '>  (__pyx_v_zpds[0]).floatValues = __pyx_v_curves;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">447</span>:     zpds[0].floatOrdinates = NULL</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">419</span>:     zpds[0].floatOrdinates = NULL</pre>
 <pre class='cython code score-0 '>  (__pyx_v_zpds[0]).floatOrdinates = NULL;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">448</span>:     zpds[0].doubleOrdinates = NULL</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">420</span>:     zpds[0].doubleOrdinates = NULL</pre>
 <pre class='cython code score-0 '>  (__pyx_v_zpds[0]).doubleOrdinates = NULL;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">449</span>:     zpds[0].doubleValues  = NULL</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">421</span>:     zpds[0].doubleValues  = NULL</pre>
 <pre class='cython code score-0 '>  (__pyx_v_zpds[0]).doubleValues = NULL;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">450</span>:     if pdc.labelsLength&gt;0:</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">422</span>:     if pdc.labelsLength&gt;0:</pre>
 <pre class='cython code score-0 '>  __pyx_t_3 = ((__pyx_v_pdc-&gt;labelsLength &gt; 0) != 0);
   if (__pyx_t_3) {
 /* … */
   }
-</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">451</span>:         zpds[0].labels=&lt;char *&gt;pdc.labels</pre>
-<pre class='cython code score-7 '>    __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;labels); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 451, __pyx_L1_error)</span>
+</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">423</span>:         zpds[0].labels=&lt;char *&gt;pdc.labels</pre>
+<pre class='cython code score-7 '>    __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;labels); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 423, __pyx_L1_error)</span>
     (__pyx_v_zpds[0]).labels = ((char *)__pyx_t_1);
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">452</span>:         zpds[0].labelsLength = pdc.labelsLength</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">424</span>:         zpds[0].labelsLength = pdc.labelsLength</pre>
 <pre class='cython code score-0 '>    __pyx_t_4 = __pyx_v_pdc-&gt;labelsLength;
     (__pyx_v_zpds[0]).labelsLength = __pyx_t_4;
-</pre><pre class="cython line score-0">&#xA0;<span class="">453</span>: </pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">454</span>:     pd_st = createPDS(zpds)</pre>
-<pre class='cython code score-0 '>  __pyx_t_5 = ((PyObject *)__pyx_f_11core_heclib_createPDS(__pyx_v_zpds));<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(4, 454, __pyx_L1_error)</span>
+</pre><pre class="cython line score-0">&#xA0;<span class="">425</span>: </pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">426</span>:     pd_st = createPDS(zpds)</pre>
+<pre class='cython code score-0 '>  __pyx_t_5 = ((PyObject *)__pyx_f_11core_heclib_createPDS(__pyx_v_zpds));<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(4, 426, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_5);
   __pyx_v_pd_st = ((struct __pyx_obj_11core_heclib_PairedDataStruct *)__pyx_t_5);
   __pyx_t_5 = 0;
-</pre><pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">455</span>:     return pd_st</pre>
+</pre><pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">427</span>:     return pd_st</pre>
 <pre class='cython code score-2 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(((PyObject *)__pyx_r));
   <span class='pyx_macro_api'>__Pyx_INCREF</span>(((PyObject *)__pyx_v_pd_st));
   __pyx_r = __pyx_v_pd_st;
   goto __pyx_L0;
-</pre><pre class="cython line score-0">&#xA0;<span class="">456</span>: </pre>
-<pre class="cython line score-4" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">457</span>: cdef PairedDataStruct createNewFloatPairedData(PairedDataContainer pdc):</pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">428</span>: </pre>
+<pre class="cython line score-4" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">429</span>: cdef PairedDataStruct createNewFloatPairedData(PairedDataContainer pdc):</pre>
 <pre class='cython code score-4 '>static struct __pyx_obj_11core_heclib_PairedDataStruct *__pyx_f_11core_heclib_createNewFloatPairedData(struct __pyx_obj_11core_heclib_PairedDataContainer *__pyx_v_pdc) {
   zStructPairedData *__pyx_v_zpds;
   struct __pyx_obj_11core_heclib_PairedDataStruct *__pyx_v_pd_st = 0;
@@ -4167,15 +4050,15 @@ struct __pyx_opt_args_11core_heclib_createOnePairedData {
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
-</pre><pre class="cython line score-0">&#xA0;<span class="">458</span>:     cdef:</pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">459</span>:         zStructPairedData *zpds=NULL</pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">430</span>:     cdef:</pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">431</span>:         zStructPairedData *zpds=NULL</pre>
 <pre class='cython code score-0 '>  __pyx_v_zpds = NULL;
-</pre><pre class="cython line score-0">&#xA0;<span class="">460</span>:         PairedDataStruct pd_st</pre>
-<pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">461</span>:         char *pathname = pdc.pathname</pre>
-<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;pathname); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 461, __pyx_L1_error)</span>
+</pre><pre class="cython line score-0">&#xA0;<span class="">432</span>:         PairedDataStruct pd_st</pre>
+<pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">433</span>:         char *pathname = pdc.pathname</pre>
+<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;pathname); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 433, __pyx_L1_error)</span>
   __pyx_v_pathname = __pyx_t_1;
-</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">462</span>:         float *independent_axis = &amp;pdc.independent_axis_mv[0]</pre>
-<pre class='cython code score-7 '>  if (unlikely(!__pyx_v_pdc-&gt;independent_axis_mv.memview)) {<span class='py_c_api'>PyErr_SetString</span>(PyExc_AttributeError,"Memoryview is not initialized");<span class='error_goto'>__PYX_ERR(4, 462, __pyx_L1_error)</span>}
+</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">434</span>:         float *independent_axis = &amp;pdc.independent_axis_mv[0]</pre>
+<pre class='cython code score-7 '>  if (unlikely(!__pyx_v_pdc-&gt;independent_axis_mv.memview)) {<span class='py_c_api'>PyErr_SetString</span>(PyExc_AttributeError,"Memoryview is not initialized");<span class='error_goto'>__PYX_ERR(4, 434, __pyx_L1_error)</span>}
   __pyx_t_2 = 0;
   __pyx_t_3 = -1;
   if (__pyx_t_2 &lt; 0) {
@@ -4184,54 +4067,54 @@ struct __pyx_opt_args_11core_heclib_createOnePairedData {
   } else if (unlikely(__pyx_t_2 &gt;= __pyx_v_pdc-&gt;independent_axis_mv.shape[0])) __pyx_t_3 = 0;
   if (unlikely(__pyx_t_3 != -1)) {
     <span class='pyx_c_api'>__Pyx_RaiseBufferIndexError</span>(__pyx_t_3);
-    <span class='error_goto'>__PYX_ERR(4, 462, __pyx_L1_error)</span>
+    <span class='error_goto'>__PYX_ERR(4, 434, __pyx_L1_error)</span>
   }
   __pyx_v_independent_axis = (&amp;(*((float *) ( /* dim=0 */ (__pyx_v_pdc-&gt;independent_axis_mv.data + __pyx_t_2 * __pyx_v_pdc-&gt;independent_axis_mv.strides[0]) ))));
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">463</span>:         float *curves = pdc.curves_ptr</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">435</span>:         float *curves = pdc.curves_ptr</pre>
 <pre class='cython code score-0 '>  __pyx_t_4 = __pyx_v_pdc-&gt;curves_ptr;
   __pyx_v_curves = __pyx_t_4;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">464</span>:         int data_no = pdc.data_no</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">436</span>:         int data_no = pdc.data_no</pre>
 <pre class='cython code score-0 '>  __pyx_t_3 = __pyx_v_pdc-&gt;data_no;
   __pyx_v_data_no = __pyx_t_3;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">465</span>:         int curve_no = pdc.curve_no</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">437</span>:         int curve_no = pdc.curve_no</pre>
 <pre class='cython code score-0 '>  __pyx_t_3 = __pyx_v_pdc-&gt;curve_no;
   __pyx_v_curve_no = __pyx_t_3;
-</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">466</span>:         char *independent_units = pdc.independent_units</pre>
-<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;independent_units); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 466, __pyx_L1_error)</span>
+</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">438</span>:         char *independent_units = pdc.independent_units</pre>
+<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;independent_units); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 438, __pyx_L1_error)</span>
   __pyx_v_independent_units = __pyx_t_1;
-</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">467</span>:         char *independent_type = pdc.independent_type</pre>
-<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;independent_type); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 467, __pyx_L1_error)</span>
+</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">439</span>:         char *independent_type = pdc.independent_type</pre>
+<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;independent_type); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 439, __pyx_L1_error)</span>
   __pyx_v_independent_type = __pyx_t_1;
-</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">468</span>:         char *dependent_units = pdc.dependent_units</pre>
-<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;dependent_units); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 468, __pyx_L1_error)</span>
+</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">440</span>:         char *dependent_units = pdc.dependent_units</pre>
+<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;dependent_units); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 440, __pyx_L1_error)</span>
   __pyx_v_dependent_units = __pyx_t_1;
-</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">469</span>:         char *dependent_type = pdc.dependent_type</pre>
-<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;dependent_type); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 469, __pyx_L1_error)</span>
+</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">441</span>:         char *dependent_type = pdc.dependent_type</pre>
+<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;dependent_type); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 441, __pyx_L1_error)</span>
   __pyx_v_dependent_type = __pyx_t_1;
-</pre><pre class="cython line score-0">&#xA0;<span class="">470</span>: </pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">471</span>:     zpds = zstructPdNewFloats(pathname, independent_axis, curves, data_no,</pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">442</span>: </pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">443</span>:     zpds = zstructPdNewFloats(pathname, independent_axis, curves, data_no,</pre>
 <pre class='cython code score-0 '>  __pyx_v_zpds = zstructPdNewFloats(__pyx_v_pathname, __pyx_v_independent_axis, __pyx_v_curves, __pyx_v_data_no, __pyx_v_curve_no, __pyx_v_independent_units, __pyx_v_independent_type, __pyx_v_dependent_units, __pyx_v_dependent_type);
-</pre><pre class="cython line score-0">&#xA0;<span class="">472</span>:                               curve_no, independent_units, independent_type,</pre>
-<pre class="cython line score-0">&#xA0;<span class="">473</span>:                               dependent_units, dependent_type)</pre>
-<pre class="cython line score-0">&#xA0;<span class="">474</span>:     # additional check</pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">475</span>:     if pdc.labelsLength&gt;0:</pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">444</span>:                               curve_no, independent_units, independent_type,</pre>
+<pre class="cython line score-0">&#xA0;<span class="">445</span>:                               dependent_units, dependent_type)</pre>
+<pre class="cython line score-0">&#xA0;<span class="">446</span>:     # additional check</pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">447</span>:     if pdc.labelsLength&gt;0:</pre>
 <pre class='cython code score-0 '>  __pyx_t_5 = ((__pyx_v_pdc-&gt;labelsLength &gt; 0) != 0);
   if (__pyx_t_5) {
 /* … */
   }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">476</span>:         zpds[0].labelsLength = pdc.labelsLength</pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">448</span>:         zpds[0].labelsLength = pdc.labelsLength</pre>
 <pre class='cython code score-0 '>    __pyx_t_3 = __pyx_v_pdc-&gt;labelsLength;
     (__pyx_v_zpds[0]).labelsLength = __pyx_t_3;
-</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">477</span>:         zpds[0].labels = &lt;char *&gt;pdc.labels</pre>
-<pre class='cython code score-7 '>    __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;labels); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 477, __pyx_L1_error)</span>
+</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">449</span>:         zpds[0].labels = &lt;char *&gt;pdc.labels</pre>
+<pre class='cython code score-7 '>    __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_AsWritableString</span>(__pyx_v_pdc-&gt;labels); if (unlikely((!__pyx_t_1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(4, 449, __pyx_L1_error)</span>
     (__pyx_v_zpds[0]).labels = ((char *)__pyx_t_1);
-</pre><pre class="cython line score-0">&#xA0;<span class="">478</span>: </pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">479</span>:     pd_st = createPDS(zpds)</pre>
-<pre class='cython code score-0 '>  __pyx_t_6 = ((PyObject *)__pyx_f_11core_heclib_createPDS(__pyx_v_zpds));<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(4, 479, __pyx_L1_error)</span>
+</pre><pre class="cython line score-0">&#xA0;<span class="">450</span>: </pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">451</span>:     pd_st = createPDS(zpds)</pre>
+<pre class='cython code score-0 '>  __pyx_t_6 = ((PyObject *)__pyx_f_11core_heclib_createPDS(__pyx_v_zpds));<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(4, 451, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
   __pyx_v_pd_st = ((struct __pyx_obj_11core_heclib_PairedDataStruct *)__pyx_t_6);
   __pyx_t_6 = 0;
-</pre><pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">480</span>:     return pd_st</pre>
+</pre><pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">452</span>:     return pd_st</pre>
 <pre class='cython code score-2 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(((PyObject *)__pyx_r));
   <span class='pyx_macro_api'>__Pyx_INCREF</span>(((PyObject *)__pyx_v_pd_st));
   __pyx_r = __pyx_v_pd_st;

@@ -369,34 +369,6 @@ cdef class PairedDataContainer:
             assert len(self.independent_axis_mv) == self.data_no
         return 0
 
-cdef list pd_size(long long *ifltab,char *pathname):
-    cdef: 
-        zStructRecordSize *recordSize
-        int curve_no
-        int data_no
-        int data_type
-        char *dtype
-        list return_list
-        int status 
-    recordSize = zstructRecordSizeNew(pathname)
-    status = zgetRecordSize(ifltab,recordSize)
-    if not status == 0: # STATUS_OK != 0
-        zstructFree(recordSize)
-        raise BaseException("Seems invalid Paired Data Size Query!!")
-
-    data_no = recordSize[0].pdNumberCurves # bug: this is giving data_no 
-    curve_no = recordSize[0].pdNumberOrdinates # bug: this is giving curve_no
-    data_type = recordSize[0].dataType
-    if data_type == 200:
-        dtype = 'float32'
-    elif data_type == 205:
-        dtype = 'double'
-    else:
-        dtype = 'unknown'
-    
-    return_list = [curve_no,data_no,data_type,dtype]
-    #print("curve no = {} | data no = {}\n".format(curve_no,data_no))
-    return return_list 
 
 cdef PairedDataStruct preallocNewPairedData(PairedDataContainer pdc):
     cdef:

@@ -9,13 +9,12 @@ cdef extern from "heclib.h":
     int UNDEFINED_TIME
     int zisMissingDouble(double value)
     int zisMissingFloat(float value)
-    #void zsetMissingFloat(float *value)
-    #void zsetMissingDouble(double *value)
     int zisError(int status)
     int zerrorSeverity(int errorCode)
     int zerrorCheck()
     int zerror(hec_zdssLastError *errorStruct)   
     void zsetMessageLevel(int methodID, int levelID)
+    int zdataType (long long *ifltab, const char* pathname)
 
 cdef extern from "zerrorCodes.h":
     struct hec_zdssLastError:
@@ -35,8 +34,13 @@ cdef extern from "zerrorCodes.h":
     hec_zdssLastError zdssLastError # could this be global variable?
     
 cdef extern from "heclib.h":
-    int zcopyFile(long long *ifltab, long long *ifltabTo, int statusWanted)
+    # Version
     int zconvertVersion(const char* fileNameFrom, const char* fileNameTo)
+    int zgetFileVersion(const char *dssFilename)
+    int zgetVersion(long long *ifltab)
+    int zgetFullVersion(long long *ifltab) # For example DSS Version "7-BG" = 70207
+    #
+    int zcopyFile(long long *ifltab, long long *ifltabTo, int statusWanted)
     int zcopyRecord (long long *ifltabFrom, long long *ifltabTo, const char *pathnameFrom, const char *pathnameTo)
     int zduplicateRecord (long long *ifltab, const char *pathnameFrom, const char *pathnameTo) 
     int zdelete(long long *ifltab, const char* pathname)
@@ -258,16 +262,13 @@ cdef extern from "heclib.h":
 
 
     ctypedef struct zStructCatalog:
-
         #  Private
         int structType
-        
         #  Optional input
         #  For normal catalog, statusWanted = 0, and typeWanted = 0.
         int statusWanted
         int typeWantedStart
         int typeWantedEnd
-
         #  Search according to record last write time (e.g., records written to
         #  since a previous time (using file header write time)
         #  Times are system times, in mills
@@ -280,14 +281,12 @@ cdef extern from "heclib.h":
         #		 2:		time >  lastWriteTimeSearch
         long long lastWriteTimeSearch 
         int lastWriteTimeSearchFlag   
-
         #  Output
         #  An array of the pathnames in the DSS file
         char **pathnameList  	 	
         int numberPathnames  #  number of valid pathnames in list
         int boolSorted
         int boolIsCollection
-
         #  Attribues are descriptors for records, usually used for searching in a list,
         #  but are not used for unique idenity.  
         #  "::" seperates key from attribute, "" seperates attribute sets
@@ -298,23 +297,20 @@ cdef extern from "heclib.h":
         #  attribues[78] = "Type::SubbasinOrder::142"
         int boolHasAttribues
         char **attributes
-
         #  If boolIncludeDates == 1 on input, then startDates and endDates
         #  will be int arrays of the julian first and last date for each
         #  record (pathname)
         int boolIncludeDates
         int *startDates
         int *endDates
-
         #  Always returns these (right there)
+        int *recordType
         long long *pathnameHash
         long long *lastWriteTimeRecord
         long long lastWriteTimeFile
-
         #  CRC values - Resource intensive!  Only use if you reall needed
         unsigned int *crcValues
         int boolGetCRCvalues   #  Set to 1 to have CRC values computed
-
         #  Private
         int listSize  # size allocated
         long long *sortAddresses  #  Used for sorting

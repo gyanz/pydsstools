@@ -1,5 +1,10 @@
 pydsstools changelog
 ================
+1.2 (08-19-2019)
+-----------------
+* Added function to retrieve all pathnames by record type
+* Revised few utility function
+* HEC-DSS 7 library dated 12 Aug 2019
 
 1.1 (08-11-2019)
 -----------------

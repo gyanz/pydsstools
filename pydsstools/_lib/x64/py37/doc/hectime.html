@@ -354,7 +354,7 @@ body.cython { font-family: courier; font-size: 12; }
 <pre class="cython line score-0">&#xA0;<span class="">025</span>:                     "December":12}</pre>
 <pre class="cython line score-0">&#xA0;<span class="">026</span>: </pre>
 <pre class="cython line score-10" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">027</span>: cpdef int _dateToJulian(str dateString):</pre>
-<pre class='cython code score-10 '>static PyObject *__pyx_pw_11core_heclib_11_dateToJulian(PyObject *__pyx_self, PyObject *__pyx_v_dateString); /*proto*/
+<pre class='cython code score-10 '>static PyObject *__pyx_pw_11core_heclib_13_dateToJulian(PyObject *__pyx_self, PyObject *__pyx_v_dateString); /*proto*/
 static int __pyx_f_11core_heclib__dateToJulian(PyObject *__pyx_v_dateString, CYTHON_UNUSED int __pyx_skip_dispatch) {
   char *__pyx_v_dstr;
   int __pyx_v_result;
@@ -372,14 +372,14 @@ static int __pyx_f_11core_heclib__dateToJulian(PyObject *__pyx_v_dateString, CYT
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_11_dateToJulian(PyObject *__pyx_self, PyObject *__pyx_v_dateString); /*proto*/
-static char __pyx_doc_11core_heclib_10_dateToJulian[] = "_dateToJulian(unicode dateString) -&gt; int\n\n    Converts Date string to days since Julian base date,which is defined by HEC\n    as Dec 31, 1899 (time 00:00 or beginning of day)\n\n    Returns:\n        It returns integer days since the beginning of Julian Base Date\n\n    DateString Rules (?):\n        Valid: \"02JAN1969\", \"2JAN1969\", \"02 JAN 1969\",\"02 JANUARY 1969\"\n        Invalid: don't use 2 digit year and don't include time in the string\n    \n    Examples:\n         returns 10 for Jan 10, 1900\n         returns 0 for \"31DEC1899\"\n         returns 1 for \"01JAN1900\" \n    ";
-static PyObject *__pyx_pw_11core_heclib_11_dateToJulian(PyObject *__pyx_self, PyObject *__pyx_v_dateString) {
+static PyObject *__pyx_pw_11core_heclib_13_dateToJulian(PyObject *__pyx_self, PyObject *__pyx_v_dateString); /*proto*/
+static char __pyx_doc_11core_heclib_12_dateToJulian[] = "_dateToJulian(unicode dateString) -&gt; int\n\n    Converts Date string to days since Julian base date,which is defined by HEC\n    as Dec 31, 1899 (time 00:00 or beginning of day)\n\n    Returns:\n        It returns integer days since the beginning of Julian Base Date\n\n    DateString Rules (?):\n        Valid: \"02JAN1969\", \"2JAN1969\", \"02 JAN 1969\",\"02 JANUARY 1969\"\n        Invalid: don't use 2 digit year and don't include time in the string\n    \n    Examples:\n         returns 10 for Jan 10, 1900\n         returns 0 for \"31DEC1899\"\n         returns 1 for \"01JAN1900\" \n    ";
+static PyObject *__pyx_pw_11core_heclib_13_dateToJulian(PyObject *__pyx_self, PyObject *__pyx_v_dateString) {
   PyObject *__pyx_r = 0;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("_dateToJulian (wrapper)", 0);
   if (unlikely(!<span class='pyx_c_api'>__Pyx_ArgTypeTest</span>(((PyObject *)__pyx_v_dateString), (&amp;PyUnicode_Type), 1, "dateString", 1))) <span class='error_goto'>__PYX_ERR(2, 27, __pyx_L1_error)</span>
-  __pyx_r = __pyx_pf_11core_heclib_10_dateToJulian(__pyx_self, ((PyObject*)__pyx_v_dateString));
+  __pyx_r = __pyx_pf_11core_heclib_12_dateToJulian(__pyx_self, ((PyObject*)__pyx_v_dateString));
 
   /* function exit code */
   goto __pyx_L0;
@@ -390,7 +390,7 @@ static PyObject *__pyx_pw_11core_heclib_11_dateToJulian(PyObject *__pyx_self, Py
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_10_dateToJulian(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateString) {
+static PyObject *__pyx_pf_11core_heclib_12_dateToJulian(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateString) {
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("_dateToJulian", 0);
@@ -439,7 +439,7 @@ static PyObject *__pyx_pf_11core_heclib_10_dateToJulian(CYTHON_UNUSED PyObject *
   goto __pyx_L0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">049</span>: </pre>
 <pre class="cython line score-43" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">050</span>: cpdef str _julianToDate(int days, int fmt=4):</pre>
-<pre class='cython code score-43 '>static PyObject *__pyx_pw_11core_heclib_13_julianToDate(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+<pre class='cython code score-43 '>static PyObject *__pyx_pw_11core_heclib_15_julianToDate(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static PyObject *__pyx_f_11core_heclib__julianToDate(int __pyx_v_days, CYTHON_UNUSED int __pyx_skip_dispatch, struct __pyx_opt_args_11core_heclib__julianToDate *__pyx_optional_args) {
   int __pyx_v_fmt = ((int)4);
   char __pyx_v_cdate[13];
@@ -466,9 +466,9 @@ static PyObject *__pyx_f_11core_heclib__julianToDate(int __pyx_v_days, CYTHON_UN
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_13_julianToDate(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_11core_heclib_12_julianToDate[] = "_julianToDate(int days, int fmt=4) -&gt; unicode";
-static PyObject *__pyx_pw_11core_heclib_13_julianToDate(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_11core_heclib_15_julianToDate(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_11core_heclib_14_julianToDate[] = "_julianToDate(int days, int fmt=4) -&gt; unicode";
+static PyObject *__pyx_pw_11core_heclib_15_julianToDate(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   int __pyx_v_days;
   int __pyx_v_fmt;
   PyObject *__pyx_r = 0;
@@ -527,14 +527,14 @@ static PyObject *__pyx_pw_11core_heclib_13_julianToDate(PyObject *__pyx_self, Py
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11core_heclib_12_julianToDate(__pyx_self, __pyx_v_days, __pyx_v_fmt);
+  __pyx_r = __pyx_pf_11core_heclib_14_julianToDate(__pyx_self, __pyx_v_days, __pyx_v_fmt);
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_12_julianToDate(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_days, int __pyx_v_fmt) {
+static PyObject *__pyx_pf_11core_heclib_14_julianToDate(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_days, int __pyx_v_fmt) {
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("_julianToDate", 0);
@@ -580,7 +580,7 @@ struct __pyx_opt_args_11core_heclib__julianToDate {
 </pre><pre class="cython line score-0">&#xA0;<span class="">058</span>: </pre>
 <pre class="cython line score-0">&#xA0;<span class="">059</span>: </pre>
 <pre class="cython line score-58" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">060</span>: cpdef tuple _getDateAndTime(int timeMinOrSec, int timeGranularitySeconds, int julianBaseDate = 0):</pre>
-<pre class='cython code score-58 '>static PyObject *__pyx_pw_11core_heclib_15_getDateAndTime(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+<pre class='cython code score-58 '>static PyObject *__pyx_pw_11core_heclib_17_getDateAndTime(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static PyObject *__pyx_f_11core_heclib__getDateAndTime(int __pyx_v_timeMinOrSec, int __pyx_v_timeGranularitySeconds, CYTHON_UNUSED int __pyx_skip_dispatch, struct __pyx_opt_args_11core_heclib__getDateAndTime *__pyx_optional_args) {
   int __pyx_v_julianBaseDate = ((int)0);
   char __pyx_v_cdate[13];
@@ -611,9 +611,9 @@ static PyObject *__pyx_f_11core_heclib__getDateAndTime(int __pyx_v_timeMinOrSec,
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_15_getDateAndTime(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_11core_heclib_14_getDateAndTime[] = "_getDateAndTime(int timeMinOrSec, int timeGranularitySeconds, int julianBaseDate=0) -&gt; tuple";
-static PyObject *__pyx_pw_11core_heclib_15_getDateAndTime(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_11core_heclib_17_getDateAndTime(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_11core_heclib_16_getDateAndTime[] = "_getDateAndTime(int timeMinOrSec, int timeGranularitySeconds, int julianBaseDate=0) -&gt; tuple";
+static PyObject *__pyx_pw_11core_heclib_17_getDateAndTime(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   int __pyx_v_timeMinOrSec;
   int __pyx_v_timeGranularitySeconds;
   int __pyx_v_julianBaseDate;
@@ -683,14 +683,14 @@ static PyObject *__pyx_pw_11core_heclib_15_getDateAndTime(PyObject *__pyx_self, 
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11core_heclib_14_getDateAndTime(__pyx_self, __pyx_v_timeMinOrSec, __pyx_v_timeGranularitySeconds, __pyx_v_julianBaseDate);
+  __pyx_r = __pyx_pf_11core_heclib_16_getDateAndTime(__pyx_self, __pyx_v_timeMinOrSec, __pyx_v_timeGranularitySeconds, __pyx_v_julianBaseDate);
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_14_getDateAndTime(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_timeMinOrSec, int __pyx_v_timeGranularitySeconds, int __pyx_v_julianBaseDate) {
+static PyObject *__pyx_pf_11core_heclib_16_getDateAndTime(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_timeMinOrSec, int __pyx_v_timeGranularitySeconds, int __pyx_v_julianBaseDate) {
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("_getDateAndTime", 0);
@@ -739,13 +739,13 @@ struct __pyx_opt_args_11core_heclib__getDateAndTime {
   }
 </pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">073</span>:         return ('','')</pre>
 <pre class='cython code score-7 '>    <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
-    <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_tuple__27);
-    __pyx_r = __pyx_tuple__27;
+    <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_tuple__26);
+    __pyx_r = __pyx_tuple__26;
     goto __pyx_L0;
 /* … */
-  __pyx_tuple__27 = <span class='py_c_api'>PyTuple_Pack</span>(2, __pyx_kp_u_, __pyx_kp_u_);<span class='error_goto'> if (unlikely(!__pyx_tuple__27)) __PYX_ERR(2, 73, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__27);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__27);
+  __pyx_tuple__26 = <span class='py_c_api'>PyTuple_Pack</span>(2, __pyx_kp_u_, __pyx_kp_u_);<span class='error_goto'> if (unlikely(!__pyx_tuple__26)) __PYX_ERR(2, 73, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__26);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__26);
 </pre><pre class="cython line score-12" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">074</span>:     return (cdate,ctime)</pre>
 <pre class='cython code score-12 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
   __pyx_t_2 = <span class='pyx_c_api'>__Pyx_PyObject_FromString</span>(__pyx_v_cdate);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 74, __pyx_L1_error)</span>
@@ -765,7 +765,7 @@ struct __pyx_opt_args_11core_heclib__getDateAndTime {
   goto __pyx_L0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">075</span>: </pre>
 <pre class="cython line score-15" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">076</span>: cpdef int _datetimeToSeconds(char *datetimeString):</pre>
-<pre class='cython code score-15 '>static PyObject *__pyx_pw_11core_heclib_17_datetimeToSeconds(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString); /*proto*/
+<pre class='cython code score-15 '>static PyObject *__pyx_pw_11core_heclib_19_datetimeToSeconds(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString); /*proto*/
 static int __pyx_f_11core_heclib__datetimeToSeconds(char *__pyx_v_datetimeString, CYTHON_UNUSED int __pyx_skip_dispatch) {
   int __pyx_v_julian[1];
   int __pyx_v_seconds[1];
@@ -781,9 +781,9 @@ static int __pyx_f_11core_heclib__datetimeToSeconds(char *__pyx_v_datetimeString
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_17_datetimeToSeconds(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString); /*proto*/
-static char __pyx_doc_11core_heclib_16_datetimeToSeconds[] = "_datetimeToSeconds(char *datetimeString) -&gt; int";
-static PyObject *__pyx_pw_11core_heclib_17_datetimeToSeconds(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString) {
+static PyObject *__pyx_pw_11core_heclib_19_datetimeToSeconds(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString); /*proto*/
+static char __pyx_doc_11core_heclib_18_datetimeToSeconds[] = "_datetimeToSeconds(char *datetimeString) -&gt; int";
+static PyObject *__pyx_pw_11core_heclib_19_datetimeToSeconds(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString) {
   char *__pyx_v_datetimeString;
   PyObject *__pyx_r = 0;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
@@ -797,14 +797,14 @@ static PyObject *__pyx_pw_11core_heclib_17_datetimeToSeconds(PyObject *__pyx_sel
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11core_heclib_16_datetimeToSeconds(__pyx_self, ((char *)__pyx_v_datetimeString));
+  __pyx_r = __pyx_pf_11core_heclib_18_datetimeToSeconds(__pyx_self, ((char *)__pyx_v_datetimeString));
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_16_datetimeToSeconds(CYTHON_UNUSED PyObject *__pyx_self, char *__pyx_v_datetimeString) {
+static PyObject *__pyx_pf_11core_heclib_18_datetimeToSeconds(CYTHON_UNUSED PyObject *__pyx_self, char *__pyx_v_datetimeString) {
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("_datetimeToSeconds", 0);
@@ -845,7 +845,7 @@ static PyObject *__pyx_pf_11core_heclib_16_datetimeToSeconds(CYTHON_UNUSED PyObj
   goto __pyx_L0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">087</span>: </pre>
 <pre class="cython line score-18" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">088</span>: cpdef tuple _datetimeToSeconds2(char *datetimeString):</pre>
-<pre class='cython code score-18 '>static PyObject *__pyx_pw_11core_heclib_19_datetimeToSeconds2(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString); /*proto*/
+<pre class='cython code score-18 '>static PyObject *__pyx_pw_11core_heclib_21_datetimeToSeconds2(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString); /*proto*/
 static PyObject *__pyx_f_11core_heclib__datetimeToSeconds2(char *__pyx_v_datetimeString, CYTHON_UNUSED int __pyx_skip_dispatch) {
   int __pyx_v_julian[1];
   int __pyx_v_seconds[1];
@@ -867,9 +867,9 @@ static PyObject *__pyx_f_11core_heclib__datetimeToSeconds2(char *__pyx_v_datetim
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_19_datetimeToSeconds2(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString); /*proto*/
-static char __pyx_doc_11core_heclib_18_datetimeToSeconds2[] = "_datetimeToSeconds2(char *datetimeString) -&gt; tuple";
-static PyObject *__pyx_pw_11core_heclib_19_datetimeToSeconds2(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString) {
+static PyObject *__pyx_pw_11core_heclib_21_datetimeToSeconds2(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString); /*proto*/
+static char __pyx_doc_11core_heclib_20_datetimeToSeconds2[] = "_datetimeToSeconds2(char *datetimeString) -&gt; tuple";
+static PyObject *__pyx_pw_11core_heclib_21_datetimeToSeconds2(PyObject *__pyx_self, PyObject *__pyx_arg_datetimeString) {
   char *__pyx_v_datetimeString;
   PyObject *__pyx_r = 0;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
@@ -883,14 +883,14 @@ static PyObject *__pyx_pw_11core_heclib_19_datetimeToSeconds2(PyObject *__pyx_se
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11core_heclib_18_datetimeToSeconds2(__pyx_self, ((char *)__pyx_v_datetimeString));
+  __pyx_r = __pyx_pf_11core_heclib_20_datetimeToSeconds2(__pyx_self, ((char *)__pyx_v_datetimeString));
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_18_datetimeToSeconds2(CYTHON_UNUSED PyObject *__pyx_self, char *__pyx_v_datetimeString) {
+static PyObject *__pyx_pf_11core_heclib_20_datetimeToSeconds2(CYTHON_UNUSED PyObject *__pyx_self, char *__pyx_v_datetimeString) {
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("_datetimeToSeconds2", 0);
@@ -964,10 +964,10 @@ static PyObject *__pyx_pf_11core_heclib_18_datetimeToSeconds2(CYTHON_UNUSED PyOb
 <pre class="cython line score-0">&#xA0;<span class="">104</span>: </pre>
 <pre class="cython line score-46" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">105</span>: def getDateTimeStringTuple(dateValue,granularity=60,julianBaseDate=0):</pre>
 <pre class='cython code score-46 '>/* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_21getDateTimeStringTuple(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_11core_heclib_20getDateTimeStringTuple[] = "getDateTimeStringTuple(dateValue, granularity=60, julianBaseDate=0)\n\n    Returns:\n        Tuple consisting of date and time string (unicode strings)\n        date string format: 03Jan1969\n        time string format: 11:20:00 (second granularity) or \n                            1120 (minute granularity)\n\n    Notes:\n        #granularity value limited to:\n            # 1 (SECOND_GRANULARITY)\n            # 0 or 60 (MINUTE_GRANULARITY) DEFAULT \n        # what about hour and day granularity\077\077\077\077\n    ";
-static PyMethodDef __pyx_mdef_11core_heclib_21getDateTimeStringTuple = {"getDateTimeStringTuple", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_21getDateTimeStringTuple, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_20getDateTimeStringTuple};
-static PyObject *__pyx_pw_11core_heclib_21getDateTimeStringTuple(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_11core_heclib_23getDateTimeStringTuple(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_11core_heclib_22getDateTimeStringTuple[] = "getDateTimeStringTuple(dateValue, granularity=60, julianBaseDate=0)\n\n    Returns:\n        Tuple consisting of date and time string (unicode strings)\n        date string format: 03Jan1969\n        time string format: 11:20:00 (second granularity) or \n                            1120 (minute granularity)\n\n    Notes:\n        #granularity value limited to:\n            # 1 (SECOND_GRANULARITY)\n            # 0 or 60 (MINUTE_GRANULARITY) DEFAULT \n        # what about hour and day granularity\077\077\077\077\n    ";
+static PyMethodDef __pyx_mdef_11core_heclib_23getDateTimeStringTuple = {"getDateTimeStringTuple", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_23getDateTimeStringTuple, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_22getDateTimeStringTuple};
+static PyObject *__pyx_pw_11core_heclib_23getDateTimeStringTuple(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_dateValue = 0;
   PyObject *__pyx_v_granularity = 0;
   PyObject *__pyx_v_julianBaseDate = 0;
@@ -1036,14 +1036,14 @@ static PyObject *__pyx_pw_11core_heclib_21getDateTimeStringTuple(PyObject *__pyx
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11core_heclib_20getDateTimeStringTuple(__pyx_self, __pyx_v_dateValue, __pyx_v_granularity, __pyx_v_julianBaseDate);
+  __pyx_r = __pyx_pf_11core_heclib_22getDateTimeStringTuple(__pyx_self, __pyx_v_dateValue, __pyx_v_granularity, __pyx_v_julianBaseDate);
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_20getDateTimeStringTuple(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateValue, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate) {
+static PyObject *__pyx_pf_11core_heclib_22getDateTimeStringTuple(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateValue, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate) {
   PyObject *__pyx_v_datestr = NULL;
   PyObject *__pyx_v_timestr = NULL;
   PyObject *__pyx_r = NULL;
@@ -1065,15 +1065,15 @@ static PyObject *__pyx_pf_11core_heclib_20getDateTimeStringTuple(CYTHON_UNUSED P
   return __pyx_r;
 }
 /* … */
-  __pyx_tuple__114 = <span class='py_c_api'>PyTuple_Pack</span>(5, __pyx_n_s_dateValue, __pyx_n_s_granularity, __pyx_n_s_julianBaseDate, __pyx_n_s_datestr, __pyx_n_s_timestr);<span class='error_goto'> if (unlikely(!__pyx_tuple__114)) __PYX_ERR(2, 105, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__114);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__114);
+  __pyx_tuple__115 = <span class='py_c_api'>PyTuple_Pack</span>(5, __pyx_n_s_dateValue, __pyx_n_s_granularity, __pyx_n_s_julianBaseDate, __pyx_n_s_datestr, __pyx_n_s_timestr);<span class='error_goto'> if (unlikely(!__pyx_tuple__115)) __PYX_ERR(2, 105, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__115);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__115);
 /* … */
-  __pyx_t_3 = PyCFunction_NewEx(&amp;__pyx_mdef_11core_heclib_21getDateTimeStringTuple, NULL, __pyx_n_s_core_heclib);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 105, __pyx_L1_error)</span>
+  __pyx_t_3 = PyCFunction_NewEx(&amp;__pyx_mdef_11core_heclib_23getDateTimeStringTuple, NULL, __pyx_n_s_core_heclib);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 105, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
   if (<span class='py_c_api'>PyDict_SetItem</span>(__pyx_d, __pyx_n_s_getDateTimeStringTuple, __pyx_t_3) &lt; 0) <span class='error_goto'>__PYX_ERR(2, 105, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_codeobj__115 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__114, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_getDateTimeStringTuple, 105, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__115)) __PYX_ERR(2, 105, __pyx_L1_error)</span>
+  __pyx_codeobj__116 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__115, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_getDateTimeStringTuple, 105, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__116)) __PYX_ERR(2, 105, __pyx_L1_error)</span>
 </pre><pre class="cython line score-0">&#xA0;<span class="">106</span>:     """</pre>
 <pre class="cython line score-0">&#xA0;<span class="">107</span>:     Returns:</pre>
 <pre class="cython line score-0">&#xA0;<span class="">108</span>:         Tuple consisting of date and time string (unicode strings)</pre>
@@ -1151,21 +1151,21 @@ static PyObject *__pyx_pf_11core_heclib_20getDateTimeStringTuple(CYTHON_UNUSED P
 </pre><pre class="cython line score-0">&#xA0;<span class="">126</span>: </pre>
 <pre class="cython line score-36" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">127</span>: def getPyDateTimeFromString(dateString):</pre>
 <pre class='cython code score-36 '>/* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_23getPyDateTimeFromString(PyObject *__pyx_self, PyObject *__pyx_v_dateString); /*proto*/
-static char __pyx_doc_11core_heclib_22getPyDateTimeFromString[] = "getPyDateTimeFromString(dateString)";
-static PyMethodDef __pyx_mdef_11core_heclib_23getPyDateTimeFromString = {"getPyDateTimeFromString", (PyCFunction)__pyx_pw_11core_heclib_23getPyDateTimeFromString, METH_O, __pyx_doc_11core_heclib_22getPyDateTimeFromString};
-static PyObject *__pyx_pw_11core_heclib_23getPyDateTimeFromString(PyObject *__pyx_self, PyObject *__pyx_v_dateString) {
+static PyObject *__pyx_pw_11core_heclib_25getPyDateTimeFromString(PyObject *__pyx_self, PyObject *__pyx_v_dateString); /*proto*/
+static char __pyx_doc_11core_heclib_24getPyDateTimeFromString[] = "getPyDateTimeFromString(dateString)";
+static PyMethodDef __pyx_mdef_11core_heclib_25getPyDateTimeFromString = {"getPyDateTimeFromString", (PyCFunction)__pyx_pw_11core_heclib_25getPyDateTimeFromString, METH_O, __pyx_doc_11core_heclib_24getPyDateTimeFromString};
+static PyObject *__pyx_pw_11core_heclib_25getPyDateTimeFromString(PyObject *__pyx_self, PyObject *__pyx_v_dateString) {
   PyObject *__pyx_r = 0;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("getPyDateTimeFromString (wrapper)", 0);
-  __pyx_r = __pyx_pf_11core_heclib_22getPyDateTimeFromString(__pyx_self, ((PyObject *)__pyx_v_dateString));
+  __pyx_r = __pyx_pf_11core_heclib_24getPyDateTimeFromString(__pyx_self, ((PyObject *)__pyx_v_dateString));
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_22getPyDateTimeFromString(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateString) {
+static PyObject *__pyx_pf_11core_heclib_24getPyDateTimeFromString(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateString) {
   PyObject *__pyx_v_datetime_obj = NULL;
   CYTHON_UNUSED PyObject *__pyx_v__ = NULL;
   PyObject *__pyx_v_msg = NULL;
@@ -1211,15 +1211,15 @@ static PyObject *__pyx_pf_11core_heclib_22getPyDateTimeFromString(CYTHON_UNUSED 
   return __pyx_r;
 }
 /* … */
-  __pyx_tuple__117 = <span class='py_c_api'>PyTuple_Pack</span>(10, __pyx_n_s_dateString, __pyx_n_s_datetime_obj, __pyx_n_s__116, __pyx_n_s_msg, __pyx_n_s_datetime_2, __pyx_n_s_time, __pyx_n_s_date, __pyx_n_s_datestr, __pyx_n_s_x, __pyx_n_s_i);<span class='error_goto'> if (unlikely(!__pyx_tuple__117)) __PYX_ERR(2, 127, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__117);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__117);
+  __pyx_tuple__118 = <span class='py_c_api'>PyTuple_Pack</span>(10, __pyx_n_s_dateString, __pyx_n_s_datetime_obj, __pyx_n_s__117, __pyx_n_s_msg, __pyx_n_s_datetime_2, __pyx_n_s_time, __pyx_n_s_date, __pyx_n_s_datestr, __pyx_n_s_x, __pyx_n_s_i);<span class='error_goto'> if (unlikely(!__pyx_tuple__118)) __PYX_ERR(2, 127, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__118);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__118);
 /* … */
-  __pyx_t_3 = PyCFunction_NewEx(&amp;__pyx_mdef_11core_heclib_23getPyDateTimeFromString, NULL, __pyx_n_s_core_heclib);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 127, __pyx_L1_error)</span>
+  __pyx_t_3 = PyCFunction_NewEx(&amp;__pyx_mdef_11core_heclib_25getPyDateTimeFromString, NULL, __pyx_n_s_core_heclib);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 127, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
   if (<span class='py_c_api'>PyDict_SetItem</span>(__pyx_d, __pyx_n_s_getPyDateTimeFromString, __pyx_t_3) &lt; 0) <span class='error_goto'>__PYX_ERR(2, 127, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_codeobj__118 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(1, 0, 10, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__117, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_getPyDateTimeFromString, 127, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__118)) __PYX_ERR(2, 127, __pyx_L1_error)</span>
+  __pyx_codeobj__119 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(1, 0, 10, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__118, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_getPyDateTimeFromString, 127, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__119)) __PYX_ERR(2, 127, __pyx_L1_error)</span>
 </pre><pre class="cython line score-0">&#xA0;<span class="">128</span>:     # Returns python datetime object from string</pre>
 <pre class="cython line score-11" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">129</span>:     try:</pre>
 <pre class='cython code score-11 '>  {
@@ -1404,15 +1404,15 @@ static PyObject *__pyx_pf_11core_heclib_22getPyDateTimeFromString(CYTHON_UNUSED 
         __pyx_t_10 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_7, __pyx_n_s_replace);<span class='error_goto'> if (unlikely(!__pyx_t_10)) __PYX_ERR(2, 136, __pyx_L5_except_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_10);
         <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_7); __pyx_t_7 = 0;
-        __pyx_t_7 = <span class='pyx_c_api'>__Pyx_PyObject_Call</span>(__pyx_t_10, __pyx_tuple__28, NULL);<span class='error_goto'> if (unlikely(!__pyx_t_7)) __PYX_ERR(2, 136, __pyx_L5_except_error)</span>
+        __pyx_t_7 = <span class='pyx_c_api'>__Pyx_PyObject_Call</span>(__pyx_t_10, __pyx_tuple__27, NULL);<span class='error_goto'> if (unlikely(!__pyx_t_7)) __PYX_ERR(2, 136, __pyx_L5_except_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_7);
         <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_10); __pyx_t_10 = 0;
         __pyx_v__time = __pyx_t_7;
         __pyx_t_7 = 0;
 /* … */
-  __pyx_tuple__28 = <span class='py_c_api'>PyTuple_Pack</span>(3, __pyx_kp_u_24, __pyx_kp_u_23, __pyx_int_1);<span class='error_goto'> if (unlikely(!__pyx_tuple__28)) __PYX_ERR(2, 136, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__28);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__28);
+  __pyx_tuple__27 = <span class='py_c_api'>PyTuple_Pack</span>(3, __pyx_kp_u_24, __pyx_kp_u_23, __pyx_int_1);<span class='error_goto'> if (unlikely(!__pyx_tuple__27)) __PYX_ERR(2, 136, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__27);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__27);
 </pre><pre class="cython line score-12" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">137</span>:             _date=dateString[0:len(dateString)-len(_time)]</pre>
 <pre class='cython code score-12 '>        __pyx_t_15 = <span class='py_c_api'>PyObject_Length</span>(__pyx_v_dateString);<span class='error_goto'> if (unlikely(__pyx_t_15 == ((Py_ssize_t)-1))) __PYX_ERR(2, 137, __pyx_L5_except_error)</span>
         __pyx_t_16 = <span class='py_c_api'>PyObject_Length</span>(__pyx_v__time);<span class='error_goto'> if (unlikely(__pyx_t_16 == ((Py_ssize_t)-1))) __PYX_ERR(2, 137, __pyx_L5_except_error)</span>
@@ -1797,10 +1797,10 @@ static PyObject *__pyx_pf_11core_heclib_22getPyDateTimeFromString(CYTHON_UNUSED 
 <pre class="cython line score-0">&#xA0;<span class="">159</span>: </pre>
 <pre class="cython line score-49" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">160</span>: def getPyDateTimeFromValue(dateValue,granularity=60,julianBaseDate=0):</pre>
 <pre class='cython code score-49 '>/* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_25getPyDateTimeFromValue(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_11core_heclib_24getPyDateTimeFromValue[] = "getPyDateTimeFromValue(dateValue, granularity=60, julianBaseDate=0)";
-static PyMethodDef __pyx_mdef_11core_heclib_25getPyDateTimeFromValue = {"getPyDateTimeFromValue", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_25getPyDateTimeFromValue, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_24getPyDateTimeFromValue};
-static PyObject *__pyx_pw_11core_heclib_25getPyDateTimeFromValue(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_11core_heclib_27getPyDateTimeFromValue(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_11core_heclib_26getPyDateTimeFromValue[] = "getPyDateTimeFromValue(dateValue, granularity=60, julianBaseDate=0)";
+static PyMethodDef __pyx_mdef_11core_heclib_27getPyDateTimeFromValue = {"getPyDateTimeFromValue", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_27getPyDateTimeFromValue, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_26getPyDateTimeFromValue};
+static PyObject *__pyx_pw_11core_heclib_27getPyDateTimeFromValue(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_dateValue = 0;
   PyObject *__pyx_v_granularity = 0;
   PyObject *__pyx_v_julianBaseDate = 0;
@@ -1869,14 +1869,14 @@ static PyObject *__pyx_pw_11core_heclib_25getPyDateTimeFromValue(PyObject *__pyx
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11core_heclib_24getPyDateTimeFromValue(__pyx_self, __pyx_v_dateValue, __pyx_v_granularity, __pyx_v_julianBaseDate);
+  __pyx_r = __pyx_pf_11core_heclib_26getPyDateTimeFromValue(__pyx_self, __pyx_v_dateValue, __pyx_v_granularity, __pyx_v_julianBaseDate);
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_24getPyDateTimeFromValue(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateValue, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate) {
+static PyObject *__pyx_pf_11core_heclib_26getPyDateTimeFromValue(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateValue, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate) {
   PyObject *__pyx_v_tup = NULL;
   PyObject *__pyx_v_datetimestr = NULL;
   PyObject *__pyx_v_datetime_obj = NULL;
@@ -1903,15 +1903,15 @@ static PyObject *__pyx_pf_11core_heclib_24getPyDateTimeFromValue(CYTHON_UNUSED P
   return __pyx_r;
 }
 /* … */
-  __pyx_tuple__119 = <span class='py_c_api'>PyTuple_Pack</span>(6, __pyx_n_s_dateValue, __pyx_n_s_granularity, __pyx_n_s_julianBaseDate, __pyx_n_s_tup, __pyx_n_s_datetimestr, __pyx_n_s_datetime_obj);<span class='error_goto'> if (unlikely(!__pyx_tuple__119)) __PYX_ERR(2, 160, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__119);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__119);
+  __pyx_tuple__120 = <span class='py_c_api'>PyTuple_Pack</span>(6, __pyx_n_s_dateValue, __pyx_n_s_granularity, __pyx_n_s_julianBaseDate, __pyx_n_s_tup, __pyx_n_s_datetimestr, __pyx_n_s_datetime_obj);<span class='error_goto'> if (unlikely(!__pyx_tuple__120)) __PYX_ERR(2, 160, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__120);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__120);
 /* … */
-  __pyx_t_3 = PyCFunction_NewEx(&amp;__pyx_mdef_11core_heclib_25getPyDateTimeFromValue, NULL, __pyx_n_s_core_heclib);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 160, __pyx_L1_error)</span>
+  __pyx_t_3 = PyCFunction_NewEx(&amp;__pyx_mdef_11core_heclib_27getPyDateTimeFromValue, NULL, __pyx_n_s_core_heclib);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 160, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
   if (<span class='py_c_api'>PyDict_SetItem</span>(__pyx_d, __pyx_n_s_getPyDateTimeFromValue, __pyx_t_3) &lt; 0) <span class='error_goto'>__PYX_ERR(2, 160, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_codeobj__120 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(3, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__119, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_getPyDateTimeFromValue, 160, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__120)) __PYX_ERR(2, 160, __pyx_L1_error)</span>
+  __pyx_codeobj__121 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(3, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__120, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_getPyDateTimeFromValue, 160, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__121)) __PYX_ERR(2, 160, __pyx_L1_error)</span>
 </pre><pre class="cython line score-41" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">161</span>:     tup = getDateTimeStringTuple(dateValue,granularity,julianBaseDate)</pre>
 <pre class='cython code score-41 '>  <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_2, __pyx_n_s_getDateTimeStringTuple);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 161, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
@@ -2016,10 +2016,10 @@ static PyObject *__pyx_pf_11core_heclib_24getPyDateTimeFromValue(CYTHON_UNUSED P
 <pre class="cython line score-0">&#xA0;<span class="">167</span>: </pre>
 <pre class="cython line score-56" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">168</span>: def getDateTimeValueTuple(dateValue,granularity=60,julianBaseDate=0):</pre>
 <pre class='cython code score-56 '>/* Python wrapper */
-static PyObject *__pyx_pw_11core_heclib_27getDateTimeValueTuple(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_11core_heclib_26getDateTimeValueTuple[] = "getDateTimeValueTuple(dateValue, granularity=60, julianBaseDate=0)\n\n    Returns:\n        Tuples of following type - \n            YYYY,MM,DD,HH,MM,SS for 1 second granularity\n            YYYY,MM,DD,HH,MM for 60 second granularity\n\n    ";
-static PyMethodDef __pyx_mdef_11core_heclib_27getDateTimeValueTuple = {"getDateTimeValueTuple", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_27getDateTimeValueTuple, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_26getDateTimeValueTuple};
-static PyObject *__pyx_pw_11core_heclib_27getDateTimeValueTuple(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_11core_heclib_29getDateTimeValueTuple(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_11core_heclib_28getDateTimeValueTuple[] = "getDateTimeValueTuple(dateValue, granularity=60, julianBaseDate=0)\n\n    Returns:\n        Tuples of following type - \n            YYYY,MM,DD,HH,MM,SS for 1 second granularity\n            YYYY,MM,DD,HH,MM for 60 second granularity\n\n    ";
+static PyMethodDef __pyx_mdef_11core_heclib_29getDateTimeValueTuple = {"getDateTimeValueTuple", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_11core_heclib_29getDateTimeValueTuple, METH_VARARGS|METH_KEYWORDS, __pyx_doc_11core_heclib_28getDateTimeValueTuple};
+static PyObject *__pyx_pw_11core_heclib_29getDateTimeValueTuple(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_dateValue = 0;
   PyObject *__pyx_v_granularity = 0;
   PyObject *__pyx_v_julianBaseDate = 0;
@@ -2088,14 +2088,14 @@ static PyObject *__pyx_pw_11core_heclib_27getDateTimeValueTuple(PyObject *__pyx_
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11core_heclib_26getDateTimeValueTuple(__pyx_self, __pyx_v_dateValue, __pyx_v_granularity, __pyx_v_julianBaseDate);
+  __pyx_r = __pyx_pf_11core_heclib_28getDateTimeValueTuple(__pyx_self, __pyx_v_dateValue, __pyx_v_granularity, __pyx_v_julianBaseDate);
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11core_heclib_26getDateTimeValueTuple(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateValue, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate) {
+static PyObject *__pyx_pf_11core_heclib_28getDateTimeValueTuple(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_dateValue, PyObject *__pyx_v_granularity, PyObject *__pyx_v_julianBaseDate) {
   PyObject *__pyx_v_datestr = NULL;
   PyObject *__pyx_v_timestr = NULL;
   PyObject *__pyx_v_day = NULL;
@@ -2134,15 +2134,15 @@ static PyObject *__pyx_pf_11core_heclib_26getDateTimeValueTuple(CYTHON_UNUSED Py
   return __pyx_r;
 }
 /* … */
-  __pyx_tuple__121 = <span class='py_c_api'>PyTuple_Pack</span>(12, __pyx_n_s_dateValue, __pyx_n_s_granularity, __pyx_n_s_julianBaseDate, __pyx_n_s_datestr, __pyx_n_s_timestr, __pyx_n_s_day, __pyx_n_s_month, __pyx_n_s_year, __pyx_n_s_hr, __pyx_n_s_mm, __pyx_n_s_ss, __pyx_n_s_x);<span class='error_goto'> if (unlikely(!__pyx_tuple__121)) __PYX_ERR(2, 168, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__121);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__121);
+  __pyx_tuple__122 = <span class='py_c_api'>PyTuple_Pack</span>(12, __pyx_n_s_dateValue, __pyx_n_s_granularity, __pyx_n_s_julianBaseDate, __pyx_n_s_datestr, __pyx_n_s_timestr, __pyx_n_s_day, __pyx_n_s_month, __pyx_n_s_year, __pyx_n_s_hr, __pyx_n_s_mm, __pyx_n_s_ss, __pyx_n_s_x);<span class='error_goto'> if (unlikely(!__pyx_tuple__122)) __PYX_ERR(2, 168, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__122);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__122);
 /* … */
-  __pyx_t_3 = PyCFunction_NewEx(&amp;__pyx_mdef_11core_heclib_27getDateTimeValueTuple, NULL, __pyx_n_s_core_heclib);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 168, __pyx_L1_error)</span>
+  __pyx_t_3 = PyCFunction_NewEx(&amp;__pyx_mdef_11core_heclib_29getDateTimeValueTuple, NULL, __pyx_n_s_core_heclib);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 168, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
   if (<span class='py_c_api'>PyDict_SetItem</span>(__pyx_d, __pyx_n_s_getDateTimeValueTuple, __pyx_t_3) &lt; 0) <span class='error_goto'>__PYX_ERR(2, 168, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_codeobj__122 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(3, 0, 12, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__121, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_getDateTimeValueTuple, 168, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__122)) __PYX_ERR(2, 168, __pyx_L1_error)</span>
+  __pyx_codeobj__123 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(3, 0, 12, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__122, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_getDateTimeValueTuple, 168, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__123)) __PYX_ERR(2, 168, __pyx_L1_error)</span>
 </pre><pre class="cython line score-0">&#xA0;<span class="">169</span>:     """</pre>
 <pre class="cython line score-0">&#xA0;<span class="">170</span>:     Returns:</pre>
 <pre class="cython line score-0">&#xA0;<span class="">171</span>:         Tuples of following type -</pre>
@@ -2252,7 +2252,7 @@ static PyObject *__pyx_pf_11core_heclib_26getDateTimeValueTuple(CYTHON_UNUSED Py
   __pyx_v_timestr = __pyx_t_5;
   __pyx_t_5 = 0;
 </pre><pre class="cython line score-10" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">177</span>:     day=int(datestr[:2])</pre>
-<pre class='cython code score-10 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_GetSlice</span>(__pyx_v_datestr, 0, 2, NULL, NULL, &amp;__pyx_slice__29, 0, 1, 1);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 177, __pyx_L1_error)</span>
+<pre class='cython code score-10 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_GetSlice</span>(__pyx_v_datestr, 0, 2, NULL, NULL, &amp;__pyx_slice__28, 0, 1, 1);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 177, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
   __pyx_t_5 = <span class='pyx_c_api'>__Pyx_PyNumber_Int</span>(__pyx_t_1);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(2, 177, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_5);
@@ -2260,13 +2260,13 @@ static PyObject *__pyx_pf_11core_heclib_26getDateTimeValueTuple(CYTHON_UNUSED Py
   __pyx_v_day = __pyx_t_5;
   __pyx_t_5 = 0;
 /* … */
-  __pyx_slice__29 = <span class='py_c_api'>PySlice_New</span>(Py_None, __pyx_int_2, Py_None);<span class='error_goto'> if (unlikely(!__pyx_slice__29)) __PYX_ERR(2, 177, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_slice__29);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_slice__29);
+  __pyx_slice__28 = <span class='py_c_api'>PySlice_New</span>(Py_None, __pyx_int_2, Py_None);<span class='error_goto'> if (unlikely(!__pyx_slice__28)) __PYX_ERR(2, 177, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_slice__28);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_slice__28);
 </pre><pre class="cython line score-13" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">178</span>:     month = SHORT_MONTH_NAMES[datestr[2:5]]</pre>
 <pre class='cython code score-13 '>  <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_5, __pyx_n_s_SHORT_MONTH_NAMES);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(2, 178, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_5);
-  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_GetSlice</span>(__pyx_v_datestr, 2, 5, NULL, NULL, &amp;__pyx_slice__30, 1, 1, 1);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 178, __pyx_L1_error)</span>
+  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_GetSlice</span>(__pyx_v_datestr, 2, 5, NULL, NULL, &amp;__pyx_slice__29, 1, 1, 1);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 178, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
   __pyx_t_2 = <span class='pyx_c_api'>__Pyx_PyObject_GetItem</span>(__pyx_t_5, __pyx_t_1);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 178, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
@@ -2275,11 +2275,11 @@ static PyObject *__pyx_pf_11core_heclib_26getDateTimeValueTuple(CYTHON_UNUSED Py
   __pyx_v_month = __pyx_t_2;
   __pyx_t_2 = 0;
 /* … */
-  __pyx_slice__30 = <span class='py_c_api'>PySlice_New</span>(__pyx_int_2, __pyx_int_5, Py_None);<span class='error_goto'> if (unlikely(!__pyx_slice__30)) __PYX_ERR(2, 178, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_slice__30);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_slice__30);
+  __pyx_slice__29 = <span class='py_c_api'>PySlice_New</span>(__pyx_int_2, __pyx_int_5, Py_None);<span class='error_goto'> if (unlikely(!__pyx_slice__29)) __PYX_ERR(2, 178, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_slice__29);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_slice__29);
 </pre><pre class="cython line score-10" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">179</span>:     year = int(datestr[5::])</pre>
-<pre class='cython code score-10 '>  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_PyObject_GetItem</span>(__pyx_v_datestr, __pyx_slice__31);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 179, __pyx_L1_error)</span>
+<pre class='cython code score-10 '>  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_PyObject_GetItem</span>(__pyx_v_datestr, __pyx_slice__30);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 179, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
   __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyNumber_Int</span>(__pyx_t_2);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 179, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
@@ -2287,9 +2287,9 @@ static PyObject *__pyx_pf_11core_heclib_26getDateTimeValueTuple(CYTHON_UNUSED Py
   __pyx_v_year = __pyx_t_1;
   __pyx_t_1 = 0;
 /* … */
-  __pyx_slice__31 = <span class='py_c_api'>PySlice_New</span>(__pyx_int_5, Py_None, Py_None);<span class='error_goto'> if (unlikely(!__pyx_slice__31)) __PYX_ERR(2, 179, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_slice__31);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_slice__31);
+  __pyx_slice__30 = <span class='py_c_api'>PySlice_New</span>(__pyx_int_5, Py_None, Py_None);<span class='error_goto'> if (unlikely(!__pyx_slice__30)) __PYX_ERR(2, 179, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_slice__30);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_slice__30);
 </pre><pre class="cython line score-0">&#xA0;<span class="">180</span>: </pre>
 <pre class="cython line score-11" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">181</span>:     try:</pre>
 <pre class='cython code score-11 '>  {
@@ -2334,7 +2334,7 @@ static PyObject *__pyx_pf_11core_heclib_26getDateTimeValueTuple(CYTHON_UNUSED Py
             <span class='pyx_macro_api'>__Pyx_DECREF_SET</span>(__pyx_t_5, function);
           }
         }
-        __pyx_t_2 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_3, __pyx_kp_u__32) : <span class='pyx_c_api'>__Pyx_PyObject_CallOneArg</span>(__pyx_t_5, __pyx_kp_u__32);
+        __pyx_t_2 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_3, __pyx_kp_u__31) : <span class='pyx_c_api'>__Pyx_PyObject_CallOneArg</span>(__pyx_t_5, __pyx_kp_u__31);
         <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3); __pyx_t_3 = 0;
         if (unlikely(!__pyx_t_2)) <span class='error_goto'>__PYX_ERR(2, 182, __pyx_L13_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
@@ -2434,16 +2434,16 @@ static PyObject *__pyx_pf_11core_heclib_26getDateTimeValueTuple(CYTHON_UNUSED Py
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
 </pre><pre class="cython line score-22" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">184</span>:         hr,mm = int(timestr[0:2]),int(timestr[2:4])</pre>
-<pre class='cython code score-22 '>      __pyx_t_5 = <span class='pyx_c_api'>__Pyx_PyObject_GetSlice</span>(__pyx_v_timestr, 0, 2, NULL, NULL, &amp;__pyx_slice__33, 1, 1, 1);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(2, 184, __pyx_L7_except_error)</span>
+<pre class='cython code score-22 '>      __pyx_t_5 = <span class='pyx_c_api'>__Pyx_PyObject_GetSlice</span>(__pyx_v_timestr, 0, 2, NULL, NULL, &amp;__pyx_slice__32, 1, 1, 1);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(2, 184, __pyx_L7_except_error)</span>
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_5);
       __pyx_t_12 = <span class='pyx_c_api'>__Pyx_PyNumber_Int</span>(__pyx_t_5);<span class='error_goto'> if (unlikely(!__pyx_t_12)) __PYX_ERR(2, 184, __pyx_L7_except_error)</span>
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_12);
       <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_5); __pyx_t_5 = 0;
 /* … */
-  __pyx_slice__33 = <span class='py_c_api'>PySlice_New</span>(__pyx_int_0, __pyx_int_2, Py_None);<span class='error_goto'> if (unlikely(!__pyx_slice__33)) __PYX_ERR(2, 184, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_slice__33);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_slice__33);
-      __pyx_t_5 = <span class='pyx_c_api'>__Pyx_PyObject_GetSlice</span>(__pyx_v_timestr, 2, 4, NULL, NULL, &amp;__pyx_slice__34, 1, 1, 1);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(2, 184, __pyx_L7_except_error)</span>
+  __pyx_slice__32 = <span class='py_c_api'>PySlice_New</span>(__pyx_int_0, __pyx_int_2, Py_None);<span class='error_goto'> if (unlikely(!__pyx_slice__32)) __PYX_ERR(2, 184, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_slice__32);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_slice__32);
+      __pyx_t_5 = <span class='pyx_c_api'>__Pyx_PyObject_GetSlice</span>(__pyx_v_timestr, 2, 4, NULL, NULL, &amp;__pyx_slice__33, 1, 1, 1);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(2, 184, __pyx_L7_except_error)</span>
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_5);
       __pyx_t_13 = <span class='pyx_c_api'>__Pyx_PyNumber_Int</span>(__pyx_t_5);<span class='error_goto'> if (unlikely(!__pyx_t_13)) __PYX_ERR(2, 184, __pyx_L7_except_error)</span>
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_13);
@@ -2452,9 +2452,9 @@ static PyObject *__pyx_pf_11core_heclib_26getDateTimeValueTuple(CYTHON_UNUSED Py
       __pyx_t_12 = 0;
       <span class='pyx_macro_api'>__Pyx_XDECREF_SET</span>(__pyx_v_mm, __pyx_t_13);
       __pyx_t_13 = 0;
-  __pyx_slice__34 = <span class='py_c_api'>PySlice_New</span>(__pyx_int_2, __pyx_int_4, Py_None);<span class='error_goto'> if (unlikely(!__pyx_slice__34)) __PYX_ERR(2, 184, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_slice__34);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_slice__34);
+  __pyx_slice__33 = <span class='py_c_api'>PySlice_New</span>(__pyx_int_2, __pyx_int_4, Py_None);<span class='error_goto'> if (unlikely(!__pyx_slice__33)) __PYX_ERR(2, 184, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_slice__33);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_slice__33);
 </pre><pre class="cython line score-5" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">185</span>:         ss=0</pre>
 <pre class='cython code score-5 '>      <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_int_0);
       <span class='pyx_macro_api'>__Pyx_XDECREF_SET</span>(__pyx_v_ss, __pyx_int_0);
@@ -2494,16 +2494,16 @@ static PyObject *__pyx_pf_11core_heclib_26getDateTimeValueTuple(CYTHON_UNUSED Py
 <pre class="cython line score-0">&#xA0;<span class="">188</span>: </pre>
 <pre class="cython line score-0">&#xA0;<span class="">189</span>: </pre>
 <pre class="cython line score-15" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">190</span>: class HecTime(object):</pre>
-<pre class='cython code score-15 '>  __pyx_t_3 = <span class='pyx_c_api'>__Pyx_CalculateMetaclass</span>(NULL, __pyx_tuple__123);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 190, __pyx_L1_error)</span>
+<pre class='cython code score-15 '>  __pyx_t_3 = <span class='pyx_c_api'>__Pyx_CalculateMetaclass</span>(NULL, __pyx_tuple__124);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 190, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
-  __pyx_t_1 = __Pyx_Py3MetaclassPrepare(__pyx_t_3, __pyx_tuple__123, __pyx_n_s_HecTime, __pyx_n_s_HecTime, (PyObject *) NULL, __pyx_n_s_core_heclib, (PyObject *) NULL);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 190, __pyx_L1_error)</span>
+  __pyx_t_1 = __Pyx_Py3MetaclassPrepare(__pyx_t_3, __pyx_tuple__124, __pyx_n_s_HecTime, __pyx_n_s_HecTime, (PyObject *) NULL, __pyx_n_s_core_heclib, (PyObject *) NULL);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 190, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
 /* … */
-  __pyx_tuple__123 = <span class='py_c_api'>PyTuple_Pack</span>(1, __pyx_builtin_object);<span class='error_goto'> if (unlikely(!__pyx_tuple__123)) __PYX_ERR(2, 190, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__123);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__123);
+  __pyx_tuple__124 = <span class='py_c_api'>PyTuple_Pack</span>(1, __pyx_builtin_object);<span class='error_goto'> if (unlikely(!__pyx_tuple__124)) __PYX_ERR(2, 190, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__124);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__124);
 /* … */
-  __pyx_t_6 = __Pyx_Py3ClassCreate(__pyx_t_3, __pyx_n_s_HecTime, __pyx_tuple__123, __pyx_t_1, NULL, 0, 0);<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 190, __pyx_L1_error)</span>
+  __pyx_t_6 = __Pyx_Py3ClassCreate(__pyx_t_3, __pyx_n_s_HecTime, __pyx_tuple__124, __pyx_t_1, NULL, 0, 0);<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 190, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
   if (<span class='py_c_api'>PyDict_SetItem</span>(__pyx_d, __pyx_n_s_HecTime, __pyx_t_6) &lt; 0) <span class='error_goto'>__PYX_ERR(2, 190, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_6); __pyx_t_6 = 0;
@@ -2633,19 +2633,19 @@ static PyObject *__pyx_pf_11core_heclib_7HecTime___init__(CYTHON_UNUSED PyObject
   return __pyx_r;
 }
 /* … */
-  __pyx_tuple__124 = <span class='py_c_api'>PyTuple_Pack</span>(6, __pyx_n_s_self, __pyx_n_s_datetimeString, __pyx_n_s_granularity, __pyx_n_s_julianBaseDate, __pyx_n_s_val, __pyx_n_s_pydate);<span class='error_goto'> if (unlikely(!__pyx_tuple__124)) __PYX_ERR(2, 195, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__124);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__124);
-  __pyx_codeobj__125 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(4, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__124, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_init, 195, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__125)) __PYX_ERR(2, 195, __pyx_L1_error)</span>
+  __pyx_tuple__125 = <span class='py_c_api'>PyTuple_Pack</span>(6, __pyx_n_s_self, __pyx_n_s_datetimeString, __pyx_n_s_granularity, __pyx_n_s_julianBaseDate, __pyx_n_s_val, __pyx_n_s_pydate);<span class='error_goto'> if (unlikely(!__pyx_tuple__125)) __PYX_ERR(2, 195, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__125);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__125);
+  __pyx_codeobj__126 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(4, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__125, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_init, 195, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__126)) __PYX_ERR(2, 195, __pyx_L1_error)</span>
 /* … */
-  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_1__init__, 0, __pyx_n_s_HecTime___init, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__125));<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 195, __pyx_L1_error)</span>
+  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_1__init__, 0, __pyx_n_s_HecTime___init, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__126));<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 195, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
-  <span class='pyx_c_api'>__Pyx_CyFunction_SetDefaultsTuple</span>(__pyx_t_2, __pyx_tuple__126);
+  <span class='pyx_c_api'>__Pyx_CyFunction_SetDefaultsTuple</span>(__pyx_t_2, __pyx_tuple__127);
   if (<span class='pyx_c_api'>__Pyx_SetNameInClass</span>(__pyx_t_1, __pyx_n_s_init, __pyx_t_2) &lt; 0) <span class='error_goto'>__PYX_ERR(2, 195, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_tuple__126 = <span class='py_c_api'>PyTuple_Pack</span>(2, ((PyObject *)__pyx_int_60), ((PyObject *)__pyx_int_0));<span class='error_goto'> if (unlikely(!__pyx_tuple__126)) __PYX_ERR(2, 195, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__126);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__126);
+  __pyx_tuple__127 = <span class='py_c_api'>PyTuple_Pack</span>(2, ((PyObject *)__pyx_int_60), ((PyObject *)__pyx_int_0));<span class='error_goto'> if (unlikely(!__pyx_tuple__127)) __PYX_ERR(2, 195, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__127);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__127);
 </pre><pre class="cython line score-5" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">196</span>:         if isinstance(julianBaseDate,str):</pre>
 <pre class='cython code score-5 '>  __pyx_t_1 = <span class='py_c_api'>PyUnicode_Check</span>(__pyx_v_julianBaseDate); 
   __pyx_t_2 = (__pyx_t_1 != 0);
@@ -2811,13 +2811,13 @@ static PyObject *__pyx_pf_11core_heclib_7HecTime_2granularity(CYTHON_UNUSED PyOb
   return __pyx_r;
 }
 /* … */
-  __pyx_tuple__127 = <span class='py_c_api'>PyTuple_Pack</span>(1, __pyx_n_s_self);<span class='error_goto'> if (unlikely(!__pyx_tuple__127)) __PYX_ERR(2, 206, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__127);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__127);
+  __pyx_tuple__128 = <span class='py_c_api'>PyTuple_Pack</span>(1, __pyx_n_s_self);<span class='error_goto'> if (unlikely(!__pyx_tuple__128)) __PYX_ERR(2, 206, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__128);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__128);
 /* … */
-  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_3granularity, 0, __pyx_n_s_HecTime_granularity, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__128));<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 206, __pyx_L1_error)</span>
+  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_3granularity, 0, __pyx_n_s_HecTime_granularity, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__129));<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 206, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
-  __pyx_codeobj__128 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__127, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_granularity, 206, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__128)) __PYX_ERR(2, 206, __pyx_L1_error)</span>
+  __pyx_codeobj__129 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__128, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_granularity, 206, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__129)) __PYX_ERR(2, 206, __pyx_L1_error)</span>
 </pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">207</span>:         return self._granularity</pre>
 <pre class='cython code score-3 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
   __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_v_self, __pyx_n_s_granularity_2);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 207, __pyx_L1_error)</span>
@@ -2864,13 +2864,13 @@ static PyObject *__pyx_pf_11core_heclib_7HecTime_4datetimeValue(CYTHON_UNUSED Py
   return __pyx_r;
 }
 /* … */
-  __pyx_tuple__129 = <span class='py_c_api'>PyTuple_Pack</span>(1, __pyx_n_s_self);<span class='error_goto'> if (unlikely(!__pyx_tuple__129)) __PYX_ERR(2, 210, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__129);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__129);
+  __pyx_tuple__130 = <span class='py_c_api'>PyTuple_Pack</span>(1, __pyx_n_s_self);<span class='error_goto'> if (unlikely(!__pyx_tuple__130)) __PYX_ERR(2, 210, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__130);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__130);
 /* … */
-  __pyx_t_6 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_5datetimeValue, 0, __pyx_n_s_HecTime_datetimeValue, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__130));<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 210, __pyx_L1_error)</span>
+  __pyx_t_6 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_5datetimeValue, 0, __pyx_n_s_HecTime_datetimeValue, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__131));<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 210, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
-  __pyx_codeobj__130 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__129, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_datetimeValue_2, 210, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__130)) __PYX_ERR(2, 210, __pyx_L1_error)</span>
+  __pyx_codeobj__131 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__130, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_datetimeValue_2, 210, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__131)) __PYX_ERR(2, 210, __pyx_L1_error)</span>
 </pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">211</span>:         return self._datetimeValue</pre>
 <pre class='cython code score-3 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
   __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_v_self, __pyx_n_s_datetimeValue);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 211, __pyx_L1_error)</span>
@@ -2917,13 +2917,13 @@ static PyObject *__pyx_pf_11core_heclib_7HecTime_6python_datetime(CYTHON_UNUSED 
   return __pyx_r;
 }
 /* … */
-  __pyx_tuple__131 = <span class='py_c_api'>PyTuple_Pack</span>(1, __pyx_n_s_self);<span class='error_goto'> if (unlikely(!__pyx_tuple__131)) __PYX_ERR(2, 214, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__131);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__131);
+  __pyx_tuple__132 = <span class='py_c_api'>PyTuple_Pack</span>(1, __pyx_n_s_self);<span class='error_goto'> if (unlikely(!__pyx_tuple__132)) __PYX_ERR(2, 214, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__132);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__132);
 /* … */
-  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_7python_datetime, 0, __pyx_n_s_HecTime_python_datetime, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__132));<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 214, __pyx_L1_error)</span>
+  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_7python_datetime, 0, __pyx_n_s_HecTime_python_datetime, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__133));<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 214, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
-  __pyx_codeobj__132 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__131, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_python_datetime_2, 214, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__132)) __PYX_ERR(2, 214, __pyx_L1_error)</span>
+  __pyx_codeobj__133 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__132, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_python_datetime_2, 214, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__133)) __PYX_ERR(2, 214, __pyx_L1_error)</span>
 </pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">215</span>:         return self._python_datetime</pre>
 <pre class='cython code score-3 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
   __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_v_self, __pyx_n_s_python_datetime);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 215, __pyx_L1_error)</span>
@@ -2967,15 +2967,15 @@ static PyObject *__pyx_pf_11core_heclib_7HecTime_8__repr__(CYTHON_UNUSED PyObjec
   return __pyx_r;
 }
 /* … */
-  __pyx_tuple__133 = <span class='py_c_api'>PyTuple_Pack</span>(1, __pyx_n_s_self);<span class='error_goto'> if (unlikely(!__pyx_tuple__133)) __PYX_ERR(2, 217, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__133);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__133);
+  __pyx_tuple__134 = <span class='py_c_api'>PyTuple_Pack</span>(1, __pyx_n_s_self);<span class='error_goto'> if (unlikely(!__pyx_tuple__134)) __PYX_ERR(2, 217, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__134);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__134);
 /* … */
-  __pyx_t_6 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_9__repr__, 0, __pyx_n_s_HecTime___repr, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__134));<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 217, __pyx_L1_error)</span>
+  __pyx_t_6 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_9__repr__, 0, __pyx_n_s_HecTime___repr, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__135));<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 217, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
   if (<span class='pyx_c_api'>__Pyx_SetNameInClass</span>(__pyx_t_1, __pyx_n_s_repr, __pyx_t_6) &lt; 0) <span class='error_goto'>__PYX_ERR(2, 217, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_codeobj__134 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__133, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_repr, 217, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__134)) __PYX_ERR(2, 217, __pyx_L1_error)</span>
+  __pyx_codeobj__135 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__134, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_repr, 217, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__135)) __PYX_ERR(2, 217, __pyx_L1_error)</span>
 </pre><pre class="cython line score-43" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">218</span>:         return self.__class__.__name__ + "("+ self.formatDate()+")"</pre>
 <pre class='cython code score-43 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
   __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_v_self, __pyx_n_s_class);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 218, __pyx_L1_error)</span>
@@ -2983,7 +2983,7 @@ static PyObject *__pyx_pf_11core_heclib_7HecTime_8__repr__(CYTHON_UNUSED PyObjec
   __pyx_t_2 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_1, __pyx_n_s_name);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 218, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = <span class='py_c_api'>PyNumber_Add</span>(__pyx_t_2, __pyx_kp_u__35);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 218, __pyx_L1_error)</span>
+  __pyx_t_1 = <span class='py_c_api'>PyNumber_Add</span>(__pyx_t_2, __pyx_kp_u__34);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 218, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_3 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_v_self, __pyx_n_s_formatDate);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 218, __pyx_L1_error)</span>
@@ -3007,7 +3007,7 @@ static PyObject *__pyx_pf_11core_heclib_7HecTime_8__repr__(CYTHON_UNUSED PyObjec
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_1); __pyx_t_1 = 0;
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = <span class='py_c_api'>PyNumber_Add</span>(__pyx_t_3, __pyx_kp_u__36);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 218, __pyx_L1_error)</span>
+  __pyx_t_2 = <span class='py_c_api'>PyNumber_Add</span>(__pyx_t_3, __pyx_kp_u__35);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 218, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_2;
@@ -3100,19 +3100,19 @@ static PyObject *__pyx_pf_11core_heclib_7HecTime_10formatDate(CYTHON_UNUSED PyOb
   return __pyx_r;
 }
 /* … */
-  __pyx_tuple__135 = <span class='py_c_api'>PyTuple_Pack</span>(2, __pyx_n_s_self, __pyx_n_s_format);<span class='error_goto'> if (unlikely(!__pyx_tuple__135)) __PYX_ERR(2, 220, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__135);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__135);
-  __pyx_codeobj__136 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__135, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_formatDate, 220, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__136)) __PYX_ERR(2, 220, __pyx_L1_error)</span>
+  __pyx_tuple__136 = <span class='py_c_api'>PyTuple_Pack</span>(2, __pyx_n_s_self, __pyx_n_s_format);<span class='error_goto'> if (unlikely(!__pyx_tuple__136)) __PYX_ERR(2, 220, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__136);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__136);
+  __pyx_codeobj__137 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__136, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_formatDate, 220, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__137)) __PYX_ERR(2, 220, __pyx_L1_error)</span>
 /* … */
-  __pyx_t_6 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_11formatDate, 0, __pyx_n_s_HecTime_formatDate, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__136));<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 220, __pyx_L1_error)</span>
+  __pyx_t_6 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_11formatDate, 0, __pyx_n_s_HecTime_formatDate, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__137));<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 220, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
-  <span class='pyx_c_api'>__Pyx_CyFunction_SetDefaultsTuple</span>(__pyx_t_6, __pyx_tuple__137);
+  <span class='pyx_c_api'>__Pyx_CyFunction_SetDefaultsTuple</span>(__pyx_t_6, __pyx_tuple__138);
   if (<span class='pyx_c_api'>__Pyx_SetNameInClass</span>(__pyx_t_1, __pyx_n_s_formatDate, __pyx_t_6) &lt; 0) <span class='error_goto'>__PYX_ERR(2, 220, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_tuple__137 = <span class='py_c_api'>PyTuple_Pack</span>(1, ((PyObject*)__pyx_kp_u_d_b_Y_H_M_S));<span class='error_goto'> if (unlikely(!__pyx_tuple__137)) __PYX_ERR(2, 220, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__137);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__137);
+  __pyx_tuple__138 = <span class='py_c_api'>PyTuple_Pack</span>(1, ((PyObject*)__pyx_kp_u_d_b_Y_H_M_S));<span class='error_goto'> if (unlikely(!__pyx_tuple__138)) __PYX_ERR(2, 220, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__138);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__138);
 </pre><pre class="cython line score-20" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">221</span>:         return  self.python_datetime.strftime(format)</pre>
 <pre class='cython code score-20 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
   __pyx_t_2 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_v_self, __pyx_n_s_python_datetime_2);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 221, __pyx_L1_error)</span>
@@ -3173,15 +3173,15 @@ static PyObject *__pyx_pf_11core_heclib_7HecTime_12dateString(CYTHON_UNUSED PyOb
   return __pyx_r;
 }
 /* … */
-  __pyx_tuple__138 = <span class='py_c_api'>PyTuple_Pack</span>(1, __pyx_n_s_self);<span class='error_goto'> if (unlikely(!__pyx_tuple__138)) __PYX_ERR(2, 223, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__138);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__138);
+  __pyx_tuple__139 = <span class='py_c_api'>PyTuple_Pack</span>(1, __pyx_n_s_self);<span class='error_goto'> if (unlikely(!__pyx_tuple__139)) __PYX_ERR(2, 223, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__139);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__139);
 /* … */
-  __pyx_t_6 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_13dateString, 0, __pyx_n_s_HecTime_dateString, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__139));<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 223, __pyx_L1_error)</span>
+  __pyx_t_6 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_13dateString, 0, __pyx_n_s_HecTime_dateString, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__140));<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 223, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
   if (<span class='pyx_c_api'>__Pyx_SetNameInClass</span>(__pyx_t_1, __pyx_n_s_dateString, __pyx_t_6) &lt; 0) <span class='error_goto'>__PYX_ERR(2, 223, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_codeobj__139 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__138, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_dateString, 223, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__139)) __PYX_ERR(2, 223, __pyx_L1_error)</span>
+  __pyx_codeobj__140 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__139, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_dateString, 223, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__140)) __PYX_ERR(2, 223, __pyx_L1_error)</span>
 </pre><pre class="cython line score-0">&#xA0;<span class="">224</span>:         # granularity based best date string</pre>
 <pre class="cython line score-20" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">225</span>:         return  self.python_datetime.strftime("%d%b%Y")</pre>
 <pre class='cython code score-20 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
@@ -3243,15 +3243,15 @@ static PyObject *__pyx_pf_11core_heclib_7HecTime_14timeString(CYTHON_UNUSED PyOb
   return __pyx_r;
 }
 /* … */
-  __pyx_tuple__140 = <span class='py_c_api'>PyTuple_Pack</span>(1, __pyx_n_s_self);<span class='error_goto'> if (unlikely(!__pyx_tuple__140)) __PYX_ERR(2, 227, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__140);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__140);
+  __pyx_tuple__141 = <span class='py_c_api'>PyTuple_Pack</span>(1, __pyx_n_s_self);<span class='error_goto'> if (unlikely(!__pyx_tuple__141)) __PYX_ERR(2, 227, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__141);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__141);
 /* … */
-  __pyx_t_6 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_15timeString, 0, __pyx_n_s_HecTime_timeString, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__141));<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 227, __pyx_L1_error)</span>
+  __pyx_t_6 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_15timeString, 0, __pyx_n_s_HecTime_timeString, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__142));<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 227, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
   if (<span class='pyx_c_api'>__Pyx_SetNameInClass</span>(__pyx_t_1, __pyx_n_s_timeString, __pyx_t_6) &lt; 0) <span class='error_goto'>__PYX_ERR(2, 227, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_codeobj__141 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__140, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_timeString, 227, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__141)) __PYX_ERR(2, 227, __pyx_L1_error)</span>
+  __pyx_codeobj__142 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__141, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_timeString, 227, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__142)) __PYX_ERR(2, 227, __pyx_L1_error)</span>
 </pre><pre class="cython line score-0">&#xA0;<span class="">228</span>:         # granularity based best time string</pre>
 <pre class="cython line score-20" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">229</span>:         return  self.python_datetime.strftime("%H:%M:%S")</pre>
 <pre class='cython code score-20 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
@@ -3373,15 +3373,15 @@ static PyObject *__pyx_pf_11core_heclib_7HecTime_16addTime(CYTHON_UNUSED PyObjec
   return __pyx_r;
 }
 /* … */
-  __pyx_tuple__142 = <span class='py_c_api'>PyTuple_Pack</span>(7, __pyx_n_s_self, __pyx_n_s_kwargs, __pyx_n_s_key, __pyx_n_s_value, __pyx_n_s_new_date, __pyx_n_s_new_datetimeString, __pyx_n_s_new_instance);<span class='error_goto'> if (unlikely(!__pyx_tuple__142)) __PYX_ERR(2, 238, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__142);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__142);
+  __pyx_tuple__143 = <span class='py_c_api'>PyTuple_Pack</span>(7, __pyx_n_s_self, __pyx_n_s_kwargs, __pyx_n_s_key, __pyx_n_s_value, __pyx_n_s_new_date, __pyx_n_s_new_datetimeString, __pyx_n_s_new_instance);<span class='error_goto'> if (unlikely(!__pyx_tuple__143)) __PYX_ERR(2, 238, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__143);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__143);
 /* … */
-  __pyx_t_6 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_17addTime, 0, __pyx_n_s_HecTime_addTime, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__143));<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 238, __pyx_L1_error)</span>
+  __pyx_t_6 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_17addTime, 0, __pyx_n_s_HecTime_addTime, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__144));<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 238, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
   if (<span class='pyx_c_api'>__Pyx_SetNameInClass</span>(__pyx_t_1, __pyx_n_s_addTime, __pyx_t_6) &lt; 0) <span class='error_goto'>__PYX_ERR(2, 238, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_codeobj__143 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(1, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARKEYWORDS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__142, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_addTime, 238, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__143)) __PYX_ERR(2, 238, __pyx_L1_error)</span>
+  __pyx_codeobj__144 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(1, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARKEYWORDS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__143, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_addTime, 238, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__144)) __PYX_ERR(2, 238, __pyx_L1_error)</span>
 </pre><pre class="cython line score-0">&#xA0;<span class="">239</span>:         # Allowed keywords (only one of the following):</pre>
 <pre class="cython line score-0">&#xA0;<span class="">240</span>:             #days</pre>
 <pre class="cython line score-0">&#xA0;<span class="">241</span>:             #hours</pre>
@@ -3534,15 +3534,15 @@ static PyObject *__pyx_pf_11core_heclib_7HecTime_16addTime(CYTHON_UNUSED PyObjec
 /* … */
   }
 </pre><pre class="cython line score-10" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">251</span>:             raise ValueError("Argument of integer type expected!")</pre>
-<pre class='cython code score-10 '>    __pyx_t_3 = <span class='pyx_c_api'>__Pyx_PyObject_Call</span>(__pyx_builtin_ValueError, __pyx_tuple__37, NULL);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 251, __pyx_L1_error)</span>
+<pre class='cython code score-10 '>    __pyx_t_3 = <span class='pyx_c_api'>__Pyx_PyObject_Call</span>(__pyx_builtin_ValueError, __pyx_tuple__36, NULL);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 251, __pyx_L1_error)</span>
     <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
     <span class='pyx_c_api'>__Pyx_Raise</span>(__pyx_t_3, 0, 0, 0);
     <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_3); __pyx_t_3 = 0;
     <span class='error_goto'>__PYX_ERR(2, 251, __pyx_L1_error)</span>
 /* … */
-  __pyx_tuple__37 = <span class='py_c_api'>PyTuple_Pack</span>(1, __pyx_kp_u_Argument_of_integer_type_expecte);<span class='error_goto'> if (unlikely(!__pyx_tuple__37)) __PYX_ERR(2, 251, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__37);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__37);
+  __pyx_tuple__36 = <span class='py_c_api'>PyTuple_Pack</span>(1, __pyx_kp_u_Argument_of_integer_type_expecte);<span class='error_goto'> if (unlikely(!__pyx_tuple__36)) __PYX_ERR(2, 251, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__36);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__36);
 </pre><pre class="cython line score-0">&#xA0;<span class="">252</span>: </pre>
 <pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">253</span>:         if _key == "days":</pre>
 <pre class='cython code score-2 '>  __pyx_t_9 = (<span class='pyx_c_api'>__Pyx_PyUnicode_Equals</span>(__pyx_v__key, __pyx_n_u_days, Py_EQ)); if (unlikely(__pyx_t_9 &lt; 0)) <span class='error_goto'>__PYX_ERR(2, 253, __pyx_L1_error)</span>
@@ -3749,15 +3749,15 @@ static PyObject *__pyx_pf_11core_heclib_7HecTime_18clone(CYTHON_UNUSED PyObject 
   return __pyx_r;
 }
 /* … */
-  __pyx_tuple__144 = <span class='py_c_api'>PyTuple_Pack</span>(1, __pyx_n_s_self);<span class='error_goto'> if (unlikely(!__pyx_tuple__144)) __PYX_ERR(2, 270, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__144);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__144);
+  __pyx_tuple__145 = <span class='py_c_api'>PyTuple_Pack</span>(1, __pyx_n_s_self);<span class='error_goto'> if (unlikely(!__pyx_tuple__145)) __PYX_ERR(2, 270, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__145);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__145);
 /* … */
-  __pyx_t_6 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_19clone, 0, __pyx_n_s_HecTime_clone, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__145));<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 270, __pyx_L1_error)</span>
+  __pyx_t_6 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_19clone, 0, __pyx_n_s_HecTime_clone, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__146));<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 270, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
   if (<span class='pyx_c_api'>__Pyx_SetNameInClass</span>(__pyx_t_1, __pyx_n_s_clone, __pyx_t_6) &lt; 0) <span class='error_goto'>__PYX_ERR(2, 270, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_codeobj__145 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__144, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_clone, 270, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__145)) __PYX_ERR(2, 270, __pyx_L1_error)</span>
+  __pyx_codeobj__146 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__145, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_clone, 270, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__146)) __PYX_ERR(2, 270, __pyx_L1_error)</span>
 </pre><pre class="cython line score-31" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">271</span>:         return __class__(self.formatDate(),self.granularity)</pre>
 <pre class='cython code score-31 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
   __pyx_t_2 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_v_self, __pyx_n_s_formatDate);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 271, __pyx_L1_error)</span>
@@ -3911,17 +3911,17 @@ static PyObject *__pyx_pf_11core_heclib_7HecTime_20getHecTimeFromPyDateTime(CYTH
   return __pyx_r;
 }
 /* … */
-  __pyx_tuple__146 = <span class='py_c_api'>PyTuple_Pack</span>(4, __pyx_n_s_cls, __pyx_n_s_pydate, __pyx_n_s_granularity, __pyx_n_s_julianBaseDate);<span class='error_goto'> if (unlikely(!__pyx_tuple__146)) __PYX_ERR(2, 274, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__146);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__146);
-  __pyx_codeobj__147 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(4, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__146, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_getHecTimeFromPyDateTime, 274, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__147)) __PYX_ERR(2, 274, __pyx_L1_error)</span>
+  __pyx_tuple__147 = <span class='py_c_api'>PyTuple_Pack</span>(4, __pyx_n_s_cls, __pyx_n_s_pydate, __pyx_n_s_granularity, __pyx_n_s_julianBaseDate);<span class='error_goto'> if (unlikely(!__pyx_tuple__147)) __PYX_ERR(2, 274, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__147);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__147);
+  __pyx_codeobj__148 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(4, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__147, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_getHecTimeFromPyDateTime, 274, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__148)) __PYX_ERR(2, 274, __pyx_L1_error)</span>
 /* … */
-  __pyx_t_6 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_21getHecTimeFromPyDateTime, __Pyx_CYFUNCTION_CLASSMETHOD, __pyx_n_s_HecTime_getHecTimeFromPyDateTime, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__147));<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 274, __pyx_L1_error)</span>
+  __pyx_t_6 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_21getHecTimeFromPyDateTime, __Pyx_CYFUNCTION_CLASSMETHOD, __pyx_n_s_HecTime_getHecTimeFromPyDateTime, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__148));<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 274, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
-  <span class='pyx_c_api'>__Pyx_CyFunction_SetDefaultsTuple</span>(__pyx_t_6, __pyx_tuple__148);
-  __pyx_tuple__148 = <span class='py_c_api'>PyTuple_Pack</span>(2, ((PyObject *)__pyx_int_60), ((PyObject *)__pyx_int_0));<span class='error_goto'> if (unlikely(!__pyx_tuple__148)) __PYX_ERR(2, 274, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__148);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__148);
+  <span class='pyx_c_api'>__Pyx_CyFunction_SetDefaultsTuple</span>(__pyx_t_6, __pyx_tuple__149);
+  __pyx_tuple__149 = <span class='py_c_api'>PyTuple_Pack</span>(2, ((PyObject *)__pyx_int_60), ((PyObject *)__pyx_int_0));<span class='error_goto'> if (unlikely(!__pyx_tuple__149)) __PYX_ERR(2, 274, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__149);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__149);
 </pre><pre class="cython line score-41" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">275</span>:         return cls(pydate,granularity,julianBaseDate)</pre>
 <pre class='cython code score-41 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
   <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_v_cls);
@@ -4105,17 +4105,17 @@ static PyObject *__pyx_pf_11core_heclib_7HecTime_22parse_datetime_string(CYTHON_
   return __pyx_r;
 }
 /* … */
-  __pyx_tuple__149 = <span class='py_c_api'>PyTuple_Pack</span>(12, __pyx_n_s_datetimeString, __pyx_n_s_granularity, __pyx_n_s_julianBaseDate, __pyx_n_s_datetimeval, __pyx_n_s_pydate, __pyx_n_s_parsed_date, __pyx_n_s_yy, __pyx_n_s_mm, __pyx_n_s_dd, __pyx_n_s_jul_days, __pyx_n_s_time_val, __pyx_n_s_base_val);<span class='error_goto'> if (unlikely(!__pyx_tuple__149)) __PYX_ERR(2, 278, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__149);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__149);
-  __pyx_codeobj__150 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(3, 0, 12, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__149, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_parse_datetime_string, 278, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__150)) __PYX_ERR(2, 278, __pyx_L1_error)</span>
+  __pyx_tuple__150 = <span class='py_c_api'>PyTuple_Pack</span>(12, __pyx_n_s_datetimeString, __pyx_n_s_granularity, __pyx_n_s_julianBaseDate, __pyx_n_s_datetimeval, __pyx_n_s_pydate, __pyx_n_s_parsed_date, __pyx_n_s_yy, __pyx_n_s_mm, __pyx_n_s_dd, __pyx_n_s_jul_days, __pyx_n_s_time_val, __pyx_n_s_base_val);<span class='error_goto'> if (unlikely(!__pyx_tuple__150)) __PYX_ERR(2, 278, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__150);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__150);
+  __pyx_codeobj__151 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(3, 0, 12, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__150, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_parse_datetime_string, 278, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__151)) __PYX_ERR(2, 278, __pyx_L1_error)</span>
 /* … */
-  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_23parse_datetime_string, __Pyx_CYFUNCTION_STATICMETHOD, __pyx_n_s_HecTime_parse_datetime_string, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__150));<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 278, __pyx_L1_error)</span>
+  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_23parse_datetime_string, __Pyx_CYFUNCTION_STATICMETHOD, __pyx_n_s_HecTime_parse_datetime_string, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__151));<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 278, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
-  <span class='pyx_c_api'>__Pyx_CyFunction_SetDefaultsTuple</span>(__pyx_t_2, __pyx_tuple__151);
-  __pyx_tuple__151 = <span class='py_c_api'>PyTuple_Pack</span>(2, ((PyObject *)__pyx_int_60), ((PyObject *)__pyx_int_0));<span class='error_goto'> if (unlikely(!__pyx_tuple__151)) __PYX_ERR(2, 278, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__151);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__151);
+  <span class='pyx_c_api'>__Pyx_CyFunction_SetDefaultsTuple</span>(__pyx_t_2, __pyx_tuple__152);
+  __pyx_tuple__152 = <span class='py_c_api'>PyTuple_Pack</span>(2, ((PyObject *)__pyx_int_60), ((PyObject *)__pyx_int_0));<span class='error_goto'> if (unlikely(!__pyx_tuple__152)) __PYX_ERR(2, 278, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__152);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__152);
 </pre><pre class="cython line score-0">&#xA0;<span class="">279</span>:         cdef:</pre>
 <pre class="cython line score-0">&#xA0;<span class="">280</span>:             int datetimeval</pre>
 <pre class="cython line score-5" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">281</span>:         if granularity == 0:</pre>
@@ -4551,17 +4551,17 @@ static PyObject *__pyx_pf_11core_heclib_7HecTime_24getDateTimeStringTuple(CYTHON
   return __pyx_r;
 }
 /* … */
-  __pyx_tuple__152 = <span class='py_c_api'>PyTuple_Pack</span>(3, __pyx_n_s_dateValue, __pyx_n_s_granularity, __pyx_n_s_julianBaseDate);<span class='error_goto'> if (unlikely(!__pyx_tuple__152)) __PYX_ERR(2, 306, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__152);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__152);
-  __pyx_codeobj__153 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(3, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__152, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_getDateTimeStringTuple, 306, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__153)) __PYX_ERR(2, 306, __pyx_L1_error)</span>
+  __pyx_tuple__153 = <span class='py_c_api'>PyTuple_Pack</span>(3, __pyx_n_s_dateValue, __pyx_n_s_granularity, __pyx_n_s_julianBaseDate);<span class='error_goto'> if (unlikely(!__pyx_tuple__153)) __PYX_ERR(2, 306, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__153);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__153);
+  __pyx_codeobj__154 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(3, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__153, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_getDateTimeStringTuple, 306, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__154)) __PYX_ERR(2, 306, __pyx_L1_error)</span>
 /* … */
-  __pyx_t_6 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_25getDateTimeStringTuple, __Pyx_CYFUNCTION_STATICMETHOD, __pyx_n_s_HecTime_getDateTimeStringTuple, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__153));<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 306, __pyx_L1_error)</span>
+  __pyx_t_6 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_25getDateTimeStringTuple, __Pyx_CYFUNCTION_STATICMETHOD, __pyx_n_s_HecTime_getDateTimeStringTuple, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__154));<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 306, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
-  <span class='pyx_c_api'>__Pyx_CyFunction_SetDefaultsTuple</span>(__pyx_t_6, __pyx_tuple__154);
-  __pyx_tuple__154 = <span class='py_c_api'>PyTuple_Pack</span>(2, ((PyObject *)__pyx_int_60), ((PyObject *)__pyx_int_0));<span class='error_goto'> if (unlikely(!__pyx_tuple__154)) __PYX_ERR(2, 306, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__154);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__154);
+  <span class='pyx_c_api'>__Pyx_CyFunction_SetDefaultsTuple</span>(__pyx_t_6, __pyx_tuple__155);
+  __pyx_tuple__155 = <span class='py_c_api'>PyTuple_Pack</span>(2, ((PyObject *)__pyx_int_60), ((PyObject *)__pyx_int_0));<span class='error_goto'> if (unlikely(!__pyx_tuple__155)) __PYX_ERR(2, 306, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__155);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__155);
 </pre><pre class="cython line score-42" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">307</span>:         return getDateTimeStringTuple(dateValue,granularity,julianBaseDate)</pre>
 <pre class='cython code score-42 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
   <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_2, __pyx_n_s_getDateTimeStringTuple);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 307, __pyx_L1_error)</span>
@@ -4658,13 +4658,13 @@ static PyObject *__pyx_pf_11core_heclib_7HecTime_26getPyDateTimeFromString(CYTHO
   return __pyx_r;
 }
 /* … */
-  __pyx_tuple__155 = <span class='py_c_api'>PyTuple_Pack</span>(1, __pyx_n_s_dateString);<span class='error_goto'> if (unlikely(!__pyx_tuple__155)) __PYX_ERR(2, 310, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__155);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__155);
+  __pyx_tuple__156 = <span class='py_c_api'>PyTuple_Pack</span>(1, __pyx_n_s_dateString);<span class='error_goto'> if (unlikely(!__pyx_tuple__156)) __PYX_ERR(2, 310, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__156);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__156);
 /* … */
-  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_27getPyDateTimeFromString, __Pyx_CYFUNCTION_STATICMETHOD, __pyx_n_s_HecTime_getPyDateTimeFromString, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__156));<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 310, __pyx_L1_error)</span>
+  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_27getPyDateTimeFromString, __Pyx_CYFUNCTION_STATICMETHOD, __pyx_n_s_HecTime_getPyDateTimeFromString, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__157));<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 310, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
-  __pyx_codeobj__156 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__155, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_getPyDateTimeFromString, 310, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__156)) __PYX_ERR(2, 310, __pyx_L1_error)</span>
+  __pyx_codeobj__157 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__156, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_getPyDateTimeFromString, 310, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__157)) __PYX_ERR(2, 310, __pyx_L1_error)</span>
 </pre><pre class="cython line score-17" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">311</span>:         return getPyDateTimeFromString(dateString)</pre>
 <pre class='cython code score-17 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
   <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_2, __pyx_n_s_getPyDateTimeFromString);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 311, __pyx_L1_error)</span>
@@ -4794,17 +4794,17 @@ static PyObject *__pyx_pf_11core_heclib_7HecTime_28getPyDateTimeFromValue(CYTHON
   return __pyx_r;
 }
 /* … */
-  __pyx_tuple__157 = <span class='py_c_api'>PyTuple_Pack</span>(3, __pyx_n_s_dateValue, __pyx_n_s_granularity, __pyx_n_s_julianBaseDate);<span class='error_goto'> if (unlikely(!__pyx_tuple__157)) __PYX_ERR(2, 314, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__157);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__157);
-  __pyx_codeobj__158 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(3, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__157, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_getPyDateTimeFromValue, 314, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__158)) __PYX_ERR(2, 314, __pyx_L1_error)</span>
+  __pyx_tuple__158 = <span class='py_c_api'>PyTuple_Pack</span>(3, __pyx_n_s_dateValue, __pyx_n_s_granularity, __pyx_n_s_julianBaseDate);<span class='error_goto'> if (unlikely(!__pyx_tuple__158)) __PYX_ERR(2, 314, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__158);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__158);
+  __pyx_codeobj__159 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(3, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__158, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_getPyDateTimeFromValue, 314, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__159)) __PYX_ERR(2, 314, __pyx_L1_error)</span>
 /* … */
-  __pyx_t_6 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_29getPyDateTimeFromValue, __Pyx_CYFUNCTION_STATICMETHOD, __pyx_n_s_HecTime_getPyDateTimeFromValue, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__158));<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 314, __pyx_L1_error)</span>
+  __pyx_t_6 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_29getPyDateTimeFromValue, __Pyx_CYFUNCTION_STATICMETHOD, __pyx_n_s_HecTime_getPyDateTimeFromValue, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__159));<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 314, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
-  <span class='pyx_c_api'>__Pyx_CyFunction_SetDefaultsTuple</span>(__pyx_t_6, __pyx_tuple__159);
-  __pyx_tuple__159 = <span class='py_c_api'>PyTuple_Pack</span>(2, ((PyObject *)__pyx_int_60), ((PyObject *)__pyx_int_0));<span class='error_goto'> if (unlikely(!__pyx_tuple__159)) __PYX_ERR(2, 314, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__159);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__159);
+  <span class='pyx_c_api'>__Pyx_CyFunction_SetDefaultsTuple</span>(__pyx_t_6, __pyx_tuple__160);
+  __pyx_tuple__160 = <span class='py_c_api'>PyTuple_Pack</span>(2, ((PyObject *)__pyx_int_60), ((PyObject *)__pyx_int_0));<span class='error_goto'> if (unlikely(!__pyx_tuple__160)) __PYX_ERR(2, 314, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__160);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__160);
 </pre><pre class="cython line score-42" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">315</span>:         return getPyDateTimeFromValue(dateValue,granularity,julianBaseDate)</pre>
 <pre class='cython code score-42 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
   <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_2, __pyx_n_s_getPyDateTimeFromValue);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 315, __pyx_L1_error)</span>
@@ -4967,17 +4967,17 @@ static PyObject *__pyx_pf_11core_heclib_7HecTime_30getDateTimeValueTuple(CYTHON_
   return __pyx_r;
 }
 /* … */
-  __pyx_tuple__160 = <span class='py_c_api'>PyTuple_Pack</span>(3, __pyx_n_s_dateValue, __pyx_n_s_granularity, __pyx_n_s_julianBaseDate);<span class='error_goto'> if (unlikely(!__pyx_tuple__160)) __PYX_ERR(2, 318, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__160);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__160);
-  __pyx_codeobj__161 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(3, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__160, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_getDateTimeValueTuple, 318, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__161)) __PYX_ERR(2, 318, __pyx_L1_error)</span>
+  __pyx_tuple__161 = <span class='py_c_api'>PyTuple_Pack</span>(3, __pyx_n_s_dateValue, __pyx_n_s_granularity, __pyx_n_s_julianBaseDate);<span class='error_goto'> if (unlikely(!__pyx_tuple__161)) __PYX_ERR(2, 318, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__161);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__161);
+  __pyx_codeobj__162 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(3, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__161, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_getDateTimeValueTuple, 318, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__162)) __PYX_ERR(2, 318, __pyx_L1_error)</span>
 /* … */
-  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_31getDateTimeValueTuple, __Pyx_CYFUNCTION_STATICMETHOD, __pyx_n_s_HecTime_getDateTimeValueTuple, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__161));<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 318, __pyx_L1_error)</span>
+  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_31getDateTimeValueTuple, __Pyx_CYFUNCTION_STATICMETHOD, __pyx_n_s_HecTime_getDateTimeValueTuple, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__162));<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 318, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
-  <span class='pyx_c_api'>__Pyx_CyFunction_SetDefaultsTuple</span>(__pyx_t_2, __pyx_tuple__162);
-  __pyx_tuple__162 = <span class='py_c_api'>PyTuple_Pack</span>(2, ((PyObject *)__pyx_int_60), ((PyObject *)__pyx_int_0));<span class='error_goto'> if (unlikely(!__pyx_tuple__162)) __PYX_ERR(2, 318, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__162);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__162);
+  <span class='pyx_c_api'>__Pyx_CyFunction_SetDefaultsTuple</span>(__pyx_t_2, __pyx_tuple__163);
+  __pyx_tuple__163 = <span class='py_c_api'>PyTuple_Pack</span>(2, ((PyObject *)__pyx_int_60), ((PyObject *)__pyx_int_0));<span class='error_goto'> if (unlikely(!__pyx_tuple__163)) __PYX_ERR(2, 318, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__163);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__163);
 </pre><pre class="cython line score-42" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">319</span>:         return getDateTimeValueTuple(dateValue,granularity,julianBaseDate)</pre>
 <pre class='cython code score-42 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
   <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_2, __pyx_n_s_getDateTimeValueTuple);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 319, __pyx_L1_error)</span>
@@ -5080,13 +5080,13 @@ static PyObject *__pyx_pf_11core_heclib_7HecTime_32getJulianDaysFromDate(CYTHON_
   return __pyx_r;
 }
 /* … */
-  __pyx_tuple__163 = <span class='py_c_api'>PyTuple_Pack</span>(2, __pyx_n_s_dateString, __pyx_n_s_days);<span class='error_goto'> if (unlikely(!__pyx_tuple__163)) __PYX_ERR(2, 322, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__163);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__163);
+  __pyx_tuple__164 = <span class='py_c_api'>PyTuple_Pack</span>(2, __pyx_n_s_dateString, __pyx_n_s_days);<span class='error_goto'> if (unlikely(!__pyx_tuple__164)) __PYX_ERR(2, 322, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__164);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__164);
 /* … */
-  __pyx_t_6 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_33getJulianDaysFromDate, __Pyx_CYFUNCTION_STATICMETHOD, __pyx_n_s_HecTime_getJulianDaysFromDate, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__164));<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 322, __pyx_L1_error)</span>
+  __pyx_t_6 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_33getJulianDaysFromDate, __Pyx_CYFUNCTION_STATICMETHOD, __pyx_n_s_HecTime_getJulianDaysFromDate, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__165));<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 322, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
-  __pyx_codeobj__164 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__163, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_getJulianDaysFromDate, 322, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__164)) __PYX_ERR(2, 322, __pyx_L1_error)</span>
+  __pyx_codeobj__165 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__164, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_getJulianDaysFromDate, 322, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__165)) __PYX_ERR(2, 322, __pyx_L1_error)</span>
 </pre><pre class="cython line score-0">&#xA0;<span class="">323</span>:         cdef:</pre>
 <pre class="cython line score-0">&#xA0;<span class="">324</span>:             int days</pre>
 <pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">325</span>:         days = _dateToJulian(dateString)</pre>
@@ -5194,17 +5194,17 @@ static PyObject *__pyx_pf_11core_heclib_7HecTime_34getDateFromJulianDays(CYTHON_
   return __pyx_r;
 }
 /* … */
-  __pyx_tuple__165 = <span class='py_c_api'>PyTuple_Pack</span>(2, __pyx_n_s_days, __pyx_n_s_fmt);<span class='error_goto'> if (unlikely(!__pyx_tuple__165)) __PYX_ERR(2, 330, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__165);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__165);
-  __pyx_codeobj__166 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__165, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_getDateFromJulianDays, 330, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__166)) __PYX_ERR(2, 330, __pyx_L1_error)</span>
+  __pyx_tuple__166 = <span class='py_c_api'>PyTuple_Pack</span>(2, __pyx_n_s_days, __pyx_n_s_fmt);<span class='error_goto'> if (unlikely(!__pyx_tuple__166)) __PYX_ERR(2, 330, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__166);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__166);
+  __pyx_codeobj__167 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__166, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Z_DSS7_python_projects_pydss_pro_3, __pyx_n_s_getDateFromJulianDays, 330, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__167)) __PYX_ERR(2, 330, __pyx_L1_error)</span>
 /* … */
-  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_35getDateFromJulianDays, __Pyx_CYFUNCTION_STATICMETHOD, __pyx_n_s_HecTime_getDateFromJulianDays, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__166));<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 330, __pyx_L1_error)</span>
+  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_CyFunction_NewEx</span>(&amp;__pyx_mdef_11core_heclib_7HecTime_35getDateFromJulianDays, __Pyx_CYFUNCTION_STATICMETHOD, __pyx_n_s_HecTime_getDateFromJulianDays, NULL, __pyx_n_s_core_heclib, __pyx_d, ((PyObject *)__pyx_codeobj__167));<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 330, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
-  <span class='pyx_c_api'>__Pyx_CyFunction_SetDefaultsTuple</span>(__pyx_t_2, __pyx_tuple__167);
-  __pyx_tuple__167 = <span class='py_c_api'>PyTuple_Pack</span>(1, ((PyObject *)__pyx_int_4));<span class='error_goto'> if (unlikely(!__pyx_tuple__167)) __PYX_ERR(2, 330, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__167);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__167);
+  <span class='pyx_c_api'>__Pyx_CyFunction_SetDefaultsTuple</span>(__pyx_t_2, __pyx_tuple__168);
+  __pyx_tuple__168 = <span class='py_c_api'>PyTuple_Pack</span>(1, ((PyObject *)__pyx_int_4));<span class='error_goto'> if (unlikely(!__pyx_tuple__168)) __PYX_ERR(2, 330, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__168);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__168);
 </pre><pre class="cython line score-15" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">331</span>:         return _julianToDate(days, fmt)</pre>
 <pre class='cython code score-15 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
   __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyInt_As_int</span>(__pyx_v_days); if (unlikely((__pyx_t_1 == (int)-1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(2, 331, __pyx_L1_error)</span>
