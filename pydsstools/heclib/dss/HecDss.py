@@ -12,7 +12,7 @@ import pandas as pd
 
 from ...core import Open as _Open
 from ...core.grid import SpatialGridStruct
-from ...core import getPathnameCatalog, deletePathname,PairedDataContainer,HecTime,DssPathName
+from ...core import getPathnameCatalog, deletePathname,PairedDataContainer,HecTime,DssPathName,dss_info
 
 class Open(_Open):
     def __init__(self,dssFilename,version=None,logging_method = 0,logging_level='General'):
@@ -148,6 +148,7 @@ class Open(_Open):
                 logging.error('times element must be datetime string or python datetime object')
                 return
             
+            '''
             if tsc.granularity == 1:
                 # TODO: Implement more restrictions with second granularity
                 pathobj=DssPathName(tsc.pathname)
@@ -155,6 +156,7 @@ class Open(_Open):
                 if epart in ['IR-MONTH','IR-YEAR','IR-DECADE','IR-CENTURY']:
                     logging.error('Granularity must be minute or larger')
                     return
+            '''
 
             if isinstance(times[0],str) and prevent_overflow:
                 times = [HecTime.getPyDateTimeFromString(x) for x in times]
@@ -348,12 +350,6 @@ class Open(_Open):
         super().read_grid(pathname,sg_st)
         return sg_st
 
-    def getPathnameList(self,pathname,sort=0):
-        # pathname string which can include wild card * for defining pattern
-        catalog = getPathnameCatalog(self,pathname,sort)
-        path_list = catalog.getPathnameList()
-        return path_list
-
     def copy(self,pathname_in,pathname_out,dss_out=None):
         dss_fid = dss_out if isinstance(dss_out,self.__class__) else self
         if (pathname_in.lower() == pathname_out.lower() or not pathname_out) and dis_fid is self:
@@ -366,4 +362,21 @@ class Open(_Open):
         pathlist = self.getPathnameList(pathname)
         for pth in pathlist:
             status = deletePathname(self,pth)
+
+    def getPathnameList(self,pathname,sort=0):
+        # pathname string which can include wild card * for defining pattern
+        catalog = getPathnameCatalog(self,pathname,sort)
+        path_list = catalog.getPathnameList()
+        return path_list
+
+    def getPathnameDict(self):
+        # This method necessary because type option in getPathnameList is not working
+        path_dict = dict(zip(['TS','RTS','ITS','PD','GRID','OTHER'],
+                             [[],   [],   [],   [],  [],    []]))
+        path_list = self.getPathnameList('')
+        for path in path_list:
+            path_dict[self._record_type(path)].append(path)
+        return path_dict
+
+
 

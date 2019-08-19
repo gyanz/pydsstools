@@ -38,23 +38,32 @@ cpdef void setMessageLevel(int methodID,int levelID):
 cdef class dss_info:
     cdef: 
         zStructRecordSize *recordSize
+        readonly int status 
+
         # All data
         readonly int dataType
-        readonly bytes data_type
+        readonly str data_type # custom def
         readonly int version
         readonly int numberValues
         readonly int logicalNumberValues
         # TS
+        readonly int values1Number
         readonly int numberRecordsFound
+        readonly int itsTimePrecisionStored
+        readonly int tsPrecision
+        readonly int tsTimeOffset
+        readonly int tsProfileDepthsNumber
+        readonly int tsBlockStartPosition
+        readonly int tsBlockEndPosition
         readonly int tsValueSize
         readonly int tsValueElementSize        
         # PD
         readonly pd_curve_no
         readonly pd_data_no
         readonly ipdValueSize
-        #readonly pdBoolIndependentIsXaxis
         readonly int pdLabelsLength
-        readonly int status 
+        readonly int pdBoolIndependentIsXaxis
+        readonly int pdPrecision
 
     def __init__(self,Open fid,char *pathname):
         self.recordSize = zstructRecordSizeNew(pathname)
@@ -64,23 +73,53 @@ cdef class dss_info:
             self.recordSize=NULL
             raise BaseException("Seems invalid Data Size Query!!")
 
+        # ALL
         self.dataType = self.recordSize[0].dataType
-        if self.dataType == 200:
-            self.data_type = b'float32'
-        elif self.dataType == 205:
-            self.data_type = b'double'
-        else:
-            self.data_type = b'unknown'
-
         self.version = self.recordSize[0].version
+        self.numberValues = self.recordSize[0].numberValues
+        self.logicalNumberValues = self.recordSize[0].logicalNumberValues
+        # TS
+        self.values1Number = self.recordSize[0].values1Number
         self.numberRecordsFound = self.recordSize[0].numberRecordsFound
+        self.itsTimePrecisionStored = self.recordSize[0].itsTimePrecisionStored
+        self.tsPrecision = self.recordSize[0].tsPrecision
+        self.tsTimeOffset = self.recordSize[0].tsTimeOffset
+        self.tsProfileDepthsNumber = self.recordSize[0].tsProfileDepthsNumber
+        self.tsBlockStartPosition = self.recordSize[0].tsBlockStartPosition
+        self.tsBlockEndPosition = self.recordSize[0].tsBlockEndPosition
         self.tsValueSize = self.recordSize[0].tsValueSize
         self.tsValueElementSize = self.recordSize[0].tsValueElementSize
-    
-        self.pd_curve_no = self.recordSize[0].pdNumberCurves # bug: this is giving data_no
-        self.pd_data_no = self.recordSize[0].pdNumberOrdinates # bug: this is giving curve_no
+        # PD 
+        self.pd_curve_no = self.recordSize[0].pdNumberCurves 
+        self.pd_data_no = self.recordSize[0].pdNumberOrdinates 
         self.ipdValueSize = self.recordSize[0].ipdValueSize
         self.pdLabelsLength = self.recordSize[0].pdLabelsLength
+        self.pdBoolIndependentIsXaxis = self.recordSize[0].pdBoolIndependentIsXaxis
+        self.pdPrecision = self.recordSize[0].pdPrecision
+
+    def __dealloc__(self):
+        if self.recordSize != NULL:
+            zstructFree(self.recordSize)
+            self.recordSize=NULL
+
+cpdef list pd_size(Open fid,char *pathname):
+    cdef:
+        dss_info info 
+        int curve_no,data_no,data_type
+
+    info = dss_info(fid,pathname)
+    curve_no = info.pd_curve_no
+    data_no = info.pd_data_no
+    data_type =info.dataType
+    if data_type == 200:
+        dtype = 'float32'
+    elif data_type == 205:
+        dtype = 'double'
+    else:
+        dtype = 'unknown'
+    
+    return_list = [curve_no,data_no,data_type,dtype]
+    return return_list 
 
 
 cdef int copyRecord(Open copyFrom, Open copyTo, str pathnameFrom, str pathnameTo):
@@ -229,4 +268,7 @@ class DssPathName(object):
 
     def getFPart(self):
         return self.pathname_parts[5]
+
+    def getParts(self):
+        return [self.getAPart(),self.getBPart(),self.getCPart(),self.getDPart(),self.getEPart(),self.getFPart()]
 
