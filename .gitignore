@@ -90,7 +90,3 @@ Thumbs.db
 #################################
 API.MD
 *.html
-!pydsstools/_lib/x64/py36/doc/*
-!pydsstools/_lib/x64/py37/doc/*
-!pydsstools/_lib/x86/py36/doc/*
-!pydsstools/_lib/x86/py37/doc/*

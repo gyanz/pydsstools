@@ -1,5 +1,9 @@
 pydsstools changelog
 ================
+1.3 (09-05-2019)
+-----------------
+* Added squeeze_file funtion to remove deleted dss records permanently
+
 1.2 (08-19-2019)
 -----------------
 * Added function to retrieve all pathnames by record type

@@ -1,5 +1,5 @@
 import logging
-from ..core import (HecTime, DssStatusException, GranularityException,ArgumentException,DssLastError,setMessageLevel)
+from ..core import (HecTime, DssStatusException, GranularityException,ArgumentException,DssLastError,setMessageLevel,squeeze_file)
 
 __all__ = ['dss_logging','HecTime', 'DssStatusException', 'GranularityException', 'ArgumentException', 'DssLastError']
 

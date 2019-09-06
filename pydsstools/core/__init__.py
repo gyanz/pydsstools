@@ -15,7 +15,8 @@ __all__ = ['core_heclib',
            'GranularityException',
            'ArgumentException',
            'DssLastError',
-           'setMessageLevel']
+           'setMessageLevel'
+           'squeeze_file']
 
 
 from .._lib import *

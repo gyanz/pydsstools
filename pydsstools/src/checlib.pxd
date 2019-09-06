@@ -44,12 +44,14 @@ cdef extern from "heclib.h":
     int zcopyRecord (long long *ifltabFrom, long long *ifltabTo, const char *pathnameFrom, const char *pathnameTo)
     int zduplicateRecord (long long *ifltab, const char *pathnameFrom, const char *pathnameTo) 
     int zdelete(long long *ifltab, const char* pathname)
-    # Not implemented in python
+    # 
     int zcheck(long long *ifltab, const char* pathname)
     int zcatalog(long long *ifltab, const char *pathWithWild, zStructCatalog *catStruct, int boolSorted)
     int zcatalogFile(long long *ifltab, const char *catalogFilename, int boolSorted, const char *pathWithWildChars)
     int zcatalogToFile(long long *ifltab, int catalogHandle, int fortranUnit, int boolSorted)
     int zdataType (long long *ifltab, const char* pathname)
+
+    int zsqueeze(const char *dssFilename)
 
 cdef extern from "heclib.h":
     int spatialDateTime(char *dateTimeString, int *julian, int *seconds)

@@ -121,6 +121,9 @@ cpdef list pd_size(Open fid,char *pathname):
     return_list = [curve_no,data_no,data_type,dtype]
     return return_list 
 
+cpdef squeeze_file(str file_path):
+    cdef int status
+    status = zsqueeze(file_path)
 
 cdef int copyRecord(Open copyFrom, Open copyTo, str pathnameFrom, str pathnameTo):
     """Copy a record from one hec-dss file (From-) to another (To-)
