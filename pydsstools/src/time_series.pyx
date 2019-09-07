@@ -289,12 +289,12 @@ cdef class TimeSeriesStruct:
     @property
     def startDateTime(self):
         if self.tss:
-            return " ".join(_getDateAndTime(self.tss[0].startTimeSeconds, self.tss[0].timeGranularitySeconds, self.tss[0].startJulianDate))
-
+            return " ".join(_getDateAndTime(self.tss[0].startTimeSeconds, 1, self.tss[0].startJulianDate))
+            
     @property
     def endDateTime(self):
         if self.tss:
-            return " ".join(_getDateAndTime(self.tss[0].endTimeSeconds, self.tss[0].timeGranularitySeconds, self.tss[0].endJulianDate))
+            return " ".join(_getDateAndTime(self.tss[0].endTimeSeconds, 1, self.tss[0].endJulianDate))
 
     @property
     def startPyDateTime(self):
@@ -306,7 +306,7 @@ cdef class TimeSeriesStruct:
     
         """
         if self.tss:
-            return getPyDateTimeFromValue(self.tss[0].startTimeSeconds, self.tss[0].timeGranularitySeconds, self.tss[0].startJulianDate)        
+            return getPyDateTimeFromValue(self.tss[0].startTimeSeconds, 1, self.tss[0].startJulianDate)        
 
     @property
     def endPyDateTime(self):
@@ -318,8 +318,7 @@ cdef class TimeSeriesStruct:
     
         """
         if self.tss:
-            return getPyDateTimeFromValue(self.tss[0].endTimeSeconds, self.tss[0].timeGranularitySeconds, self.tss[0].startJulianDate)        
-
+            return getPyDateTimeFromValue(self.tss[0].endTimeSeconds, 1, self.tss[0].startJulianDate)        
 
     @property
     def interval(self):
