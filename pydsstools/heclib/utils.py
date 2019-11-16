@@ -1,6 +1,8 @@
 import logging
 from ..core import (HecTime, DssStatusException, GranularityException,ArgumentException,DssLastError,setMessageLevel,squeeze_file)
-
+from ..core import Open as _Open
+import atexit
+        
 __all__ = ['dss_logging','HecTime', 'DssStatusException', 'GranularityException', 'ArgumentException', 'DssLastError']
 
 log_level = {0: 'None',
@@ -31,6 +33,28 @@ log_method =  {0:  'ALL',
               15: 'CATALOG',
               16: 'FILE_INTEGRITY'}
 
+__dsslog = None
+
+@atexit.register
+def __close():
+    if not __dsslog is None:
+        try:
+            __dsslog.close()
+        except:
+            logging.error('Error closing dsslog')
+        else:
+            logging.debug('dsslog file closed')
+
+def __init():
+    global __dsslog
+    if not __dsslog is None:
+        from os import path
+        dss_file = path.join(path.dirname(__file__),dsslog.dss)
+        logging.info('File used to intialize pydsstools messaging is %s',dss_file)
+        __dsslog = _Open(dss_file)
+
+__init()
+
 class DssLogging(object):
     def setLevel(self,level):
         if level in log_level:
@@ -44,7 +68,7 @@ class DssLogging(object):
         logging.warn('***Setting DSS Logging***')
         setMessagelevel(0,level)
 
-    def config(self,method,level):
+    def config(self,method=0,level='General'):
         if method in log_method:
             if level in log_level:
                 pass
@@ -53,7 +77,7 @@ class DssLogging(object):
             else:
                 logging.warn('Invalid Dss Logging Level ignored')
                 return
-            logging.warn('***Setting DSS Logging***')
+            logging.warn('***Setting DSS Logging, Method = %r, Level = %r***', method, level)
             setMessageLevel(method,level)
         else:
             logging.warn('Invalid Dss Logging Method ignored')

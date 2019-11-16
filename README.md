@@ -52,11 +52,11 @@ pathname = "/REGULAR/TIMESERIES/FLOW//1HOUR/Ex1/"
 tsc = TimeSeriesContainer()
 tsc.pathname = pathname
 tsc.startDateTime = "15JUL2019 19:00:00"
-tsc.numberValues = 5
+tsc.numberValues = 7
 tsc.units = "cfs"
 tsc.type = "INST"
 tsc.interval = 1
-tsc.values = [100,UNDEFINED,500,5000,10000]
+tsc.values = [100,UNDEFINED,500,5000,10000,24.1,25]
 
 fid = HecDss.Open(dss_file)
 fid.deletePathname(tsc.pathname)
@@ -75,7 +75,7 @@ import numpy as np
 dss_file = "example.dss"
 pathname = "/REGULAR/TIMESERIES/FLOW//1HOUR/Ex1/"
 startDate = "15JUL2019 19:00:00"
-endDate = "15JUL2019 21:00:00"
+endDate = "15AUG2019 19:00:00"
 
 fid = HecDss.Open(dss_file)
 ts = fid.read_ts(pathname,window=(startDate,endDate),trim_missing=True)
@@ -152,6 +152,8 @@ pdc.data_no = 9
 pdc.curves = np.array([[5,50,500,5000,50000,10,100,1000,10000],
                        [11,11,11,11,11,11,11,11,11]],dtype=np.float32)
 pdc.labels_list = ['Column 1','Elevens']
+pdc.independent_units = 'Number'
+pdc.dependent_units = 'Feet'
 
 fid = HecDss.Open(dss_file)
 fid.put_pd(pdc)

@@ -16,6 +16,8 @@ pdc.data_no = 9
 pdc.curves = np.array([[5,50,500,5000,50000,10,100,1000,10000],
                        [11,11,11,11,11,11,11,11,11]],dtype=np.float32)
 pdc.labels_list = ['Column 1','Elevens']
+pdc.independent_units = 'Number'
+pdc.dependent_units = 'Feet'
 
 fid = HecDss.Open(dss_file)
 fid.put_pd(pdc)

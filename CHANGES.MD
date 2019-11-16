@@ -1,5 +1,11 @@
 pydsstools changelog
 ================
+1.4 (11-16-2019)
+-----------------
+* bug fix related to HEC-DSS time-series date containing 2400 hours
+* change in HEC-DSS messaging/logging/messaging
+* change in examples
+
 1.3 (09-05-2019)
 -----------------
 * Added squeeze_file funtion to remove deleted dss records permanently

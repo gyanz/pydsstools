@@ -16,11 +16,11 @@ pathname = "/REGULAR/TIMESERIES/FLOW//1HOUR/Ex1/"
 tsc = TimeSeriesContainer()
 tsc.pathname = pathname
 tsc.startDateTime="15JUL2019 19:00:00"
-tsc.numberValues = 5
+tsc.numberValues = 7
 tsc.units = "cfs"
 tsc.type = "INST"
 tsc.interval = 1
-tsc.values = [100,UNDEFINED,500,5000,10000]
+tsc.values = [100,UNDEFINED,500,5000,10000,24.1,25]
 
 fid = HecDss.Open(dss_file)
 fid.deletePathname(tsc.pathname)
