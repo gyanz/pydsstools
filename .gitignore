@@ -17,6 +17,8 @@
 .tags
 .cache/
 .vscode/
+pydsstools/src/compile/
+pydsstools/_lib/x64/py39/
 
 # Compiled source #
 ###################

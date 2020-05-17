@@ -18,7 +18,7 @@ if sys.maxsize > 2**32:
     arch_x64 = True
 
 if not arch_x64:
-    print('Currently, only the 64-bit Python is supported')
+    raise Exception('Only the 64-bit Python is supported')
 
 class BinaryDistribution(Distribution):
     def is_pure(self):
@@ -34,7 +34,7 @@ with open(path.join(proj_dir,'README.md'), encoding='utf-8') as fid:
 setup(
     name='pydsstools',
 
-    version = '1.4',
+    version = '1.5',
 
     description ='Python library to read-write HEC-DSS database file',
 
@@ -52,7 +52,7 @@ setup(
     classifiers = [
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Water resources engineers :: Developers',
-        'Operating System :: Windows',
+        'Operating System :: Windows, Linux',
         'Programming Language :: Python :: 3',
      ],
 
@@ -62,12 +62,16 @@ setup(
     package_data = {'':['*.txt','*.md',
                         '_lib/x86/py36/*.pyd',
                         '_lib/x86/py37/*.pyd',
+                        '_lib/x86/py38/*.pyd',
                         '_lib/x86/py36/*.so',
                         '_lib/x86/py37/*.so',
+                        '_lib/x86/py38/*.so',
                         '_lib/x64/py36/*.pyd',
                         '_lib/x64/py37/*.pyd',
+                        '_lib/x64/py38/*.pyd',
                         '_lib/x64/py36/*.so',
                         '_lib/x64/py37/*.so',
+                        '_lib/x64/py38/*.so',
                         'examples/*','LICENSE']},
 
     include_package_data = True,
@@ -77,9 +81,9 @@ setup(
 
     distclass = BinaryDistribution,
 
-    install_requires = ['numpy', 'pandas', 'affine'],
+    install_requires = ['numpy>=1.16.4', 'pandas', 'affine'],
 
-    python_requires='>=3.6, <3.8',
+    python_requires='>=3.6, <=3.8',
 
     zip_safe = False,
 
