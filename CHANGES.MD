@@ -1,5 +1,17 @@
 pydsstools changelog
 ================
+1.5 (05-17-2020)
+-----------------
+* fixed spatial grid record range limit table
+* added python 3.8 support for Windows 10 and Linux
+* removed python 3.6 and 3.7 support for Linux
+* Windows compilation information ...
+* Python 3.6: MSVC 14.0, WIN SDK 10.0.10586.0, Numpy 1.16.4 ...
+* Python 3.7: MSVC 14.16, WIN SDK 10.0.17763.0, Numpy 1.16.3 ...
+* Python 3.8: MSVC 14.24, WIN SDK 10.0.19041.0, Numpy 1.18.4
+* Ubuntu 20.04 LTS compilation information ...
+* Python 3.8: GCC 9.3, Numpy 1.18.4
+
 1.4 (11-16-2019)
 -----------------
 * bug fix related to HEC-DSS time-series date containing 2400 hours

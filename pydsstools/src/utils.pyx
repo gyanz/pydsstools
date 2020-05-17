@@ -274,4 +274,3 @@ class DssPathName(object):
 
     def getParts(self):
         return [self.getAPart(),self.getBPart(),self.getCPart(),self.getDPart(),self.getEPart(),self.getFPart()]
-

@@ -343,9 +343,18 @@ class Open(_Open):
         super().prealloc_pd(pdc)
 
     def read_grid(self,pathname):
+        if self.version == 6:
+            logging.warn('DSS 6 grid record io is currently not supported')
+            return
         sg_st = SpatialGridStruct()
         super().read_grid(pathname,sg_st)
         return sg_st
+        
+    def put_grid(self, pathname, data, profile, flipud=1):
+        if self.version == 6:
+            logging.warn('DSS 6 grid record io is currently not supported')
+            return
+        super().put_grid(pathname, data, profile, flipud)
 
     def copy(self,pathname_in,pathname_out,dss_out=None):
         dss_fid = dss_out if isinstance(dss_out,self.__class__) else self

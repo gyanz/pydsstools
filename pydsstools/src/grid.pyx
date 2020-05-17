@@ -385,16 +385,20 @@ cdef SpatialGridStruct saveSpatialGrid(long long *ifltab, const char* pathname, 
     cdef:
         zStructSpatialGrid *zsgs=NULL
         float[:,::1] _data 
-        np.ndarray _data_nan 
+        np.ndarray _data_nan
+        int size
         float _min
-        float _max
+        float _q1
         float _mean
+        float _q3
+        float _max
+        float _max_int
         float * _pmin = NULL
         float * _pmax = NULL
         float * _pmean = NULL
         float cellsize
         float x,y
-        float row,col
+        int row,col
         #int * noRLT[2]
         float _nodata
         char * _crs = ""
@@ -404,9 +408,15 @@ cdef SpatialGridStruct saveSpatialGrid(long long *ifltab, const char* pathname, 
         char * _datasource
         char * _tzid = ""
         int  _tzoffset = 0
-        int range_count = 1
-        int range_table_count[1]
-        float range_table_value[1]
+        int range_count = 6
+        int range_table_count[6]
+        float range_table_value[6]
+        #int nodata_count
+        int min_count
+        int q1_count 
+        int mean_count
+        int q3_count
+        int max_count
         int status
         dict _optional_args = {"tzid":'', "tzoffset":0,
                          "crs":'UNDEFINED',
@@ -424,10 +434,10 @@ cdef SpatialGridStruct saveSpatialGrid(long long *ifltab, const char* pathname, 
 
     data = np.ascontiguousarray(data,dtype=np.float32)
 
-    range_table_count[:]=[1]
-    range_table_value[:]=[0]
+
     row = int(data.shape[0])
     col = int(data.shape[1])
+    size = row * col
 
     transform = profile['transform']
     _nodata = profile["nodata"]
@@ -446,11 +456,25 @@ cdef SpatialGridStruct saveSpatialGrid(long long *ifltab, const char* pathname, 
     _max = np.nanmax(_data_nan)
     _min = np.nanmin(_data_nan)
     _mean = np.nanmean(_data_nan)
+    _q1 = int(0.5*(_min+_mean))
+    _q3 = int(0.5*(_mean+_max))
+    _max_int = int(_max)
+    
+    #nodata_count = np.count_nonzero(~np.isnan(_data_nan))
+    min_count = np.count_nonzero(_data_nan >= _min)
+    q1_count = np.count_nonzero(_data_nan >= _q1)
+    mean_count = np.count_nonzero(_data_nan >= _mean)
+    q3_count = np.count_nonzero(_data_nan >= _q3)
+    max_count = np.count_nonzero(_data_nan >= _max_int)
+    
     _pmax = &_max
     _pmin = &_min
     _pmean = &_mean
     _data = data
-
+    
+    range_table_value[:]=[_nodata,_min,_q1,_mean,_q3,_max_int]      
+    range_table_count[:]=[size,min_count,q1_count,mean_count,q3_count,max_count]
+  
     zsgs[0].pathname  = pathname
     zsgs[0]._structVersion  = -100
     zsgs[0]._type  = 420 # e.g. ALBERS
