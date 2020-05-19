@@ -25,7 +25,7 @@ def python_requires():
     os = platform.system()
     if os == 'Linux':
         return '~=3.8'
-    elif os == 'Windows'
+    elif os == 'Windows':
         return '~=3.6'
     else:
         raise Exception('Operating system not supported')
