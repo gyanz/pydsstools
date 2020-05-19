@@ -10,6 +10,7 @@ from codecs import open
 from os import path
 from setuptools.dist import Distribution
 import sys
+import platform
 
 proj_dir = path.abspath(path.dirname(__file__))
 
@@ -19,6 +20,15 @@ if sys.maxsize > 2**32:
 
 if not arch_x64:
     raise Exception('Only the 64-bit Python is supported')
+    
+def python_requires():
+    os = platform.system()
+    if os == 'Linux':
+        return '~=3.8'
+    elif os == 'Windows'
+        return '~=3.6'
+    else:
+        raise Exception('Operating system not supported')
 
 class BinaryDistribution(Distribution):
     def is_pure(self):
@@ -83,7 +93,7 @@ setup(
 
     install_requires = ['numpy>=1.16.4', 'pandas', 'affine'],
 
-    python_requires='>=3.6, <=3.8',
+    python_requires = python_requires(),
 
     zip_safe = False,
 
