@@ -248,13 +248,14 @@ cdef class Open:
         cdef:
             zStructSpatialGrid *zsgs = NULL 
         zsgs = zstructSpatialGridNew(pathname)
-        self.read_status = zspatialGridRetrieve(self.ifltab,zsgs,boolRetrieveData)
+        #self.read_status = zspatialGridRetrieve(self.ifltab,zsgs,boolRetrieveData)
+        self.read_status = RetrieveGriddedData_wrap(self.ifltab,zsgs,boolRetrieveData)
         isError(self.read_status)
         updateSGS(sg_st,zsgs)
 
-    cpdef int put_grid(self,str pathname, np.ndarray data, dict profile, int flipud=1) except *:
+    cpdef int put_grid(self,str pathname, np.ndarray data, float nodata, dict stats, dict profile) except *:
         # TODO: Error check
-        saveSpatialGrid(self.ifltab,pathname, data, profile, flipud)
+        saveSpatialGrid(self.ifltab,pathname, data, nodata, stats, profile)
 
     cpdef dict dss_info(self, str pathname):
         return dss_info(self,pathname)

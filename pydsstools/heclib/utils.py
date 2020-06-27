@@ -1,9 +1,13 @@
 import logging
-from ..core import (HecTime, DssStatusException, GranularityException,ArgumentException,DssLastError,setMessageLevel,squeeze_file)
+import numpy as np
+import numpy.ma as ma
+from ..core import (HecTime, DssStatusException, GranularityException,ArgumentException,DssLastError,setMessageLevel,squeeze_file) 
+from ..core import (GRID_TYPE, GRID_DATA_TYPE, GRID_COMPRESSION_METHODS,gridInfo,gridDataSource)
 from ..core import Open as _Open
+from ..core import UNDEFINED
 import atexit
         
-__all__ = ['dss_logging','HecTime', 'DssStatusException', 'GranularityException', 'ArgumentException', 'DssLastError']
+__all__ = ['dss_logging','HecTime', 'DssStatusException', 'GranularityException', 'ArgumentException', 'DssLastError','gridInfo','gridDataSource','computeGridStats','grid_type_names','grid_data_type_names','UNDEFINED']
 
 log_level = {0: 'None',
              1: 'Error',
@@ -83,3 +87,70 @@ class DssLogging(object):
             logging.warn('Invalid Dss Logging Method ignored')
 
 dss_logging = DssLogging()
+
+def computeGridStats(data,compute_range = True):
+    """ Compute statistical value for numpy array data for Spatial grid
+
+    Parameter
+    ---------
+        # data: numpy array or masked array
+        # compute_range: boolean, string or list of values
+            # boolean - True, False
+            # string - quartiles, quarters, TODO
+            # list/tuple - list of values (max 19 excluding nodata) to compute equal to greater than cell counts
+    """
+    result = {'min': None, 'max': None, 'mean': None,'range_values':[], 'range_counts': []}
+    total_cells = data.size
+
+    if total_cells == 0:
+        logging.info('Empty Grid Array!')
+        return
+
+    if isinstance(data,ma.core.MaskedArray):
+        data = data[~data.mask]
+        data = data._data
+    elif isinstance(data,np.ndarray):
+        data = data[~np.isnan(data)]
+    else:
+        raise Exception('Invalid data. Numpy or Masked Array expected.')
+
+    min_value = data.min()
+    max_value = data.max()
+    mean_value = data.mean()
+
+    result.update([('min',min_value),('max',max_value),('mean',mean_value)])
+    #print(result)
+
+    range_values = []
+    if isinstance(compute_range,(list,tuple)):
+        range_values = sorted([x for x in compute_range if not (np.isnan(x) or x < min_value or x > max_value)])
+        
+    elif compute_range or isinstance(compute_range,str):
+        # default range
+        if min_value < 0 and max_value > 0:
+            range_values = np.linspace(min_value,max_value,10)
+            range_values = range_values.tolist()
+        else:
+            q0 = min_value
+            q1 = 0.25 * (min_value + max_value)
+            q2 = 0.5 * (min_value + max_value)
+            q3 = 0.75 * (min_value + max_value)
+            range_values = [q0,q1,q2,q3]
+        range_values = [round(x,2) for x in range_values]
+    else:
+        pass
+
+    range_values = range_values[0:19]
+    range_values.insert(0,np.nan)
+    range_counts = [total_cells] # assuming no data is very small negative number
+    #print(type(data),'data=',data,'\n')
+    #print(range_values,range_counts)
+    for val in range_values[1:]:
+        count = (data >= val).sum()
+        range_counts.append(count)
+    
+    result.update([('range_values',range_values),('range_counts',range_counts)])
+    return result
+
+grid_data_type_names = tuple(GRID_DATA_TYPE.keys())
+grid_type_names = tuple(GRID_TYPE.keys())

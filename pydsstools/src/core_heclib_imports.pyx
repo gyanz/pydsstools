@@ -11,5 +11,6 @@ from affine import Affine
 from collections import namedtuple
 import numpy as np 
 np.seterr(over='raise')
-cimport numpy as np 
+cimport numpy as np
+cimport libcpp 
 cimport cython

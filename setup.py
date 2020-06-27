@@ -34,7 +34,7 @@ with open(path.join(proj_dir,'README.md'), encoding='utf-8') as fid:
 setup(
     name='pydsstools',
 
-    version = '1.5',
+    version = '1.6',
 
     description ='Python library to read-write HEC-DSS database file',
 
@@ -54,6 +54,7 @@ setup(
         'Intended Audience :: Water resources engineers :: Developers',
         'Operating System :: Windows, Linux',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Cython',
      ],
 
     packages = find_packages(),

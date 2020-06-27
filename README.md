@@ -228,44 +228,77 @@ pathname = "/GRID/RECORD/DATA/01jan2001:1200/01jan2001:1300/Ex9/"
 
 with Open(dss_file) as fid:
     dataset = fid.read_grid(pathname)
-    grid_array = dataset.read(masked=True)
+    grid_array = dataset.read()
     profile = dataset.profile
 ```
 ![](images/grid_screenshot.PNG)
 
 ### Example 10 
 Write Spatial Grid record
-
-Notes:
-    type options: PER-AVER, PER-CUM, INST-VAL,INST-CUM, FREQ, INVALID
-    flipud: 1 (default) -  flips the numpy array upside down as dss array layout is opposite
-            0 - numpy array array is stored as it is 
+ 
 ```
 import numpy as np
+import numpy.ma as ma
+from affine import Affine
 from pydsstools.heclib.dss.HecDss import Open
+from pydsstools.heclib.utils import gridInfo
 
 dss_file = "example.dss"
 
-pathname_in = "/GRID/RECORD/DATA/01jan2001:1200/01jan2001:1300/Ex9/"
-pathname_out = "/GRID/RECORD/DATA/01jan2019:1200/01jan2019:1300/Ex10/"
+pathname_out1 = "/GRID/RECORD/DATA/01jan2019:1200/01jan2019:1300/Ex10a/"
+pathname_out2 = "/GRID/RECORD/DATA/01jan2019:1200/01jan2019:1300/Ex10b/"
 
 with Open(dss_file) as fid:
-    # get shape and profile from example grid dss record
-    dataset_in = fid.read_grid(pathname_in)
-    profile_in = dataset_in.profile
-    grid_in = dataset_in.read()
+    # Type 1: data is numpy array
+    # np.nan is considered as nodata
+    data = np.reshape(np.array(range(100),dtype=np.float32),(10,10))
+    data[0] = np.nan # assign nodata to first row
+    grid_info = gridInfo()
+    cellsize = 100 # feet
+    xmin,ymax = (1000,5000) # grid top-left corner coordinates
+    affine_transform = Affine(cellsize,0,xmin,0,-cellsize,ymax)
+    grid_info.update([('grid_type','specified'),
+                      ('grid_crs','unknown'),
+                      ('grid_transform',affine_transform),
+                      ('data_type','per-aver'),
+                      ('data_units','mm'),
+                      ('opt_time_stamped',False)])
+    fid.put_grid(pathname_out1,data,grid_info)
+            
+    # Type 2: data is numpy masked array, where masked values are considered nodata
+    data = np.reshape(np.array(range(100),dtype=np.float32),(10,10))
+    data = ma.masked_where((data >= 10) & (data <30),data) # mask second and third rows
+    fid.put_grid(pathname_out2,data,grid_info)
 
-    # create random array, update profile and save as grid record
-    profile_out = profile_in.copy()
-    profile_out.update(type="PER-AVER",nodata=0,transform=dataset_in.transform) # required parameters
-    profile_out.update(crs="UNDEFINED",units="ft",tzid="",tzoffset=0,datasource='') # optional parameters
-    grid_out = np.random.rand(*grid_in.shape)*100
-    fid.put_grid(pathname_out,grid_out,profile_out,flipud=1)
 ```
-![](images/grid_save1.png)
-![](images/grid_save2.png)
 
 ### Example 11 
+Read DSS-6 Spatial Grid record
+Copy DSS-6 Grid to DSS-7 file 
+
+```
+from pydsstools.heclib.dss.HecDss import Open
+from pydsstools.heclib.utils import dss_logging
+dss_logging.config(level='Diagnostic')
+
+dss6_file = "example_dss6.dss"
+dss7_file = "example.dss"
+
+pathname_in = "/SHG/MAXTEMP/DAILY/08FEB1982:0000/08FEB1982:2400/PRISM/"
+pathname_out = "/SHG/MAXTEMP/DAILY/08FEB1982:0000/08FEB1982:2400/Ex11/"
+
+with Open(dss6_file) as fid:
+    dataset = fid.read_grid(pathname_in)
+    data = dataset.read()
+    profile = dataset.profile
+
+with Open(dss6_file) as fidin, Open(dss7_file) as fidout:
+    dataset = fidin.read_grid(pathname_in)
+    fidout.put_grid(pathname_out,dataset,compute_range = True) # recomputing range limit table
+
+```
+
+### Example 12 
 Read pathname catalog
 ```
 from pydsstools.heclib.dss.HecDss import Open
@@ -279,7 +312,7 @@ with Open(dss_file) as fid:
     print('list = %r' % path_list)
 ```
 
-### Example 12 
+### Example 13 
 Copy dss record
 ```
 from pydsstools.heclib.dss.HecDss import Open
@@ -293,7 +326,7 @@ with Open(dss_file) as fid:
     fid.copy(pathname_in,pathname_out)
 ```
 
-### Example 13 
+### Example 14 
 Delete dss record
 ```
 from pydsstools.heclib.dss.HecDss import Open

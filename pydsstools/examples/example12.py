@@ -1,13 +1,12 @@
 '''
-Copy dss record
+Read pathname catalog
 '''
 from pydsstools.heclib.dss.HecDss import Open
 
 dss_file = "example.dss"
 
-pathname_in ="/PAIRED/DATA/FREQ-FLOW///Ex5/"
-pathname_out ="/PAIRED/DATA/FREQ-FLOW///Ex12/"
+pathname_pattern ="/PAIRED/*/*/*/*/*/"
 
 with Open(dss_file) as fid:
-    fid.copy(pathname_in,pathname_out)
-
+    path_list = fid.getPathnameList(pathname_pattern,sort=1)
+    print('list = %r' % path_list)

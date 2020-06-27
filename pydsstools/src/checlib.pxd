@@ -1,23 +1,7 @@
 #cdef extern str DssTimeArray_PythonArrayType = 'l'
-cdef extern from "heclib.h":
-    #int STATUS_OK
-    #int STATUS_NOT_OK
-    #int STATUS_RECORD_FOUND
-    #int STATUS_RECORD_NOT_FOUND
-    float UNDEFINED_FLOAT
-    double UNDEFINED_DOUBLE
-    int UNDEFINED_TIME
-    int zisMissingDouble(double value)
-    int zisMissingFloat(float value)
-    int zisError(int status)
-    int zerrorSeverity(int errorCode)
-    int zerrorCheck()
-    int zerror(hec_zdssLastError *errorStruct)   
-    void zsetMessageLevel(int methodID, int levelID)
-    int zdataType (long long *ifltab, const char* pathname)
 
 cdef extern from "zerrorCodes.h":
-    struct hec_zdssLastError:
+    ctypedef struct hec_zdssLastError:
         int errorCode
         int severity
         int errorNumber
@@ -31,8 +15,33 @@ cdef extern from "zerrorCodes.h":
         char lastPathname[394] #[MAX_PATHNAME_SIZE]
         char filename[256] #[MAX_FILENAME_LENGTH]
         
-    hec_zdssLastError zdssLastError # could this be global variable?
+    #int zerror(hec_zdssLastError *errorStruct)        
+    #hec_zdssLastError zdssLastError # could this be global variable?
+
+cdef extern from "heclib.h":
+    #int STATUS_OK
+    #int STATUS_NOT_OK
+    #int STATUS_RECORD_FOUND
+    #int STATUS_RECORD_NOT_FOUND
+    float UNDEFINED_FLOAT
+    double UNDEFINED_DOUBLE
+    int UNDEFINED_TIME
+    int zisMissingDouble(double value)
+    int zisMissingFloat(float value)
+    int zisError(int status)
+    int zerrorSeverity(int errorCode)
+    int zerrorCheck()
+    void zsetMessageLevel(int methodID, int levelID)
+    int zdataType (long long *ifltab, const char* pathname)
+    int zerror(hec_zdssLastError *errorStruct)  
+    char* HRAP_SRC_DEFINITION
+    char* SHG_SRC_DEFINITION
+    char* UTM_SRC_DEFINITION
+
     
+#cdef extern from "missing.h":
+#    int zerror(hec_zdssLastError *errorStruct)
+        
 cdef extern from "heclib.h":
     # Version
     int zconvertVersion(const char* fileNameFrom, const char* fileNameTo)
@@ -386,4 +395,6 @@ cdef extern from "heclib.h":
     int zspatialGridRetrieveVersion(long long *ifltab, const char *cpath, int* gridStructVersion)
     #void printGridStruct(long long *ifltab, int funtion_id, zStructSpatialGrid *gdStruct)
 
+cdef extern from "DSSGrid_wrap.h":
+    int RetrieveGriddedData_wrap(long long * ifltab, zStructSpatialGrid * gs, int boolRetrieveData)
 
