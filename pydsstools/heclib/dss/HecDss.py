@@ -342,8 +342,8 @@ class Open(_Open):
             pdc.independent_axis = array('f',[i+1 for i in range(pdc.data_no)])
             if not pdc.labels_list:
                 pdc.labels_list = [str(i+1) for i in range(pdc.curve_no)]
-
-        super().prealloc_pd(pdc)
+        label_size = max(10,kwargs.get('label_size',10))
+        super().prealloc_pd(pdc,label_size)
 
     def read_grid(self,pathname):
         """Read spatial grid. DSS-6 grid is returned in DSS-7 format.
