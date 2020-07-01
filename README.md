@@ -344,6 +344,7 @@ Dependencies
 - [NumPy](https://www.numpy.org)
 - [pandas](https://pandas.pydata.org/)
 - [affine](https://pypi.org/project/affine/)
+- [MS Visual C++ Redistributable for VS 2015 - 2019](https://aka.ms/vs/16/release/vc_redist.x64.exe)
 
 Installation
 ===
