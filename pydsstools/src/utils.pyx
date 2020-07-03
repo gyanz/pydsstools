@@ -105,10 +105,11 @@ cdef class dss_info:
 cpdef list pd_size(Open fid,char *pathname):
     cdef:
         dss_info info 
-        int curve_no,data_no,data_type
+        int curve_no,data_no,data_type,label_size
 
     info = dss_info(fid,pathname)
     curve_no = info.pd_curve_no
+    label_size = int((info.pdLabelsLength - curve_no)/curve_no*1.0)
     data_no = info.pd_data_no
     data_type =info.dataType
     if data_type == 200:
@@ -118,7 +119,7 @@ cpdef list pd_size(Open fid,char *pathname):
     else:
         dtype = 'unknown'
     
-    return_list = [curve_no,data_no,data_type,dtype]
+    return_list = [curve_no,data_no,data_type,dtype,label_size]
     return return_list 
 
 cpdef squeeze_file(str file_path):

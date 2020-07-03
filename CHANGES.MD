@@ -5,6 +5,7 @@ pydsstools changelog
 * Changed Spatial Grid Record read and write methods, nodata is handled internally
 * Integrated C++ (C++14) library to read DSS-6 Grid Record
 * Dynamically linked MSVCRT in Windows
+* Bug fix paired data labels
 
 1.5 (05-17-2020)
 -----------------

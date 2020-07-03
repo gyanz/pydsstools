@@ -189,7 +189,7 @@ cdef class Open:
         pd_st = createPDS(zpds)
         return pd_st 
 
-    cpdef int prealloc_pd(self, PairedDataContainer pdc,int label_size=10) except *:
+    cpdef int prealloc_pd(self, PairedDataContainer pdc,int label_size) except *:
         # When preallocating pd, it is important to know how much size to allocate
         #   for the labels
         # label_size = number of characters in label for a curve in pd
@@ -207,7 +207,7 @@ cdef class Open:
         pdc.curves_ptr = NULL
         pdc.curves_mv = None
 
-    cpdef int put_one_pd(self, PairedDataContainer pdc,int i,tuple window = None) except *:
+    cpdef int put_one_pd(self, PairedDataContainer pdc,int i,tuple window = None, int label_size = 0) except *:
         # i = ith curve no to save in the file, 1 >= i <= curve_no
         # TODO: Error check
         cdef:
@@ -215,7 +215,9 @@ cdef class Open:
             zStructPairedData *zpds
             int start_ord,end_ord
 
-        pdc.setValues(mode = 1)
+        if label_size > 0:
+            label_size = self.pd_info(pdc.pathname)['label_size']
+        pdc.setValues(mode = 1,label_size = label_size)
         data_no_user = pdc.curves_mv.shape[1]
 
         if not window:
@@ -266,6 +268,7 @@ cdef class Open:
         data['curve_no'] = result[0]
         data['data_no'] = result[1]
         data['dtype'] = result[3]
+        data['label_size'] = result[4]
         return data
 
     cpdef int _record_type_code(self,str pathname):

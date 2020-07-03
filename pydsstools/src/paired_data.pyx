@@ -248,7 +248,7 @@ cdef class PairedDataContainer:
         else:
             raise "Invalid Independent axis data container"  
 
-    cdef int setLabels(self,int mode = -1,int label_size=10) except *:
+    cdef int setLabels(self,int mode = -1,int label_size = 0) except *:
         # label_size is necessary for preallocation of pd only
         # 0 means default allocation
         # positive value gives length of label characters per curve
@@ -300,6 +300,7 @@ cdef class PairedDataContainer:
                     self.labels = byte_array
                     self.labelsLength = len(byte_array)
             else:
+                # Assigning labels does not makes sense, setting labelsLength = 0 should retain the current label
                 self.labels = bytearray(' '.encode('ascii')+b"\x00")
                 self.labelsLength = 0
 
@@ -354,7 +355,7 @@ cdef class PairedDataContainer:
         elif mode == 1:
             # Save one curve on the preallocated/normal dataset
             self.setFloatData()
-            self.setLabels(mode=1)
+            self.setLabels(mode=1,label_size = label_size)
 
         else:
             # normal pd

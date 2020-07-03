@@ -187,7 +187,7 @@ class Open(_Open):
                 tsc.values = values_copy
 
 
-    def read_pd(self,pathname,window=None,dtype=None):
+    def read_pd(self,pathname,window=None,dtype=None,dataframe=True):
         """Read paired data as pandas dataframe
 
         Parameter
@@ -203,6 +203,9 @@ class Open(_Open):
 
             dtype: numpy dtype, default None
                   Data type of returned DataFrame
+
+            dataframe: boolean, default True
+                  Returns dataframe object if True, otherwise ruturns paired data structure
 
         Returns
         --------
@@ -232,21 +235,24 @@ class Open(_Open):
             window = (start_ord,end_ord,start_curve,end_curve)
 
         pds = super().read_pd(pathname,window)
-        x,curves,label_list = pds.get_data()
-        tb = np.asarray(curves).T
-        # The row in curves array contains curve data
-        # Transpose causes the curve data to be in columns (for DataFrame purpose)
-        if not label_list:
-            for i in range(tb.shape[1]):
-                label_list.append(' ')
-        if not len(label_list) == tb.shape[1]:
-            logging.warn('Number of labels is not equal to number of curves. This issue can occur with preallocated paired data.')
-            label_list = [str(i+1) for i in range(curves.shape[1])]
+        if dataframe:
+            x,curves,label_list = pds.get_data()
+            tb = np.asarray(curves).T
+            # The row in curves array contains curve data
+            # Transpose causes the curve data to be in columns (for DataFrame purpose)
+            if not label_list:
+                for i in range(tb.shape[1]):
+                    label_list.append(' ')
+            if not len(label_list) == tb.shape[1]:
+                logging.warn('Number of labels is not equal to number of curves. This issue can occur with preallocated paired data.')
+                label_list = [str(i+1) for i in range(curves.shape[1])]
 
-        indx=list(x[0])
-        df = pd.DataFrame(data=tb,index=indx,columns=label_list,dtype=dtype,copy=True)
-        df.index.name="X"
-        return df
+            indx=list(x[0])
+            df = pd.DataFrame(data=tb,index=indx,columns=label_list,dtype=dtype,copy=True)
+            df.index.name="X"
+            return df
+        else:
+            return pds
 
     def read_pd_labels(self,pathname):
         _df = self.read_pd(pathname,window=(1,1,1,0))
@@ -267,7 +273,9 @@ class Open(_Open):
                     Used only when curve_index is specified
 
             kwargs: arguments or attributes of PairedDataContainer
-                    e.g., pathname, labels_list, etc.
+                    e.g., pathname, labels_list, etc. While writing single column or curve
+                    of preallocated pds, labels_list can be specified to
+                    update the label that was set during preallocation.
 
         Returns
         --------
@@ -296,6 +304,7 @@ class Open(_Open):
             size_info = self.pd_info(pathname)
             total_ordinates = size_info['data_no']
             total_curves = size_info['curve_no']
+            max_label_size = size_info['label_size']
 
             if not (curve_index >=1 and curve_index <= total_curves):
                 logging.error('Curve index out of bounds.')
@@ -315,8 +324,7 @@ class Open(_Open):
             elif isinstance(pdc_df_array,np.ndarray):
                 pass
             else:
-                BaseException('Unsupported data provided')
-                return
+                raise BaseException('Unsupported data provided')
 
             pdc_df_array = np.reshape(pdc_df_array,[1,-1])
             arr_size = pdc_df_array.size
@@ -325,15 +333,14 @@ class Open(_Open):
                 return
             pdc = PairedDataContainer(pathname=pathname,labels_list=labels_list)
             pdc.curves = pdc_df_array
-            super().put_one_pd(pdc,curve_index,(start_ord,end_ord))
+            super().put_one_pd(pdc,curve_index,(start_ord,end_ord), max_label_size)
             return
 
         super().put_pd(pdc)
 
     def preallocate_pd(self,pdc_or_shape,**kwargs):
-        # Labels do not appear (bug with DSS 7?). But each curve is allocated 10 character long
-        # label that can be set using put_pd method. While writing data for individual curve using put_pd
-        # do not specify label data unless the paired data was created by pydsstools.
+        # Each curve is allocated 10 characters by default if label_size is not specified
+        # Curves are labeled 1,2,3 ... by default
         pdc = pdc_or_shape
         if isinstance(pdc_or_shape,(list,tuple)):
             pdc = PairedDataContainer(**kwargs)
