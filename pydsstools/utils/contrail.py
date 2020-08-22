@@ -237,7 +237,7 @@ def _contrail_timeseries_resource(url):
     else:
         try:
             resource = urllib2.urlopen(req)
-        except urllib2.HTTPError, e:
+        except urllib2.HTTPError:
             logging.error('HTTPError!',exc_info=True) 
             
         except:
