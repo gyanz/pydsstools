@@ -240,7 +240,9 @@ class Open(_Open):
             tb = np.asarray(curves).T
             # The row in curves array contains curve data
             # Transpose causes the curve data to be in columns (for DataFrame purpose)
-            if not label_list:
+            if label_list:
+                label_list = [x.strip() for x in label_list]
+            else:
                 for i in range(tb.shape[1]):
                     label_list.append(' ')
             if not len(label_list) == tb.shape[1]:
