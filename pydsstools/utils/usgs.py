@@ -46,7 +46,7 @@ def gage2dss(output, site, param='flow', sdate='1700-01-01', edate=''):
     """
     if isinstance(site,(int,str)):
         site_alias = [str(site)]
-        site_codes = [str(site)]
+        site_code = [str(site)]
     elif isinstance(site,dict):
         site_alias = list(site.keys())
         site_code = list(site.values())
@@ -138,7 +138,7 @@ def gage2dss(output, site, param='flow', sdate='1700-01-01', edate=''):
                         fidout.put_ts(tsc)
 
     except Exception as e:
-        loging.warning('Error occure for gage = %s',siteid)
+        logging.warning('Error occured for gage = %s',siteid)
         raise e
 
     finally:
