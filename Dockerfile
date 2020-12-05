@@ -38,8 +38,7 @@ RUN cp -r /pydsstools $BUILD_DEST/ \
 RUN cd pydsstools/pydsstools/src \
     && cython -3 ./core_heclib.pyx -o $EXT_C_FILE \
     && gcc -Wall -Wl,--unresolved-symbols=report-all,--warn-unresolved-symbols,--warn-once \
-    -shared -fPIC $EXT_C_FILE -I"$DSS7_INCL" -I"$PY_INCL" -L"$DSS7_LIB" -lgfortran -lm -lquadmath -lz \
+    -shared -fPIC $EXT_C_FILE -I"$DSS7_INCL" -I"$PY_INCL" -L"$DSS7_LIB" -l:heclib.a -lgfortran -lm -lquadmath -lz \
     -o"$EXT_MODULE"
 
 RUN pip3 install ${BUILD_DEST}/pydsstools
-
