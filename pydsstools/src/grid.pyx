@@ -472,7 +472,7 @@ cdef class SpatialGridStruct:
                        ('opt_is_interval',True if self.is_interval() else False),
                        ('opt_time_stamped',True if self.is_time_stamped() else False),
                        ('opt_lower_left_x',self.lower_left_x()),
-                       ('opt_lower_left_y',self.lower_left_x()),
+                       ('opt_lower_left_y',self.lower_left_y()),
                        ])
         return result
 
