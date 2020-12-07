@@ -42,3 +42,5 @@ RUN cd pydsstools/pydsstools/src \
     -o"$EXT_MODULE"
 
 RUN pip3 install ${BUILD_DEST}/pydsstools
+
+RUN python3 $BUILD_DEST/pydsstools/pydsstools/examples/example10.py
