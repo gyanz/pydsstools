@@ -33,6 +33,8 @@ cpdef dict gridInfo():
     info['opt_tzoffset'] = 0
     info['opt_is_interval'] = 0
     info['opt_time_stamped'] = 0
+    info['opt_lower_left_x'] = 0
+    info['opt_lower_left_y'] = 0
     return info
 
 cpdef str gridDataSource(object grid_type):
@@ -253,6 +255,17 @@ cdef class SpatialGridStruct:
             cell_size = self.zsgs[0]._cellSize
         return cell_size 
 
+    cpdef int lower_left_x(self):
+        cdef int llx = 0
+        if self.zsgs:
+            llx = self.zsgs[0]._lowerLeftCellX
+        return llx
+
+    cpdef int lower_left_y(self):
+        cdef int lly = 0
+        if self.zsgs:
+            lly = self.zsgs[0]._lowerLeftCellY
+        return lly
 
     cpdef tuple origin_coords(self):
         cdef: 
@@ -458,6 +471,8 @@ cdef class SpatialGridStruct:
                        ('opt_tzoffset',self.tzoffset()),
                        ('opt_is_interval',True if self.is_interval() else False),
                        ('opt_time_stamped',True if self.is_time_stamped() else False),
+                       ('opt_lower_left_x',self.lower_left_x()),
+                       ('opt_lower_left_y',self.lower_left_x()),
                        ])
         return result
 
@@ -472,6 +487,7 @@ cdef SpatialGridStruct saveSpatialGrid(long long *ifltab, const char* pathname, 
         #np.ndarray data
         int _row,_col
         float _x,_y
+        int _lower_left_x, _lower_left_y
         float _nodata
         float * _pmin = NULL
         float * _pmax = NULL
@@ -522,6 +538,9 @@ cdef SpatialGridStruct saveSpatialGrid(long long *ifltab, const char* pathname, 
     cellsize = transform[0]
     _x = transform[2]
     _y = transform[5] - _row*cellsize
+
+    _lower_left_x = profile['opt_lower_left_x']
+    _lower_left_y = profile['opt_lower_left_y']
     
     _min = stats['min']
     _max = stats['max']
@@ -550,8 +569,8 @@ cdef SpatialGridStruct saveSpatialGrid(long long *ifltab, const char* pathname, 
     zsgs[0]._dataUnits  = _units
     zsgs[0]._dataType  = _datatype
     zsgs[0]._dataSource  = _datasource
-    zsgs[0]._lowerLeftCellX  = 0
-    zsgs[0]._lowerLeftCellY  = 0
+    zsgs[0]._lowerLeftCellX  = _lower_left_x
+    zsgs[0]._lowerLeftCellY  = _lower_left_y
     zsgs[0]._numberOfCellsX  = <int>_col
     zsgs[0]._numberOfCellsY  = <int>_row
     zsgs[0]._cellSize  = cellsize
