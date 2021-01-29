@@ -41,6 +41,6 @@ RUN cd pydsstools/pydsstools/src \
     -shared -fPIC $EXT_C_FILE -I"$DSS7_INCL" -I"$PY_INCL" -L"$DSS7_LIB" -l:heclib.a -lgfortran -lm -lquadmath -lz \
     -o"$EXT_MODULE"
 
-RUN pip3 install ${BUILD_DEST}/pydsstools
+# RUN pip3 install ${BUILD_DEST}/pydsstools
 
-RUN python3 $BUILD_DEST/pydsstools/pydsstools/examples/example10.py
+# RUN python3 $BUILD_DEST/pydsstools/pydsstools/examples/example10.py
