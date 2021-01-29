@@ -536,8 +536,9 @@ cdef SpatialGridStruct saveSpatialGrid(long long *ifltab, const char* pathname, 
 
     transform = profile['grid_transform']
     cellsize = transform[0]
+    neg_cell = transform[4]
     _x = transform[2]
-    _y = transform[5] - _row*cellsize
+    _y = transform[5] + _row*neg_cell
 
     _lower_left_x = profile['opt_lower_left_x']
     _lower_left_y = profile['opt_lower_left_y']
