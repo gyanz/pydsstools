@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 from pydsstools.heclib.utils import HecTime
 from pydsstools.heclib.dss import HecDss
-from pydsstools.core import TimeSeriesContainer,DssPathName
+from pydsstools.core import TimeSeriesContainer,DssPathName,UNDEFINED
 
 __all__ = ['gage2dss']
 
@@ -15,8 +15,8 @@ NWIS_URL = r"https://waterservices.usgs.gov/nwis/dv/?site=%s&startDT=%s&endDT=%s
 
 PARAM_ALLOWED = {'flow': '00060', 'stage': '00065'}
 
-def gage2dss(output, site, param='flow', sdate='1700-01-01', edate=''): 
-    """Copy usgs flow or stage regular time-series data to dss file 
+def gage2dss(output, site, param='flow', sdate='1700-01-01', edate=''):
+    """Copy usgs flow or stage regular time-series data to dss file
 
     Parameter
     ---------
@@ -78,21 +78,21 @@ def gage2dss(output, site, param='flow', sdate='1700-01-01', edate=''):
             res = urllib2.urlopen(req)
             data = res.read()
             jdata = json.loads(data)
-            if not jdata['value']['timeSeries']: 
+            if not jdata['value']['timeSeries']:
                 logging.warning('No data for gage %s',siteid)
             else:
                 ts = jdata['value']['timeSeries'][0]['values'][0]['value']
                 if not ts:
                     logging.warning('No data for gage %s',siteid)
                 else:
-                    site = jdata['value']['timeSeries'][0]['sourceInfo']['siteName'] 
-                    param_desc = (jdata['value']['timeSeries'][0]['variable']['variableDescription']).split(',')[0] 
-                    unit = jdata['value']['timeSeries'][0]['variable']['unit']['unitCode'] 
+                    site = jdata['value']['timeSeries'][0]['sourceInfo']['siteName']
+                    param_desc = (jdata['value']['timeSeries'][0]['variable']['variableDescription']).split(',')[0]
+                    unit = jdata['value']['timeSeries'][0]['variable']['unit']['unitCode']
                     logging.debug('Data param description is %s',param_desc)
                     logging.debug('Data unit is %s',unit)
                     nodata = ''
                     try:
-                        nodata = jdata['value']['timeSeries'][0]['variable']['noDataValue'] 
+                        nodata = jdata['value']['timeSeries'][0]['variable']['noDataValue']
                     except:
                         pass
 
@@ -107,20 +107,20 @@ def gage2dss(output, site, param='flow', sdate='1700-01-01', edate=''):
                     date_diff = [x.total_seconds()/(60.0*60.0) for x in date_diff]
                     period = min(date_diff)
                     logging.debug('Data interval = %r hour',period)
-                    
+
                     interval = '1DAY'
                     if period < 24:
                         interval = '1HOUR'
-                    
+
                     # Write to dss file
-                    apart = '' 
+                    apart = ''
                     if alias != siteid:
                         apart = alias
                     bpart = site
                     cpart = param.upper()
                     dpart = ''
                     epart = interval
-                    fpart = 'USGS ' + str(siteid) 
+                    fpart = 'USGS ' + str(siteid)
                     pathname = '/%s/%s/%s/%s/%s/%s/'%(apart,bpart,cpart,dpart,epart,fpart)
                     fidout.deletePathname(pathname)
                     tsc = TimeSeriesContainer()
@@ -129,10 +129,13 @@ def gage2dss(output, site, param='flow', sdate='1700-01-01', edate=''):
                     tsc.units = unit
                     tsc.interval = 1
                     tsc.numberValues = 1
-
                     for row in ts:
                         date = row['dateTime'].replace('T',' ')
-                        flow = row['value']
+                        # Filtering the No data values
+                        if float(row['value']) == nodata:
+                            flow = UNDEFINED
+                        else:
+                            flow = row['value']
                         tsc.startDateTime = date
                         tsc.values = [float(flow)]
                         fidout.put_ts(tsc)
@@ -147,8 +150,9 @@ def gage2dss(output, site, param='flow', sdate='1700-01-01', edate=''):
 
 retrieve = gage2dss
 
+# Site 07383500 has nodata values at 2020-12-23
 if __name__ == "__main__":
-    usgs_gages = {'First Site':      '12359800',
+    usgs_gages = {'First Site':      '07383500',
                   'Second Site':     '12362500',
                   }
-    gage2dss('dss_out.dss', usgs_gages,'flow')
+    gage2dss('dss_out.dss', usgs_gages,'flow', sdate='2020-01-01')
