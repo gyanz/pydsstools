@@ -1,0 +1,51 @@
+//  Rename me to something like function names
+#ifndef ZDSS_RECORD_DESCRIPTIONS_H
+#define ZDSS_RECORD_DESCRIPTIONS_H
+
+
+#define RECORD_TYPE_100  "Regular-interval time series"
+#define RECORD_TYPE_101  "Regular-interval time series pattern"
+#define RECORD_TYPE_105  "Regular-interval time series doubles"
+#define RECORD_TYPE_110  "Irregular-interval time series"
+#define RECORD_TYPE_111  "Irregular-interval time series pattern"
+#define RECORD_TYPE_115  "Irregular-interval time series doubles"
+#define RECORD_TYPE_200  "Paired Data"
+#define RECORD_TYPE_205  "Paired Data doubles"
+#define RECORD_TYPE_300  "Text Data"
+#define RECORD_TYPE_400  "Gridded - Undefined grid with time"
+#define RECORD_TYPE_401  "Gridded - Undefined grid"
+#define RECORD_TYPE_410  "Gridded - HRAP grid with time reference"
+#define RECORD_TYPE_411  "Gridded - HRAP grid"
+#define RECORD_TYPE_420  "Gridded - Albers with time reference"
+#define RECORD_TYPE_421  "Gridded - Albers"
+#define RECORD_TYPE_430  "Gridded - SHG with time reference"
+#define RECORD_TYPE_431  "Gridded - SHG"
+#define RECORD_TYPE_500  "Generalized Rating"
+#define RECORD_TYPE_501  "Generalized Rating series"
+#define RECORD_TYPE_505  "Generalized Rating doubles"
+#define RECORD_TYPE_510  "Simple Rating"
+#define RECORD_TYPE_511  "Simple Rating series"
+#define RECORD_TYPE_515  "Simple Rating doubles"
+#define RECORD_TYPE_520  "Composite Rating"
+#define RECORD_TYPE_521  "Composite Rating series"
+#define RECORD_TYPE_525  "Composite Rating doubles"
+#define RECORD_TYPE_530  "Compound Rating"
+#define RECORD_TYPE_531  "Compound Rating series"
+#define RECORD_TYPE_535  "Compound Rating doubles"
+#define RECORD_TYPE_540  "Periodic Rating"
+#define RECORD_TYPE_541  "Periodic Rating series"
+#define RECORD_TYPE_545  "Periodic Rating doubles"
+#define RECORD_TYPE_550  "Periodic Values"
+#define RECORD_TYPE_551  "Periodic Values series"
+#define RECORD_TYPE_555  "Periodic Values doubles"
+#define RECORD_TYPE_560  "Stream Rating"
+#define RECORD_TYPE_561  "Stream Rating series"
+#define RECORD_TYPE_565  "Stream Rating doubles"
+#define RECORD_TYPE_570  "Conic Reservoir Rating"
+#define RECORD_TYPE_571  "Conic Reservoir Rating series"
+#define RECORD_TYPE_575  "Conic Reservoir Rating doubles"
+#define RECORD_TYPE_UNDEFINED  "Undefined data type"
+
+
+#endif //  ZDSS_RECORD_DESCRIPTIONS_H
+
