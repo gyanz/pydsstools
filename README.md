@@ -359,16 +359,22 @@ pip install https://github.com/gyanz/pydsstools/zipball/master
 
 Installation from binary wheels
 ===
-Windows 10
+Download suitable wheel file from dist directory and run th following command:
 ```
-Python 3.6: pip install https://github.com/gyanz/pydsstools/blob/master/dist/
-Python 3.7: pip install https://github.com/gyanz/pydsstools/blob/master/dist/
-Python 3.8: pip install https://github.com/gyanz/pydsstools/blob/master/dist/
-Python 3.9: pip install https://github.com/gyanz/pydsstools/blob/master/dist/
+pip install wheel_file
 ```
-Ubuntu 20.04 LTS
+
+Windows 10 wheel files
 ```
-Python 3.8: pip install https://github.com/gyanz/pydsstools/blob/master/dist/
+Python 3.6: pydsstools-1.7-cp36-cp36m-win_amd64.whl
+Python 3.7: pydsstools-1.7-cp37-cp37m-win_amd64.whl
+Python 3.8: pydsstools-1.7-cp38-cp38m-win_amd64.whl
+Python 3.9: pydsstools-1.7-cp38-cp38m-win_amd64.whl
+```
+
+Ubuntu 20.04 LTS wheel files
+```
+Python 3.8: pydsstools-1.7-cp38-cp38-linux_x86_64.whl
 ```
 
 Contributing
