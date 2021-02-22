@@ -1,5 +1,10 @@
 pydsstools changelog
 ================
+1.7 (02-21-2021)
+-----------------
+* HEC-DSS 7-IC, released Jan 22, 2021, headers and libraries included
+* Setup.py revised to build extension from source code
+ 
 1.6 (06-27-2020)
 -----------------
 * Changed Spatial Grid Record read and write methods, nodata is handled internally

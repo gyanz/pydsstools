@@ -75,7 +75,7 @@
 	 gs->_meanDataValue = float_ref(gridInfo->meanDataValue());
 	 gs->_numberOfRanges = gridInfo->numberOfRanges();
 	 gs->_storageDataType = 0; // Deal with float data for now
-
+	 gs->_nullValue = UNDEFINED_FLOAT;
 	 if (boolRetrieveData)
 		 gs->_data = gridData->getAllGriddedValues(&status);
 	 if (gs->_numberOfRanges > 0) {
@@ -107,6 +107,7 @@
 		 gs->_yCoordOfGridCellZero = a->yCoordOfGridCellZero();
 		 gs->_srsDefinitionType = 0;
 		 gs->_srsName = mallocAndCopy("WKT");
+		 gs->_timeZoneID = mallocAndCopy("UTC");
 		 gs->_timeZoneRawOffset = 0;
 		 gs->_isInterval = 0;
 		 gs->_isTimeStamped = 0;

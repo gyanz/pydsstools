@@ -91,7 +91,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\headers;..\headers\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>headers;..\dss\headers;..\dss\headers\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ProjectReference>
@@ -104,7 +104,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\headers;..\headers\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>headers;..\dss\headers;..\dss\headers\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -116,7 +116,7 @@
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\headers;..\headers\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>headers;..\dss\headers;..\dss\headers\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -132,7 +132,7 @@
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\headers;..\headers\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>headers;..\dss\headers;..\dss\headers\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -141,22 +141,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="ArgParse.h" />
-    <ClInclude Include="DSSAlbersInfo.h" />
-    <ClInclude Include="DSSAlbersInfoFlat.h" />
-    <ClInclude Include="DSSDataCompression.h" />
-    <ClInclude Include="DSSGrid.h" />
-    <ClInclude Include="DSSGridData.h" />
-    <ClInclude Include="DSSGridInfo.h" />
-    <ClInclude Include="DSSGridInfoFlat.h" />
-    <ClInclude Include="DSSHrapInfo.h" />
-    <ClInclude Include="DSSHrapInfoFlat.h" />
-    <ClInclude Include="DSSSpecifiedGridInfo.h" />
-    <ClInclude Include="DSSSpecifiedGridInfoFlat.h" />
-    <ClInclude Include="DssUtility.h" />
-    <ClInclude Include="EsriAsciiGrid.h" />
-    <ClInclude Include="HecDateTime.h" />
-    <ClInclude Include="pch.h" />
+    <ClInclude Include="include\ArgParse.h" />
+    <ClInclude Include="include\DSSAlbersInfo.h" />
+    <ClInclude Include="include\DSSAlbersInfoFlat.h" />
+    <ClInclude Include="include\DSSDataCompression.h" />
+    <ClInclude Include="include\DSSGrid.h" />
+    <ClInclude Include="include\DSSGrid_wrap.h" />
+    <ClInclude Include="include\DSSGridData.h" />
+    <ClInclude Include="include\DSSGridInfo.h" />
+    <ClInclude Include="include\DSSGridInfoFlat.h" />
+    <ClInclude Include="include\DSSHrapInfo.h" />
+    <ClInclude Include="include\DSSHrapInfoFlat.h" />
+    <ClInclude Include="include\DSSSpecifiedGridInfo.h" />
+    <ClInclude Include="include\DSSSpecifiedGridInfoFlat.h" />
+    <ClInclude Include="include\DssUtility.h" />
+    <ClInclude Include="include\EsriAsciiGrid.h" />
+    <ClInclude Include="include\HecDateTime.h" />
+    <ClInclude Include="include\pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ArgParse.cpp" />
@@ -167,6 +168,8 @@
     <ClCompile Include="DSSGridData.cpp" />
     <ClCompile Include="DSSGridInfo.cpp" />
     <ClCompile Include="DSSGridInfoFlat.cpp" />
+    <ClCompile Include="DSSGrid_cwrapper.cpp" />
+    <ClCompile Include="DSSGrid_wrap.c" />
     <ClCompile Include="DSSHrapInfo.cpp" />
     <ClCompile Include="DSSHrapInfoFlat.cpp" />
     <ClCompile Include="DSSSpecifiedGridInfo.cpp" />

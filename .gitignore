@@ -18,7 +18,6 @@
 .cache/
 .vscode/
 pydsstools/src/compile/
-pydsstools/_lib/x64/py39/
 
 # Compiled source #
 ###################
@@ -44,15 +43,15 @@ build
 # sphinx build directory
 doc/_build
 # setup.py dist directory
-dist
+# dist
 # Egg metadata
 *.egg-info
 .eggs
 .pypirc
 
 # wheel files
-*.whl
-**/wheelhouse/*
+#*.whl
+#**/wheelhouse/*
 # coverage
 .coverage
 coverage.xml

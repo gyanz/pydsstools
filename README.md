@@ -346,14 +346,29 @@ Dependencies
 - [affine](https://pypi.org/project/affine/)
 - [MS Visual C++ Redistributable for VS 2015 - 2019](https://aka.ms/vs/16/release/vc_redist.x64.exe)
 
-Installation
+Installation from sources
 ===
+When pydsstools is installed from source, the cython extension and grid version 6 libraries are compiled. This requires proper configuration of build tools and python environment in the command prompt. Windows 10 user can use the included cmd_intel_environ.bat if Intel Parallel Studio XE 2019 and Microsoft Visual Studio 2019 Community Edition are available.
 ```
 python setup.py install 
 
 or
 
-pip install https://github.com/gyanz/pydsstools/zipball/master  
+pip install https://github.com/gyanz/pydsstools/zipball/master
+```
+
+Installation from binary wheels
+===
+Windows 10
+```
+Python 3.6: pip install https://github.com/gyanz/pydsstools/blob/master/dist/
+Python 3.7: pip install https://github.com/gyanz/pydsstools/blob/master/dist/
+Python 3.8: pip install https://github.com/gyanz/pydsstools/blob/master/dist/
+Python 3.9: pip install https://github.com/gyanz/pydsstools/blob/master/dist/
+```
+Ubuntu 20.04 LTS
+```
+Python 3.8: pip install https://github.com/gyanz/pydsstools/blob/master/dist/
 ```
 
 Contributing
