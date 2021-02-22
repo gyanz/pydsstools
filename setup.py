@@ -50,11 +50,6 @@ def maybe_cythonize(extensions, *args, **kwargs):
         return extensions
 
     elif not _CYTHON_INSTALLED:
-        if _CYTHON_VERSION:
-            raise RuntimeError(
-                f"Cannot cythonize with old Cython version ({_CYTHON_VERSION} "
-                f"installed, needs {min_cython_ver})"
-            )
         raise RuntimeError("Cannot cythonize without Cython installed.")
 
     return cythonize(extensions, *args, **kwargs)
