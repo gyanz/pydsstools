@@ -18,6 +18,8 @@
 .cache/
 .vscode/
 pydsstools/src/compile/
+pydsstools/src/external/gridv6/x64/
+pydsstools/src/external/gridv6/.vs/
 
 # Compiled source #
 ###################
@@ -61,6 +63,8 @@ coverage_html_report
 # hypothesis test database
 .hypothesis/
 __pycache__
+# test scripts for build
+test
 
 # OS generated files #
 ######################
