@@ -4,6 +4,7 @@ pydsstools changelog
 -----------------
 * HEC-DSS 7-IC, released Jan 22, 2021, headers and libraries included
 * Setup.py revised to build extension from source code
+* Wheel for Windows (Python 3.6 to 3.9) and Ubuntu 20.04 (Python 3.8)
  
 1.6 (06-27-2020)
 -----------------
