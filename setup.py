@@ -66,12 +66,12 @@ class CleanCommand(Command):
 
     def initialize_options(self):
         self.all = True
-        self._clean_me = [join('pydsstools', 'src', 'external', 'gridv6', 'build','grid.lib'),
-                          join('pydsstools', 'src', 'external', 'gridv6', 'build','grid.a'),
-                          join('pydsstools', 'src', 'core_heclib.c'),
+        self._clean_me = [ join('pydsstools', 'src', 'core_heclib.c'),
                           join('pydsstools', 'heclib', 'dsslog.dss'),
                          ]
-        self._clean_trees = [join('pydsstools', 'src', 'external', 'gridv6', 'x64')]
+        self._clean_trees = [join('pydsstools', 'src', 'external', 'gridv6', 'x64'),
+                            join('pydsstools', 'src', 'external', 'gridv6', 'build')
+                            ]
 
         self._clean_exclude = []
         self._clean_exclude_dirs = [join('pydsstools', 'src', 'external', 'dss'),
@@ -104,7 +104,7 @@ class CleanCommand(Command):
                 ):
                     self._clean_me.append(filepath)
         # build
-        for d in ("build", "dist", "pydsstools.egg-info"):
+        for d in ("build", "pydsstools.egg-info"):
             if os.path.exists(d):
                 self._clean_trees.append(d)
 

@@ -13,6 +13,7 @@ all: grid.a
 
 grid.a: $(CPP_OBJS) $(C_OBJS)
 	ar rvs  $@ $(CPP_OBJS) $(C_OBJS)
+	mkdir -p $(OUTDIR)
 	mv -f grid.a $(OUTDIR) 
 
 .cpp.o:
