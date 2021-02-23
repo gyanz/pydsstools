@@ -348,7 +348,7 @@ Dependencies
 
 Installation from sources
 ===
-When pydsstools is installed from source, the cython extension and grid version 6 libraries are compiled. This requires proper configuration of build tools and python environment in the command prompt. Windows 10 user can use the included cmd_intel_environ.bat if Intel Parallel Studio XE 2019 and Microsoft Visual Studio 2019 Community Edition are available.
+The cython extension and grid version 6 libraries are compiled while installing pydsstools from source files. This requires proper configuration of build tools and python environment in the command prompt. The included cmd_intel_environ.bat can be used in Windows 10 provided that Intel Parallel Studio XE 2019 and Microsoft Visual Studio 2019 Community Edition or equivalents are available.
 ```
 python setup.py install 
 
@@ -369,7 +369,7 @@ Windows 10 wheel files
 Python 3.6: pydsstools-1.7-cp36-cp36m-win_amd64.whl
 Python 3.7: pydsstools-1.7-cp37-cp37m-win_amd64.whl
 Python 3.8: pydsstools-1.7-cp38-cp38m-win_amd64.whl
-Python 3.9: pydsstools-1.7-cp38-cp38m-win_amd64.whl
+Python 3.9: pydsstools-1.7-cp39-cp39m-win_amd64.whl
 ```
 
 Ubuntu 20.04 LTS wheel files
