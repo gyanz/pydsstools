@@ -388,6 +388,14 @@ class Open(_Open):
             stats = data.stats
             nodata = data.nodata
             grid_info = data.profile
+            if isinstance(profile, dict):
+                # provide opportunity to update meta data such as data units
+                for k in grid_info:
+                    try:
+                        grid_info[k] = profile[k]
+                    except:
+                        pass 
+            
             if compute_range:
                 _data = data.read()
                 stats = computeGridStats(_data,compute_range)
