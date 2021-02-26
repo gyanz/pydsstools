@@ -192,10 +192,6 @@ compiler_directives = {'embedsignature': True,
                        'c_string_encoding': 'ascii'} 
 
 setup(
-    version = '1.7',
-    
-    #package_dir = {'':'pydsstools'},
-
     packages = find_packages(),
 
     package_data = {'':['examples/*', 'src/*.pyx', 'src/*.pyd']},

@@ -1,7 +1,5 @@
-from . import SpatialGridStruct as _SpatialGridStruct
+from .._lib import SpatialGridStruct as _SpatialGridStruct
 from .transform import TransformMethodsMixin
 
-
 class SpatialGridStruct(_SpatialGridStruct,TransformMethodsMixin):
-    pass
-
+    _accessors = set()
