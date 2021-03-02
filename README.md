@@ -230,6 +230,15 @@ with Open(dss_file) as fid:
     dataset = fid.read_grid(pathname)
     grid_array = dataset.read()
     profile = dataset.profile
+    # if rasterio library is installed
+    # raster attribute is available for dataset object
+    # save grid as geotiff with epsg 2868 for coordinate reference system
+    try:
+        dataset.raster.save_tiff(r'grid_dataset.tif', crs=2868)
+    except:
+        pass
+    else:
+        print('grid data saved as grid_dataset.tif')
 ```
 
 ### Example 10 
@@ -366,15 +375,15 @@ pip install wheel_file
 
 Windows 10 wheel files
 ```
-Python 3.6: pydsstools-1.7-cp36-cp36m-win_amd64.whl
-Python 3.7: pydsstools-1.7-cp37-cp37m-win_amd64.whl
-Python 3.8: pydsstools-1.7-cp38-cp38m-win_amd64.whl
-Python 3.9: pydsstools-1.7-cp39-cp39m-win_amd64.whl
+Python 3.6: pydsstools-X.x-cp36-cp36m-win_amd64.whl
+Python 3.7: pydsstools-X.x-cp37-cp37m-win_amd64.whl
+Python 3.8: pydsstools-X.x-cp38-cp38m-win_amd64.whl
+Python 3.9: pydsstools-X.x-cp39-cp39m-win_amd64.whl
 ```
 
 Ubuntu 20.04 LTS wheel files
 ```
-Python 3.8: pydsstools-1.7-cp38-cp38-linux_x86_64.whl
+Python 3.8: pydsstools-X.x-cp38-cp38-linux_x86_64.whl
 ```
 
 Contributing

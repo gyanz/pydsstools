@@ -1,5 +1,10 @@
 pydsstools changelog
 ================
+1.8 (02-26-2021)
+-----------------
+* HEC-DSS 7-IE, released Feb 11, 2021, headers and libraries included
+* Raster accessor attribute for SpatialGridStruct
+
 1.7 (02-21-2021)
 -----------------
 * HEC-DSS 7-IC, released Jan 22, 2021, headers and libraries included

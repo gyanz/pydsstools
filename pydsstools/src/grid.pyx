@@ -145,7 +145,7 @@ cdef class SpatialGridStruct:
 
     cdef int grid_type(self):
         cdef:
-            int result = -9999
+            int result = 401 # undefined
         if self.zsgs:
             result = self.zsgs[0]._type
         return result

@@ -25,3 +25,4 @@ __all__ = ['core_heclib',
 
 from .._lib import *
 from .grid import SpatialGridStruct
+from . import grid_accessors

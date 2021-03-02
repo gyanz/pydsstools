@@ -12,7 +12,6 @@ import numpy.ma as ma
 import pandas as pd
 from affine import Affine
 
-from ...core import grid_accessors
 from ...core import Open as _Open
 from ...core import SpatialGridStruct
 from ...core import getPathnameCatalog, deletePathname,PairedDataContainer,HecTime,DssPathName,dss_info
