@@ -8,6 +8,9 @@ try:
     from rasterio.profiles import DefaultGTiffProfile
     from rasterio.crs import CRS
     from rasterio.plot import show as _show # matplotlib?
+    import gdal
+    gdal.UseExceptions()
+    import ogr
     import numpy as np
 except:
     logging.debug('Missing rasterio library ...')
@@ -18,6 +21,20 @@ else:
     class RasterAccessor:
         def __init__(self, grid_struct):
             self._obj = grid_struct
+
+        def define_crs(self,crs):
+            """ Define crs once for the grid. This crs overides grid_crs during raster analysis. 
+            """
+            try:
+                crs = int(crs)
+            except:
+                pass
+            if isinstance(crs,int):
+                crs = CRS.from_epsg(crs)
+            else:
+                crs = CRS.from_string(crs)
+            # crs as WKT
+            self._obj._crs = crs.to_wkt()
 
         def _default_rasterio_profile(self):
             # prepare rasterio profile
@@ -34,6 +51,10 @@ else:
             profile['height'] = row
             profile['width'] = col
             profile['crs'] = gridinfo['grid_crs']
+            if self._obj._crs:
+                profile['crs'] = self._obj._crs
+            else:
+                logging.warn('CRS has not been defined for the grid dataset for raster processing')
             return profile
 
         def _data(self):
@@ -42,7 +63,19 @@ else:
             data = np.reshape(data,(self._obj.height,self._obj.width))
             return data
 
-        def _resample(self, out_transform = None, crs = None, method = Resampling.bilinear):
+        def _as_raster_datasource(self):
+            # create in-memory gdal raster source
+            prof = self._default_rasterio_profile()
+            driver = gdal.GetDriverByName('MEM')
+            ds = driver.Create('',self._obj.width,self._obj.height,1,6) # GDT_Float32 = 6
+            ds.SetProjection(prof['crs']) # WKT
+            ds.SetGeoTransform(Affine.to_gdal(prof['transform']))
+            srcband = ds.GetRasterBand(1)
+            srcband.WriteArray(self._data())
+            return ds
+
+
+        def _resample(self, out_transform = None, method = Resampling.bilinear):
             # private method 
             # returns resampled array data based
             # default resampling method is bilinear
@@ -56,25 +89,60 @@ else:
                       dst_nodata = prof['nodata'],
                       src_transform = prof['transform'],
                       dst_transform = out_transform,
-                      src_crs = crs,
-                      dst_crs = crs,
+                      src_crs = prof['crs'],
+                      dst_crs = prof['crs'],
                       resampling = method,
                       warp_mem_limit = 64)
             return out_data
 
-        def _contours(self,**kwargs):
-            #contourInterval = kwargs.get('contourInterval',None) # float
-            #contourBase = kwargs.get('contourBase',None) # int
-            #fixedLevelCount = kwargs.get('fixedLevelCount',None) # list
-            #useNoData = kwargs.get('useNoData',None) # int
-            #noDataValue, = kwargs.get('noDataValue',None) # float
-            #dstLayer = kwargs.get('dstLayer',None) # shapefile layer
-            #idField = kwargs.get('idField',None) # shp column no for field
-            #elevField = kwargs.get('elevField',None) # shp column no for elev
-            # gdal.ContourGenerate(srcBand,0.1,0,[0.0],0,NODATA,contour_shp, 0,1) # example            
-            return NotImplemented
+        def generate_contours(self,shape_file,**kwargs):
+            """ Generate contour shapefile using GDALContourGenerate
 
-        def save_tiff(self, filepath, crs = None, update_profile = None):
+            Parameters:
+                shape_file: str
+                            path of output contour shapefile
+
+                base: float, default 0 
+                      base relative to which contour intervals are generated
+
+                interval: float, default 10
+                          elevation interval between generated contours
+
+                fixed_levels: list, default []
+                              List of elevations at which additional
+                              contours are generated
+
+                ignore_nodata: bool, default True
+                               flag to ignore nodata pixel during contour generation
+            """
+            interval = kwargs.get('interval', 10)
+            base = kwargs.get('base', 0)
+            fixed_levels = kwargs.get('fixed_levels', [])
+            ignore_nodata = kwargs.get('ignore_nodata', True)
+            # grid profile
+            prof = self._default_rasterio_profile()
+            # create in-memory gdal raster source
+            ds1 = self._as_raster_datasource()
+            srcband = ds1.GetRasterBand(1)
+            # create contour shape file
+            crs = ogr.osr.SpatialReference()
+            crs.ImportFromWkt(prof['crs'])
+            ds2 = ogr.GetDriverByName("ESRI Shapefile").CreateDataSource(shape_file)
+            contour_layer = ds2.CreateLayer('contour',crs,ogr.wkbMultiLineString)
+            field_defn = ogr.FieldDefn("ID", ogr.OFTInteger)
+            contour_layer.CreateField(field_defn)
+            field_defn = ogr.FieldDefn("ELEV", ogr.OFTReal)
+            contour_layer.CreateField(field_defn)
+            # contouring method
+            use_nodata = 0 if ignore_nodata else 1
+            gdal.ContourGenerate(srcband,interval,base,         # interval, base
+                                 fixed_levels,                  # fixedlevelcount list
+                                 use_nodata, prof['nodata'] ,   # usenodata, nodata
+                                 contour_layer,                 # dstlayer 
+                                 0,1)                           # ID field, ELEV field
+
+
+        def save_tiff(self, filepath, update_profile = None):
             # grid_crs in grid dataset is optional and can't be relied upon
             # crs is string (proj4, wkt, etc.) or int (epsg code) argument
             # crs provided via update_profile argument is ignored when crs argument is not None
@@ -87,13 +155,6 @@ else:
             if isinstance(update_profile,(dict,DefaultGTiffProfile)):
                 for k in update_profile:
                     profile[k] = update_profile[k]
-
-            _crs = profile['crs']
-            if not crs is None:
-                _crs = crs
-
-            if isinstance(_crs,int):
-                profile['crs'] = CRS.from_epsg(_crs)
 
             with rasterio.open(filepath,'w', **profile) as dst:
                 dst.write(data,1)

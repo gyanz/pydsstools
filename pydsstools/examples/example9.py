@@ -13,9 +13,10 @@ with Open(dss_file) as fid:
     masked_array = dataset.read()
     gridinfo = dataset.profile
     try:
-        dataset.raster.save_tiff(r'grid_dataset.tif', crs=2868)
+        dataset.raster.define_crs(2868)
+        dataset.raster.save_tiff(r'grid_dataset.tif')
         dataset.raster.plot()
-    except:
+    except AttributeError:
         print('rasterio and matplotlib optional libraries must be installed')
         traceback.print_exc()
     else:
