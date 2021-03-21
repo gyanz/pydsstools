@@ -383,9 +383,7 @@ if not getattr(ds0,'raster',None) is None:
     fid.put_grid(pathname_out,ds2)
 ```
 
-<img src="extra/Ex15_Fig1.JPG" width="200">
-<img src="extra/Ex15_Fig2.JPG" width="200">
-<img src="extra/Ex15_Fig3.JPG" width="200">
+<img src="extra/Ex15_Fig1.JPG" width="400"><img src="extra/Ex15_Fig2.JPG" width="400"><img src="extra/Ex15_Fig3.JPG" width="400">
 
 Dependencies
 ===
