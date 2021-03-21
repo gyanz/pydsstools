@@ -67,6 +67,7 @@ else:
             ds.SetGeoTransform(Affine.to_gdal(prof['transform']))
             srcband = ds.GetRasterBand(1)
             srcband.WriteArray(self._data())
+            srcband.SetNoDataValue(prof['nodata'])
             return ds
 
         def _as_rasterio_datasource(self):
