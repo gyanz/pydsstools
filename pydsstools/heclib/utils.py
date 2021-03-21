@@ -1,13 +1,17 @@
 import logging
 import numpy as np
 import numpy.ma as ma
+import math
+from .._lib import BoundingBox
 from ..core import (HecTime, DssStatusException, GranularityException,ArgumentException,DssLastError,setMessageLevel,squeeze_file) 
-from ..core import (GRID_TYPE, GRID_DATA_TYPE, GRID_COMPRESSION_METHODS,gridInfo,gridDataSource)
+from ..core import (GRID_TYPE, GRID_DATA_TYPE, GRID_COMPRESSION_METHODS,gridInfo)
+from ..core import (check_shg_gridinfo,correct_shg_gridinfo,lower_left_xy_from_transform)
 from ..core import Open as _Open
 from ..core import UNDEFINED
 import atexit
-        
-__all__ = ['dss_logging','HecTime', 'DssStatusException', 'GranularityException', 'ArgumentException', 'DssLastError','gridInfo','gridDataSource','computeGridStats','grid_type_names','grid_data_type_names','UNDEFINED']
+from affine import Affine        
+
+__all__ = ['dss_logging','HecTime', 'DssStatusException', 'GranularityException', 'ArgumentException', 'DssLastError','gridInfo','computeGridStats','grid_type_names','grid_data_type_names','UNDEFINED','HRAP_WKT','SHG_WKT','check_gridinfo','BoundingBox','check_shg_gridinfo','correct_shg_gridinfo','lower_left_xy_from_transform']
 
 log_level = {0: 'None',
              1: 'Error',
@@ -88,6 +92,9 @@ class DssLogging(object):
 
 dss_logging = DssLogging()
 
+grid_data_type_names = tuple(GRID_DATA_TYPE.keys())
+grid_type_names = tuple(GRID_TYPE.keys())
+
 def computeGridStats(data,compute_range = True):
     """ Compute statistical value for numpy array data for Spatial grid
 
@@ -152,5 +159,93 @@ def computeGridStats(data,compute_range = True):
     result.update([('range_values',range_values),('range_counts',range_counts)])
     return result
 
-grid_data_type_names = tuple(GRID_DATA_TYPE.keys())
-grid_type_names = tuple(GRID_TYPE.keys())
+def check_gridinfo(grid_info):
+    """ Checks the grid meta data for consistency and corrects values where necessary
+
+    Parameter
+    ---------
+        grid_info: dict or gridInfo instance
+
+    """
+    grid_info = grid_info.copy()
+    default_gridinfo = gridInfo()
+    required_params = [x for x in default_gridinfo if not x.startswith('opt')]
+    opt_params = [x for x in default_gridinfo if x.startswith('opt')]
+
+    for k in required_params:
+        if not k in grid_info:
+            raise Exception('%s grid info parameter not provided'%k)
+
+    for k in opt_params:
+        if not k in grid_info:
+            grid_info[k] = default_gridinfo[k]
+
+    grid_type = grid_info['grid_type']
+    if not grid_type in grid_type_names:
+        raise Exception('grid_type must be one of %r'%grid_type_names) 
+
+    if grid_type in ['hrap','hrap-time']:
+        logging.debug('WKT CRS for HRAP grid applied')
+        grid_info['grid_crs'] = HRAP_WKT
+        grid_info['opt_crs_name'] = 'HRAP'
+
+    if grid_type in ['shg','shg-time']:
+        logging.debug('WKT CRS for SHG grid applied')
+        grid_info['grid_crs'] = SHG_WKT
+        grid_info['opt_crs_name'] = 'SHG'
+
+    transform = grid_info['grid_transform']
+    if not isinstance(transform, Affine):
+        raise Exception('grid_transform must be Affine instance') 
+
+    grid_crs = grid_info['grid_crs']
+    if not isinstance(grid_crs, str):
+        raise Exception('grid coordinate reference must be string type') 
+
+    data_type = grid_info['data_type']
+    if not data_type in grid_data_type_names:
+        raise Exception('data_type must be one of %r'%grid_data_type_names) 
+
+    opt_data_source = grid_info['opt_data_source']
+    # I don't know much about this parameter other than it must be char or string type
+    if not isinstance(opt_data_source,str):
+        logging.debug('Empty data source string used')
+        opt_data_source = ''
+
+    grid_info['opt_data_source'] = opt_data_source
+
+    if grid_type in ['hrap','hrap-time'] and not opt_data_source:
+        logging.warn('Invalid data source for HRAP grid provided')
+
+    if not isinstance(grid_info['opt_tzid'],str):
+        logging.debug('Empty time zone id string used')
+        grid_info['opt_tzid'] = ''
+
+    if not isinstance(grid_info['opt_tzoffset'],int):
+        logging.debug('time offset of 0 used')
+        grid_info['opt_tzoffset'] = 0
+
+    if not isinstance(grid_info['opt_crs_name'],str):
+        grid_info['opt_crs_name'] = 'UNDEFINED'
+
+    if not isinstance(grid_info['opt_crs_type'],int):
+        grid_info['opt_crs_type'] = 0 # = WKT
+
+    if not grid_info['opt_crs_type'] in (0,1,2):
+        # 0 = WKT, 1 = PROJ4, 2 = GML
+        logging.error('Invalid opt_crs_type value %s used', grid_info['opt_crs_type'])
+        return
+
+    if grid_info['opt_is_interval']:
+        grid_info['opt_is_interval'] = 1
+    else:
+        grid_info['opt_is_interval'] = 0
+
+    if grid_info['opt_time_stamped']:
+        grid_info['opt_time_stamped'] = 1
+    else:
+        grid_info['opt_time_stamped'] = 0
+
+    # check time stamped vs grid_type and pathname D and F parts in put_grid  
+
+    return grid_info

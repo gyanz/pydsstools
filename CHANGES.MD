@@ -1,5 +1,11 @@
 pydsstools changelog
 ================
+1.9 (03-21-2021)
+-----------------
+* Grid geo-spatial methods via raster accessor
+* Bug fix with HecTime
+* Minor change in put_grid method
+
 1.8 (02-26-2021)
 -----------------
 * HEC-DSS 7-IE, released Feb 11, 2021, headers and libraries included

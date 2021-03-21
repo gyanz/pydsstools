@@ -17,6 +17,7 @@ cdef class Open:
     cdef:
         long long ifltab[500]
         readonly int version
+        readonly str filename
         readonly int file_status
         readonly int read_status
         readonly int write_status
@@ -30,6 +31,7 @@ cdef class Open:
             self.file_status = zopen(self.ifltab, dssFilename)
         isError(self.file_status)
         self.version = zgetVersion(self.ifltab)
+        self.filename = dssFilename
 
     def __enter__(self):
         return self
