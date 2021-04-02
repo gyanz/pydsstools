@@ -68,7 +68,6 @@ class _SpatialGridStruct(SpatialGridStruct):
     def transform(self):
         return self._gridinfo.get('grid_transform',None )  
 
-    @property
     def stats(self):
         # delegate stats computation to put_grid method
         # while saving to dss file

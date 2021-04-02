@@ -159,7 +159,7 @@ def computeGridStats(data,compute_range = True):
     result.update([('range_values',range_values),('range_counts',range_counts)])
     return result
 
-def check_gridinfo(grid_info):
+def check_gridinfo(grid_info,shape,raise_error = False):
     """ Checks the grid meta data for consistency and corrects values where necessary
 
     Parameter
@@ -193,6 +193,11 @@ def check_gridinfo(grid_info):
         logging.debug('WKT CRS for SHG grid applied')
         grid_info['grid_crs'] = SHG_WKT
         grid_info['opt_crs_name'] = 'SHG'
+
+    if grid_type in ['albers','albers-time']:
+        logging.debug('WKT CRS for SHG grid applied')
+        grid_info['grid_crs'] = SHG_WKT
+        grid_info['opt_crs_name'] = 'AlbersInfo'
 
     transform = grid_info['grid_transform']
     if not isinstance(transform, Affine):
@@ -233,8 +238,11 @@ def check_gridinfo(grid_info):
 
     if not grid_info['opt_crs_type'] in (0,1,2):
         # 0 = WKT, 1 = PROJ4, 2 = GML
-        logging.error('Invalid opt_crs_type value %s used', grid_info['opt_crs_type'])
-        return
+        msg = 'Invalid opt_crs_type value %s used'%(grid_info['opt_crs_type'])
+        logging.error(msg)
+        if raise_error:
+            raise Exception(msg)
+        grid_info['opt_crs_type'] = 0 # defaults to WKT if error not raised
 
     if grid_info['opt_is_interval']:
         grid_info['opt_is_interval'] = 1
@@ -245,6 +253,19 @@ def check_gridinfo(grid_info):
         grid_info['opt_time_stamped'] = 1
     else:
         grid_info['opt_time_stamped'] = 0
+
+    # check lower_left_x and lower_left_y indices
+    ll_x1 = grid_info['opt_lower_left_x']
+    ll_y1 = grid_info['opt_lower_left_y']
+    cell_zero_xcoord = grid_info['opt_cell_zero_xcoord']
+    cell_zero_ycoord = grid_info['opt_cell_zero_ycoord']
+    ll_x2, ll_y2 = lower_left_xy_from_transform(transform,shape,cell_zero_xcoord,cell_zero_ycoord)
+    if ll_x1 != ll_x2 or ll_y1 != ll_y2:
+        msg = 'opt_lower_left_x, opt_lower_left_y has issue or both are incorrect\n'
+        msg += 'Given = %r, computed = %r'%((ll_x1,ll_y1), (ll_x2, ll_y2))
+        logging.error(msg)
+        if raise_error:
+            raise Exception(msg)
 
     # check time stamped vs grid_type and pathname D and F parts in put_grid  
 

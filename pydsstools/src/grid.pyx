@@ -34,6 +34,8 @@ cpdef dict gridInfo():
     info['opt_time_stamped'] = 0
     info['opt_lower_left_x'] = 0
     info['opt_lower_left_y'] = 0
+    info['opt_cell_zero_xcoord'] = 0
+    info['opt_cell_zero_ycoord'] = 0
     return info
 
 class BoundingBox(_BoundingBox):
@@ -85,23 +87,29 @@ def correct_shg_gridinfo(gridinfo,shape):
     cellsize = trans[0]
     if not cellsize in HEC_SHG_CELLSIZE: 
         raise Exception('Not an standard cellsize for SHG grid. Use one of thes sizes %r in meters'%HEC_SHG_CELLSIZE)
-    gridinfo['opt_crs_name'] = 'shg'
-    lower_left_x, lower_left_y = lower_left_xy_from_transform(trans,shape)
+    gridinfo['opt_crs_name'] = 'AlbersInfo'
+    if gridinfo['grid_type'].lower().startswith('shg'):
+        gridinfo['opt_crs_name'] = 'SHG'
+    lower_left_x, lower_left_y = lower_left_xy_from_transform(trans,shape,
+                                                              gridinfo['opt_cell_zero_xcoord'],
+                                                              gridinfo['opt_cell_zero_ycoord'])
     gridinfo['opt_lower_left_x'] = lower_left_x
     gridinfo['opt_lower_left_y'] = lower_left_y
     return gridinfo
 
-def lower_left_xy_from_transform(transform,shape):
+def lower_left_xy_from_transform(transform,shape,cell_zero_xcoord=0,cell_zero_ycoord=0):
     cdef:
-        float xcoord,ycoord
+        float xmin,ymax
+        float ymin # verbose to make calculation more clear
         int lower_left_x,lower_left_y
     cellsize = transform[0]
     cellsize_y = transform[4]
     rows,cols = shape
-    xcoord = transform[2]
-    ycoord = transform[5] + rows * cellsize_y
-    lower_left_x = <int>(floor(xcoord/cellsize))
-    lower_left_y = <int>(floor(ycoord/cellsize))
+    xmin = transform[2] - cell_zero_xcoord
+    ymax = transform[5] - cell_zero_ycoord
+    ymin = ymax + rows * cellsize_y
+    lower_left_x = <int>(floor(xmin/cellsize))
+    lower_left_y = <int>(floor(ymax/cellsize))
     return (lower_left_x,lower_left_y)
 
 cdef SpatialGridStruct createSGS(zStructSpatialGrid *zsgs):
@@ -235,7 +243,6 @@ cdef class SpatialGridStruct:
             result = self.zsgs[0]._timeZoneID
         return result
 
-
     cdef int tzoffset(self):
         cdef int result = 0
         if self.zsgs:
@@ -272,7 +279,6 @@ cdef class SpatialGridStruct:
             cell_size = self.zsgs[0]._cellSize
         return cell_size 
 
-
     cpdef tuple origin_coords(self):
         cdef: 
             float xmin = UNDEFINED_FLOAT
@@ -300,29 +306,34 @@ cdef class SpatialGridStruct:
 
     cpdef tuple GetExtents(self):
         cdef:
+            float xorig 
+            float yorig
             float xmin 
             float ymin
             float xmax = UNDEFINED_FLOAT
             float ymax = UNDEFINED_FLOAT
             float cell
-            int rows
-            int cols
+            int rows, row_bottom
+            int cols, col_bottom
             tuple origin
             tuple result
 
         origin = self.origin_coords()
-        xmin,ymin = origin
+        xorig,yorig = origin
+        col_bottom = self.lower_left_x()
+        row_bottom = self.lower_left_y()
 
         if not xmin == UNDEFINED_FLOAT:
             rows = self.rows()
             cols = self.cols()
             cell = self.cellsize()
-            xmax = xmin + cols*cell
-            ymax = ymin + rows*cell
+            xmin = xorig + col_bottom * cell
+            ymin = yorig + row_bottom * cell
+            xmax = xmin + cols * cell
+            ymax = ymin + rows * cell
 
         result = (xmin,xmax,ymin,ymax)
         return result 
-
 
     def _get_mview(self, dtype = 'f'):
         cdef:
@@ -410,13 +421,11 @@ cdef class SpatialGridStruct:
         xmin,xmax,ymin,ymax = self.GetExtents()
         return BoundingBox(xmin,ymin,xmax,ymax)
 
-
     @property
     def grid_origin(self):
         return "top-left corner"
 
-    @property
-    def stats(self):
+    def stats(self,trim=True):
         cdef:
             float * _max = NULL 
             float * _min = NULL 
@@ -424,7 +433,7 @@ cdef class SpatialGridStruct:
             float  maxval = UNDEFINED_FLOAT 
             float  minval = UNDEFINED_FLOAT 
             float  meanval = UNDEFINED_FLOAT
-            int num = 0
+            int i, num = 0
             dict result
 
         result = {}
@@ -436,11 +445,20 @@ cdef class SpatialGridStruct:
             if _min: minval = _min[0]
             if _mean: meanval = _mean[0]
             num = self.rangelength()
+            range_values = self._get_range_limits(num).tolist()
+            range_counts = self._get_range_values(num).tolist()
+            last_index = num
+            if trim:
+                # remove multiple bins with 0 counts
+                for i,count in enumerate(range_counts,1):
+                    if count == 0:
+                        last_index = i
+                        break
             result.update([("min",minval),
                            ("max",maxval),
                            ("mean",meanval),
-                           ("range_values",self._get_range_limits(num).tolist()),
-                           ("range_counts",self._get_range_values(num).tolist())])
+                           ("range_values",range_values[0:last_index]),
+                           ("range_counts",range_counts[0:last_index])])
         return result
 
     @property
@@ -450,7 +468,6 @@ cdef class SpatialGridStruct:
     @property
     def interval(self):
         return self.cellsize()
-
 
     @property
     def dtype (self):
@@ -490,6 +507,8 @@ cdef class SpatialGridStruct:
                        ('opt_time_stamped',True if self.is_time_stamped() else False),
                        ('opt_lower_left_x',self.lower_left_x()),
                        ('opt_lower_left_y',self.lower_left_y()),
+                       ('opt_cell_zero_xcoord',self.origin_coords()[0]),
+                       ('opt_cell_zero_ycoord',self.origin_coords()[1]),
                        ])
         return result
 
@@ -523,7 +542,7 @@ cdef int saveSpatialGrid(long long *ifltab, const char* pathname, np.ndarray dat
         int _range_table_counts[20]
         float _range_table_values[20]
         int _compression_method
-        float cellsize, cellsize_y
+        float cellsize
         float _min,_max,_mean
         list range_values, range_counts
         object transform
@@ -552,9 +571,11 @@ cdef int saveSpatialGrid(long long *ifltab, const char* pathname, np.ndarray dat
 
     transform = profile['grid_transform']
     cellsize = transform[0]
-    cellsize_y = transform[4]
-    _x = transform[2]
-    _y = transform[5] + _row*cellsize_y
+    #cellsize_y = transform[4]
+    #_x = transform[2]
+    #_y = transform[5] + _row*cellsize_y
+    _x = profile['opt_cell_zero_xcoord']
+    _y = profile['opt_cell_zero_ycoord']
 
     _lower_left_x = profile['opt_lower_left_x']
     _lower_left_y = profile['opt_lower_left_y']

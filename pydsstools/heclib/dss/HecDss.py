@@ -363,22 +363,27 @@ class Open(_Open):
         super().read_grid(pathname,sg_st,retrieve_data)
         return sg_st
         
-    def put_grid(self, pathname, data, profile=None, flipud=1, compute_range = True, inplace = False):
+    def put_grid(self, pathname, data, profile=None, flipud=1, compute_range = True, inplace = False, raise_profile_error = False):
         """Write spatial grid to DSS-7 file. Writing to DSS-6 file not allowed.
 
         Parameter
         ---------
-        # data: numpy array or masked array or SpatialGridStruct 
-        #    numpy array - np.nan is considered null value
-        #    masked array - masked values are considered null values
-        #    null value is implemention dependent 
-        # profile: gridinfo dict, contains grid information; use gridInfo function   
-        # flipud: 0 or 1, flips the array
-        # compute_range: True/False, string or list of values
-        #    True - compute range table using default method
-        #    False - do not compute range table, applicable to SpatialGridStuct data only
-        #    string - quartiles, quarters, etc., methods TODO
-        #    list - list of values (max 19 excluding nodata) to compute equal to greater than metrics 
+          data: numpy array or masked array or SpatialGridStruct 
+             numpy array - np.nan is considered null value
+             masked array - masked values are considered null values
+             null value is implemention dependent 
+          profile: gridinfo dict, contains grid information; use gridInfo function   
+          flipud: 0 or 1, flips the array
+          compute_range: bool, string or list of values
+             True - compute range table using default method
+             False - do not compute range table, applicable to SpatialGridStuct data only
+             string - quartiles, quarters, etc., methods TODO
+             list - list of values (max 19 excluding nodata) to compute equal to greater than metrics 
+          inplace: bool, default False
+             If True, modifies the data array inplace
+          raise_profile_error: boolean
+             If True, raises error if critical error is found in profile data
+             
         """
         if self.version == 6:
             logging.warn('Writing DSS grid record in DSS-6 file is not supported')
@@ -386,7 +391,8 @@ class Open(_Open):
 
         if isinstance(data, SpatialGridStruct):
             # use this for copying from one file to another or updating statistics
-            stats = data.stats
+            shape = (data.height,data.width)
+            stats = data.stats()
             nodata = data.nodata
             grid_info = data.profile
             if isinstance(profile, dict):
@@ -396,24 +402,28 @@ class Open(_Open):
                         grid_info[k] = profile[k]
                     except:
                         pass 
-                # Check grid parameter without modification
-                # Show warnings if there is any issue
-                check_gridinfo(grid_info)
-            
+                # Check grid parameter and print out possible issues
+                # When SpatialGridStuct is provided, any issue in gridinfo/profile is ignored
+                # thinking that the user knows what he is doing
+                try:
+                    check_gridinfo(grid_info,shape,False)
+                except:
+                    pass
+
             if compute_range or not stats:
                 _data = data.read()
                 stats = computeGridStats(_data,compute_range)
                 stats['range_values'][0] = nodata
-            row = data.height
-            col = data.width
+            row, col = shape
             _data = data._get_mview()    
             _data.setflags(write=1) # to resolve cython issue
             _data = np.reshape(_data,(row,col))
 
         elif isinstance(data,np.ndarray):
             nodata = UNDEFINED
+            shape = data.shape
             # Check grid parameters and modify too
-            grid_info = check_gridinfo(profile)
+            grid_info = check_gridinfo(profile,shape,raise_profile_error)
             if grid_info['grid_type'].endswith('-time'):
                 # TODO: Check if this is correct logic
                 # Verify the D and E parts are valid datetime string
