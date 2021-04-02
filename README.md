@@ -375,7 +375,7 @@ ds0 = fid.read_grid(pathname)
 
 if not getattr(ds0,'raster',None) is None:
     ds0.raster.plot(mask_zeros = True, title = 'Original Spatial Grid')
-    bbox = BoundingBox(400000,0,500000,100000)
+    bbox = BoundingBox(-50000,6*10**5,50000,7*10**5)
     ds1 = ds0.raster.mask(bbox,crop = False)
     ds1.raster.plot(mask_zeros = True, title = 'Clipped Spatial Grid')
     ds2 = ds1.raster.mask(bbox,crop = True)
