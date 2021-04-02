@@ -353,7 +353,7 @@ Spatial Analysis on grid
 # Notes
 # Experimental geospatial methods for grid
 # Not 100% sure about gridinfo that is computed for the cropped grid esp. for SHG and HRAP
-# Will apreaciate user feedbacks on this
+# Will apreciate user feedbacks on this
 # This example code was tested using the following libraries
 # gdal 3.2.2
 # matplotlib 3.4.4
@@ -383,9 +383,7 @@ if not getattr(ds0,'raster',None) is None:
     fid.put_grid(pathname_out,ds2)
 ```
 
-<img src="extra/Ex15_Fig1.JPG" width="200">
-<img src="extra/Ex15_Fig2.JPG" width="200">
-<img src="extra/Ex15_Fig3.JPG" width="200">
+<img src="extra/Ex15_Fig1.JPG" width="400"><img src="extra/Ex15_Fig2.JPG" width="400"><img src="extra/Ex15_Fig3.JPG" width="400">
 
 Dependencies
 ===
