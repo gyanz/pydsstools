@@ -5,7 +5,6 @@ from .._lib import check_shg_gridinfo,correct_shg_gridinfo,lower_left_xy_from_tr
 from .transform import Affine, from_bounds, from_origin
 from .accessors import register_grid_accessor
 from .grid import _SpatialGridStruct
-
 try:
     import rasterio
     from rasterio.warp import reproject, Resampling
@@ -17,6 +16,7 @@ try:
     gdal.UseExceptions()
     from osgeo import ogr
     import numpy as np
+    import json
 except:
     logging.debug('Missing rasterio library ...')
     logging.debug('Raster accessor for spatial grid not available.')
@@ -86,25 +86,57 @@ else:
             ds = memfile.open()
             return ds
 
-        def _resample(self, out_transform = None, method = Resampling.bilinear, memory = 64):
-            # private method 
-            # returns resampled array data based
-            # default resampling method is bilinear
+        def resample(self, scale, method = Resampling.bilinear, memory = 64):
+            '''Resample grid
+            
+            Parameters
+            ----------
+                scale: float or int
+                       grid cell multiplication factor
+                method: rasterio Resampling object
+                        resampling method
+            
+            Returns
+            --------
+                st: _SpatialGridStruct object
+
+            '''
             prof = self._default_rasterio_profile()
-            out_data = np.empty((prof['height'],prof['width']),np.float32)
+            src_trans = prof['transform']
+            dst_trans = Affine(src_trans.a*scale, src_trans.b, src_trans.c, src_trans.d,
+                               src_trans.e*scale, src_trans.f)
+            dst_width = int(prof['width'] // scale)
+            dst_height = int(prof['height'] // scale)
+            dst_data = np.empty((dst_height,dst_width),np.float32)
+            logging.info('Resampling SRC transform = %r, Shape = %r,%r'%(src_trans,prof['height'],prof['width']))
+            logging.info('Resampling DST transform = %r, Shape = %r,%r'%(dst_trans,dst_height,dst_width))
             # TODO: Compare out_transform with grid's transform
             # returns grid's buffer skipping reprojection if they are equal
             # raise exception if they do not have common space
-            reproject(self._data(), out_data,
+            reproject(self._data(), dst_data,
                       src_nodata = prof['nodata'],
                       dst_nodata = prof['nodata'],
-                      src_transform = prof['transform'],
-                      dst_transform = out_transform,
+                      src_transform = src_trans,
+                      dst_transform = dst_trans,
                       src_crs = prof['crs'],
                       dst_crs = prof['crs'],
                       resampling = method,
                       warp_mem_limit = memory)
-            return out_data
+
+            gridinfo = self._obj.profile
+            gridinfo['grid_transform'] = dst_trans
+            gridinfo['transform'] = dst_trans # remove this after grid.pyx fix
+            logging.debug('resampled data transform = %r',dst_trans)
+            prof = self._default_rasterio_profile()
+            gridinfo['grid_crs'] = prof['crs']
+            if gridinfo['grid_type'].lower() in ('albers','albers-time','shg','shg-time'):
+                #gridinfo = correct_shg_gridinfo(gridinfo,dst_data.shape)
+                ll_x,ll_y=lower_left_xy_from_transform(dst_trans,dst_data.shape) # not complete
+                gridinfo['opt_lower_left_x'] = ll_x
+                gridinfo['opt_lower_left_y'] = ll_y
+            dst_data = np.ma.masked_values(dst_data,prof['nodata'])
+            st = _SpatialGridStruct(dst_data,gridinfo)
+            return st
 
         def validate_crs(self,crs):
             try:
@@ -216,7 +248,7 @@ else:
                                  0,1)                           # ID field, ELEV field
 
         def mask(self, poly, all_touched=False, invert=False, filled=True, crop=False,
-                 pad=False, pad_width=0.5):
+                 pad=False, pad_width=0):
             ''' Creates a masked or filled array using input shapes conforming
                 to __geo_interface__ protocal. It functions same as 
                 rasterio.mask.mask. Cells are masked or set to nodata outside the
@@ -258,7 +290,8 @@ else:
             gridinfo['grid_crs'] = prof['crs']
             if gridinfo['grid_type'].lower() in ('albers','albers-time','shg','shg-time'):
                 gridinfo = correct_shg_gridinfo(gridinfo,out_data[0].shape)
-            st = _SpatialGridStruct(out_data[0],gridinfo)
+            out_data = np.ma.masked_values(out_data[0],prof['nodata'])
+            st = _SpatialGridStruct(out_data,gridinfo)
             return st               
 
     class VectorShape(object):
@@ -292,7 +325,11 @@ else:
         elif isinstance(feat, str):
             return shapefile_to_shapes(feat) 
         elif isinstance(feat, ogr.Feature):
-            return feat.ExportToJson()
+            # TODO: this is not working
+            data = json.loads(feat.ExportToJson())
+            result = {}
+            result.update([('type',data['type']), ('geometry',data['geometry'])])
+            return result
         elif isinstance(feat,BoundingBox):
             return VectorShape.from_bounds(feat.left,feat.bottom,feat.right,feat.top)
         elif isinstance(feat,(list,tuple)):

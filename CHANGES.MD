@@ -1,5 +1,10 @@
 pydsstools changelog
 ================
+2.0 (04-02-2021)
+-----------------
+* Bug fix grid extents and transform values
+* Added grid resampling method
+
 1.9 (03-21-2021)
 -----------------
 * Grid geo-spatial methods via raster accessor
