@@ -89,6 +89,8 @@ Thumbs.db
 #####################
 *.c
 *.cpp
+!pydsstools/src/external/gridv6/*.c
+!pydsstools/src/external/gridv6/*.cpp
 
 # Unit / Performance Testing #
 ##############################
