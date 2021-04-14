@@ -87,10 +87,11 @@ Thumbs.db
 
 # Generated Sources #
 #####################
-*.c
-*.cpp
-!pydsstools/src/external/gridv6/*.c
-!pydsstools/src/external/gridv6/*.cpp
+#*.c
+#*.cpp
+#!pydsstools/src/external/gridv6/*.c
+#!pydsstools/src/external/gridv6/*.cpp
+pydsstools/src/core_heclib.c
 
 # Unit / Performance Testing #
 ##############################
