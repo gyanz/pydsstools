@@ -323,7 +323,7 @@ cdef class SpatialGridStruct:
         col_bottom = self.lower_left_x()
         row_bottom = self.lower_left_y()
 
-        if not xmin == UNDEFINED_FLOAT:
+        if not xorig == UNDEFINED_FLOAT:
             rows = self.rows()
             cols = self.cols()
             cell = self.cellsize()
