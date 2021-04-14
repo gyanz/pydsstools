@@ -35,6 +35,7 @@ build_all.bat
 *.o
 *.obj
 *.lib
+!pydsstools/src/external/zlib/zlibstatic.lib
 *.manifest
 *.exp
 *.py[oc]
