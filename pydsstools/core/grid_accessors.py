@@ -129,11 +129,9 @@ else:
             logging.debug('resampled data transform = %r',dst_trans)
             prof = self._default_rasterio_profile()
             gridinfo['grid_crs'] = prof['crs']
-            if gridinfo['grid_type'].lower() in ('albers','albers-time','shg','shg-time'):
-                #gridinfo = correct_shg_gridinfo(gridinfo,dst_data.shape)
-                ll_x,ll_y=lower_left_xy_from_transform(dst_trans,dst_data.shape) # not complete
-                gridinfo['opt_lower_left_x'] = ll_x
-                gridinfo['opt_lower_left_y'] = ll_y
+            ll_x,ll_y = lower_left_xy_from_transform(dst_trans,dst_data.shape)
+            gridinfo['opt_lower_left_x'] = ll_x
+            gridinfo['opt_lower_left_y'] = ll_y
             dst_data = np.ma.masked_values(dst_data,prof['nodata'])
             st = _SpatialGridStruct(dst_data,gridinfo)
             return st
@@ -263,10 +261,7 @@ else:
 
                 Returns
                 -------
-                    out_data: numpy 2D array
-                              Masked array data
-                    out_transform: affine object
-                              Affine transform of output data   
+                    st: _SpatialGridStruct object   
             '''
             shapes = guard_vector_mask(poly)
             if not isinstance(shapes,(list,tuple)):
@@ -281,7 +276,7 @@ else:
                                                    pad = pad,
                                                    pad_width = pad_width)
             out_data = np.ma.masked_values(out_data,ds.nodata)
-            #Wrap the output with SpatialGridStruct like container
+            # Wrap the output with SpatialGridStruct like container
             gridinfo = self._obj.profile
             gridinfo['grid_transform'] = out_transform
             gridinfo['transform'] = out_transform # remove this after grid.pyx fix
@@ -290,6 +285,10 @@ else:
             gridinfo['grid_crs'] = prof['crs']
             if gridinfo['grid_type'].lower() in ('albers','albers-time','shg','shg-time'):
                 gridinfo = correct_shg_gridinfo(gridinfo,out_data[0].shape)
+            else:
+                ll_x,ll_y = lower_left_xy_from_transform(out_transform,out_data[0].shape)
+                gridinfo['opt_lower_left_x'] = ll_x
+                gridinfo['opt_lower_left_y'] = ll_y
             out_data = np.ma.masked_values(out_data[0],prof['nodata'])
             st = _SpatialGridStruct(out_data,gridinfo)
             return st               
