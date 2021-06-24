@@ -7,7 +7,7 @@ from ..core import (HecTime, DssStatusException, GranularityException,ArgumentEx
 from ..core import (GRID_TYPE, GRID_DATA_TYPE, GRID_COMPRESSION_METHODS,gridInfo)
 from ..core import (check_shg_gridinfo,correct_shg_gridinfo,lower_left_xy_from_transform)
 from ..core import Open as _Open
-from ..core import UNDEFINED
+from ..core import (UNDEFINED, SHG_WKT, HRAP_WKT)
 import atexit
 from affine import Affine        
 
