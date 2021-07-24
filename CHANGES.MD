@@ -1,5 +1,10 @@
 pydsstools changelog
 ================
+2.1 (07-24-2021)
+-----------------
+* Bug fix regular time-series time value (int32) overflow for large time window
+* Started using Intel OneAPI 2021 in Windows
+
 2.0 (04-02-2021)
 -----------------
 * Bug fix grid extents and transform values

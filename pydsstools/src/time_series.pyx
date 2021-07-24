@@ -153,7 +153,7 @@ cdef class TimeSeriesStruct:
                 if time_sum_int != time_sum_float: logging.warn('Possible bug: startTimeSeconds of time-series is not multiple of granularity.')
                 for i in np.arange(self.get_number()):
                     reg_times.append(time_sum_int)
-                    time_sum_int = time_sum_int + interval*1.0/granularity 
+                    time_sum_int = time_sum_int + int(interval*1.0/granularity) 
                 return reg_times
 
     @property
@@ -165,9 +165,9 @@ cdef class TimeSeriesStruct:
         if self.tss:
             interval = self.interval
             times = self.times
+            granularity = self.granularity # Check if granularity value for regular timeseries is just a dummy value 
             if times:
                 if interval <= 0:
-                    granularity = self.granularity
                     datetimes = [getPyDateTimeFromValue(x,granularity,self.tss[0].julianBaseDate) for x in times]    
                 else:
                     datetimes = [getPyDateTimeFromValue(x,granularity,self.tss[0].startJulianDate) for x in times]
