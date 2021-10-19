@@ -277,8 +277,6 @@ cdef class SpatialGridStruct:
             cell_size = self.zsgs[0]._cellSize
         return cell_size 
 
-<<<<<<< HEAD
-=======
     cpdef int lower_left_x(self):
         cdef int llx = 0
         if self.zsgs:
@@ -291,7 +289,6 @@ cdef class SpatialGridStruct:
             lly = self.zsgs[0]._lowerLeftCellY
         return lly
 
->>>>>>> develop
     cpdef tuple origin_coords(self):
         cdef: 
             float xmin = UNDEFINED_FLOAT
@@ -520,11 +517,6 @@ cdef class SpatialGridStruct:
                        ('opt_time_stamped',True if self.is_time_stamped() else False),
                        ('opt_lower_left_x',self.lower_left_x()),
                        ('opt_lower_left_y',self.lower_left_y()),
-<<<<<<< HEAD
-                       ('opt_cell_zero_xcoord',self.origin_coords()[0]),
-                       ('opt_cell_zero_ycoord',self.origin_coords()[1]),
-=======
->>>>>>> develop
                        ])
         return result
 
@@ -587,17 +579,9 @@ cdef int saveSpatialGrid(long long *ifltab, const char* pathname, np.ndarray dat
 
     transform = profile['grid_transform']
     cellsize = transform[0]
-<<<<<<< HEAD
-    #cellsize_y = transform[4]
-    #_x = transform[2]
-    #_y = transform[5] + _row*cellsize_y
-    _x = profile['opt_cell_zero_xcoord']
-    _y = profile['opt_cell_zero_ycoord']
-=======
     neg_cell = transform[4]
     _x = transform[2]
     _y = transform[5] + _row*neg_cell
->>>>>>> develop
 
     _lower_left_x = profile['opt_lower_left_x']
     _lower_left_y = profile['opt_lower_left_y']

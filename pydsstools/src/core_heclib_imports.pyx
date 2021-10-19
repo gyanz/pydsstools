@@ -15,3 +15,4 @@ np.seterr(over='raise')
 cimport numpy as np
 cimport libcpp 
 cimport cython
+import re
