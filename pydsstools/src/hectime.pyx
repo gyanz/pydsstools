@@ -132,10 +132,9 @@ def getPyDateTimeFromString(dateString):
     except:
         _,msg,_ = sys.exc_info()
         if "hour must be in 0..23" in str(msg):
-            _datetime = re.split(' |:', dateString, maxsplit=1)
-            _time=_datetime[-1].replace("24","23",1)
-            _date=dateString[0:len(dateString)-len(_time)]
-            dateString = _date+_time
+            _date, _time = re.split(' |:', dateString, maxsplit=1)
+            _time=_time.replace("24","23",1)
+            dateString = ' '.join([_date, _time])
             try:
                 datetime_obj = parser.parse(dateString)
                 datetime_obj = datetime_obj + timedelta(hours=1)
