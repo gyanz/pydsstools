@@ -1,5 +1,32 @@
 pydsstools changelog
 ================
+2.1 (07-24-2021)
+-----------------
+* Bug fix regular time-series time value (int32) overflow for large time window
+* Started using Intel OneAPI 2021 in Windows
+
+2.0 (04-02-2021)
+-----------------
+* Bug fix grid extents and transform values
+* Added grid resampling method
+
+1.9 (03-21-2021)
+-----------------
+* Grid geo-spatial methods via raster accessor
+* Bug fix with HecTime
+* Minor change in put_grid method
+
+1.8 (02-26-2021)
+-----------------
+* HEC-DSS 7-IE, released Feb 11, 2021, headers and libraries included
+* Raster accessor attribute for SpatialGridStruct
+
+1.7 (02-21-2021)
+-----------------
+* HEC-DSS 7-IC, released Jan 22, 2021, headers and libraries included
+* Setup.py revised to build extension from source code
+* Wheel for Windows (Python 3.6 to 3.9) and Ubuntu 20.04 (Python 3.8)
+ 
 1.6 (06-27-2020)
 -----------------
 * Changed Spatial Grid Record read and write methods, nodata is handled internally

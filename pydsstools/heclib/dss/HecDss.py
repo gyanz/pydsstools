@@ -10,12 +10,13 @@ from datetime import datetime
 import numpy as np
 import numpy.ma as ma
 import pandas as pd
-from affine import Affine
+#from affine import Affine
 
 from ...core import Open as _Open
-from ...core.grid import SpatialGridStruct
+from ...core import SpatialGridStruct
 from ...core import getPathnameCatalog, deletePathname,PairedDataContainer,HecTime,DssPathName,dss_info
-from ...heclib.utils import gridInfo,gridDataSource,computeGridStats,grid_type_names,grid_data_type_names,UNDEFINED
+from ...heclib.utils import computeGridStats,UNDEFINED
+from ...heclib.utils import check_gridinfo
 
 class Open(_Open):
     def __init__(self,dssFilename,version=None,**kwargs):
@@ -354,30 +355,35 @@ class Open(_Open):
         label_size = max(10,kwargs.get('label_size',10))
         super().prealloc_pd(pdc,label_size)
 
-    def read_grid(self,pathname):
+    def read_grid(self,pathname,metadata_only=False):
         """Read spatial grid. DSS-6 grid is returned in DSS-7 format.
         """
         sg_st = SpatialGridStruct()
-        super().read_grid(pathname,sg_st)
-        sg_st._get_mview() # necessary?
+        retrieve_data = 0 if metadata_only else 1
+        super().read_grid(pathname,sg_st,retrieve_data)
         return sg_st
         
-    def put_grid(self, pathname, data, profile=None, flipud=1, compute_range = True, inplace = False):
+    def put_grid(self, pathname, data, profile=None, flipud=1, compute_range = True, inplace = False, raise_profile_error = False):
         """Write spatial grid to DSS-7 file. Writing to DSS-6 file not allowed.
 
         Parameter
         ---------
-        # data: numpy array or masked array or SpatialGridStruct 
-        #    numpy array - np.nan is considered null value
-        #    masked array - masked values are considered null values
-        #    null value is implemention dependent 
-        # profile: gridinfo dict, contains grid information; use gridInfo function   
-        # flipud: 0 or 1, flips the array
-        # compute_range: True/False, string or list of values
-        #    True - compute range table using default method
-        #    False - do not compute range table, applicable to SpatialGridStuct data only
-        #    string - quartiles, quarters, etc., methods TODO
-        #    list - list of values (max 19 excluding nodata) to compute equal to greater than metrics 
+          data: numpy array or masked array or SpatialGridStruct 
+             numpy array - np.nan is considered null value
+             masked array - masked values are considered null values
+             null value is implemention dependent 
+          profile: gridinfo dict, contains grid information; use gridInfo function   
+          flipud: 0 or 1, flips the array
+          compute_range: bool, string or list of values
+             True - compute range table using default method
+             False - do not compute range table, applicable to SpatialGridStuct data only
+             string - quartiles, quarters, etc., methods TODO
+             list - list of values (max 19 excluding nodata) to compute equal to greater than metrics 
+          inplace: bool, default False
+             If True, modifies the data array inplace
+          raise_profile_error: boolean
+             If True, raises error if critical error is found in profile data
+             
         """
         if self.version == 6:
             logging.warn('Writing DSS grid record in DSS-6 file is not supported')
@@ -385,84 +391,54 @@ class Open(_Open):
 
         if isinstance(data, SpatialGridStruct):
             # use this for copying from one file to another or updating statistics
-            stats = data.stats
+            shape = (data.height,data.width)
+            stats = data.stats()
             nodata = data.nodata
             grid_info = data.profile
-            if compute_range:
+            if isinstance(profile, dict):
+                # provide opportunity to update meta data such as data units
+                for k in grid_info:
+                    try:
+                        grid_info[k] = profile[k]
+                    except:
+                        pass 
+                # Check grid parameter and print out possible issues
+                # When SpatialGridStuct is provided, any issue in gridinfo/profile is ignored
+                # thinking that the user knows what he is doing
+                try:
+                    check_gridinfo(grid_info,shape,False)
+                except:
+                    pass
+
+            if compute_range or not stats:
                 _data = data.read()
                 stats = computeGridStats(_data,compute_range)
                 stats['range_values'][0] = nodata
-            row = data.height
-            col = data.width
+            row, col = shape
             _data = data._get_mview()    
             _data.setflags(write=1) # to resolve cython issue
             _data = np.reshape(_data,(row,col))
 
         elif isinstance(data,np.ndarray):
-            grid_info = profile.copy()
             nodata = UNDEFINED
-            # Verify the grid parameters
-            default_gridinfo = gridInfo()
-            required_params = [x for x in default_gridinfo if not x.startswith('opt')]
-            opt_params = [x for x in default_gridinfo if x.startswith('opt')]
-            for k in required_params:
-                if not k in grid_info:
-                    raise Exception('%s grid info parameter not provided'%k)
-            for k in opt_params:
-                if not k in grid_info:
-                    grid_info[k] = default_gridinfo[k]
-
-            grid_type = grid_info['grid_type']
-            if not grid_type in grid_type_names:
-                raise Exception('grid_type must be one of %r'%grid_type_names) 
-
-            transform = grid_info['grid_transform']
-            if not isinstance(transform, Affine):
-                raise Exception('grid_transform must be Affine instance') 
-
-            grid_crs = grid_info['grid_crs']
-            if not isinstance(grid_crs, str):
-                raise Exception('grid coordinate reference must be string type') 
-
-            data_type = grid_info['data_type']
-            if not data_type in grid_data_type_names:
-                raise Exception('data_type must be one of %r'%grid_data_type_names) 
-
-            opt_data_source = grid_info['opt_data_source']
-            _opt_data_source = gridDataSource(grid_type)
-            if _opt_data_source:
-                logging.debug('default data source string for HRAP/SHG/Albers used')
-                opt_data_source = _opt_data_source
-            if not isinstance(opt_data_source,str):
-                logging.debug('Empty data source string used')
-                opt_data_source = ''
-            grid_info['opt_data_source'] = opt_data_source
-
-
-            if not isinstance(grid_info['opt_tzid'],str):
-                logging.debug('Empty time zone id string used')
-                grid_info['opt_tzid'] = ''
-
-            if not isinstance(grid_info['opt_tzoffset'],int):
-                logging.debug('time offset of 0 used')
-                grid_info['opt_tzoffset'] = 0
-
-            if not isinstance(grid_info['opt_crs_name'],str):
-                grid_info['opt_crs_name'] = 'UNDEFINED'
-
-            if not isinstance(grid_info['opt_crs_type'],int):
-                grid_info['opt_crs_type'] = 0
-
-            if grid_info['opt_is_interval']:
-                grid_info['opt_is_interval'] = 1
-            else:
-                grid_info['opt_is_interval'] = 0
-
-            if grid_info['opt_time_stamped']:
-                grid_info['opt_time_stamped'] = 1
-            else:
-                grid_info['opt_time_stamped'] = 0
-
+            shape = data.shape
+            # Check grid parameters and modify too
+            grid_info = check_gridinfo(profile,shape,raise_profile_error)
+            if grid_info['grid_type'].endswith('-time'):
+                # TODO: Check if this is correct logic
+                # Verify the D and E parts are valid datetime string
+                pathobj = DssPathName(pathname)
+                dpart = pathobj.getDPart()
+                epart = pathobj.getEPart()
+                try:
+                    # check if dpart, epart or both are not datetime
+                    # TODO: Found out HecTime('1') passes this test
+                    HecTime(dpart)
+                    HecTime(epart)
+                except:
+                    raise Exception('For %s grid type, DPart and EPart of pathname must be datetime string')
+                else:
+                    grid_info['opt_time_stamped'] = 1
             if not compute_range: compute_range = True
             stats = computeGridStats(data,compute_range)
             stats['range_values'][0] = nodata
@@ -485,7 +461,6 @@ class Open(_Open):
 
             if flipud:
                 _data = np.flipud(_data)
-
 
         super().put_grid(pathname, _data, nodata, stats, grid_info)
 
@@ -516,6 +491,4 @@ class Open(_Open):
         for path in path_list:
             path_dict[self._record_type(path)].append(path)
         return path_dict
-
-
 

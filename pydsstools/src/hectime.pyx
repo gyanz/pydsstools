@@ -262,13 +262,13 @@ class HecTime(object):
             raise ArgumentException("Wrong type of argument")
 
         new_datetimeString = _new_date.strftime("%d %b %Y %H:%M:%S")
-        new_instance = __class__(new_datetimeString,self.granularity)
+        new_instance = self.__class__(new_datetimeString,self.granularity)
         self._datetimeValue = new_instance.datetimeValue
         self._python_datetime = _new_date
         return self
 
     def clone(self):
-        return __class__(self.formatDate(),self.granularity)
+        return self.__class__(self.formatDate(),self.granularity)
 
     @classmethod
     def getHecTimeFromPyDateTime(cls,pydate,granularity=60,julianBaseDate=0):

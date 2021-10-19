@@ -133,22 +133,27 @@ cdef class TimeSeriesStruct:
         """
         cdef:
             int num
-            int interval
+            int interval,granularity
             list reg_times
-            int i,sec_sum
+            int i,time_sum_int
+            float time_sum_float
 
         if self.tss:
-            interval = self.interval
+            interval = self.interval #seconds
             num = self.get_number()
             if interval <= 0:
                 return self.get_times(num).tolist()
             else:
                 reg_times = []
-                sec_sum = self.tss[0].startTimeSeconds 
-                logging.debug('Computing times for regular time-series (granularity = second, startJulianDate = %r ):'%(self.tss[0].startJulianDate))
+                granularity = self.granularity
+                logging.debug('Computing times for regular time-series (granularity = %r second, startJulianDate = %r, startTimeSeconds = %r ):'%(granularity, self.tss[0].startJulianDate, self.tss[0].startTimeSeconds))
+                logging.debug('Number of seconds each unit of time value = %r',granularity)
+                time_sum_float = float(self.tss[0].startTimeSeconds*1.0/granularity)
+                time_sum_int = int(time_sum_float)
+                if time_sum_int != time_sum_float: logging.warn('Possible bug: startTimeSeconds of time-series is not multiple of granularity.')
                 for i in np.arange(self.get_number()):
-                    reg_times.append(sec_sum)
-                    sec_sum = sec_sum + interval 
+                    reg_times.append(time_sum_int)
+                    time_sum_int = time_sum_int + int(interval*1.0/granularity) 
                 return reg_times
 
     @property
@@ -160,12 +165,12 @@ cdef class TimeSeriesStruct:
         if self.tss:
             interval = self.interval
             times = self.times
+            granularity = self.granularity # Check if granularity value for regular timeseries is just a dummy value 
             if times:
                 if interval <= 0:
-                    granularity = self.granularity
                     datetimes = [getPyDateTimeFromValue(x,granularity,self.tss[0].julianBaseDate) for x in times]    
                 else:
-                    datetimes = [getPyDateTimeFromValue(x,1,self.tss[0].startJulianDate) for x in times]
+                    datetimes = [getPyDateTimeFromValue(x,granularity,self.tss[0].startJulianDate) for x in times]
                 return datetimes
 
 

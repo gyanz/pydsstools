@@ -230,6 +230,15 @@ with Open(dss_file) as fid:
     dataset = fid.read_grid(pathname)
     grid_array = dataset.read()
     profile = dataset.profile
+    # if rasterio library is installed
+    # raster attribute is available for dataset object
+    # save grid as geotiff with epsg 2868 for coordinate reference system
+    try:
+        dataset.raster.save_tiff(r'grid_dataset.tif', crs=2868)
+    except:
+        pass
+    else:
+        print('grid data saved as grid_dataset.tif')
 ```
 
 ### Example 10 
@@ -338,6 +347,44 @@ with Open(dss_file) as fid:
     fid.deletePathname(pathname)
 ```
 
+### Example 15 
+Spatial Analysis on grid
+```
+# Notes
+# Experimental geospatial methods for grid
+# Not 100% sure about gridinfo that is computed for the cropped grid esp. for SHG and HRAP
+# Will apreciate user feedbacks on this
+# This example code was tested using the following libraries
+# gdal 3.2.2
+# matplotlib 3.4.4
+# rasterio 1.2.1
+# Potential rasterio issue with CRS
+# https://github.com/mapbox/rasterio/blob/master/docs/faq.rst#why-cant-rasterio-find-projdb
+# Unset PROJ_LIB environmental variable (i.e., SET PROJ_LIB= )
+
+from pydsstools.heclib.dss.HecDss import Open
+from pydsstools.heclib.utils import BoundingBox
+
+dss_file = "example.dss"
+
+pathname = r"/SHG/LCOLORADO/PRECIP/02JAN2020:1500/02JAN2020:1600/Ex15/"
+pathname_out = r"/SHG/LCOLORADO/PRECIP/02JAN2020:1500/02JAN2020:1600/Ex15 OUT/"
+
+fid = Open(dss_file)
+ds0 = fid.read_grid(pathname)
+
+if not getattr(ds0,'raster',None) is None:
+    ds0.raster.plot(mask_zeros = True, title = 'Original Spatial Grid')
+    bbox = BoundingBox(-50000,6*10**5,50000,7*10**5)
+    ds1 = ds0.raster.mask(bbox,crop = False)
+    ds1.raster.plot(mask_zeros = True, title = 'Clipped Spatial Grid')
+    ds2 = ds1.raster.mask(bbox,crop = True)
+    ds2.raster.plot(mask_zeros = True, title = 'Cropped Spatial Grid')
+    fid.put_grid(pathname_out,ds2)
+```
+
+<img src="extra/Ex15_Fig1.JPG" width="400"><img src="extra/Ex15_Fig2.JPG" width="400"><img src="extra/Ex15_Fig3.JPG" width="400">
+
 Dependencies
 ===
 
@@ -346,14 +393,35 @@ Dependencies
 - [affine](https://pypi.org/project/affine/)
 - [MS Visual C++ Redistributable for VS 2015 - 2019](https://aka.ms/vs/16/release/vc_redist.x64.exe)
 
-Installation
+Installation from sources
 ===
+The cython extension and grid version 6 libraries are compiled while installing pydsstools from source files. This requires proper configuration of build tools and python environment in the command prompt. The included cmd_intel_environ.bat can be used in Windows 10 provided that Intel Parallel Studio XE 2019 and Microsoft Visual Studio 2019 Community Edition or equivalents are available.
 ```
 python setup.py install 
 
 or
 
-pip install https://github.com/gyanz/pydsstools/zipball/master  
+pip install https://github.com/gyanz/pydsstools/zipball/master
+```
+
+Installation from binary wheels
+===
+Download suitable wheel file from dist directory and run th following command:
+```
+pip install wheel_file
+```
+
+Windows 10 wheel files
+```
+Python 3.6: pydsstools-X.x-cp36-cp36m-win_amd64.whl
+Python 3.7: pydsstools-X.x-cp37-cp37m-win_amd64.whl
+Python 3.8: pydsstools-X.x-cp38-cp38m-win_amd64.whl
+Python 3.9: pydsstools-X.x-cp39-cp39m-win_amd64.whl
+```
+
+Ubuntu 20.04 LTS wheel files
+```
+Python 3.8: pydsstools-X.x-cp38-cp38-linux_x86_64.whl
 ```
 
 Contributing

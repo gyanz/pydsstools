@@ -17,8 +17,12 @@
 .tags
 .cache/
 .vscode/
+.DS_Store
 pydsstools/src/compile/
-pydsstools/_lib/x64/py39/
+pydsstools/src/external/gridv6/x64/
+pydsstools/src/external/gridv6/.vs/
+build_wheels.bat
+build_all.bat
 
 # Compiled source #
 ###################
@@ -31,6 +35,7 @@ pydsstools/_lib/x64/py39/
 *.o
 *.obj
 *.lib
+!pydsstools/src/external/zlib/zlibstatic.lib
 *.manifest
 *.exp
 *.py[oc]
@@ -44,15 +49,15 @@ build
 # sphinx build directory
 doc/_build
 # setup.py dist directory
-dist
+# dist
 # Egg metadata
 *.egg-info
 .eggs
 .pypirc
 
 # wheel files
-*.whl
-**/wheelhouse/*
+#*.whl
+#**/wheelhouse/*
 # coverage
 .coverage
 coverage.xml
@@ -62,6 +67,8 @@ coverage_html_report
 # hypothesis test database
 .hypothesis/
 __pycache__
+# test scripts for build
+test
 
 # OS generated files #
 ######################
@@ -81,8 +88,11 @@ Thumbs.db
 
 # Generated Sources #
 #####################
-*.c
-*.cpp
+#*.c
+#*.cpp
+#!pydsstools/src/external/gridv6/*.c
+#!pydsstools/src/external/gridv6/*.cpp
+pydsstools/src/core_heclib.c
 
 # Unit / Performance Testing #
 ##############################

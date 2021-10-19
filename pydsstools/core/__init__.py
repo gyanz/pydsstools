@@ -9,7 +9,9 @@ __all__ = ['core_heclib',
            'GRID_DATA_TYPE',
            'GRID_COMPRESSION_METHODS',
            'gridInfo',
-           'gridDataSource',
+           'HRAP_WKT','SHG_WKT',
+           'check_shg_gridinfo','correct_shg_gridinfo',
+           'lower_left_xy_from_transform',
            'getPathnameCatalog',
            'deletePathname',
            'dss_info',
@@ -24,3 +26,5 @@ __all__ = ['core_heclib',
 
 
 from .._lib import *
+from .grid import SpatialGridStruct
+from . import grid_accessors

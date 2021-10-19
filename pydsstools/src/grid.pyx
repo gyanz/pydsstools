@@ -3,10 +3,10 @@ _BoundingBox = namedtuple('BoundingBox', ('left', 'bottom', 'right', 'top'))
 
 GRID_TYPE = {'undefined-time': 400, 'undefined': 401, 
              'hrap-time': 410, 'hrap': 411,
-             'shg-time': 420, 'shg': 421,
              'albers-time': 420, 'albers': 421,
+             'shg-time': 420, 'shg': 421,
              'specified-time': 430, 'specified': 431}
-_GRID_TYPE = {v: k for k, v in GRID_TYPE.items()}
+_GRID_TYPE = {v: k for k, v in GRID_TYPE.items() if not k in ('shg','shg-time')}
 
 GRID_DATA_TYPE = {'per-aver': 0, 'per-cum': 1, 'inst-val': 2, 
                   'inst-cum': 3 , 'freq': 4, 'invalid': 5}
@@ -15,40 +15,28 @@ _GRID_DATA_TYPE = {v: k for k, v in GRID_DATA_TYPE.items()}
 GRID_COMPRESSION_METHODS = {'undefined': 0, 'uncompressed': 1, 'zlib deflate': 26}
 _GRID_COMPRESSION_METHODS = {v: k for k, v in GRID_COMPRESSION_METHODS.items()}
 
-
 cpdef dict gridInfo():
     info = {}
     info['grid_type'] = 'specified'
-    info['grid_crs'] = 'UNDEFINED'
+    info['grid_crs'] = 'UNDEFINED' #WKT
     info['grid_transform'] = None
     info['data_type'] = _GRID_DATA_TYPE[5]
     info['data_units'] = 'UNDEFINED'
-    info['opt_crs_name'] = 'WKT'
-    info['opt_crs_type'] = 0
+    info['opt_crs_name'] = 'UNDEFINED'
+    info['opt_crs_type'] = 0 #WKT = 0
     info['opt_compression'] = _GRID_COMPRESSION_METHODS[26]
     info['opt_dtype'] = np.float32
     info['opt_grid_origin'] = 'top-left corner'
-    info['opt_data_source'] = ''
+    info['opt_data_source'] = '' # used with HRAP
     info['opt_tzid'] = 'UTC'
     info['opt_tzoffset'] = 0
     info['opt_is_interval'] = 0
     info['opt_time_stamped'] = 0
+    info['opt_lower_left_x'] = 0
+    info['opt_lower_left_y'] = 0
+    info['opt_cell_zero_xcoord'] = 0
+    info['opt_cell_zero_ycoord'] = 0
     return info
-
-cpdef str gridDataSource(object grid_type):
-    #cdef str result
-    if isinstance(grid_type,str):
-        grid_type = grid_type.lower()
-        grid_type = GRID_TYPE.get(grid_type,None)
-        if grid_type is None:
-            raise Exception('Unknown grid type specified')
-    if grid_type == 410 or grid_type == 411:
-        result = HRAP_DATASOURCE
-    elif grid_type == 420 or grid_type == 421:
-        result = SHG_DATASOURCE
-    else:
-        result = ''
-    return result
 
 class BoundingBox(_BoundingBox):
     """Bounding box named tuple, defining extent in cartesian coordinates.
@@ -69,40 +57,79 @@ class BoundingBox(_BoundingBox):
     def _asdict(self):
         return {*zip(self._fields, self)}
 
+HEC_SHG_CELLSIZE = (10000,5000,2000,1000,500,200,100,50,20,10) # meters
+HEC_SHG_APART = ('SHG10K','SHG5K','SHG2K','SHG1K','SHG500','SHG200','SHG100','SHG50','SHG20','SHG10') # meters
+
+def check_shg_gridinfo(gridinfo):
+    issue = 0
+    if gridinfo['grid_type'].lower() not in ('albers','albers-time','shg','shg-time'):
+        logging.warn('Invalid grid_type')
+        issue += 1
+    if gridinfo['grid_crs'] != SHG_WKT:
+        logging.warn('Invalid grid_crs')
+        issue += 1
+    cellsize = gridinfo['grid_transform'][0]
+    if not cellsize in HEC_SHG_CELLSIZE: 
+        logging.warn('Not an standard cellsize for SHG grid')
+        issue += 1
+    if not gridinfo['opt_crs_name'] in ('SHG','shg'):
+        logging.info('Recommended opt_crs_name is SHG or shg')
+        issue += 1
+    return issue
+
+def correct_shg_gridinfo(gridinfo,shape):
+    gridinfo = gridinfo.copy()
+    if gridinfo['grid_type'].lower() not in ('albers','albers-time','shg','shg-time'):
+        raise Exception('Invalid grid_type')
+    if gridinfo['grid_crs'] != SHG_WKT:
+        gridinfo['grid_crs'] = SHG_WKT
+    trans = gridinfo['grid_transform']
+    cellsize = trans[0]
+    if not cellsize in HEC_SHG_CELLSIZE: 
+        raise Exception('Not an standard cellsize for SHG grid. Use one of thes sizes %r in meters'%HEC_SHG_CELLSIZE)
+    gridinfo['opt_crs_name'] = 'AlbersInfo'
+    if gridinfo['grid_type'].lower().startswith('shg'):
+        gridinfo['opt_crs_name'] = 'SHG'
+    lower_left_x, lower_left_y = lower_left_xy_from_transform(trans,shape,
+                                                              gridinfo['opt_cell_zero_xcoord'],
+                                                              gridinfo['opt_cell_zero_ycoord'])
+    gridinfo['opt_lower_left_x'] = lower_left_x
+    gridinfo['opt_lower_left_y'] = lower_left_y
+    return gridinfo
+
+def lower_left_xy_from_transform(transform,shape,cell_zero_xcoord=0,cell_zero_ycoord=0):
+    cdef:
+        float xmin,ymax
+        float ymin # verbose to make calculation more clear
+        int lower_left_x,lower_left_y
+    cellsize = transform[0]
+    cellsize_y = transform[4]
+    rows,cols = shape
+    xmin = transform[2] - cell_zero_xcoord
+    ymax = transform[5] - cell_zero_ycoord
+    ymin = ymax + rows * cellsize_y
+    lower_left_x = <int>(floor(xmin/cellsize))
+    lower_left_y = <int>(floor(ymax/cellsize))
+    return (lower_left_x,lower_left_y)
+
 cdef SpatialGridStruct createSGS(zStructSpatialGrid *zsgs):
     sg_st = SpatialGridStruct()
     if zsgs:
         sg_st.zsgs = zsgs
-        '''
-        if sgs[0].numberValues>=1:
-            sg_st.zsgs = sgs
-        else:
-            zstructFree(sgs)            
-            sgs=NULL
-        '''
     return sg_st   
 
 cdef void updateSGS(SpatialGridStruct sg_st, zStructSpatialGrid *zsgs):
     if zsgs:
         sg_st.zsgs = zsgs
-        '''
-        if sgs[0].numberValues>=1:
-            sg_st.zsgs = sgs
-        else:
-            zstructFree(sgs)            
-            sgs=NULL
-        '''
 
 cdef class SpatialGridStruct:
     cdef:
         zStructSpatialGrid *zsgs
         np.ndarray _data
-        #np.ndarray data
 
     def __cinit__(self,*arg,**kwargs):
         self.zsgs=NULL
         self._data = None
-        #self.data = None
 
     cdef int length(self):
         cdef:
@@ -143,7 +170,7 @@ cdef class SpatialGridStruct:
 
     cdef int grid_type(self):
         cdef:
-            int result = -9999
+            int result = 401 # undefined
         if self.zsgs:
             result = self.zsgs[0]._type
         return result
@@ -216,7 +243,6 @@ cdef class SpatialGridStruct:
             result = self.zsgs[0]._timeZoneID
         return result
 
-
     cdef int tzoffset(self):
         cdef int result = 0
         if self.zsgs:
@@ -253,7 +279,6 @@ cdef class SpatialGridStruct:
             cell_size = self.zsgs[0]._cellSize
         return cell_size 
 
-
     cpdef tuple origin_coords(self):
         cdef: 
             float xmin = UNDEFINED_FLOAT
@@ -267,32 +292,48 @@ cdef class SpatialGridStruct:
         result = (xmin,ymin)
         return result
 
+    cpdef int lower_left_x(self):
+        cdef int llx = 0
+        if self.zsgs:
+            llx = self.zsgs[0]._lowerLeftCellX
+        return llx
+
+    cpdef int lower_left_y(self):
+        cdef int lly = 0
+        if self.zsgs:
+            lly = self.zsgs[0]._lowerLeftCellY
+        return lly
 
     cpdef tuple GetExtents(self):
         cdef:
+            float xorig 
+            float yorig
             float xmin 
             float ymin
             float xmax = UNDEFINED_FLOAT
             float ymax = UNDEFINED_FLOAT
             float cell
-            int rows
-            int cols
+            int rows, row_bottom
+            int cols, col_bottom
             tuple origin
             tuple result
 
         origin = self.origin_coords()
-        xmin,ymin = origin
+        xorig,yorig = origin
+        col_bottom = self.lower_left_x()
+        row_bottom = self.lower_left_y()
 
-        if not xmin == UNDEFINED_FLOAT:
+        if not xorig == UNDEFINED_FLOAT:
             rows = self.rows()
             cols = self.cols()
             cell = self.cellsize()
-            xmax = xmin + cols*cell
-            ymax = ymin + rows*cell
+            xmin = xorig + col_bottom * cell
+            ymin = yorig + row_bottom * cell
+            xmax = xmin + cols * cell
+            ymax = ymin + rows * cell
 
         result = (xmin,xmax,ymin,ymax)
         return result 
-
 
     def _get_mview(self, dtype = 'f'):
         cdef:
@@ -380,13 +421,11 @@ cdef class SpatialGridStruct:
         xmin,xmax,ymin,ymax = self.GetExtents()
         return BoundingBox(xmin,ymin,xmax,ymax)
 
-
     @property
     def grid_origin(self):
         return "top-left corner"
 
-    @property
-    def stats(self):
+    def stats(self,trim=True):
         cdef:
             float * _max = NULL 
             float * _min = NULL 
@@ -394,7 +433,7 @@ cdef class SpatialGridStruct:
             float  maxval = UNDEFINED_FLOAT 
             float  minval = UNDEFINED_FLOAT 
             float  meanval = UNDEFINED_FLOAT
-            int num = 0
+            int i, num = 0
             dict result
 
         result = {}
@@ -406,11 +445,20 @@ cdef class SpatialGridStruct:
             if _min: minval = _min[0]
             if _mean: meanval = _mean[0]
             num = self.rangelength()
+            range_values = self._get_range_limits(num).tolist()
+            range_counts = self._get_range_values(num).tolist()
+            last_index = num
+            if trim:
+                # remove multiple bins with 0 counts
+                for i,count in enumerate(range_counts,1):
+                    if count == 0:
+                        last_index = i
+                        break
             result.update([("min",minval),
                            ("max",maxval),
                            ("mean",meanval),
-                           ("range_values",self._get_range_limits(num).tolist()),
-                           ("range_counts",self._get_range_values(num).tolist())])
+                           ("range_values",range_values[0:last_index]),
+                           ("range_counts",range_counts[0:last_index])])
         return result
 
     @property
@@ -420,7 +468,6 @@ cdef class SpatialGridStruct:
     @property
     def interval(self):
         return self.cellsize()
-
 
     @property
     def dtype (self):
@@ -458,6 +505,10 @@ cdef class SpatialGridStruct:
                        ('opt_tzoffset',self.tzoffset()),
                        ('opt_is_interval',True if self.is_interval() else False),
                        ('opt_time_stamped',True if self.is_time_stamped() else False),
+                       ('opt_lower_left_x',self.lower_left_x()),
+                       ('opt_lower_left_y',self.lower_left_y()),
+                       ('opt_cell_zero_xcoord',self.origin_coords()[0]),
+                       ('opt_cell_zero_ycoord',self.origin_coords()[1]),
                        ])
         return result
 
@@ -465,13 +516,13 @@ cdef class SpatialGridStruct:
         if self.zsgs:
             zstructFree(self.zsgs)
 
-cdef SpatialGridStruct saveSpatialGrid(long long *ifltab, const char* pathname, np.ndarray data, float nodata, dict stats, dict profile):
+cdef int saveSpatialGrid(long long *ifltab, const char* pathname, np.ndarray data, float nodata, dict stats, dict profile):
     cdef:
         zStructSpatialGrid *zsgs=NULL
         float[:,::1] _data 
-        #np.ndarray data
         int _row,_col
         float _x,_y
+        int _lower_left_x, _lower_left_y
         float _nodata
         float * _pmin = NULL
         float * _pmax = NULL
@@ -520,8 +571,14 @@ cdef SpatialGridStruct saveSpatialGrid(long long *ifltab, const char* pathname, 
 
     transform = profile['grid_transform']
     cellsize = transform[0]
-    _x = transform[2]
-    _y = transform[5] - _row*cellsize
+    #cellsize_y = transform[4]
+    #_x = transform[2]
+    #_y = transform[5] + _row*cellsize_y
+    _x = profile['opt_cell_zero_xcoord']
+    _y = profile['opt_cell_zero_ycoord']
+
+    _lower_left_x = profile['opt_lower_left_x']
+    _lower_left_y = profile['opt_lower_left_y']
     
     _min = stats['min']
     _max = stats['max']
@@ -550,8 +607,8 @@ cdef SpatialGridStruct saveSpatialGrid(long long *ifltab, const char* pathname, 
     zsgs[0]._dataUnits  = _units
     zsgs[0]._dataType  = _datatype
     zsgs[0]._dataSource  = _datasource
-    zsgs[0]._lowerLeftCellX  = 0
-    zsgs[0]._lowerLeftCellY  = 0
+    zsgs[0]._lowerLeftCellX  = _lower_left_x
+    zsgs[0]._lowerLeftCellY  = _lower_left_y
     zsgs[0]._numberOfCellsX  = <int>_col
     zsgs[0]._numberOfCellsY  = <int>_row
     zsgs[0]._cellSize  = cellsize
@@ -580,4 +637,4 @@ cdef SpatialGridStruct saveSpatialGrid(long long *ifltab, const char* pathname, 
 
     status = zspatialGridStore(ifltab,zsgs)
 
-    return 
+    return status 
