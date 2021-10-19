@@ -394,3 +394,7 @@ cdef extern from "heclib.h":
     #int uncompress_zlib(const void* buffer, int size, void* data, int dataSize)
     int zspatialGridRetrieveVersion(long long *ifltab, const char *cpath, int* gridStructVersion)
     #void printGridStruct(long long *ifltab, int funtion_id, zStructSpatialGrid *gdStruct)
+
+cdef extern from "DSSGrid_wrap.h":
+    int RetrieveGriddedData_wrap(long long * ifltab, zStructSpatialGrid * gs, int boolRetrieveData)
+
