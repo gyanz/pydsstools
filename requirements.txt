@@ -6,4 +6,4 @@ affine
 gdal>=3.2.2
 rasterio>=1.2.1
 matplotlib
-https://github.com/USACE/pydsstools/zipball/2.1
+https://github.com/gyanz/pydsstools/zipball/master
