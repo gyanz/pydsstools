@@ -154,7 +154,7 @@ if is_platform_windows():
     library_dirs.append(r'pydsstools/src/external/gridv6/build')
     library_dirs.append(r'pydsstools/src/external/zlib')
     # libs
-    libraries = ['heclib_c_v6v7', 'heclib_f_v6v7', 'zlibstatic', 'grid']
+    libraries = ['heclib_c', 'heclib_f', 'zlibstatic', 'grid']
     # extra compile args
     extra_compile_args = []
     extra_link_args = ['/NODEFAULTLIB:LIBCMT']

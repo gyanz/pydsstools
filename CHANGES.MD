@@ -1,5 +1,8 @@
 pydsstools changelog
 ================
+2.2 (09-12-2021)
+-----------------
+* HEC-DSS 7-IG, release Nov 18, 2021
 2.1 (07-24-2021)
 -----------------
 * Bug fix regular time-series time value (int32) overflow for large time window
