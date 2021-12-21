@@ -456,7 +456,7 @@ class Open(_Open):
             if inplace:
                 _data[mask] = nodata
             else:
-                _data = _data.copy()
+                _data = _data.astype(np.float32,casting='unsafe',copy=True)
                 _data[mask] = nodata
 
             if flipud:
