@@ -36,8 +36,9 @@
 #endif
 
 
-#define DSS_VERSION "7-IE"
-#define DSS_VERSION_DATE "11 February 2021"
+#define DSS_VERSION "7-IQ"
+#define DSS_VERSION_DATE "15 March 2023"
+
 
 
 const char *ztypeName(int recordType, int boolAbbreviation);
@@ -153,7 +154,7 @@ int zopenFile(const char *cname, int iaccess);
 void zswap(long long *iarray, int numberInts);
 void zswitchInts(int *iarray, int numberInts);
 void zswitchDoubles(int* iarray, int numberArray, int lengthEachValue, int boolStoring, int numberTimes);
-int getEndian();
+int bigEndian();
 int zwriteEOF(long long *ifltab);
 int zwriteEOFandFlush(long long *ifltab, long long bufferControl[4], int *buffer);
 int zflushToDisk (long long *ifltab, int forceFlush);
@@ -170,7 +171,7 @@ int zwriteInternal(long long *ifltab, zStructTransfer* ztransfer, int checked,
 				   long long bufferControl[4], int *buffer, int boolUseBuffer);
 int zwriteNew(long long *ifltab, zStructTransfer* ztransfer,
 			  long long bufferControl[4], int *buffer, int bufferAction, int *wroteAtEOF);
-int zwriteOld(long long *ifltab, zStructTransfer* ztransfer,
+int zwriteExisting(long long *ifltab, zStructTransfer* ztransfer,
 			  long long bufferControl[4], int *buffer, int bufferAction, int *wroteAtEOF);
 
 //  Time series
@@ -283,6 +284,7 @@ void zmessage(long long *ifltab, const char *message);
 void zmessageDebug(long long *ifltab, int functionID, const char *message1, const char *message2);
 void zmessageDebugInt(long long *ifltab, int functionID, const char *message1, int number);
 void zmessageDebugLong(long long *ifltab, int functionID, const char *message1, long long number);
+void zmessageDebugFloat(long long* ifltab, int functionID, const char* message1, float number);
 void zmessageLength(long long *ifltab, const char *message, size_t len);  // Public includes time stamp
 void zmessageLen(long long *ifltab, const char *message, size_t length);  //  Private - does not include time stamp
 int zmessageLevel(long long *ifltab, int callingMethod, int level);

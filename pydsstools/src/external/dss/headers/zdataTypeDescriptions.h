@@ -36,7 +36,7 @@
 #define DATA_TYPE_PDD 205
 
 #define DATA_TYPE_TEXT			300
-#define DATA_TYPE_TEXT_TABLE	302
+#define DATA_TYPE_TEXT_TABLE	310
 
 #define DATA_TYPE_SPATIAL_TIN	450
 
@@ -98,31 +98,6 @@
 #define DATA_TYPE_430  "Gridded - Specified Grid with time reference"
 #define DATA_TYPE_431  "Gridded - Specified Grid"
 #define DATA_TYPE_450  "Spatial - TIN"
-
-#define DATA_TYPE_500  "Generalized Rating"
-#define DATA_TYPE_501  "Generalized Rating series"
-#define DATA_TYPE_505  "Generalized Rating doubles"
-#define DATA_TYPE_510  "Simple Rating"
-#define DATA_TYPE_511  "Simple Rating series"
-#define DATA_TYPE_515  "Simple Rating doubles"
-#define DATA_TYPE_520  "Composite Rating"
-#define DATA_TYPE_521  "Composite Rating series"
-#define DATA_TYPE_525  "Composite Rating doubles"
-#define DATA_TYPE_530  "Compound Rating"
-#define DATA_TYPE_531  "Compound Rating series"
-#define DATA_TYPE_535  "Compound Rating doubles"
-#define DATA_TYPE_540  "Periodic Rating"
-#define DATA_TYPE_541  "Periodic Rating series"
-#define DATA_TYPE_545  "Periodic Rating doubles"
-#define DATA_TYPE_550  "Periodic Values"
-#define DATA_TYPE_551  "Periodic Values series"
-#define DATA_TYPE_555  "Periodic Values doubles"
-#define DATA_TYPE_560  "Stream Rating"
-#define DATA_TYPE_561  "Stream Rating series"
-#define DATA_TYPE_565  "Stream Rating doubles"
-#define DATA_TYPE_570  "Conic Reservoir Rating"
-#define DATA_TYPE_571  "Conic Reservoir Rating series"
-#define DATA_TYPE_575  "Conic Reservoir Rating doubles"
 
 #define DATA_TYPE_600 "Generic File"
 #define DATA_TYPE_610 "Image"

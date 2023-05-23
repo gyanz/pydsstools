@@ -35,7 +35,7 @@
  {
 	 long long ifltab[250];
 	 zStructSpatialGrid *gridStruct = zstructSpatialGridNew(dssPathName.c_str());
-	 int status = zopen(ifltab, dssFileName.c_str());
+	 int status = hec_dss_zopen(ifltab, dssFileName.c_str());
 	 if (status != 0)
 	 {
 		 string msg = "Error opening" + dssFileName;

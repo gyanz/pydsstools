@@ -28,7 +28,7 @@ cdef class Open:
         elif version == 7:
             self.file_status = zopen7(self.ifltab, dssFilename)
         else:
-            self.file_status = zopen(self.ifltab, dssFilename)
+            self.file_status = hec_dss_zopen(self.ifltab, dssFilename)
         isError(self.file_status)
         self.version = zgetVersion(self.ifltab)
         self.filename = dssFilename

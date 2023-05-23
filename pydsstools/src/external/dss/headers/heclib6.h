@@ -3,6 +3,7 @@
 
 #include "zStructRecordSize.h"
 
+
 /*  Microsoft C++ uses stdcall for FORTRAN interface  */
 
 //#ifdef _MSC_VER
@@ -52,10 +53,10 @@ extern "C" {
 
 void zsqueeze6_(const char *dssFilename, int *status, size_t lenDssFilename);
 
-void zsetca6_(const char *instr, int *boolSelect, int len_instr);
+void zsetca6_(const char *instr, int *boolSelect, size_t len_instr);
 void zmatca_(const char *pathname, int *IBPART, int *IEPART, int *ILPART,
 	const char *CCDATE, const char *CCPROG, int *LMATCH,
-	int len_pathname, int len_CCDATE, int len_CCPROG);
+	size_t len_pathname, size_t len_CCDATE, size_t len_CCPROG);
 
 void zset6_(const char *CFLG, const char *CSTR, int *NUMB, size_t lenCflg, size_t lenCstr);
 

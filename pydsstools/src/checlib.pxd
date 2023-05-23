@@ -75,7 +75,7 @@ cdef extern from "heclib.h":
                             size_t sizeofTimeString, int timeStyle)
                             
 cdef extern from "heclib.h":
-    int zopen(long long *ifltab, const char *dssFilename)
+    int hec_dss_zopen(long long *ifltab, const char *dssFilename)
     int zopen6(long long *ifltab, const char *dssFilename)
     int zopen7(long long *ifltab, const char *dssFilename)
     int zclose(long long *ifltab)

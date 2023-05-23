@@ -41,7 +41,7 @@ int zclose(long long *ifltab);
 int zgetFileVersion(const char *dssFilename);
 int zgetVersion(long long *ifltab);
 int zgetFullVersion(long long *ifltab);  //  For example DSS Version "7-BG" = 70207
-int zopen(long long *ifltab, const char *dssFilename);
+int hec_dss_zopen(long long *ifltab, const char *dssFilename);
 int zopenExtended(long long *ifltab, const char *dssFilename, int fileVersion,
 				  int access, int maxExpectedPathnames, int hashSize, int binSize);
 int zset(const char* parameter, const char* charVal, int integerValue);
@@ -290,6 +290,7 @@ int ztsRetrieveReg6(long long *ifltab, zStructTimeSeries *tss,
 					int retrieveFlag, int retrieveDoublesFlag, int boolRetrieveQualityNotes);
 int ztsRetrieveIrreg6(long long *ifltab, zStructTimeSeries *tss,
 					int retrieveFlag, int retrieveDoublesFlag, int boolRetrieveQualityNotes);
+void readProgramName(long long* ifltab, zStructTimeSeries* tss, int status);
 int ztsRetrieveIrreg7(long long *ifltab, zStructTimeSeries *tss,
 					int retrieveFlag, int retrieveDoublesFlag, int boolRetrieveQualityNotes);
 

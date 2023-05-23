@@ -23,6 +23,7 @@ pydsstools/src/external/gridv6/x64/
 pydsstools/src/external/gridv6/.vs/
 build_wheels.bat
 build_all.bat
+build_one_wheel.bat
 
 # Compiled source #
 ###################

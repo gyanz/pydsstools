@@ -218,8 +218,8 @@ goes to:
 #define DSS_FUNCTION_zwriteInternal		"zwriteInternal"
 #define DSS_FUNCTION_zwriteNew_ID		29
 #define DSS_FUNCTION_zwriteNew			"zwriteNew"
-#define DSS_FUNCTION_zwriteOld_ID		30
-#define DSS_FUNCTION_zwriteOld			"zwriteOld"
+#define DSS_FUNCTION_zwriteExisting_ID	30
+#define DSS_FUNCTION_zwriteExisting		"zwriteExisting"
 #define DSS_FUNCTION_zbinNew_ID			31
 #define DSS_FUNCTION_zbinNew			"zbinNew"
 #define DSS_FUNCTION_zbinUpdate_ID		32

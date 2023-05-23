@@ -1,5 +1,11 @@
 pydsstools changelog
 ================
+2.3 (05-23-2023)
+-----------------
+* HEC-DSS 7-IQ, release March 15, 2023
+* HecTime bug fix
+
+-----------------
 2.2 (09-12-2021)
 -----------------
 * HEC-DSS 7-IG, release Nov 18, 2021

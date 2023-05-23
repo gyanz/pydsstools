@@ -41,7 +41,7 @@ int zpdRetrieve6(long long *ifltab, zStructPairedData *pds, int retrieveSizeFlag
 //  This includes both Fortran and C function
 
 //  zopen functions.  You can call any on any version; only difference is in creating new files
-int  zopen  (long long *ifltab, const char *dssFilename);
+int  hec_dss_zopen  (long long *ifltab, const char *dssFilename);
 int  zopen6 (long long *ifltab, const char *dssFilename);
 int  zopen7 (long long *ifltab, const char *dssFilename);
 

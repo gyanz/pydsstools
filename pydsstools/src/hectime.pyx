@@ -124,13 +124,51 @@ def getDateTimeStringTuple(dateValue,granularity=60,julianBaseDate=0):
 
     return (datestr,timestr)
 
-def getPyDateTimeFromString(dateString):
+def getPyDateTimeFromString(dateString,parserinfo=None,fmt=None):
     # Returns python datetime object from string
+    if not fmt is None:
+        try:
+            datetime_obj = datetime.strptime(dateString,fmt)
+            return datetime_obj
+        except:
+            pass
+
     try:
-        datetime_obj = parser.parse(dateString)
+        datetime_obj = parser.parse(dateString,parserinfo)
         return datetime_obj
     except:
         _,msg,_ = sys.exc_info()
+        # Possible error messages
+        # 1 - Unknown string format e.g., 01OCT1988 :2300
+        # 2 - hour must be in 0..23 e.g., 01OCT1988:2300, 01OCT1988 2400
+        # Case 2 is hard to debug!
+
+        parts = [x for x in re.split(r'([,\/:.-]|[a-zA-Z]+|[0-9]+)',dateString) if x.strip()]
+        parts = [x for x in parts if not x in r',:.\/-']
+        if len(parts) < 4:
+            raise Exception('%s is has unknown date format'%dateString)
+        # datestring at least has day,month,year and time
+
+        _date = parts[0:3]
+        _time = parts[3:]
+        is_24hr = False
+        if int(parts[3]) == 24:
+            is_24hr = True
+            _time[3] = '23'
+
+        _date = '/'.join(_date)
+        _time = ':'.join(_time)       
+        new_dateString = ' '.join([_date, _time])
+        try:
+            datetime_obj = parser.parse(new_dateString)
+            if is_24hr:
+                datetime_obj = datetime_obj + timedelta(hours=1)
+            return datetime_obj
+        except:
+            raise Exception('%s is has unknown date format'%dateString)
+
+
+        """
         if "hour must be in 0..23" in str(msg):
             _date, _time = re.split(' |:', dateString, maxsplit=1)
             _time=_time.replace("24","23",1)
@@ -141,19 +179,7 @@ def getPyDateTimeFromString(dateString):
                 return datetime_obj
             except:
                 pass
-
-        datestr = dateString.lower()
-        for x in list(SHORT_MONTH_NAMES.keys()):
-            i=datestr.find(x.lower())
-            if not i == -1:
-                dateString = dateString[0:i] +" "+dateString[i::]
-                return parser.parse(dateString)
-
-        for x in list(LONG_MONTH_NAMES.keys()):
-            i=datestr.find(x.lower())
-            if not i == -1:
-                dateString = dateString[0:i] +" "+dateString[i::]
-                return parser.parse(dateString)
+        """        
 
 
 def getPyDateTimeFromValue(dateValue,granularity=60,julianBaseDate=0):
@@ -191,12 +217,12 @@ class HecTime(object):
     # 1. datetimeValue
     # 2. granularity
     # 3. python_datetime
-    def __init__(self,datetimeString,granularity=60,julianBaseDate=0):
+    def __init__(self,datetimeString,granularity=60,julianBaseDate=0,fmt=None,parserinfo=None):
         if isinstance(julianBaseDate,str):
             julianBaseDate = _dateToJulian(julianBaseDate)
         self.julianBaseDate = julianBaseDate
         self._granularity=granularity
-        val,pydate = self.parse_datetime_string(datetimeString,granularity,self.julianBaseDate) 
+        val,pydate = self.parse_datetime_string(datetimeString,granularity,self.julianBaseDate,fmt,parserinfo) 
         # _parse_datetime adds following attributes
         self._datetimeValue = val 
         self._python_datetime=pydate    
@@ -274,7 +300,7 @@ class HecTime(object):
         return cls(pydate,granularity,julianBaseDate)
 
     @staticmethod
-    def parse_datetime_string(datetimeString,granularity=60,julianBaseDate=0):
+    def parse_datetime_string(datetimeString,granularity=60,julianBaseDate=0,fmt=None,parserinfo=None):
         cdef:
             int datetimeval
         if granularity == 0:
@@ -287,7 +313,7 @@ class HecTime(object):
         if isinstance(datetimeString,datetime):
             pydate = datetimeString
         else:
-            pydate = getPyDateTimeFromString(datetimeString)
+            pydate = getPyDateTimeFromString(datetimeString,parserinfo,fmt)
         parsed_date = (pydate.year,pydate.month,pydate.day,
                        pydate.hour,pydate.minute,pydate.second)
 
