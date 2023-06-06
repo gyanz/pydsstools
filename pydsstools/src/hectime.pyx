@@ -152,9 +152,9 @@ def getPyDateTimeFromString(dateString,parserinfo=None,fmt=None):
         _date = parts[0:3]
         _time = parts[3:]
         is_24hr = False
-        if int(parts[3]) == 24:
+        if int(_time[0]) == 24:
             is_24hr = True
-            _time[3] = '23'
+            _time[0] = '23'
 
         _date = '/'.join(_date)
         _time = ':'.join(_time)       
