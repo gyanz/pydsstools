@@ -154,8 +154,7 @@ def getPyDateTimeFromString(dateString,parserinfo=None,fmt=None):
         
         # this portion of code fixes the time string format of HHMM example 01AUG2017 2400 -> here _time=["2400"] will be converted to _time=["24","00"]
         if len(_time) == 1:
-            _timestring_temp = _time[0]
-            _time = [_timestring_temp[i:i+2] for i in range(0, len(_timestring_temp), 2)]
+            _time = [_time[0][i:i+2] for i in range(0, len(_time[0]), 2)]
         is_24hr = False
         if int(_time[0]) == 24:
             is_24hr = True
