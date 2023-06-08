@@ -22,6 +22,7 @@ pydsstools/src/compile/
 pydsstools/src/external/gridv6/x64/
 pydsstools/src/external/gridv6/.vs/
 build_wheels.bat
+build_wheels_abi3.bat
 build_all.bat
 build_one_wheel.bat
 

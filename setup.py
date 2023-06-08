@@ -174,6 +174,7 @@ include_dirs.append(numpy.get_include())
 # why new api causing error C2039: 'dimensions': is not a member of 'tag PyArrayObject' ?
 # macros = [("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")] 
 
+#macros = [('Py_LIMITED_API','0x03070000')]
 macros = []
 
 extensions = [Extension('pydsstools._lib.x64.core_heclib', 
