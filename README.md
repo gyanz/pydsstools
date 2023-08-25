@@ -234,7 +234,7 @@ with Open(dss_file) as fid:
     # raster attribute is available for dataset object
     # save grid as geotiff with epsg 2868 for coordinate reference system
     try:
-        dataset.raster.save_tiff(r'grid_dataset.tif', crs=2868)
+        dataset.raster.save_tiff(r'grid_dataset.tif', {'crs': 2868})
     except:
         pass
     else:
