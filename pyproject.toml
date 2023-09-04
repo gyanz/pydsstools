@@ -1,6 +1,66 @@
+# Refer to PEP 621, 518 and 517
 [build-system]
-requires = ["setuptools",
-            "Cython>=0.29",
-            "wheel",
-            "numpy>=1.16.4"
+requires = [
+    "setuptools",
+    "Cython==0.29.36",
+    "wheel",
+    "versioneer[toml]",
+    "numpy==1.16.4; python_version<'3.7'",
+    "numpy==1.21.1; python_version>='3.7'",
 ]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pydsstools"
+#version = "2.3.1"
+dynamic = [
+    "version"
+]
+description = "Python library to read-write HEC-DSS database file"
+readme = "README.md"
+requires-python = ">=3.6"
+license = {file = "LICENSE"}
+authors = [{name = "Gyan Basyal", email = "gyanBasyalz@gmail.com"}]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Operating System :: Microsoft :: Windows :: Windows 10",
+    "Operating System :: Microsoft :: Windows :: Windows 11",
+    "Operating System :: Unix",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Scientific/Engineering",
+]
+
+dependencies = [
+    "numpy>=1.16.4; python_version<'3.7'",
+    "numpy>=1.21.1; python_version>='3.7'",
+    "pandas",
+    "affine",
+]
+
+[project.optional-dependencies]
+test = [
+    "gdal >= 3.2.2",
+    "rasterio >= 1.2.1",
+    "matplotlib"
+]
+
+[project.urls]
+repository = "https://github.com/gyanz/pydsstools"
+
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+
+[tool.distutils.build_ext]
+inplace = false
+
+[tool.versioneer]
+VCS = "git"
+style = "pep440"
+versionfile_source = "pydsstools/_version.py"
+versionfile_build = "pydsstools/_version.py"
+tag_prefix = ""
+#parentdir_prefix = 
+

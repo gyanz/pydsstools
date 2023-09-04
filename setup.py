@@ -192,8 +192,20 @@ compiler_directives = {'embedsignature': True,
                        'c_string_type': 'str',
                        'c_string_encoding': 'ascii'} 
 
+packages = [
+    'pydsstools',
+    'pydsstools._lib',
+    'pydsstools._lib.x64',
+    'pydsstools._lib.x86',
+    'pydsstools.core',
+    'pydsstools.heclib',
+    'pydsstools.heclib.dss',
+    'pydsstools.utils',
+  ]
+
+
 setup(
-    packages = find_packages(),
+    packages = packages,
 
     package_data = {'':['examples/*', 'src/*.pyx', 'src/*.pyd']},
 

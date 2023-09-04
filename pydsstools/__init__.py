@@ -5,7 +5,16 @@ Copyright (c) 2017 Gyan Basyal
 import os
 import logging
 
-__version__ = '2.3'
+__version__ = None
+
+try:
+    from pydsstools._version import get_versions
+    ver = get_versions()
+    __version__ = ver["version"])
+    del get_versions,ver
+
+except:
+    pass
 
 __all__ = ["str2ascii","__version__"]
 

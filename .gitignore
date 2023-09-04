@@ -21,10 +21,8 @@
 pydsstools/src/compile/
 pydsstools/src/external/gridv6/x64/
 pydsstools/src/external/gridv6/.vs/
-build_wheels.bat
-build_wheels_abi3.bat
-build_all.bat
-build_one_wheel.bat
+build_*.bat
+*.bat
 
 # Compiled source #
 ###################
@@ -48,6 +46,8 @@ MANIFEST
 ################
 # setup.py working directory
 build
+dist
+_dist
 # sphinx build directory
 doc/_build
 # setup.py dist directory
