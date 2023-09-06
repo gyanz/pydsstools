@@ -13,6 +13,7 @@ import platform
 from subprocess import call
 import shutil
 import numpy
+import versioneer
 
 try:
     from Cython.Build import cythonize
@@ -192,26 +193,21 @@ compiler_directives = {'embedsignature': True,
                        'c_string_type': 'str',
                        'c_string_encoding': 'ascii'} 
 
-packages = [
-    'pydsstools',
-    'pydsstools._lib',
-    'pydsstools._lib.x64',
-    'pydsstools._lib.x86',
-    'pydsstools.core',
-    'pydsstools.heclib',
-    'pydsstools.heclib.dss',
-    'pydsstools.utils',
-  ]
+
+try:
+    version = versioneer.get_version()
+except:    
+    version = versioneer.get_versions()['version']
 
 
 setup(
-    packages = packages,
+    
+    version = version,
 
-    package_data = {'':['examples/*', 'src/*.pyx', 'src/*.pyd']},
 
     ext_modules = maybe_cythonize(extensions, 
                                   compiler_directives = compiler_directives),
 
-    cmdclass = {'clean':CleanCommand, 'build_ext': BuildExt},
+    cmdclass = versioneer.get_cmdclass({'clean':CleanCommand, 'build_ext': BuildExt}),
 
     )

@@ -1,5 +1,11 @@
 pydsstools changelog
 ================
+2.3.1 (09-06-2023)
+-----------------
+* Removed support for Python 3.6 and 3.7 due to lack of Anaconda support for these versions
+* Build and package information provided in pyproject.toml
+* Using versioneer to specify git tag as the released package version
+
 2.3 (05-23-2023)
 -----------------
 * HEC-DSS 7-IQ, release March 15, 2023

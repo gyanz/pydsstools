@@ -7,15 +7,6 @@ import logging
 
 __version__ = None
 
-try:
-    from pydsstools._version import get_versions
-    ver = get_versions()
-    __version__ = ver["version"])
-    del get_versions,ver
-
-except:
-    pass
-
 __all__ = ["str2ascii","__version__"]
 
 def str2ascii(file):
@@ -28,3 +19,9 @@ def str2ascii(file):
 
 
 del os
+
+try:
+    from . import _version
+    __version__ = _version.get_versions()['version']
+except:
+    pass

@@ -1,0 +1,10 @@
+include versioneer.py
+exclude pydsstools/src/*.c
+include pydsstools/src/external/dss/headers/*
+include pydsstools/src/external/dss/linux64/*
+include pydsstools/src/external/dss/win64/*
+include pydsstools/src/external/gridv6/*
+include pydsstools/src/external/gridv6/headers/*
+include pydsstools/src/external/zlib/*.lib
+include pydsstools/src/external/zlib/*.h
+

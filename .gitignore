@@ -21,8 +21,11 @@
 pydsstools/src/compile/
 pydsstools/src/external/gridv6/x64/
 pydsstools/src/external/gridv6/.vs/
+pydsstools/src/external/gridv6/build/
 build_*.bat
 *.bat
+*.swo
+setup.cfg
 
 # Compiled source #
 ###################
@@ -50,8 +53,6 @@ dist
 _dist
 # sphinx build directory
 doc/_build
-# setup.py dist directory
-# dist
 # Egg metadata
 *.egg-info
 .eggs

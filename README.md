@@ -393,36 +393,20 @@ Dependencies
 - [affine](https://pypi.org/project/affine/)
 - [MS Visual C++ Redistributable for VS 2015 - 2019](https://aka.ms/vs/16/release/vc_redist.x64.exe)
 
-Installation from sources
+Build from source
 ===
-The cython extension and grid version 6 libraries are compiled while installing pydsstools from source files. This requires proper configuration of build tools and python environment in the command prompt. The included cmd_intel_environ.bat can be used in Windows 10 provided that Intel Parallel Studio XE 2019 and Microsoft Visual Studio 2019 Community Edition or equivalents are available.
+Download the source files, open the command prompt in the root directory, and enter the following command. Note that the command prompt must be setup with build tools and python environment.
 ```
-python setup.py install 
+python -m build 
 
-or
-
-pip install https://github.com/gyanz/pydsstools/zipball/master
 ```
 
-Installation from binary wheels
+Installation from Pypi
 ===
-Download suitable wheel file from dist directory and run th following command:
 ```
-pip install wheel_file
-```
-
-Windows 10 wheel files
-```
-Python 3.6: pydsstools-X.x-cp36-cp36m-win_amd64.whl
-Python 3.7: pydsstools-X.x-cp37-cp37m-win_amd64.whl
-Python 3.8: pydsstools-X.x-cp38-cp38m-win_amd64.whl
-Python 3.9: pydsstools-X.x-cp39-cp39m-win_amd64.whl
+pip install pydsstools
 ```
 
-Ubuntu 20.04 LTS wheel files
-```
-Python 3.8: pydsstools-X.x-cp38-cp38-linux_x86_64.whl
-```
 
 Contributing
 ===
