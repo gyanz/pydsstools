@@ -296,6 +296,18 @@ class HecTime(object):
         self._python_datetime = _new_date
         return self
 
+    def add_relativedelta(self,**kwargs):
+        # same arguments as dateutils.relativedelta.relativedelta
+        # e.g., day, days, month, months, etc.
+        cur_date = self.python_datetime
+        dt = relativedelta(**kwargs)
+        new_date = cur_date + dt
+        new_datetimeString = new_date.strftime("%d %b %Y %H:%M:%S")
+        new_instance = self.__class__(new_datetimeString,self.granularity)
+        self._datetimeValue = new_instance.datetimeValue
+        self._python_datetime = new_date
+        return self
+      
     def clone(self):
         return self.__class__(self.formatDate(),self.granularity)
 
