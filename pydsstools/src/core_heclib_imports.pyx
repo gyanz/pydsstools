@@ -8,6 +8,7 @@ from datetime import datetime,timedelta
 from libc.stdlib cimport malloc, free
 from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
 from dateutil import parser
+from dateutil.relativedelta import relativedelta
 from affine import Affine
 from collections import namedtuple
 import numpy as np 
