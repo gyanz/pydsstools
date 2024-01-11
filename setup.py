@@ -128,11 +128,7 @@ class BuildExt(build_ext):
         else:
             print('Building external library: grid.a')
             make_dir = join(setup_dir,r'pydsstools/src/external/gridv6')
-            batch_file = join(setup_dir,r'pydsstools/src/external/gridv6/build.sh')
-            with open(batch_file, 'rb') as fid:
-                script = fid.read()
-            print('CWD: %s'%make_dir )
-            call(script, shell=True, cwd=make_dir)
+            call('make all', shell=True, cwd=make_dir)
 
     def build_extensions(self):
         self.build_grid_library()
