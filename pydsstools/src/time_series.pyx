@@ -144,33 +144,81 @@ cdef class TimeSeriesStruct:
             if interval <= 0:
                 return self.get_times(num).tolist()
             else:
-                reg_times = []
                 granularity = self.granularity
                 logging.debug('Computing times for regular time-series (granularity = %r second, startJulianDate = %r, startTimeSeconds = %r ):'%(granularity, self.tss[0].startJulianDate, self.tss[0].startTimeSeconds))
                 logging.debug('Number of seconds each unit of time value = %r',granularity)
-                time_sum_float = float(self.tss[0].startTimeSeconds*1.0/granularity)
-                time_sum_int = int(time_sum_float)
-                if time_sum_int != time_sum_float: logging.warn('Possible bug: startTimeSeconds of time-series is not multiple of granularity.')
-                for i in np.arange(self.get_number()):
-                    reg_times.append(time_sum_int)
-                    time_sum_int = time_sum_int + int(interval*1.0/granularity) 
-                return reg_times
+                start_date = self.startDateTime
+                start_date = HecTime(start_date,1, self.tss[0].startJulianDate)
+                result = {"start_date":start_date,"interval_seconds":interval, "freq":{}}
+
+                # NOTE: DSSVue exclusively supports the specific intervals listed below. 
+                # I believe the HEC-DSS library also exclusively supports these intervals. 
+                # Therefore, despite the appearance of broader interval support in the code below, 
+                # using a DSS record with any other interval will probably result in an error. 
+                # Minute = 1-6,10,12,15,20,30
+                # Hour = 1-4,6,8,12
+                # Day = 1
+                # Week = 1
+                # Month = tri, semi, 1
+                # Year = 1
+
+                if interval % (365*24*60*60) == 0:
+                    # multiple of years
+                    years = interval // (365*24*60*60)
+                    result["freq"] = {"years":years}
+
+                elif interval % (30*24*60*60) == 0:
+                    # multiple of months
+                    months = interval // (30*24*60*60)
+                    result["freq"] = {"months":months}
+
+                elif interval % (7*24*60*60) == 0:
+                    # multiple of weeks
+                    weeks = interval // (7*24*60*60)
+                    result["freq"] = {"weeks":weeks}
+
+                elif interval % (24*60*60) == 0:
+                    # multiple of days 
+                    days = interval // (24*60*60)
+                    result["freq"] = {"days":days}
+
+                elif interval % (60*60) == 0:
+                    # multiple of hours 
+                    hours = interval // (60*60)
+                    result["freq"] = {"hours":hours}
+
+                elif interval % 60 == 0:
+                    # multiple of minutes 
+                    mins = interval // 60
+                    result["freq"] = {"minutes":mins}
+                
+                else:
+                    result["freq"] = {"seconds":interval}
+
+                return result
 
     @property
     def pytimes(self):
         cdef:
-            list times,datetimes
-            int interval,granularity
-
+            list datetimes
+            object times
+            int interval,granularity,num,count
         if self.tss:
+            num = self.get_number()
             interval = self.interval
             times = self.times
-            granularity = self.granularity # Check if granularity value for regular timeseries is just a dummy value 
+            
             if times:
                 if interval <= 0:
+                    granularity = self.granularity
                     datetimes = [getPyDateTimeFromValue(x,granularity,self.tss[0].julianBaseDate) for x in times]    
                 else:
-                    datetimes = [getPyDateTimeFromValue(x,granularity,self.tss[0].startJulianDate) for x in times]
+                    freq = times['freq']
+                    start_date = times['start_date'].python_datetime
+                    datetimes = [start_date]
+                    for i in range(1,num):
+                        new_date = datetimes[-1] + relativedelta(**freq)
+                        datetimes.append(new_date)
                 return datetimes
 
 
@@ -194,7 +242,7 @@ cdef class TimeSeriesStruct:
             # To avoid making a copy of the data, numpy.asarray(memoryview of array)
               menthod can be used.
         """
-        cdef num
+        cdef int num
         if self.tss:
             num = self.get_number()
             if self.tss[0].floatValues:

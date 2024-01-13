@@ -25,7 +25,7 @@ class Open(_Open):
         # version 7 is selected.
         super().__init__(dssFilename,version)
 
-    def read_ts(self,pathname,window=None,trim_missing=True,regular=True,window_flag=0):
+    def read_ts(self,pathname,window=None,trim_missing=False,regular=True,window_flag=0):
         """Read time-series
 
         Parameter
@@ -442,7 +442,7 @@ class Open(_Open):
             if not compute_range: compute_range = True
             stats = computeGridStats(data,compute_range)
             stats['range_values'][0] = nodata
-            print('stats=',stats)
+            logging.debug('stats=',stats)
 
             # Check the data array
             _data = data

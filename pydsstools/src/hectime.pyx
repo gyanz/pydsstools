@@ -296,7 +296,7 @@ class HecTime(object):
         self._python_datetime = _new_date
         return self
 
-    def add_relativedelta(self,**kwargs):
+    def addDelta(self,**kwargs):
         # same arguments as dateutils.relativedelta.relativedelta
         # e.g., day, days, month, months, etc.
         cur_date = self.python_datetime
