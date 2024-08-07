@@ -137,8 +137,8 @@ class Open(_Open):
             julianbasedate = 0
             time_values = []
 
-            if not times or not isinstance(times,(list,tuple)):
-                logging.error('times for irregular time-series is not non-empty list or tuple')
+            if times is None or not len(times):
+                logging.error('times for irregular time-series is not non-empty list, tuple, or array')
                 return
 
             if not (tsc.numberValues == len(times)):
