@@ -42,7 +42,7 @@ Notes:
      Actual time-series interval implied from E-Part of pathname
      The values attribute can be list, array or numpy array
 
-```
+```python
 from datetime import datetime
 from pydsstools.heclib.dss import HecDss
 from pydsstools.core import TimeSeriesContainer,UNDEFINED
