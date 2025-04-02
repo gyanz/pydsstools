@@ -261,7 +261,7 @@ with Open(dss_file) as fid:
 ### Example 10 
 Write Spatial Grid record
  
-```
+```python
 import numpy as np
 import numpy.ma as ma
 from affine import Affine
