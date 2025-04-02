@@ -35,39 +35,56 @@ Usage
 Sample dss file available in examples folder.
 
 ### Example 1
-Write regular time-series data to example.dss
 
-Notes:
-     The interval must be [any] integer greater than 0 for regular time-series.
-     Actual time-series interval implied from E-Part of pathname
-     The values attribute can be list, array or numpy array
+📘 Writing Regular Time-Series Data to example.dss
 
 ```python
+# This script demonstrates how to write a regular time-series dataset to a DSS file
+# using the `pydsstools` library. Regular time-series require a positive integer interval,
+# which is implied from the E-part of the DSS pathname (e.g., "1HOUR").
+
+# ⚙️ Key Notes:
+# - The interval must be [any] integer greater than 0 for regular time-series.
+# - Actual time-series interval implied from E-Part of pathname
+# -  The values attribute can be list, array or numpy array
+
 from datetime import datetime
 from pydsstools.heclib.dss import HecDss
-from pydsstools.core import TimeSeriesContainer,UNDEFINED
+from pydsstools.core import TimeSeriesContainer, UNDEFINED
 
+# 📁 Define the DSS file and data pathname
 dss_file = "example.dss"
 pathname = "/REGULAR/TIMESERIES/FLOW//1HOUR/Ex1/"
+
+# 📦 Create a TimeSeriesContainer object
 tsc = TimeSeriesContainer()
 tsc.pathname = pathname
 tsc.startDateTime = "15JUL2019 19:00:00"
 tsc.numberValues = 7
-tsc.units = "cfs"
-tsc.type = "INST"
-tsc.interval = 1
-tsc.values = [100,UNDEFINED,500,5000,10000,24.1,25]
+tsc.units = "cfs"         # cubic feet per second
+tsc.type = "INST"         # instantaneous values
+tsc.interval = 1          # 1-hour interval
+tsc.values = [100, UNDEFINED, 500, 5000, 10000, 24.1, 25]
 
+# 📝 Open the DSS file and write the time series
 fid = HecDss.Open(dss_file)
+
+# Optional: delete existing data at the same pathname to avoid conflicts
 fid.deletePathname(tsc.pathname)
+
+# Write the time series data
 fid.put_ts(tsc)
+
+# ✅ Read back the data for verification (optional)
 ts = fid.read_ts(pathname)
+
+# 🔒 Close the DSS file
 fid.close()
 ```
 
 ### Example 2
 Read and plot regular time-series
-```
+```python
 from pydsstools.heclib.dss import HecDss
 import matplotlib.pyplot as plt
 import numpy as np
@@ -93,7 +110,7 @@ Write irregular time-series data
 Notes:
      The interval must be [any] integer <= 0 for irregular time-series.
      DParts: IR-MONTH, IR-YEAR, IR-DECADE, IR-CENTURY
-```
+```python
 from datetime import datetime
 from pydsstools.heclib.dss import HecDss
 from pydsstools.core import TimeSeriesContainer, UNDEFINED
@@ -120,7 +137,7 @@ with HecDss.Open(dss_file) as fid:
 
 ### Example 4
 Read irregular time-series data
-```
+```python
 from pydsstools.heclib.dss import HecDss
 
 dss_file = "example.dss"
@@ -136,7 +153,7 @@ with HecDss.Open(dss_file) as fid:
 
 ### Example 5 
 Write paired data series
-```
+```python
 import numpy as np
 from pydsstools.heclib.dss import HecDss
 from pydsstools.core import PairedDataContainer
@@ -165,7 +182,7 @@ Read paired data-series
 
 Notes:
     Row and column/curve indices start at 1 (not zero)
-```
+```python
 from pydsstools.heclib.dss import HecDss
 
 dss_file = "example.dss"
@@ -183,7 +200,7 @@ with HecDss.Open(dss_file) as fid:
 
 ### Example 7 
 Pre-allocate paired data-series
-```
+```python
 from pydsstools.heclib.dss import HecDss
 
 dss_file = "example.dss"
@@ -197,7 +214,7 @@ with HecDss.Open(dss_file) as fid:
 
 ### Example 8 
 Write individual curve data in pre-allocated paired data-series 
-```
+```python
 from pydsstools.heclib.dss import HecDss
 
 dss_file = "example.dss"
@@ -219,7 +236,7 @@ with HecDss.Open(dss_file) as fid:
 
 ### Example 9 
 Read Spatial Grid 
-```
+```python
 from pydsstools.heclib.dss.HecDss import Open
 
 dss_file = "example.dss"
@@ -284,7 +301,7 @@ with Open(dss_file) as fid:
 Read DSS-6 Spatial Grid record
 Copy DSS-6 Grid to DSS-7 file 
 
-```
+```python
 from pydsstools.heclib.dss.HecDss import Open
 from pydsstools.heclib.utils import dss_logging
 dss_logging.config(level='Diagnostic')
@@ -308,7 +325,7 @@ with Open(dss6_file) as fidin, Open(dss7_file) as fidout:
 
 ### Example 12 
 Read pathname catalog
-```
+```python
 from pydsstools.heclib.dss.HecDss import Open
 
 dss_file = "example.dss"
@@ -322,7 +339,7 @@ with Open(dss_file) as fid:
 
 ### Example 13 
 Copy dss record
-```
+```python
 from pydsstools.heclib.dss.HecDss import Open
 
 dss_file = "example.dss"
@@ -336,7 +353,7 @@ with Open(dss_file) as fid:
 
 ### Example 14 
 Delete dss record
-```
+```python
 from pydsstools.heclib.dss.HecDss import Open
 
 dss_file = "example.dss"
@@ -349,7 +366,7 @@ with Open(dss_file) as fid:
 
 ### Example 15 
 Spatial Analysis on grid
-```
+```python
 # Notes
 # Experimental geospatial methods for grid
 # Not 100% sure about gridinfo that is computed for the cropped grid esp. for SHG and HRAP
