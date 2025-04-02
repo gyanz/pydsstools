@@ -38,16 +38,16 @@ Sample dss file available in examples folder.
 
 📘 Writing Regular Time-Series Data to example.dss
 
+This script demonstrates how to write a regular time-series dataset to a DSS file
+using the `pydsstools` library. Regular time-series require a positive integer interval,
+which is implied from the E-part of the DSS pathname (e.g., "1HOUR").
+
+⚙️ Key Notes:
+- The interval must be [any] integer greater than 0 for regular time-series.
+- Actual time-series interval implied from E-Part of pathname
+-  The values attribute can be list, array or numpy array
+
 ```python
-# This script demonstrates how to write a regular time-series dataset to a DSS file
-# using the `pydsstools` library. Regular time-series require a positive integer interval,
-# which is implied from the E-part of the DSS pathname (e.g., "1HOUR").
-
-# ⚙️ Key Notes:
-# - The interval must be [any] integer greater than 0 for regular time-series.
-# - Actual time-series interval implied from E-Part of pathname
-# -  The values attribute can be list, array or numpy array
-
 from datetime import datetime
 from pydsstools.heclib.dss import HecDss
 from pydsstools.core import TimeSeriesContainer, UNDEFINED
