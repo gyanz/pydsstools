@@ -1,5 +1,5 @@
-CFLAGS=-m64 -v -fPIC -g -I../dss/headers -Iheaders
-CPPFLAGS=-m64 -v -fPIC -g -I../dss/headers -Iheaders
+CFLAGS=-m64 -v -fPIC -g -I../dss/headers -Iheaders -I../zlib
+CPPFLAGS=-m64 -v -fPIC -g -I../dss/headers -Iheaders -I../zlib
 
 CPP_SRCS:=$(wildcard *.cpp)
 CPP_OBJS=$(CPP_SRCS:.cpp=.o)
