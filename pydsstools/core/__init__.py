@@ -1,5 +1,7 @@
 __all__ = ['core_heclib',
            'UNDEFINED',
+           'NODATA_TIME',
+           'NODATA_TIME',
            'Open',
            'TimeSeriesContainer',
            'TimeSeriesStruct', #can't use this from python directly

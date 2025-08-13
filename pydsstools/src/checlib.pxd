@@ -79,6 +79,29 @@ cdef extern from "heclib.h":
     int zopen6(long long *ifltab, const char *dssFilename)
     int zopen7(long long *ifltab, const char *dssFilename)
     int zclose(long long *ifltab)
+    int zset7(const char* parameter, const char* charVal, int integerValue)
+    # following low level function needed to write grid to DSS6 file
+    void zreadx(long long *ifltab, 
+                const char *pathname,
+                int *internalHeader, int *internalHeaderArraySize , int *internalHeaderNumber, # gridInfoAsInts,  &gridInfoFlatSize, &gridInfoFlatSize
+                int *header2, int *header2ArraySize, int *header2Number, #                     # &0 ...
+                int *userHeader, int *userHeaderArraySize, int *userHeaderNumber,              # &0 ...
+                int *values, int *valuesSize, int *valuesNumber,                               # dataCompressed, &numberDataCompressed, &numberOfCompressed
+                int *readPlan,                                                                 # &0 
+                int *recordFound)                                                              # &found
+
+    # most of these parameters are in ZStructTransfer.h
+    void zwritex(long long *ifltab, 
+                 const char *path, int *npath,
+                 int *internalHeader, int *internalHeaderNumber,
+                 int *header2, int *header2Number,
+                 int *userHeader, int *userHeaderNumber,
+                 int *values, int *valuesNumber,
+                 int *dataType,                                                                 
+                 int *plan,
+                 int *status, 
+                 int *recordFound)                                                              # exists or not
+
     ctypedef struct zStructTimeSeries:
         int *times
         float *floatValues
@@ -390,7 +413,7 @@ cdef extern from "heclib.h":
     zStructSpatialGrid* zstructSpatialGridNew(const char* pathname)
     int zspatialGridRetrieve(long long *ifltab, zStructSpatialGrid *gdStruct, int boolRetrieveData)
     int zspatialGridStore(long long *ifltab, zStructSpatialGrid *gdStruct)
-    #int compress_zlib(void* array, int size, void **buffer)
+    int compress_zlib(void* array, int size, void **buffer)
     #int uncompress_zlib(const void* buffer, int size, void* data, int dataSize)
     int zspatialGridRetrieveVersion(long long *ifltab, const char *cpath, int* gridStructVersion)
     #void printGridStruct(long long *ifltab, int funtion_id, zStructSpatialGrid *gdStruct)
