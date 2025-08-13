@@ -261,6 +261,10 @@ cdef class Open:
         # TODO: Error check
         saveSpatialGrid(self.ifltab,pathname, data, nodata, stats, profile)
 
+    cpdef int put_grid6(self,str pathname,  np.ndarray data, object gridinfo) except *:
+        # TODO: Error check
+        saveGridV6(self.ifltab,pathname, data, gridinfo)
+
     cpdef dict dss_info(self, str pathname):
         return dss_info(self,pathname)
 

@@ -17,6 +17,7 @@ from ...core import SpatialGridStruct
 from ...core import getPathnameCatalog, deletePathname,PairedDataContainer,HecTime,DssPathName,dss_info
 from ...heclib.utils import computeGridStats,UNDEFINED
 from ...heclib.utils import check_gridinfo
+from ...heclib import gridv6
 
 class Open(_Open):
     def __init__(self,dssFilename,version=None,**kwargs):
@@ -363,7 +364,7 @@ class Open(_Open):
         super().read_grid(pathname,sg_st,retrieve_data)
         return sg_st
         
-    def put_grid(self, pathname, data, profile=None, flipud=1, compute_range = True, inplace = False, raise_profile_error = False):
+    def put_grid(self, pathname, data, profile=None, flipud=1, compute_range=True, inplace=False, raise_profile_error=False):
         """Write spatial grid to DSS-7 file. Writing to DSS-6 file not allowed.
 
         Parameter
@@ -380,7 +381,7 @@ class Open(_Open):
              string - quartiles, quarters, etc., methods TODO
              list - list of values (max 19 excluding nodata) to compute equal to greater than metrics 
           inplace: bool, default False
-             If True, modifies the data array inplace
+             If True, modifies the data array inplace when possible.
           raise_profile_error: boolean
              If True, raises error if critical error is found in profile data
              
@@ -417,6 +418,8 @@ class Open(_Open):
             row, col = shape
             _data = data._get_mview()    
             _data.setflags(write=1) # to resolve cython issue
+            # mview array is (rows*cols,) 1D array
+            # reshaping make it two dimensional without copy
             _data = np.reshape(_data,(row,col))
 
         elif isinstance(data,np.ndarray):
@@ -464,9 +467,133 @@ class Open(_Open):
 
         super().put_grid(pathname, _data, nodata, stats, grid_info)
 
+    def put_grid6(self, pathname, data, profile=None, flipud=1, compute_range=False, inplace=True):
+        """Write spatial grid to DSS-6 file. Writing to DSS-7 file not allowed.
+
+        Parameter
+        ---------
+          data: numpy array  or SpatialGridStruct; masked array not allowed. np.nan is considered null value 
+             inaddition to nodata value in case of SpecifiedGrid.
+             numpy array - np.nan is considered null value
+             masked array - masked values are considered null or nodata values - no additional check is performed.
+          profile: gridinfo dict, contains grid information; parameter name must match fields of
+             GridHrapInfo, GridAlbersInfo and GridSpecifiedInfo from pydsstools.heclib.gridv6. Note
+             that some parameters (e.g., compression_elemsize) are unncessary and may be overwritten
+             inside this function or in cython code. No need to profile when data is SpatialGridStruct.          
+          flipud: 0 or 1, flips the array
+          compute_range: bool, string or list of values
+             True - compute range table using default method
+             False - do not compute range table, applicable to SpatialGridStuct data only
+             string - quartiles, quarters, etc., methods TODO
+             list - list of values (max 19 excluding nodata) to compute equal to greater than metrics 
+          inplace: bool, default False
+             If True, modifies the data array inplace when possible.
+        """
+        if self.version == 7:
+            logging.warning('put_grid6 does not support writing grid to DSS-7 file')
+            return
+        
+        if isinstance(data, SpatialGridStruct):
+            profile = gridv6._convert_grid7_to_grid6_meta(data)
+            row, col = profile['rows'],profile['cols']
+            if compute_range:
+                # get masked array (need copy)
+                # nodata values (specified in profile) are masked
+                _mdata = data.read()
+                stats = computeGridStats(_mdata,compute_range)
+                profile['max_val'] = stats['max']
+                profile['min_val'] = stats['min']
+                profile['mean_val'] = stats['mean']
+                profile['range_table_values'] = stats['range_values'][0:20]
+                profile['range_table_counts'] = stats['range_counts'][0:20]
+                profile['range_length'] = len(profile['range_table_values'])
+
+            # get view of data (no copy)
+            _data = data._get_mview()    
+            _data.setflags(write=1) # to resolve cython issue
+            # mview array is (rows*cols,) 1D array
+            # reshaping make it two dimensional without copy
+            _data = np.reshape(_data,(row,col))
+            # nodata value in data array and profile should match each other
+
+        elif isinstance(data,np.ndarray):
+            #TODO: PRECIP_2_BYTE format data
+            # nodata assumption:
+            # Specified grid = nodata value given in profile
+            # other grids = gridv6.NODATA_FLOAT = UNDEFINED
+
+            # make sure the grid_type is specified and valid
+            _gtype = profile.get('grid_type',None)
+            if _gtype is None:
+                logging.error('Grid type is missing in the profile. It must be one of Hrap, Albers or Specified.')
+                return
+
+            _gtypeobj = gridv6.GridInfo.from_grid_type(_gtype)
+            if type(_gtypeobj) == gridv6.GridInfo:
+                logging.warning('Undefined grid type was specified.')
+
+            if isinstance(data,ma.core.MaskedArray):
+                logging.error('Masked numpy array is not supported while writing DSS-6 grid.')
+                return
+
+            if inplace:
+                _data = data.astype(np.float32,copy=False)
+            else:
+                _data = data.astype(np.float32,copy=True)
+
+            profile['rows'] = _data.shape[0]
+            profile['cols'] = _data.shape[1]
+            ginfo = gridv6._gridinfo_from_meta(profile)
+            profile = ginfo.to_dict()
+            logging.info('Input profile or gridinfo for DSS-6 grid was updated to fulfill data requirement. Turn on logging.DEBUG mode to display the updated data.')
+            logging.info('If a non-critical gridinfo parameter is missing, it will either default to appropriate nodata, zero or empty string.')
+            logging.debug('Updated profile or gridinfo:\n{}'.format(profile)) # function in gridv6 may already show the updated profile
+             
+            # check need to compute statistics
+            compute_stats = False
+            if compute_range == True:
+                compute_stats = True
+            elif gridv6._listlike(compute_range):
+                compute_stats = True    
+
+            if compute_stats:
+                # need to keep an eye on comparision with nodata
+                if type(ginfo) == gridv6.GridSpecifiedInfo:
+                    _data = np.where(_data==profile['nodata'],np.nan,_data) 
+                else:        
+                    _data = np.where(_data==gridv6.NODATA_FLOAT,np.nan,_data) 
+
+                # np.nan values are ignored during statistics
+                stats = computeGridStats(_data,True)
+                profile['max_val'] = stats['max']
+                profile['min_val'] = stats['min']
+                profile['mean_val'] = stats['mean']
+                profile['range_table_counts'] = stats['range_counts'][0:20]
+                profile['range_length'] = len(profile['range_table_values'])
+                range_values = stats['range_values'][0:20]
+                # first range value from stats is np.nan
+                # if the nodata is less than min_val, change first value to the nodata value (true for Hrap and Albers)
+                # this gets complicated when the user specified nodata is 0 or -9999 and values less than nodata are still valid (i.e., Specified grid).
+                if type(ginfo) != gridv6.GridSpecifiedInfo:
+                    range_values[0] = gridv6.NODATA_FLOAT
+                profile['range_table_values'] = range_values 
+
+            # convert any np.nan to nodata value
+            if type(ginfo) == gridv6.GridSpecifiedInfo:
+                _data[np.isnan(_data)] = profile['nodata']
+            else:
+                _data[np.isnan(_data)] = gridv6.NODATA_FLOAT
+
+            if flipud:
+                _data = np.flipud(_data)
+
+        _data = np.ascontiguousarray(_data)    
+        ginfo = gridv6._gridinfo_from_meta(profile)
+        super().put_grid6(pathname, _data, ginfo)
+
     def copy(self,pathname_in,pathname_out,dss_out=None):
         dss_fid = dss_out if isinstance(dss_out,self.__class__) else self
-        if (pathname_in.lower() == pathname_out.lower() or not pathname_out) and dis_fid is self:
+        if (pathname_in.lower() == pathname_out.lower() or not pathname_out) and dss_fid is self:
             # overwriting with exact data is pointless
             return
         self.copyRecordsTo(dss_fid,pathname_in,pathname_out)

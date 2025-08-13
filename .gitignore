@@ -17,6 +17,7 @@
 .tags
 .cache/
 .vscode/
+*.code-workspace
 .DS_Store
 pydsstools/src/compile/
 pydsstools/src/external/gridv6/x64/

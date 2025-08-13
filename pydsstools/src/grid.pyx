@@ -99,17 +99,25 @@ def correct_shg_gridinfo(gridinfo,shape):
 
 def lower_left_xy_from_transform(transform,shape,cell_zero_xcoord=0,cell_zero_ycoord=0):
     cdef:
-        float xmin,ymax
-        float ymin # verbose to make calculation more clear
+        float xmin_easting,ymin_northing
+        float xmin,ymin,ymax
         int lower_left_x,lower_left_y
-    cellsize = transform[0]
-    cellsize_y = transform[4]
-    rows,cols = shape
-    xmin = transform[2] - cell_zero_xcoord
-    ymax = transform[5] - cell_zero_ycoord
+        int rows
+
+    cellsize_x = transform[0] # don't think this can ever be negative
+    xmin = transform[2]
+    cellsize_y = transform[4] # negative for north-up
+    ymax = transform[5]
+
+    if abs(cellsize_x) != abs(cellsize_y):
+        logging.warning('Note that cell sizes in x and y should be same for specified grid stored in HEC-DSS')
+
+    rows = shape[0]
+    xmin_easting = xmin - cell_zero_xcoord
     ymin = ymax + rows * cellsize_y
-    lower_left_x = <int>(floor(xmin/cellsize))
-    lower_left_y = <int>(floor(ymax/cellsize))
+    ymin_northing = ymin - cell_zero_ycoord
+    lower_left_x = <int>(floor(xmin_easting/abs(cellsize_x)))
+    lower_left_y = <int>(floor(ymin_northing/abs(cellsize_y)))
     return (lower_left_x,lower_left_y)
 
 cdef SpatialGridStruct createSGS(zStructSpatialGrid *zsgs):
@@ -259,6 +267,12 @@ cdef class SpatialGridStruct:
         cdef int result = 0
         if self.zsgs:
             result = self.zsgs[0]._isTimeStamped
+        return result
+
+    cpdef str pathname(self):
+        cdef char* result = ''
+        if self.zsgs:
+            result = self.zsgs[0].pathname
         return result
 
     cpdef int rows(self):
@@ -602,7 +616,10 @@ cdef int saveSpatialGrid(long long *ifltab, const char* pathname, np.ndarray dat
     zsgs[0].pathname  = pathname
     zsgs[0]._structVersion  = -100 # DSS-7
     zsgs[0]._type  = _type
-    zsgs[0]._version  = 1 # ???
+
+    # In HEC-DSS 6, I think this is 2 for Specified Grid and not specified for other types
+    # HEC-DSS 7 probably updates this value while writing to file
+    zsgs[0]._version  = 1 
 
     zsgs[0]._dataUnits  = _units
     zsgs[0]._dataType  = _datatype
@@ -613,6 +630,9 @@ cdef int saveSpatialGrid(long long *ifltab, const char* pathname, np.ndarray dat
     zsgs[0]._numberOfCellsY  = <int>_row
     zsgs[0]._cellSize  = cellsize
     zsgs[0]._compressionMethod  = _compression_method
+    # In zStructTransfer, compression parameters are in
+    # member value2Number and values2. Both are set to zero with comment saying - for future use
+    # Thus, the compression parameters can be returned as zero (e.g., converting to DSS6) without reading the actual values
     zsgs[0]._compressionParameters  = NULL
 
     zsgs[0]._srsName  = _crs_name
@@ -638,3 +658,113 @@ cdef int saveSpatialGrid(long long *ifltab, const char* pathname, np.ndarray dat
     status = zspatialGridStore(ifltab,zsgs)
 
     return status 
+
+cdef int saveGridV6(long long *ifltab, const char* pathname, float[:,::1] data, object gridinfo):
+    cdef:
+        int rows = 0
+        int cols = 0
+        int path_len = 0
+        int comp_method
+        int data_size = 0
+        void * comp_buffer = NULL
+        int comp_buffer_bytes = 0
+        int comp_buffer_len = 0
+        int[::1] info_flat
+        int info_len 
+        int grid_type
+        int zero = 0
+        int plan = 0
+        int dummy_header[1]
+        int status[1]
+        int exists[1] 
+
+    rows = gridinfo.rows
+    cols = gridinfo.cols
+    if rows != data.shape[0] or cols != data.shape[1]:
+        logging.error('Grid data rows and columns mismatch between data array and gridinfo',exc_info=False)
+        logging.info('Grid data not written to dss file')
+        return -1
+
+    data_size_bytes = rows * cols * data.itemsize
+    path_len = strlen(pathname)
+    grid_type = gridinfo.grid_type
+    comp_method = gridinfo.compression_method
+
+    # 0 Undefined
+    # 1 No Compression
+    # 26  Zlib Deflate
+    # 101001 PRECIP_2_BYTE      
+
+    # compress data
+    '''
+    if comp_method == 101001:
+        #precip_2_byte
+        #TODO: implement this later
+
+    elif comp_method == 0 or  comp_method == 26:
+        # undefined/zlib
+        #int compress_zlib(void* input_array, int input_size, void **output_buffer)
+        comp_buffer_bytes = compress_zlib(<void*>&data[0,0], size, &comp_buffer)
+        gridinfo.opt_compression_elemsize = <int>comp_size_bytes
+
+    else:
+        # no compression
+        return -1
+    '''
+    # Ignoring compression and applying ZLIB Deflate
+    if comp_method == 0 or  comp_method == 26:
+        # Case for undefined and zlib compression
+        logging.info('Apply zlib compression to grid data before writing to dss file.')
+        gridinfo.compression_method = 26
+        comp_buffer_bytes = compress_zlib(<void*>&data[0,0], data_size_bytes, &comp_buffer)
+        comp_buffer_len = <int>((comp_buffer_bytes + 4 - 1)/4.0)
+        gridinfo.opt_compression_elemsize = comp_buffer_bytes
+        gridinfo.opt_compression_factor = 0 # hard coding for now
+        gridinfo.opt_compression_base = 0 # hard coding for now
+        logging.info("Size of grid data: {} bytes".format(data_size_bytes))
+        logging.info("Size of compressed data: {} bytes".format(comp_buffer_bytes))
+        logging.info("Length of compressed data: {}".format(comp_buffer_len))
+
+    elif comp_method == 1:
+        # Case of no compression
+        logging.info('No compression to grid data before writing to dss file.')
+        comp_buffer = <void*>&data[0,0]
+        comp_buffer_bytes = data_size_bytes
+        comp_buffer_len = rows * cols            
+        gridinfo.opt_compression_elemsize = comp_buffer_bytes
+        gridinfo.opt_compression_factor = 0 # hard coding for now
+        gridinfo.opt_compression_base = 0 # hard coding for now
+
+    elif comp_method == 101001:
+        # Case of PRECIP_2_BYTES
+        logging.warn('PRECIP_2_BYTES compression not implemented. Grid is not written to dss file.')
+        return -1
+
+    # get flatten (numpy int32 gridinfo buffer) from profile
+    # grid info/meta data as int buffer
+    logging.debug('Final gridinfo header in string format to be written to dss file:\n{}'.format(gridinfo.to_dict()))
+    info_flat = gridinfo.to_int_array()
+    info_len = info_flat.size
+    logging.debug('Length of final gridinfo header as integer buffer:\n{}'.format(info_len))
+    logging.debug('Final gridinfo header as integer buffer:\n{}'.format(np.asarray(info_flat)))
+
+    # Write to dss file
+    # zwritex is C API
+    # zwritex_ is fortran API. Using this may have required the string as Hollerith representation.   
+    # not sure why &grid_type is needed in zwritex
+    zwritex(ifltab,
+            pathname, &path_len,
+            &info_flat[0],&info_len,
+            dummy_header,&zero,
+            dummy_header,&zero,
+            <int *>comp_buffer,&comp_buffer_len,
+            &grid_type,
+            &plan,
+            status,
+            exists,
+            )
+
+    logging.info("Grid data written to file with status code = {}".format(status[0]))
+
+    return status[0]
+

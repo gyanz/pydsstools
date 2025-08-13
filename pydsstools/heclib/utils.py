@@ -106,6 +106,7 @@ def computeGridStats(data,compute_range = True):
             # string - quartiles, quarters, TODO
             # list/tuple - list of values (max 19 excluding nodata) to compute equal to greater than cell counts
     """
+    logging.info('Computing grid statistics')
     result = {'min': None, 'max': None, 'mean': None,'range_values':[], 'range_counts': []}
     total_cells = data.size
 
@@ -157,6 +158,7 @@ def computeGridStats(data,compute_range = True):
         range_counts.append(count)
     
     result.update([('range_values',range_values),('range_counts',range_counts)])
+    logging.info(result)
     return result
 
 def check_gridinfo(grid_info,shape,raise_error = False):

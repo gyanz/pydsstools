@@ -1,5 +1,18 @@
 pydsstools changelog
 ================
+2.4.0 (08-13-2025)
+-----------------
+* Added function to write spatial grid data to HEC-DSS 6 file
+* zlib deflate compression as well as no compression are supported
+* PRECIP_2_BYTES compression method has not been implemented yet
+* Fixed issue with lower_left_xy_from_transform function
+* Updated numpy version dependency in toml file
+* Binary wheel available in Pypi for python 3.8 to 3.12
+
+2.3.2 (01-13-2024)
+-----------------
+* bug fix
+
 2.3.1 (09-06-2023)
 -----------------
 * Removed support for Python 3.6 and 3.7 due to lack of Anaconda support for these versions
