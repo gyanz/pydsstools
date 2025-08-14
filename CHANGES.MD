@@ -8,6 +8,7 @@ pydsstools changelog
 * Fixed issue with lower_left_xy_from_transform function
 * Updated numpy version dependency in toml file
 * Binary wheel available in Pypi for python 3.8 to 3.12
+* Compiled using VS Studio 2022 and Intel OneAPI HPC Toolkit 2025.2.0576
 
 2.3.2 (01-13-2024)
 -----------------

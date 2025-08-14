@@ -3,7 +3,6 @@ This module provides data structures and methods for interacting with DSS 6 grid
 Since the implementation in this file is subject to change, direct use of this module is not recommended.
 * Use pydsstools.heclib.dss.Heclib.Open.put_grid6 to write grid to dss 6 file.
 * Currently grid data is read from dss file using read_grid method. DSS 6 grid is read and converted to DSS 7 form using C++ code.
-* TODO: provide read_grid6 method to get DSS 6 grid in native format. 
 '''
 import logging
 import struct
@@ -85,7 +84,6 @@ def str_to_ints(s, endian="little", signed = True):
         ints.append(val)
 
     return ints
-
 def str_to_ints_hollerith(s, endian="little", signed = True):
     """
     string formatted as <length>H<text> used on old Fortran
@@ -307,7 +305,7 @@ class _GridInfo:
             if name.endswith('_length'):
                 len = getattr(ginfo,name)
 
-            if ctypes.sizeof(typ) <= 4: # or instanc of int and float
+            if ctypes.sizeof(typ) <= 4:
                 # int, float, etc. data
                 val = getattr(ginfo,name)
                 if isinstance(val,(float,)):
@@ -345,7 +343,7 @@ class _GridInfo:
             if name.endswith('_length'):
                 len = getattr(ginfo,name)
 
-            if ctypes.sizeof(typ) <= 4: # or instanc of int and float
+            if ctypes.sizeof(typ) <= 4:
                 # int, float, etc. data
                 val = getattr(ginfo,name)
                 info[name] = val
@@ -625,16 +623,12 @@ def _gridinfo_from_meta(info_dict):
     _mean_val = _keysearch(info,('mean_val','mean_value','mean'),NODATA_FLOAT)
 
     # compression
-    _comp = _keysearch(info,('compression_method','comp_method','compression','comp'),None)
+    _comp = _keysearch(info,('compression_method','comp_method','compression','comp'),UNDEFINED_COMPRESSION)
     _comp_elemsize = _keysearch(info,('compression_elemsize','comp_elemsize'),NODATA_INT)
     _comp_factor = _keysearch(info,('compression_factor','comp_factor'),NODATA_FLOAT)
     _comp_base = _keysearch(info,('compression_base','comp_base'),NODATA_FLOAT)
 
-    # allowing string for compression method too
-    if _comp is None:
-        _comp = UNDEFINED_COMPRESSION
-
-    elif isinstance(_comp,str):
+    if isinstance(_comp,str):
         _temp = _comp.lower()
         if _temp in ('undefined',):
             _comp = UNDEFINED_COMPRESSION
@@ -642,7 +636,6 @@ def _gridinfo_from_meta(info_dict):
             _comp = NO_COMPRESSION
         elif _comp in ('zlib','deflate','zlib-deflate','zlib deflate','zlib_deflate'):
             _comp = ZLIB_DEFLATE_COMPRESSION
-
     else:        
         try:
             _comp = int(_comp)
@@ -815,7 +808,6 @@ def _gridinfo_from_meta(info_dict):
     info_obj.info_fsize = _info_flat_size
     info_obj.info_size = _info_size
     info_obj.info_gsize = _info_gsize
-
     return info_obj
 
 def _convert_grid7_to_grid6_meta(gstruct,pathname=None):
@@ -852,6 +844,7 @@ def _convert_grid7_to_grid6_meta(gstruct,pathname=None):
 
     if _gtype < 420 and _gtype > 409:
         pass
+
     elif _gtype < 430:
         #Albers
         grid_crs = info_dict.get('grid_crs','').strip()
