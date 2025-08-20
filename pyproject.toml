@@ -7,6 +7,7 @@ requires = [
     #"numpy==1.16.4; python_version=='3.6'",
     #"numpy==1.21.5; python_version=='3.7'",
 	#"numpy==1.21.5; python_version=='3.9'",
+	#"numpy==1.26.0; python_version=='3.9'",
     "numpy>=1.21.5,<2.0.0; python_version>='3.8' and python_version<'3.11'",
     "numpy>=1.26.0,<2.0.0; python_version>='3.11' and python_version<'3.13'",
 	"numpy>=2.0.0; python_version>='3.13'", # not supported yet
@@ -43,12 +44,14 @@ dependencies = [
 	"numpy>=2.0.0; python_version>='3.13'", # not supported yet
     "pandas",
     "affine",
-    "pyproj"
+    "pyproj",
+    "pydantic>=2,<3",
 ]
 
 [project.optional-dependencies]
 test = [
-    "gdal >= 3.2.2",
+    "pyogrios",
+    "geopandas",
     "rasterio >= 1.2.1",
     "matplotlib"
 ]

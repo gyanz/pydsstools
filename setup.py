@@ -12,7 +12,7 @@ import sys
 import platform
 from subprocess import call
 import shutil
-import numpy
+#import numpy
 import versioneer
 
 try:
@@ -134,7 +134,11 @@ class BuildExt(build_ext):
         self.build_grid_library()
         super().build_extensions()
 
-
+    def finalize_options(self):
+        super().finalize_options()
+        import numpy as np
+        self.include_dirs.append(np.get_include())
+        print("Test",np.get_include() )
 
 # Create compiler arguments
 
@@ -166,7 +170,7 @@ else:
     extra_compile_args = []
     extra_link_args = []
 
-include_dirs.append(numpy.get_include())
+#include_dirs.append(numpy.get_include())
 
 # why new api causing error C2039: 'dimensions': is not a member of 'tag PyArrayObject' ?
 # macros = [("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")] 

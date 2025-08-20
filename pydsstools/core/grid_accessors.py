@@ -1,10 +1,11 @@
 import logging
+import traceback
 from contextlib import contextmanager 
-from .._lib import BoundingBox
-from .._lib import check_shg_gridinfo,correct_shg_gridinfo,lower_left_xy_from_transform
+#from .._lib import BoundingBox
+from .gridinfo import lower_left_cell_indices_of_specified_grid,lower_left_cell_indices_of_albers_grid 
 from .transform import Affine, from_bounds, from_origin
 from .accessors import register_grid_accessor
-from .grid import _SpatialGridStruct
+from .grid import _SpatialGridStruct,BoundingBox
 try:
     import rasterio
     from rasterio.warp import reproject, Resampling
@@ -12,16 +13,21 @@ try:
     from rasterio.crs import CRS
     from rasterio.plot import show as _show # matplotlib?
     from rasterio import mask as riomask
-    from osgeo import gdal
-    gdal.UseExceptions()
-    from osgeo import ogr
     import numpy as np
     import json
 except:
     logging.debug('Missing rasterio library ...')
     logging.debug('Raster accessor for spatial grid not available.')
+    traceback.print_exc()
 else:
     logging.info('Registering raster accessor for SpatialGridStruct')
+    try:
+        from osgeo import gdal
+        gdal.UseExceptions()
+        from osgeo import ogr
+    except:
+        gdal = None
+
     @register_grid_accessor("raster")
     class RasterAccessor:
         def __init__(self, grid_struct):
@@ -36,7 +42,7 @@ else:
             if row < 256 or col < 256:
                 profile.pop('blockxsize')
                 profile.pop('blockysize')
-            profile['transform'] = gridinfo['grid_transform']
+            profile['transform'] = self._obj.transform #gridinfo['grid_transform']
             # TODO: select float32 and float64 based on grid dtype
             profile['dtype'] = 'float32'
             profile['nodata'] = self._obj.nodata
@@ -49,7 +55,7 @@ else:
                 logging.debug('Using CRS defined externally for the grid raster')
                 profile['crs'] = self._obj._crs
             else:
-               crs = self.validate_crs(gridinfo['grid_crs'])
+               crs = self.validate_crs(gridinfo['crs'])
                profile['crs'] = crs.to_wkt()
             return profile
 
@@ -60,15 +66,16 @@ else:
 
         def _as_gdal_datasource(self):
             # create in-memory gdal raster source
-            prof = self._default_rasterio_profile()
-            driver = gdal.GetDriverByName('MEM')
-            ds = driver.Create('',self._obj.width,self._obj.height,1,6) # GDT_Float32 = 6
-            ds.SetProjection(prof['crs']) # WKT
-            ds.SetGeoTransform(Affine.to_gdal(prof['transform']))
-            srcband = ds.GetRasterBand(1)
-            srcband.WriteArray(self._data())
-            srcband.SetNoDataValue(prof['nodata'])
-            return ds
+            if gdal:
+                prof = self._default_rasterio_profile()
+                driver = gdal.GetDriverByName('MEM')
+                ds = driver.Create('',self._obj.width,self._obj.height,1,6) # GDT_Float32 = 6
+                ds.SetProjection(prof['crs']) # WKT
+                ds.SetGeoTransform(Affine.to_gdal(prof['transform']))
+                srcband = ds.GetRasterBand(1)
+                srcband.WriteArray(self._data())
+                srcband.SetNoDataValue(prof['nodata'])
+                return ds
 
         def _as_rasterio_datasource(self):
             # create in-memory rasterio datasource compatible with gdal
@@ -124,14 +131,15 @@ else:
                       warp_mem_limit = memory)
 
             gridinfo = self._obj.profile
-            gridinfo['grid_transform'] = dst_trans
+            #gridinfo['grid_transform'] = dst_trans
             gridinfo['transform'] = dst_trans # remove this after grid.pyx fix
             logging.debug('resampled data transform = %r',dst_trans)
             prof = self._default_rasterio_profile()
-            gridinfo['grid_crs'] = prof['crs']
-            ll_x,ll_y = lower_left_xy_from_transform(dst_trans,dst_data.shape)
-            gridinfo['opt_lower_left_x'] = ll_x
-            gridinfo['opt_lower_left_y'] = ll_y
+            gridinfo['crs'] = prof['crs']
+            #ll_x,ll_y = lower_left_cell_indices_of_specified_grid(dst_trans,dst_data.shape)
+            ll_x,ll_y = lower_left_cell_indices_of_specified_grid()
+            gridinfo['lower_left_x'] = ll_x
+            gridinfo['lower_left_y'] = ll_y
             dst_data = np.ma.masked_values(dst_data,prof['nodata'])
             st = _SpatialGridStruct(dst_data,gridinfo)
             return st
@@ -219,31 +227,32 @@ else:
                 ignore_nodata: bool, default True
                                flag to ignore nodata pixel during contour generation
             '''
-            interval = kwargs.get('interval', 10)
-            base = kwargs.get('base', 0)
-            fixed_levels = kwargs.get('fixed_levels', [])
-            ignore_nodata = kwargs.get('ignore_nodata', True)
-            # grid profile
-            prof = self._default_rasterio_profile()
-            # create in-memory gdal raster source
-            ds1 = self._as_gdal_datasource()
-            srcband = ds1.GetRasterBand(1)
-            # create contour shape file
-            crs = ogr.osr.SpatialReference()
-            crs.ImportFromWkt(prof['crs'])
-            ds2 = ogr.GetDriverByName("ESRI Shapefile").CreateDataSource(shape_file)
-            contour_layer = ds2.CreateLayer('contour',crs,ogr.wkbMultiLineString)
-            field_defn = ogr.FieldDefn("ID", ogr.OFTInteger)
-            contour_layer.CreateField(field_defn)
-            field_defn = ogr.FieldDefn("ELEV", ogr.OFTReal)
-            contour_layer.CreateField(field_defn)
-            # contouring method
-            use_nodata = 0 if ignore_nodata else 1
-            gdal.ContourGenerate(srcband,interval,base,         # interval, base
-                                 fixed_levels,                  # fixedlevelcount list
-                                 use_nodata, prof['nodata'] ,   # usenodata, nodata
-                                 contour_layer,                 # dstlayer 
-                                 0,1)                           # ID field, ELEV field
+            if gdal:
+                interval = kwargs.get('interval', 10)
+                base = kwargs.get('base', 0)
+                fixed_levels = kwargs.get('fixed_levels', [])
+                ignore_nodata = kwargs.get('ignore_nodata', True)
+                # grid profile
+                prof = self._default_rasterio_profile()
+                # create in-memory gdal raster source
+                ds1 = self._as_gdal_datasource()
+                srcband = ds1.GetRasterBand(1)
+                # create contour shape file
+                crs = ogr.osr.SpatialReference()
+                crs.ImportFromWkt(prof['crs'])
+                ds2 = ogr.GetDriverByName("ESRI Shapefile").CreateDataSource(shape_file)
+                contour_layer = ds2.CreateLayer('contour',crs,ogr.wkbMultiLineString)
+                field_defn = ogr.FieldDefn("ID", ogr.OFTInteger)
+                contour_layer.CreateField(field_defn)
+                field_defn = ogr.FieldDefn("ELEV", ogr.OFTReal)
+                contour_layer.CreateField(field_defn)
+                # contouring method
+                use_nodata = 0 if ignore_nodata else 1
+                gdal.ContourGenerate(srcband,interval,base,         # interval, base
+                                    fixed_levels,                  # fixedlevelcount list
+                                    use_nodata, prof['nodata'] ,   # usenodata, nodata
+                                    contour_layer,                 # dstlayer 
+                                    0,1)                           # ID field, ELEV field
 
         def mask(self, poly, all_touched=False, invert=False, filled=True, crop=False,
                  pad=False, pad_width=0):
@@ -278,17 +287,18 @@ else:
             out_data = np.ma.masked_values(out_data,ds.nodata)
             # Wrap the output with SpatialGridStruct like container
             gridinfo = self._obj.profile
-            gridinfo['grid_transform'] = out_transform
+            #gridinfo['grid_transform'] = out_transform
             gridinfo['transform'] = out_transform # remove this after grid.pyx fix
             logging.debug('masked out transform = %r',out_transform)
             prof = self._default_rasterio_profile()
-            gridinfo['grid_crs'] = prof['crs']
+            gridinfo['crs'] = prof['crs']
             if gridinfo['grid_type'].lower() in ('albers','albers-time','shg','shg-time'):
-                gridinfo = correct_shg_gridinfo(gridinfo,out_data[0].shape)
+                #gridinfo = correct_shg_gridinfo(gridinfo,out_data[0].shape)
+                pass
             else:
                 ll_x,ll_y = lower_left_xy_from_transform(out_transform,out_data[0].shape)
-                gridinfo['opt_lower_left_x'] = ll_x
-                gridinfo['opt_lower_left_y'] = ll_y
+                gridinfo['lower_left_x'] = ll_x
+                gridinfo['lower_left_y'] = ll_y
             out_data = np.ma.masked_values(out_data[0],prof['nodata'])
             st = _SpatialGridStruct(out_data,gridinfo)
             return st               
@@ -348,6 +358,7 @@ else:
             raise Exception('Invalid shape data')
 
     def shapefile_to_shapes(shape_file):
+        from osgeo import ogr
         ds = ogr.Open(shape_file)
         lyr = ds.GetLayer(0)
         shapes = []

@@ -257,13 +257,13 @@ cdef class Open:
         isError(self.read_status)
         updateSGS(sg_st,zsgs)
 
-    cpdef int put_grid(self,str pathname, np.ndarray data, float nodata, dict stats, dict profile) except *:
+    cpdef int put_grid(self,str pathname, float[:,::1] data, object gridinfo7) except *:
         # TODO: Error check
-        saveSpatialGrid(self.ifltab,pathname, data, nodata, stats, profile)
+        save_grid7(self.ifltab,pathname, data, gridinfo7)
 
-    cpdef int put_grid6(self,str pathname,  np.ndarray data, object gridinfo) except *:
+    cpdef int put_grid6(self,str pathname,  float[:,::1] data, object gridinfo6) except *:
         # TODO: Error check
-        saveGridV6(self.ifltab,pathname, data, gridinfo)
+        save_grid6(self.ifltab,pathname, data, gridinfo6)
 
     cpdef dict dss_info(self, str pathname):
         return dss_info(self,pathname)

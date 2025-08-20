@@ -1,101 +1,19 @@
-# from rasterio
-_BoundingBox = namedtuple('BoundingBox', ('left', 'bottom', 'right', 'top'))
-
 GRID_TYPE = {'undefined-time': 400, 'undefined': 401, 
              'hrap-time': 410, 'hrap': 411,
              'albers-time': 420, 'albers': 421,
              'shg-time': 420, 'shg': 421,
-             'specified-time': 430, 'specified': 431}
+             'specified-time': 430, 'specified': 431
+}
+
 _GRID_TYPE = {v: k for k, v in GRID_TYPE.items() if not k in ('shg','shg-time')}
 
 GRID_DATA_TYPE = {'per-aver': 0, 'per-cum': 1, 'inst-val': 2, 
-                  'inst-cum': 3 , 'freq': 4, 'invalid': 5}
+                  'inst-cum': 3 , 'freq': 4, 'invalid': 5
+}
 _GRID_DATA_TYPE = {v: k for k, v in GRID_DATA_TYPE.items()}
 
 GRID_COMPRESSION_METHODS = {'undefined': 0, 'uncompressed': 1, 'zlib deflate': 26}
 _GRID_COMPRESSION_METHODS = {v: k for k, v in GRID_COMPRESSION_METHODS.items()}
-
-cpdef dict gridInfo():
-    info = {}
-    info['grid_type'] = 'specified'
-    info['grid_crs'] = 'UNDEFINED' #WKT
-    info['grid_transform'] = None
-    info['data_type'] = _GRID_DATA_TYPE[5]
-    info['data_units'] = 'UNDEFINED'
-    info['opt_crs_name'] = 'UNDEFINED'
-    info['opt_crs_type'] = 0 #WKT = 0
-    info['opt_compression'] = _GRID_COMPRESSION_METHODS[26]
-    info['opt_dtype'] = np.float32
-    info['opt_grid_origin'] = 'top-left corner'
-    info['opt_data_source'] = '' # used with HRAP
-    info['opt_tzid'] = 'UTC'
-    info['opt_tzoffset'] = 0
-    info['opt_is_interval'] = 0
-    info['opt_time_stamped'] = 0
-    info['opt_lower_left_x'] = 0
-    info['opt_lower_left_y'] = 0
-    info['opt_cell_zero_xcoord'] = 0
-    info['opt_cell_zero_ycoord'] = 0
-    return info
-
-class BoundingBox(_BoundingBox):
-    """Bounding box named tuple, defining extent in cartesian coordinates.
-    .. code::
-        BoundingBox(left, bottom, right, top)
-    Attributes
-    ----------
-    left :
-        Left coordinate
-    bottom :
-        Bottom coordinate
-    right :
-        Right coordinate
-    top :
-        Top coordinate
-    """
-
-    def _asdict(self):
-        return {*zip(self._fields, self)}
-
-HEC_SHG_CELLSIZE = (10000,5000,2000,1000,500,200,100,50,20,10) # meters
-HEC_SHG_APART = ('SHG10K','SHG5K','SHG2K','SHG1K','SHG500','SHG200','SHG100','SHG50','SHG20','SHG10') # meters
-
-def check_shg_gridinfo(gridinfo):
-    issue = 0
-    if gridinfo['grid_type'].lower() not in ('albers','albers-time','shg','shg-time'):
-        logging.warn('Invalid grid_type')
-        issue += 1
-    if gridinfo['grid_crs'] != SHG_WKT:
-        logging.warn('Invalid grid_crs')
-        issue += 1
-    cellsize = gridinfo['grid_transform'][0]
-    if not cellsize in HEC_SHG_CELLSIZE: 
-        logging.warn('Not an standard cellsize for SHG grid')
-        issue += 1
-    if not gridinfo['opt_crs_name'] in ('SHG','shg'):
-        logging.info('Recommended opt_crs_name is SHG or shg')
-        issue += 1
-    return issue
-
-def correct_shg_gridinfo(gridinfo,shape):
-    gridinfo = gridinfo.copy()
-    if gridinfo['grid_type'].lower() not in ('albers','albers-time','shg','shg-time'):
-        raise Exception('Invalid grid_type')
-    if gridinfo['grid_crs'] != SHG_WKT:
-        gridinfo['grid_crs'] = SHG_WKT
-    trans = gridinfo['grid_transform']
-    cellsize = trans[0]
-    if not cellsize in HEC_SHG_CELLSIZE: 
-        raise Exception('Not an standard cellsize for SHG grid. Use one of thes sizes %r in meters'%HEC_SHG_CELLSIZE)
-    gridinfo['opt_crs_name'] = 'AlbersInfo'
-    if gridinfo['grid_type'].lower().startswith('shg'):
-        gridinfo['opt_crs_name'] = 'SHG'
-    lower_left_x, lower_left_y = lower_left_xy_from_transform(trans,shape,
-                                                              gridinfo['opt_cell_zero_xcoord'],
-                                                              gridinfo['opt_cell_zero_ycoord'])
-    gridinfo['opt_lower_left_x'] = lower_left_x
-    gridinfo['opt_lower_left_y'] = lower_left_y
-    return gridinfo
 
 def lower_left_xy_from_transform(transform,shape,cell_zero_xcoord=0,cell_zero_ycoord=0):
     cdef:
@@ -139,7 +57,17 @@ cdef class SpatialGridStruct:
         self.zsgs=NULL
         self._data = None
 
-    cdef int length(self):
+    def __dealloc__(self):
+        if self.zsgs:
+            zstructFree(self.zsgs)
+
+    cdef str _pathname(self):
+        cdef char* result = ''
+        if self.zsgs:
+            result = self.zsgs[0].pathname
+        return result
+
+    cdef int size(self):
         cdef:
             int rows = 0
             int cols = 0
@@ -149,14 +77,14 @@ cdef class SpatialGridStruct:
         total = rows * cols
         return total
 
-    cdef int rangelength(self):
+    cdef int numberOfRanges(self):
         cdef:
             int length = 0
         if self.zsgs:
             length = self.zsgs[0]._numberOfRanges
         return length
 
-    cdef float undefined(self):
+    cdef float nullValue(self):
         cdef float nd = 0
         if self.zsgs:
             nd = self.zsgs[0]._nullValue
@@ -183,7 +111,13 @@ cdef class SpatialGridStruct:
             result = self.zsgs[0]._type
         return result
 
-    cdef str srs(self):
+    cdef str srs_name(self):
+        cdef char* result = ''
+        if self.zsgs:
+            result = self.zsgs[0]._srsName
+        return result
+
+    cdef str srs_definition(self):
         cdef:
             char *spatial_reference = NULL
         if self.zsgs:
@@ -191,12 +125,6 @@ cdef class SpatialGridStruct:
             if spatial_reference:
                 return spatial_reference
         return ''
-    
-    cdef str srs_name(self):
-        cdef char* result = ''
-        if self.zsgs:
-            result = self.zsgs[0]._srsName
-        return result
 
     cdef int srs_type(self):
         cdef int result = 0
@@ -238,62 +166,51 @@ cdef class SpatialGridStruct:
             dtype = self.zsgs[0]._storageDataType
         return dtype
 
-    cdef str compressionMethod(self):
-        cdef:
-            int result = 0
-        if self.zsgs:
-            result = self.zsgs[0]._compressionMethod
-        return _GRID_COMPRESSION_METHODS.get(result)
-
-    cdef str tzid(self):
-        cdef char* result = ''
-        if self.zsgs:
-            result = self.zsgs[0]._timeZoneID
-        return result
-
-    cdef int tzoffset(self):
-        cdef int result = 0
-        if self.zsgs:
-            result = self.zsgs[0]._timeZoneRawOffset
-        return result
-
-    cdef int is_interval(self):
-        cdef int result = 0
-        if self.zsgs:
-            result = self.zsgs[0]._isInterval
-        return result
-
-    cdef int is_time_stamped(self):
-        cdef int result = 0
-        if self.zsgs:
-            result = self.zsgs[0]._isTimeStamped
-        return result
-
-    cpdef str pathname(self):
-        cdef char* result = ''
-        if self.zsgs:
-            result = self.zsgs[0].pathname
-        return result
-
-    cpdef int rows(self):
-        cdef int num = 0
-        if self.zsgs:
-            num = self.zsgs[0]._numberOfCellsY
-        return num 
-
-    cpdef int cols(self):
-        cdef int num = 0
-        if self.zsgs:
-            num = self.zsgs[0]._numberOfCellsX
-        return num 
-
-    cpdef float cellsize(self):
+    cdef float cellSize(self):
         cdef float cell_size = 0
         if self.zsgs:
             cell_size = self.zsgs[0]._cellSize
         return cell_size 
 
-    cpdef tuple origin_coords(self):
+    cdef int compressionMethod(self):
+        cdef:
+            int result = 0
+        if self.zsgs:
+            result = self.zsgs[0]._compressionMethod
+        return result
+
+    cdef int sizeOfCompressedElements(self):
+        cdef:
+            int int = 0
+        if self.zsgs:
+            result = self.zsgs[0]._sizeofCompressedElements
+        return result
+
+    cdef str timeZoneID(self):
+        cdef char* result = ''
+        if self.zsgs:
+            result = self.zsgs[0]._timeZoneID
+        return result
+
+    cdef int timeZoneRawOffset(self):
+        cdef int result = 0
+        if self.zsgs:
+            result = self.zsgs[0]._timeZoneRawOffset
+        return result
+
+    cdef int isInterval(self):
+        cdef int result = 0
+        if self.zsgs:
+            result = self.zsgs[0]._isInterval
+        return result
+
+    cdef int isTimeStamped(self):
+        cdef int result = 0
+        if self.zsgs:
+            result = self.zsgs[0]._isTimeStamped
+        return result
+
+    cdef tuple cell0_coords(self):
         cdef: 
             float xmin = UNDEFINED_FLOAT
             float ymin = UNDEFINED_FLOAT
@@ -306,19 +223,61 @@ cdef class SpatialGridStruct:
         result = (xmin,ymin)
         return result
 
-    cpdef int lower_left_x(self):
+    cdef int rows(self):
+        cdef int num = 0
+        if self.zsgs:
+            num = self.zsgs[0]._numberOfCellsY
+        return num 
+
+    cdef int cols(self):
+        cdef int num = 0
+        if self.zsgs:
+            num = self.zsgs[0]._numberOfCellsX
+        return num 
+
+    cdef int lower_left_x(self):
         cdef int llx = 0
         if self.zsgs:
             llx = self.zsgs[0]._lowerLeftCellX
         return llx
 
-    cpdef int lower_left_y(self):
+    cdef int lower_left_y(self):
         cdef int lly = 0
         if self.zsgs:
             lly = self.zsgs[0]._lowerLeftCellY
         return lly
 
-    cpdef tuple GetExtents(self):
+    cdef float maxDataValue(self):
+        cdef:
+            float * _val = NULL 
+            float  val = UNDEFINED_FLOAT 
+
+        if self.zsgs:
+            _val = <float *>self.zsgs[0]._maxDataValue
+            if _val: val = _val[0]
+        return val    
+
+    cdef float minDataValue(self):
+        cdef:
+            float * _val = NULL 
+            float  val = UNDEFINED_FLOAT 
+
+        if self.zsgs:
+            _val = <float *>self.zsgs[0]._minDataValue
+            if _val: val = _val[0]
+        return val    
+
+    cdef float meanDataValue(self):
+        cdef:
+            float * _val = NULL 
+            float  val = UNDEFINED_FLOAT 
+
+        if self.zsgs:
+            _val = <float *>self.zsgs[0]._meanDataValue
+            if _val: val = _val[0]
+        return val    
+
+    cpdef tuple get_extents(self):
         cdef:
             float xorig 
             float yorig
@@ -332,7 +291,7 @@ cdef class SpatialGridStruct:
             tuple origin
             tuple result
 
-        origin = self.origin_coords()
+        origin = self.cell0_coords()
         xorig,yorig = origin
         col_bottom = self.lower_left_x()
         row_bottom = self.lower_left_y()
@@ -340,7 +299,7 @@ cdef class SpatialGridStruct:
         if not xorig == UNDEFINED_FLOAT:
             rows = self.rows()
             cols = self.cols()
-            cell = self.cellsize()
+            cell = self.cellSize()
             xmin = xorig + col_bottom * cell
             ymin = yorig + row_bottom * cell
             xmax = xmin + cols * cell
@@ -349,9 +308,10 @@ cdef class SpatialGridStruct:
         result = (xmin,xmax,ymin,ymax)
         return result 
 
+
     def _get_mview(self, dtype = 'f'):
         cdef:
-            int length = self.length()
+            int length = self.size()
             view.array mview 
 
         if not self.zsgs:
@@ -397,347 +357,427 @@ cdef class SpatialGridStruct:
                 mview.data = <char *>(self.zsgs[0]._numberEqualOrExceedingRangeLimit)
                 return np.asarray(mview)
 
-
-    @property
-    def native_grid_origin(self):
-        # native dss array origin
-        return "bottom-left corner"
-
     def read(self):
-        cdef: 
-            int rows
-            int cols 
+        cdef:
+            int rows, cols
         self._get_mview() 
         rows = self.rows()
         cols = self.cols()
         data = np.reshape(self._data,(rows,cols))
         data = np.flipud(data)
-        return np.ma.masked_values(data,self.undefined())
+        return np.ma.masked_values(data,self.nullValue())
+
+    # ===============================
+    # Python accessible attributes
+    # ===============================
+    @property
+    def grid_type (self):
+        num = self.grid_type()
+        return _GRID_TYPE[num]
 
     @property
-    def width(self):
-        return self.cols()
-
-    @property
-    def height(self):
-        return self.rows()
-
-    @property
-    def transform(self):
-        xmin,xmax,ymin,ymax = self.GetExtents()
-        cell = self.cellsize()
-        atrans = Affine(cell,0,xmin,0,-cell,ymax)
-        return atrans
-
-    @property
-    def bounds(self):
-        cdef float xmin,xmax,ymin,ymax
-        xmin,xmax,ymin,ymax = self.GetExtents()
-        return BoundingBox(xmin,ymin,xmax,ymax)
-
-    @property
-    def grid_origin(self):
-        return "top-left corner"
-
-    def stats(self,trim=True):
-        cdef:
-            float * _max = NULL 
-            float * _min = NULL 
-            float * _mean = NULL
-            float  maxval = UNDEFINED_FLOAT 
-            float  minval = UNDEFINED_FLOAT 
-            float  meanval = UNDEFINED_FLOAT
-            int i, num = 0
-            dict result
-
-        result = {}
-        if self.zsgs:
-            _max = <float *>self.zsgs[0]._maxDataValue
-            _min = <float *>self.zsgs[0]._minDataValue
-            _mean = <float *>self.zsgs[0]._meanDataValue
-            if _max: maxval = _max[0]
-            if _min: minval = _min[0]
-            if _mean: meanval = _mean[0]
-            num = self.rangelength()
-            range_values = self._get_range_limits(num).tolist()
-            range_counts = self._get_range_values(num).tolist()
-            last_index = num
-            if trim:
-                # remove multiple bins with 0 counts
-                for i,count in enumerate(range_counts,1):
-                    if count == 0:
-                        last_index = i
-                        break
-            result.update([("min",minval),
-                           ("max",maxval),
-                           ("mean",meanval),
-                           ("range_values",range_values[0:last_index]),
-                           ("range_counts",range_counts[0:last_index])])
-        return result
-
-    @property
-    def crs(self):
-        return self.srs()
-
-    @property
-    def interval(self):
-        return self.cellsize()
+    def grid_type2 (self):
+        num = self.grid_type()
+        return num
 
     @property
     def dtype (self):
         return np.float32
 
     @property
-    def data_type (self):
-        return self.dataType()
-                
-    @property
-    def nodata (self):
-        return self.undefined()
+    def pathname(self):
+        return self._pathname()
 
     @property
-    def units(self):
+    def data_source(self):
+        return self.dataSource()
+
+    @property
+    def data_units(self):
         return self.dataUnits()
 
     @property
-    def profile(self):
-        cdef:
-            dict result
-        result = gridInfo()
-        result.update([('grid_type',_GRID_TYPE[self.grid_type()]), 
-                       ('grid_crs',self.srs()),
-                       ('grid_transform',self.transform),
-                       ('data_type',self.dataType()),
-                       ('data_units',self.dataUnits()),
-                       ('opt_compression',self.compressionMethod()),
-                       ('opt_dtype',self.dtype),
-                       ('opt_data_source',self.dataSource()),
-                       ('opt_grid_origin',self.grid_origin),
-                       ('opt_crs_name',self.srs_name()),
-                       ('opt_crs_type',self.srs_type()),
-                       ('opt_tzid',self.tzid()),
-                       ('opt_tzoffset',self.tzoffset()),
-                       ('opt_is_interval',True if self.is_interval() else False),
-                       ('opt_time_stamped',True if self.is_time_stamped() else False),
-                       ('opt_lower_left_x',self.lower_left_x()),
-                       ('opt_lower_left_y',self.lower_left_y()),
-                       ('opt_cell_zero_xcoord',self.origin_coords()[0]),
-                       ('opt_cell_zero_ycoord',self.origin_coords()[1]),
-                       ])
+    def data_type (self):
+        return self.dataType()
+    
+    @property
+    def lower_left_cell(self):
+        return (self.lower_left_x(), self.lower_left_y())
+
+    @property
+    def cols(self):
+        # width
+        return self.cols()
+
+    @property
+    def rows(self):
+        # height
+        return self.rows()
+
+    @property
+    def cell_size(self):
+        return self.cellSize()
+
+    @property
+    def compression_method(self):    
+        result = self.compressionMethod()
+        return _GRID_COMPRESSION_METHODS[result]
+
+    @property
+    def compression_method2(self):    
+        result = self.compressionMethod()
         return result
 
-    def __dealloc__(self):
-        if self.zsgs:
-            zstructFree(self.zsgs)
+    @property
+    def compression_size(self):    
+        return self.sizeOfCompressedElements()
 
-cdef int saveSpatialGrid(long long *ifltab, const char* pathname, np.ndarray data, float nodata, dict stats, dict profile):
+    @property
+    def compression_base(self):
+        return 0
+
+    @property
+    def compression_factor(self):
+        return 0
+
+    @property
+    def crs(self):
+        return self.srs_definition()
+
+    @property
+    def crs_name(self):
+        return self.srs_name()
+
+    @property
+    def crs_type(self):
+        return self.srs_type()
+
+    @property
+    def coords_cell0(self):
+        return self.cell0_coords()
+                
+    @property
+    def nodata (self):
+        return self.nullValue()
+
+    @property
+    def tzid (self):
+        return self.timeZoneID()
+
+    @property
+    def tzoffset (self):
+        return self.timeZoneRawOffset()
+
+    @property
+    def is_interval (self):
+        return self.isInterval()
+
+    @property
+    def time_stamped (self):
+        return self.isTimeStamped()
+
+    @property
+    def max_val (self):
+        return self.maxDataValue()
+
+    @property
+    def min_val (self):
+        return self.minDataValue()
+
+    @property
+    def mean_val (self):
+        return self.meanDataValue()
+
+    @property
+    def range_length (self):
+        return self.numberOfRanges()
+
+    @property
+    def range_vals (self):
+        return self._get_range_limits(self.numberOfRanges())
+
+    @property
+    def range_counts (self):
+        return self._get_range_values(self.numberOfRanges())
+
+    # =====================================================
+    # Additional attributes defined in pydsstools.core.grid
+    # =====================================================
+
+
+cdef int save_grid7(long long *ifltab, const char* pathname, float[:,::1] data, object info7):
     cdef:
         zStructSpatialGrid *zsgs=NULL
-        float[:,::1] _data 
-        int _row,_col
-        float _x,_y
-        int _lower_left_x, _lower_left_y
-        float _nodata
-        float * _pmin = NULL
-        float * _pmax = NULL
-        float * _pmean = NULL
-        char * _crs = ""
-        char * _crs_name = ""
-        int _crs_type = 0
-        char * _units = ""
-        int _type
-        int _datatype
-        char * _datasource= ""
-        char * _tzid = ""
-        int  _tzoffset = 0
-        int _is_interval = 0
-        int _time_stamped = 0
-        int _range_count = 0
-        int _range_table_counts[20]
-        float _range_table_values[20]
-        int _compression_method
-        float cellsize
-        float _min,_max,_mean
-        list range_values, range_counts
-        object transform
+        # int struct_type
+        # pathname
+        int struct_ver = VERSION_100
+        int grid_type
+        int version = 1
+        char * data_units
+        int data_type
+        char * data_source = ""
+        int lower_left_x = 0 
+        int lower_left_y = 0
+        int rows
+        int cols
+        #float cell_size
+        int compression_method
+        #int compression_size
+        char * crs_name = ""
+        int crs_type = 0
+        char * crs = ""
+        float xcoord_cell0 = 0.0
+        float ycoord_cell0 = 0.0
+        float nodata = UNDEFINED
+        char * tzid = ""
+        #int  tzoffset = 0
+        int is_interval = 0
+        int time_stamped = 0
+        #int range_length
+
+        # data
+        int storage_dtype = GRID_FLOAT
+        float max_val,min_val,mean_val
+        float * pmin = NULL
+        float * pmax = NULL
+        float * pmean = NULL
+        #float _min,_max,_mean
+        int range_length = 0
+        int range_counts[20]
+        float range_vals[20]
         int status
         int i,rc
         float rv
 
+    grid_type = info7.grid_type.value
+
+    if grid_type < 0:
+        logging.error('Invalid grid type (value = {}). Gridded data was not written'.format(grid_type))
+        return -1
+
     zsgs = zstructSpatialGridNew(pathname)
+    rows = int(data.shape[0])
+    cols = int(data.shape[1])
+    nodata = UNDEFINED
 
-    data = np.ascontiguousarray(data,dtype=np.float32)
-    _row = int(data.shape[0])
-    _col = int(data.shape[1])
+    if info7.shape[0] != rows or info7.shape[1] != cols:
+        logging.error('Shape of array data and grid info does not match')
+        return -1
 
-    _nodata = <float>nodata
-    _type = GRID_TYPE[profile['grid_type']] # int
-    _datatype = GRID_DATA_TYPE[profile['data_type']] # int
-    _tzid = profile['opt_tzid'] #str
-    _tzoffset = profile['opt_tzoffset'] #int
-    _crs = profile['grid_crs'] #str
-    _crs_name = profile['opt_crs_name'] #str
-    _crs_type = profile['opt_crs_type'] #int
-    _datasource = profile['opt_data_source'] # str
-    _units = profile['data_units'] #str
-    _is_interval = profile['opt_is_interval']
-    _time_stamped = profile['opt_time_stamped']
+    if rows <= 0 or cols <= 0:    
+        logging.error('Array data can not be empty.')
+        return -1
 
-    transform = profile['grid_transform']
-    cellsize = transform[0]
-    #cellsize_y = transform[4]
-    #_x = transform[2]
-    #_y = transform[5] + _row*cellsize_y
-    _x = profile['opt_cell_zero_xcoord']
-    _y = profile['opt_cell_zero_ycoord']
+    data_units = info7.data_units
+    data_type = info7.data_type.value
+    if data_type < -1:
+        logging.error('Invalid grid data type (value = {}). Gridded data was not written'.format(data_type))
+        return -1
 
-    _lower_left_x = profile['opt_lower_left_x']
-    _lower_left_y = profile['opt_lower_left_y']
-    
-    _min = stats['min']
-    _max = stats['max']
-    _mean = stats['mean']
-    _pmin = &_min
-    _pmax = &_max
-    _pmean = &_mean
-    _data = data
-    
-    range_values = stats['range_values']
-    range_counts = stats['range_counts']
-    _range_count = min(len(stats['range_values']),20)
-    for i in range(0,_range_count):
-        rv = <float>range_values[i]
-        rc = <int>range_counts[i]
-        _range_table_values[i]= rv     
-        _range_table_counts[i]= rc
+    compression_method = info7.compresion_method.value
+    if compression_method == PRECIP_2_BYTE or compression_method <0: # for enum.invalid = -9999
+        logging.info('Incompatible compression method (code = {}). ZLIB method used.'.format(compression_method))
+        compression_method = ZLIB_COMPRESSION
 
-    _compression_method = GRID_COMPRESSION_METHODS[profile['opt_compression']]
-  
+    lower_left_x = info7.lower_left_cell[0]
+    lower_left_y = info7.lower_left_cell[1]
+    max_val = info7.max_val
+    min_val = info7.min_val
+    mean_val = info7.mean_val
+    pmax = &max_val
+    pmin = &min_val
+    pmean = &mean_val
+    range_length = len(info7.range_vals)
+    for i in range(range_length):
+        range_vals[i] = <float>(info7.range_vals[i])
+        range_counts[i] = <int>(info7.range_countss[i])
+
+    if grid_type == 420 or grid_type == 421:
+        # Hrap
+        data_source = info7.data_source
+
+    elif grid_type == 420 or grid_type == 421:
+        # Albers
+        # This probably makes no difference other than something is written in file
+        # DSSVue sees Albers and shows the SHG info
+        crs_name = 'Albers'
+        crs = SHG_WKT # TODO make custom SHG using input parameters
+        #coords_cell0 is default 0,0 above which applies to Albers
+
+    elif grid_type == 430 or grid_type == 431:
+        # Spec
+        crs_name = info7.crs_name
+        crs = info7.crs 
+        _nodata = info7.nodata
+        tzid = info7.tzid
+        tzoffset = info7.tzoffset
+        xcoord_cell0 = info7.coords_cell0[0]
+        ycoord_cell0 = info7.coords_cell0[1]
+        is_interval = int(info7.is_interval)
+        time_stamped = int(info7.time_stamped)
+
+    # C structure assignment below
     zsgs[0].pathname  = pathname
-    zsgs[0]._structVersion  = -100 # DSS-7
-    zsgs[0]._type  = _type
-
+    zsgs[0]._structVersion  = struct_ver
+    zsgs[0]._type  = grid_type
     # In HEC-DSS 6, I think this is 2 for Specified Grid and not specified for other types
     # HEC-DSS 7 probably updates this value while writing to file
-    zsgs[0]._version  = 1 
-
-    zsgs[0]._dataUnits  = _units
-    zsgs[0]._dataType  = _datatype
-    zsgs[0]._dataSource  = _datasource
-    zsgs[0]._lowerLeftCellX  = _lower_left_x
-    zsgs[0]._lowerLeftCellY  = _lower_left_y
-    zsgs[0]._numberOfCellsX  = <int>_col
-    zsgs[0]._numberOfCellsY  = <int>_row
-    zsgs[0]._cellSize  = cellsize
-    zsgs[0]._compressionMethod  = _compression_method
+    zsgs[0]._version  = version  
+    zsgs[0]._dataUnits  = data_units
+    zsgs[0]._dataType  = data_type
+    zsgs[0]._dataSource  = data_source
+    zsgs[0]._lowerLeftCellX  = lower_left_x
+    zsgs[0]._lowerLeftCellY  = lower_left_y
+    zsgs[0]._numberOfCellsX  = cols
+    zsgs[0]._numberOfCellsY  = rows
+    zsgs[0]._cellSize  = <float>info7.cell_size
+    zsgs[0]._compressionMethod  = compression_method
     # In zStructTransfer, compression parameters are in
     # member value2Number and values2. Both are set to zero with comment saying - for future use
     # Thus, the compression parameters can be returned as zero (e.g., converting to DSS6) without reading the actual values
     zsgs[0]._compressionParameters  = NULL
-
-    zsgs[0]._srsName  = _crs_name
-    zsgs[0]._srsDefinitionType  = _crs_type
-    zsgs[0]._srsDefinition  = _crs
-    zsgs[0]._xCoordOfGridCellZero  = _x
-    zsgs[0]._yCoordOfGridCellZero  = _y
-    zsgs[0]._nullValue  = _nodata
-    zsgs[0]._timeZoneID  = _tzid
-    zsgs[0]._timeZoneRawOffset  = _tzoffset
-    zsgs[0]._isInterval  = _is_interval
-    zsgs[0]._isTimeStamped  = _time_stamped
-    zsgs[0]._numberOfRanges  = _range_count
-
-    zsgs[0]._storageDataType  = 0
-    zsgs[0]._maxDataValue  = <void *>_pmax
-    zsgs[0]._minDataValue  = <void *>_pmin
-    zsgs[0]._meanDataValue  = <void *>_pmean
-    zsgs[0]._rangeLimitTable  = <void *>_range_table_values
-    zsgs[0]._numberEqualOrExceedingRangeLimit  = <int *>_range_table_counts
-    zsgs[0]._data  = <void *>&_data[0,0]
+    zsgs[0]._srsName  = crs_name
+    zsgs[0]._srsDefinitionType  = crs_type
+    zsgs[0]._srsDefinition  = crs
+    zsgs[0]._xCoordOfGridCellZero  = xcoord_cell0
+    zsgs[0]._yCoordOfGridCellZero  = ycoord_cell0
+    zsgs[0]._nullValue  = nodata
+    zsgs[0]._timeZoneID  = tzid
+    zsgs[0]._timeZoneRawOffset  = tzoffset
+    zsgs[0]._isInterval  = is_interval
+    zsgs[0]._isTimeStamped  = time_stamped
+    zsgs[0]._numberOfRanges  = range_length
+    zsgs[0]._storageDataType  = storage_dtype
+    zsgs[0]._maxDataValue  = <void *>pmax
+    zsgs[0]._minDataValue  = <void *>pmin
+    zsgs[0]._meanDataValue  = <void *>pmean
+    zsgs[0]._rangeLimitTable  = <void *>range_vals
+    zsgs[0]._numberEqualOrExceedingRangeLimit  = <int *>range_counts
+    zsgs[0]._data  = <void *>&data[0,0]
 
     status = zspatialGridStore(ifltab,zsgs)
-
     return status 
 
-cdef int saveGridV6(long long *ifltab, const char* pathname, float[:,::1] data, object gridinfo):
+cdef int save_grid6(long long *ifltab, const char* pathname, float[:,::1] data, object gridinfo):
     cdef:
         int rows = 0
         int cols = 0
         int path_len = 0
         int comp_method
         int data_size = 0
+        int data_size_bytes = 0
         void * comp_buffer = NULL
+        int16_t[::1] _comp_buffer        #for RLE compression
         int comp_buffer_bytes = 0
+        int32_t[::1] _comp_buffer_bytes  #for RLE compression 
         int comp_buffer_len = 0
+        int comp_status
         int[::1] info_flat
         int info_len 
         int grid_type
+        float base
+        float factor
+        float min_val
+        float max_val
         int zero = 0
         int plan = 0
         int dummy_header[1]
         int status[1]
         int exists[1] 
+        int one_hour_in_milli = 1000*60*60
+        int diff
 
-    rows = gridinfo.rows
-    cols = gridinfo.cols
+    rows,cols = gridinfo.rows, gridinfo.cols
+
     if rows != data.shape[0] or cols != data.shape[1]:
         logging.error('Grid data rows and columns mismatch between data array and gridinfo',exc_info=False)
         logging.info('Grid data not written to dss file')
         return -1
 
+    data_size = rows * cols
     data_size_bytes = rows * cols * data.itemsize
     path_len = strlen(pathname)
     grid_type = gridinfo.grid_type
     comp_method = gridinfo.compression_method
+    base = gridinfo.compression_base
+    factor = gridinfo.compression_factor
+    max_val = gridinfo.max_val
+    min_val = gridinfo.min_val
 
     # 0 Undefined
     # 1 No Compression
     # 26  Zlib Deflate
     # 101001 PRECIP_2_BYTE      
 
+    # check for special situation
+    if comp_method == UNDEFINED_COMPRESSION_METHOD: # = 0
+        diff = (gridinfo.etime - gridinfo.etime)*60*1000
+        logging.debug('Grid time window interval in milli seconds = {} is compared with one-hour-mill - {}'.format(diff,one_hour_in_milli))
+        if gridinfo.version() == 1 and one_hour_in_milli == diff and gridinfo.data_type == 1: # per-cum data type
+            logging.info('Undefined compression was changed to HEC-RLE compression')
+            comp_method = PRECIP_2_BYTE
+        else:        
+            logging.info('Undefined compression was changed to ZLIB compression')
+            comp_method = ZLIB_COMPRESSION
+
     # compress data
-    '''
-    if comp_method == 101001:
-        #precip_2_byte
-        #TODO: implement this later
-
-    elif comp_method == 0 or  comp_method == 26:
-        # undefined/zlib
-        #int compress_zlib(void* input_array, int input_size, void **output_buffer)
-        comp_buffer_bytes = compress_zlib(<void*>&data[0,0], size, &comp_buffer)
-        gridinfo.opt_compression_elemsize = <int>comp_size_bytes
-
-    else:
-        # no compression
-        return -1
-    '''
-    # Ignoring compression and applying ZLIB Deflate
-    if comp_method == 0 or  comp_method == 26:
+    if comp_method == ZLIB_COMPRESSION:
         # Case for undefined and zlib compression
         logging.info('Apply zlib compression to grid data before writing to dss file.')
-        gridinfo.compression_method = 26
+        #gridinfo.compression_method = 26
         comp_buffer_bytes = compress_zlib(<void*>&data[0,0], data_size_bytes, &comp_buffer)
-        comp_buffer_len = <int>((comp_buffer_bytes + 4 - 1)/4.0)
-        gridinfo.opt_compression_elemsize = comp_buffer_bytes
-        gridinfo.opt_compression_factor = 0 # hard coding for now
-        gridinfo.opt_compression_base = 0 # hard coding for now
+        comp_buffer_len = <int>((comp_buffer_bytes + 4 - 1)/4.0) # padding
+        gridinfo.compression_size = comp_buffer_bytes
+        gridinfo.compression_factor = 0 # hard coding for now
+        gridinfo.compression_base = 0 # hard coding for now
         logging.info("Size of grid data: {} bytes".format(data_size_bytes))
         logging.info("Size of compressed data: {} bytes".format(comp_buffer_bytes))
         logging.info("Length of compressed data: {}".format(comp_buffer_len))
 
-    elif comp_method == 1:
+    elif comp_method == PRECIP_2_BYTE:
+        # Case of PRECIP_2_BYTES
+        logging.warn('Applying HEC-Style RLE compression to grid data before writing to dss file.')
+        # update the parameters first
+        if base == NODATA_FLOAT and factor == NODATA_FLOAT:
+            base = 100.0
+            factor = 0.0
+            if min_val < base:
+                base = floor(min_val)
+                diff = <int>((max_val - base)*factor)
+                if diff > 32768: # max number for 15 bits
+                    base = ceil(32767.0/(max_val - min_val))
+
+        _comp_buffer = np.empty(data_size,dtype=np.int16) # output buffer for compression, which will be later type-casted to void *
+        _comp_buffer_bytes = np.empty(1,dtype=np.int32)   # true size of the compressed data in bytes, unpadded
+        # convert 2D buffer (C-contiguous) to 1D buffer (C-contiguous) that hec_compress expects
+        comp_status = hec_compress(<f32[:data_size]>&data[0,0],data_size,factor,base,_comp_buffer, _comp_buffer_bytes)
+
+        if comp_status != 0:
+            logging.error('There was error compressing the grid data using HEC-Style RLE compression. Grid version 6 data was not written.')
+            return -1
+
+        comp_buffer = <void*>&_comp_buffer[0] # zlib uses void* buffer, so doing this for clean code without extra variables
+        comp_buffer_bytes = _comp_buffer_bytes[0]  
+        comp_buffer_len = <int>((comp_buffer_bytes + 4 - 1)/4.0) # padding
+        gridinfo.compression_size = comp_buffer_bytes
+        gridinfo.compression_base = base
+        gridinfo.compression_factor = factor
+        logging.info("Size of grid data: {} bytes".format(data_size_bytes))
+        logging.info("Size of compressed data: {} bytes".format(comp_buffer_bytes))
+        logging.info("Length of compressed data: {}".format(comp_buffer_len))
+
+    elif comp_method == NO_COMPRESSION:
         # Case of no compression
         logging.info('No compression to grid data before writing to dss file.')
         comp_buffer = <void*>&data[0,0]
         comp_buffer_bytes = data_size_bytes
         comp_buffer_len = rows * cols            
-        gridinfo.opt_compression_elemsize = comp_buffer_bytes
-        gridinfo.opt_compression_factor = 0 # hard coding for now
-        gridinfo.opt_compression_base = 0 # hard coding for now
+        gridinfo.compression_size = comp_buffer_bytes
+        gridinfo.compression_factor = 0 # hard coding for now
+        gridinfo.compression_base = 0 # hard coding for now
 
-    elif comp_method == 101001:
-        # Case of PRECIP_2_BYTES
-        logging.warn('PRECIP_2_BYTES compression not implemented. Grid is not written to dss file.')
+    else:    
+        logging.info('Incompatible compression method provided. Grid version 6 data was not written.')
         return -1
 
     # get flatten (numpy int32 gridinfo buffer) from profile
@@ -765,6 +805,5 @@ cdef int saveGridV6(long long *ifltab, const char* pathname, float[:,::1] data, 
             )
 
     logging.info("Grid data written to file with status code = {}".format(status[0]))
-
     return status[0]
 

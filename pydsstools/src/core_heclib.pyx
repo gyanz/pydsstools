@@ -9,6 +9,7 @@ include "open.pyx"
 include "utils.pyx"
 include "exceptions.pyx"
 include "hectime.pyx"
+include "compression.pyx"
 include "grid.pyx"
 include "catalog.pyx"
 
