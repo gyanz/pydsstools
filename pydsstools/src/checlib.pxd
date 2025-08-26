@@ -414,7 +414,7 @@ cdef extern from "heclib.h":
     int zspatialGridRetrieve(long long *ifltab, zStructSpatialGrid *gdStruct, int boolRetrieveData)
     int zspatialGridStore(long long *ifltab, zStructSpatialGrid *gdStruct)
     int compress_zlib(void* array, int size, void **buffer)
-    #int uncompress_zlib(const void* buffer, int size, void* data, int dataSize)
+    int uncompress_zlib(const void* buffer, int size, void* data, int dataSize)
     int zspatialGridRetrieveVersion(long long *ifltab, const char *cpath, int* gridStructVersion)
     #void printGridStruct(long long *ifltab, int funtion_id, zStructSpatialGrid *gdStruct)
 

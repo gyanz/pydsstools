@@ -257,6 +257,25 @@ cdef class Open:
         isError(self.read_status)
         updateSGS(sg_st,zsgs)
 
+    def _get_gridver(self,const char *pathname):
+        ver = get_gridver_from_path(self.ifltab,pathname)
+        if ver == -1:
+            return
+        return ver
+
+    def _get_gridtype(self,const char *pathname):
+        grid_type = get_gridtype_from_path(self.ifltab,pathname)
+        if grid_type == -1:
+            return
+        return grid_type    
+
+    cpdef np.ndarray _read_ver0_grid(self,const char *pathname, object ginfo6, bint retrieve_data=True):
+        cdef:
+             np.ndarray data
+
+        data =  read_ver0_grid(self.ifltab,pathname,ginfo6,retrieve_data)
+        return data   
+
     cpdef int put_grid(self,str pathname, float[:,::1] data, object gridinfo7) except *:
         # TODO: Error check
         save_grid7(self.ifltab,pathname, data, gridinfo7)

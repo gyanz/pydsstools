@@ -4,7 +4,7 @@
 import logging
 from math import floor
 from enum import Enum,IntEnum
-from typing import Any,Tuple,List,Union
+from typing import Any,Tuple,List,Union,Optional
 
 try:
     # python 3.10+
@@ -72,7 +72,16 @@ class _GridInfo7(BaseModel):
     model_config = ConfigDict(extra='allow',validate_default=True)
     # extra = ignore, allow, forbid
     # extra items in instance.__pydantic_extra__
-    def update_lower_left_cell_indices(self,transform):
+
+    # lower_left_cell indices update
+    def update_albers_lower_left_cell_from_minxy(self):
+        if self.grid_type == GridType.albers or self.grid_type == GridType.albers_time:
+            logging.info('Updating lower left cell indices using mix_xy of Albers GridInfo')
+            x_cell0, y_cell0 = self.coords_cell0
+            llc = lower_left_cell_from_minxy(self.min_xy,self.shape,self.cell_size,x_cell0,y_cell0)
+            self.lower_left_cell = llc
+
+    def update_albers_lower_left_cell_from_transform(self,transform):
         dx = self.cell_size
         dx_t = transform[0]
         if abs(dx - dx_t) > 0.001:
@@ -82,22 +91,27 @@ class _GridInfo7(BaseModel):
 
         if self.grid_type == GridType.albers or self.grid_type == GridType.albers_time:
             logging.info('Updating lower left cell indices of Albers GridInfo')
-            x_cell0, y_cell0 = self.coord_cell0
+            x_cell0, y_cell0 = self.coords_cell0
             if x_cell0 != 0.0 or y_cell0 != 0.0:
                 logging.warning('Normally, the grid origin coordinates in SHG/Albers (epsg 5070) grid is (0,0). This is not the case here.')
-            llc = lower_left_cell_indices_of_albers_grid(transform,self.shape,x_cell0,y_cell0)
+            llc = lower_left_cell_from_transform(transform,self.shape,x_cell0,y_cell0)
             self.lower_left_cell = llc
 
+    def update_specified_lower_left_cell(self):
         if self.grid_type == GridType.specified or self.grid_type == GridType.specified_time:
             logging.info('Updating lower left cell indices of Specified GridInfo')
-            llc = lower_left_cell_indices_of_specified_grid()
-            self.lower_left_cell = llc
+            self.lower_left_cell = (0,0)
 
-    def update_coords_of_cell0_of_shg(self):
+    # coords_cell0 update
+    def update_shg_coords_cell0(self):
         if self.grid_type == GridType.albers or self.grid_type == GridType.albers_time:
-            self.coords_cell0 = coords_of_cell0_of_shg_grid()
+            self.coords_cell0 = (0.0,0.0)
 
-    def update_coords_of_cell0_of_specified_grid(self,transform):
+    def update_specified_coords_cell0_from_minxy(self):
+        if self.grid_type == GridType.specified or self.grid_type == GridType.specified_time:
+            self.coords_cell0 = self.min_xy
+
+    def update_specified_coords_cell0_from_transform(self,transform):
         if self.grid_type == GridType.specified or self.grid_type == GridType.specified_time:
             dx = self.cell_size
             dx_t = transform[0]
@@ -108,7 +122,7 @@ class _GridInfo7(BaseModel):
 
             # xmin and ymin of grid consistent with MetVue
             coords_cell0 = coords_of_cell0_of_specified_grid(transform,self.shape)
-            self.lower_left_cell = lower_left_cell_indices_of_specified_grid()
+            self.lower_left_cell = (0,0)
             self.coords_cell0 = coords_cell0
 
     def update_from_crs(self):
@@ -130,7 +144,7 @@ class _GridInfo7(BaseModel):
             return True           
 
 # don't use this class directly
-# no defaults for: None
+# no defaults for: data_type, cell_size
 class GridInfo(_GridInfo7):
     grid_type:Annotated[
         Literal[GridType.undefined_time,GridType.undefined],
@@ -138,11 +152,11 @@ class GridInfo(_GridInfo7):
         GridTypeField    
     ] = GridType.undefined_time
     data_units:str = Field(default='', validation_alias=AliasChoices('data_units','du','data_unit'))
-    data_type:DataType = Field(default=DataType.per_cum,validation_alias=AliasChoices('data_type','dt','datatype','dtype'))
-    lower_left_cell:PairLikeInt = Field(default=(0,0),validation_alias=AliasChoices('lower_left_cell','llc','llci','lower_left_cell_index','lower_cell','ll_cell'))
+    data_type:DataType = Field(validation_alias=AliasChoices('data_type','dt','datatype','dtype'))
+    lower_left_cell:Optional[PairLikeInt] = Field(default=None,validation_alias=AliasChoices('lower_left_cell','llc','llci','lower_left_cell_index','lower_cell','ll_cell'))
     shape:Union[Tuple[int,int],Annotated[List[int],Field(min_items=2,max_items=2)]]
     # default SHG grid cell size is 2 km
-    cell_size:float = Field(default=2000.0,validation_alias=AliasChoices('cell_size','cellsize','cs','dx','spacing','grid_size'))
+    cell_size:float = Field(validation_alias=AliasChoices('cell_size','cellsize','cs','dx','spacing','grid_size'))
     compression_method:CompressionMethod = Field(default=CompressionMethod.zlib, validation_alias=AliasChoices('compression_method','compression','comp'))
     compression_base:float = Field(default=0.0, validation_alias=AliasChoices('compression_base','comp_base','compbase','base','compressionbase'))
     compression_factor:float = Field(default=0.0, validation_alias=AliasChoices('compression_factor','comp_factor','comp_scale','compression_scale','scale'))
@@ -151,6 +165,7 @@ class GridInfo(_GridInfo7):
     mean_val:float = Field(default=0.0, validation_alias=AliasChoices('mean_val','mean','mean_value','average','avg'))
     range_vals:Annotated[List[float],Field(min_items=0)] = Field(default_factory=list, validation_alias=AliasChoices('range_vals','rv','range_values','rangevals'))
     range_counts:Annotated[List[int],Field(min_items=0)] = Field(default_factory=list,validation_alias=AliasChoices('range_counts','rc','rangecounts'))
+    min_xy:Optional[PairLikeFloat] = Field(default=None, validation_alias=AliasChoices('min_xy','minxy','xy_min','xymin','llxy'))
 
 
 # no defaults for: None
@@ -181,7 +196,7 @@ class AlbersInfo(GridInfo):
     y_0:float = Field(alias='fn',default=0.0, validation_alias=AliasChoices('y_0','y0','fn','false_northing'))
     # (easting, northing) of southwest corner of cell(0,0) - do not confuse this with coordinates or indices of lower left cell of grid
     # I think it should equal x_0 and y_0 normally in SHG/Albers
-    coords_cell0: PairLikeFloat = Field(default = (0.0,0.0), validation_alias=AliasChoices('coords_cell0','coordscell0','coords0','xy_cell0'))
+    coords_cell0:Optional[PairLikeFloat] = Field(default=None, validation_alias=AliasChoices('coords_cell0','coordscell0','coords0','xy_cell0'))
 
 
 # no defaults for: nodata
@@ -193,10 +208,10 @@ class SpecifiedInfo(GridInfo):
     ] = GridType.specified_time
     crs: str = Field(default='', validation_alias=AliasChoices('crs','crs_definition','crs_def','srs','srs_def'))
     crs_name: str = Field(default='', validation_alias=AliasChoices('crs_name','crsname','srsname'))
-    nodata: float = Field(default=0.0,allow_inf_nan=True, validation_alias=AliasChoices('nodata','null','nulldata','nullvalue'))
+    nodata: float = Field(allow_inf_nan=True, validation_alias=AliasChoices('nodata','null','nulldata','nullvalue'))
     tzid: str = Field(default='', validation_alias=AliasChoices('tzid','timezoneID','time_zone_id','timezone_id'))
     tzoffset: int = Field(default=0, ge=-24, le=24, validation_alias=AliasChoices('tzoffset','timezoneOffset','timezone_offset','time_zone_offset'))
-    coords_cell0: PairLikeFloat = Field(default = (0.0,0.0), validation_alias=AliasChoices('coords_cell0','coordscell0','coords0','xy_cell0'))
+    coords_cell0:Optional[PairLikeFloat] = Field(default=None, validation_alias=AliasChoices('coords_cell0','coordscell0','coords0','xy_cell0'))
     is_interval: bool = Field(default=True, validation_alias=AliasChoices('is_interval','isinterval','isint'))
     time_stamped: bool = Field(default=True, validation_alias=AliasChoices('time_stamped','is_time_stamped','istimestamped','isstamped'))
 
@@ -217,7 +232,7 @@ def create_gridinfo(**kwargs) -> _GridInfo7:
 GridInfoCreate = create_gridinfo
 # ==============================================================================
 
-def lower_left_cell_indices_of_albers_grid(transform,shape,cell_zero_xcoord=0,cell_zero_ycoord=0):
+def lower_left_cell_from_transform(transform,shape,xcoord_cell0=0,ycoord_cell0=0):
     # https://www.hec.usace.army.mil/confluence/hmsdocs/hmsum/4.8/geographic-information/coordinate-reference-systems    
     # https://rashms.com/blog/standard-hydrologic-grid-shg-in-hec-hms-modeling/
     cellsize_x = transform[0] # don't think this can ever be negative
@@ -229,20 +244,30 @@ def lower_left_cell_indices_of_albers_grid(transform,shape,cell_zero_xcoord=0,ce
         logging.warning('Note that cell sizes in x and y should be same for specified grid stored in HEC-DSS')
 
     rows = shape[0]
-    xmin_easting = xmin - cell_zero_xcoord
+    xmin_easting = xmin - xcoord_cell0
     ymin = ymax + rows * cellsize_y
-    ymin_northing = ymin - cell_zero_ycoord
+    ymin_northing = ymin - ycoord_cell0
     lower_left_x = int(floor(xmin_easting/abs(cellsize_x)))
     lower_left_y = int(floor(ymin_northing/abs(cellsize_y)))
     return (lower_left_x,lower_left_y)
 
-def lower_left_cell_indices_of_specified_grid():
-    # Source: https://www.hec.usace.army.mil/confluence/metdoc/metum/3.4.0/general-information-and-tips/dss-specifiedgridinfo-in-hec-metvue
-    # Here, like MetVue, the lower left cell of the grid is assumed as cell0
-    return (0,0)
+def lower_left_cell_from_minxy(minxy,shape,cellsize,xcoord_cell0=0,ycoord_cell0=0):
+    rows = shape[0]
+    xmin,ymin = minxy
+    xmin_easting = xmin - xcoord_cell0
+    ymin_northing = ymin - ycoord_cell0
+    lower_left_x = int(floor(xmin_easting/cellsize))
+    lower_left_y = int(floor(ymin_northing/cellsize))
+    return (lower_left_x,lower_left_y)
+
 
 def coords_of_cell0_of_shg_grid():
     return (0.0,0.0)
+
+def lower_left_cell_of_specified_grid():
+    # Source: https://www.hec.usace.army.mil/confluence/metdoc/metum/3.4.0/general-information-and-tips/dss-specifiedgridinfo-in-hec-metvue
+    # Here, like MetVue, the lower left cell of the grid is assumed as cell0
+    return (0,0)
 
 def coords_of_cell0_of_specified_grid(transform,shape):
     # Note that specified grid can assume any geographical location as origin cell

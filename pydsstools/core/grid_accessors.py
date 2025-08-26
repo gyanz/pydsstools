@@ -2,7 +2,7 @@ import logging
 import traceback
 from contextlib import contextmanager 
 #from .._lib import BoundingBox
-from .gridinfo import lower_left_cell_indices_of_specified_grid,lower_left_cell_indices_of_albers_grid 
+from .gridinfo import lower_left_cell_from_transform,lower_left_cell_of_specified_grid 
 from .transform import Affine, from_bounds, from_origin
 from .accessors import register_grid_accessor
 from .grid import _SpatialGridStruct,BoundingBox
@@ -137,7 +137,7 @@ else:
             prof = self._default_rasterio_profile()
             gridinfo['crs'] = prof['crs']
             #ll_x,ll_y = lower_left_cell_indices_of_specified_grid(dst_trans,dst_data.shape)
-            ll_x,ll_y = lower_left_cell_indices_of_specified_grid()
+            ll_x,ll_y = lower_left_cell_of_specified_grid()
             gridinfo['lower_left_x'] = ll_x
             gridinfo['lower_left_y'] = ll_y
             dst_data = np.ma.masked_values(dst_data,prof['nodata'])

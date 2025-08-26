@@ -90,6 +90,7 @@ class SpatialGridStruct(SpatialGridStructBase,TransformMethodsMixin):
                        ('tzoffset',self.tzoffset),
                        ('is_interval',True if self.is_interval else False),
                        ('time_stamped',True if self.time_stamped else False),
+                        ('min_xy',self.get_min_xy())
                        ])
         return result
     
@@ -119,6 +120,7 @@ class SpatialGridStruct(SpatialGridStructBase,TransformMethodsMixin):
                      ('tzoffset',self.tzoffset),
                      ('is_interval', True if self.is_interval else False),
                      ('time_stamped',True if self.time_stamped else False),
+                     ('min_xy',self.get_min_xy())
                      ])
         
         val = prof['data_type']

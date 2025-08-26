@@ -96,7 +96,7 @@ cpdef tuple _datetimeToSeconds2(char *datetimeString):
     spatialDateTime(datetimeString, julian, seconds)
     return (julian,seconds)
 
-cdef int _yearMonthDayToJulian(int year, int month, int day):
+cpdef int _yearMonthDayToJulian(int year, int month, int day):
     cdef int julian_days 
     julian_days = yearMonthDayToJulian(year,month,day)
     return julian_days
@@ -248,6 +248,28 @@ class HecTime(object):
 
     def formatDate(self,format = "%d%b%Y %H:%M:%S"):
         return  self.python_datetime.strftime(format) 
+
+    def _toString(self,end_of_day=True,uppercase=True):
+        #TODO: Need more work for this method as well as HecTime
+        # Setting it as private function for the time being
+        result = getDateTimeStringTuple(self.datetimeValue,self.granularity,self.julianBaseDate)
+        if result:
+            datestr,timestr = result
+            if end_of_day:
+                # day + 0000 as day-1 + 2400
+                result = '{}:{}'.format(datestr,timestr)
+            else:
+                result = ''
+                tlen = len(timestr)
+                if tlen == 6:
+                    result = self.formatDate("%d%b%Y:%H%M%S")
+                elif tlen == 4:    
+                    result = self.formatDate("%d%b%Y:%H%M")
+                elif tlen == 2:    
+                    result = self.formatDate("%d%b%Y:%H")
+            if uppercase:
+                result = result.upper()
+            return result            
 
     def dateString(self):
         # granularity based best date string

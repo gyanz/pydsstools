@@ -129,17 +129,168 @@ class _GridInfo6:
     def from_grid_type(cls,grid_type_info):
         if isinstance(grid_type_info,str): grid_type_info = grid_type_info.lower()
         if grid_type_info in ['hrap','hrap-time','hraptime','410','411',410,411]:
-            return HrapInfo6(grid_type=410)
+            info = HrapInfo6(grid_type=410)
+            fsize = ctypes.sizeof(HrapInfo6)
+            size = 128
+            gsize = 124
         elif grid_type_info in ['alber','albers','albers-time','alberstime','alber-time','420','421',420,421]:
-            return AlbersInfo6(grid_type=420)
+            info = AlbersInfo6(grid_type=420)
+            fsize = ctypes.sizeof(AlbersInfo6)
+            size = 164
+            gsize = 124
         elif grid_type_info in ['specified','spec','specified-time','specifiedtime','430','431',430,431]:
-            return SpecifiedInfo6(grid_type=430)
+            info = SpecifiedInfo6(grid_type=430)
+            fsize = ctypes.sizeof(SpecifiedInfo6)
+            size = 160
+            gsize = 124
         else:
-            return GridInfo6(grid_type=400)
+            info = GridInfo6(grid_type=400)
+            fsize = ctypes.sizeof(GridInfo6)
+            size = 124
+            gsize = 124
 
-    def from_int_array(self,ar):
-        pass
+        info.info_fsize = fsize    
+        info.info_size = size    
+        info.info_gsize = gsize
+        return info    
 
+    @classmethod
+    def get_specinfo6(cls,crs_name_length=30,crs_def_length=150, tzid_length=30):
+        info = SpecifiedInfo6()
+        flat_size = ctypes.sizeof(SpecifiedInfo6)
+        # crs_name
+        count = crs_name_length
+        flat_size += count*4
+        info.crs_name_length = count
+        info.crs_name = (ctypes.c_int32*count)(*[0 for x in range(count)])
+        #crs_def
+        count = crs_def_length
+        flat_size += count*4
+        info.crs_def_length = count
+        info.crs_def = (ctypes.c_int32*count)(*[0 for x in range(count)])
+        count = tzid_length
+        flat_size += count*4
+        info.tzid_length = count
+        info.tzid = (ctypes.c_int32*count)(*[0 for x in range(count)])
+        info.info_fsize = flat_size
+        return info
+
+    def update_from_int_array(self,ar):
+        grid_type = ar[1]
+        if self.grid_type != grid_type:
+            logging.error('Can not update info6 object with int array of different grid_type')
+            return
+        
+        # CHECK info flat size
+        
+        fields = self._fields_
+        info = self
+
+        if grid_type == 400:
+            index1 = [0,1,2,3,4,5,6,7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,21,22]
+            index2 = [0,1,2,3,4,5,6,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,43,53]
+            step =   [1,1,1,1,1,1,3,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,20,20] 
+            #fields = GridInfo6()._fields_
+
+        elif grid_type == 410:    
+            index1 = [0,1,2,3,4,5,6,7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,21,22, 
+                      23]
+            index2 = [0,1,2,3,4,5,6,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,43,
+                      63,66]
+            step =  [1,1,1,1,1,1,3,1,1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,20,20, 3] 
+            #info = HrapInfo6()
+
+        elif grid_type == 420:
+            index =  [0,1,2,3,4,5,6,7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,21,22,
+                      23,24,25,26,27,28,29,30,31,32]
+            index2 = [0,1,2,3,4,5,6,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,43,
+                      63,64,67,68,69,70,71,72,73,74,75]
+            step =   [1,1,1,1,1,1,3,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,20,20,
+                       1, 3, 1, 1, 1, 1, 1, 1, 1, 1]
+            #info = AlbersInfo6()
+
+        elif grid_type == 430:
+            index1 = [0,1,2,3,4,5,6,7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,21,22,
+                      23,24,25,26,27,28,29,30,31,32,33,34,35,36]
+            index2 = [0,1,2,3,4,5,6,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,43,
+                      63,64,65,65,66,67,67,68,69,70,71,71,72,73]
+            step =   [1,1,1,1,1,1,3,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,20,20,
+                       1, 1]
+            crs_name_len = ar[54]
+            index2[26] = index2[26] + crs_name_len
+            index2[27] = index2[27] + crs_name_len
+            index2[28] = index2[28] + crs_name_len
+            crs_def_len = ar[index2[27]]
+            index2[29] = index2[29] + crs_name_len + crs_def_len
+            index2[30] = index2[30] + crs_name_len + crs_def_len
+            index2[31] = index2[31] + crs_name_len + crs_def_len
+            index2[32] = index2[32] + crs_name_len + crs_def_len
+            index2[33] = index2[33] + crs_name_len + crs_def_len
+            tzid_len = ar[index2[32]]
+            index2[34] = index2[34] + crs_name_len + crs_def_len + tzid_len
+            index2[35] = index2[35] + crs_name_len + crs_def_len + tzid_len
+            index2[36] = index2[36] + crs_name_len + crs_def_len + tzid_len
+            index2 = index2 + [index2[-1] + 1]
+            #info = SpecifiedInfo6()
+
+        indices = list(zip(index2[0:-1],index2[1:]))
+
+        def get_type(_typ):
+            if issubclass(_typ,(ctypes.Array,ctypes._Pointer)):
+                return _typ._type_
+            else:
+                return _typ
+
+        for (name,typ),(start,end) in zip(fields,indices):
+            logging.debug('Updating info6 from ints >> {}:{}, {}:{}'.format(name,typ,start,end))
+            len = end - start    
+            if name.endswith('_length'):
+
+                old_name =name
+
+            if ctypes.sizeof(typ) <= 4:
+                logging.debug('int/float type')
+                # int, float, etc. data
+                val = ar[start]
+                _typ = get_type(typ)
+                if issubclass(_typ,(ctypes.c_float,)):
+                    val = int32_to_float32(val)
+                setattr(info,name,val)
+
+            elif ctypes.sizeof(typ) == 8:
+                logging.debug('pointer type')
+                # pointer, array type 
+                _typ = get_type(typ)
+                ptr = getattr(info,name)
+                vals = []
+                for i in range(start,end):
+                    val = ar[i]
+                    if issubclass(_typ,(ctypes.c_float,)):
+                        val = int32_to_float32(val)
+                        vals.append(val)
+                if isinstance(vals[0],float):
+                    setattr(info,name,(ctypes.c_float*len)(vals))
+                else:    
+                    setattr(info,name,(ctypes.c_int32*len)(vals))
+
+                setattr(info,old_name,len)
+
+            else: 
+                logging.debug('fixed array type')
+                # > 8
+                # fixed array type
+                _typ = get_type(typ)
+                ptr = getattr(info,name)
+                if len > 3:
+                    # range vals/counts
+                    end = start + info.range_length
+
+                for i in range(start,end):
+                    val = ar[i]
+                    if issubclass(_typ,(ctypes.c_float,)):
+                        val = int32_to_float32(val)
+                    ptr[i-start] = val
+        
     def to_int_array(self):
         ginfo = self
         ibuff = []
@@ -233,7 +384,6 @@ class _GridInfo6:
         prof7 = gridinfo6_to_gridinfo7_compatible_dict(self)
         return GridInfoCreate(**prof7)
 
-
 class GridInfo6(_GridInfo6,ctypes.Structure):
     _fields_ = [('info_fsize', ctypes.c_int32), # no need to specify in the profile dict while writing
                 ('grid_type', ctypes.c_int32),  
@@ -310,57 +460,57 @@ class AlbersInfo6(_GridInfo6,ctypes.Structure):
                 ('mean_val', ctypes.c_float),
                 ('range_length', ctypes.c_int32),
                 ('range_vals', ctypes.c_float*20),
-                ('range_counts', ctypes.c_int32*20),
-                ('proj_datum', ctypes.c_int32),              
-                ('proj_units', ctypes.c_int32*3),           
-                ('first_parallel', ctypes.c_float),          
-                ('sec_parallel', ctypes.c_float),            
-                ('central_meridian', ctypes.c_float),        
-                ('lat_origin', ctypes.c_float),              
-                ('false_easting', ctypes.c_float),           
-                ('false_northing', ctypes.c_float),          
-                ('xcoord_cell0', ctypes.c_float),        
-                ('ycoord_cell0', ctypes.c_float),        
+                ('range_counts', ctypes.c_int32*20),              #43
+                ('proj_datum', ctypes.c_int32),                   #63 
+                ('proj_units', ctypes.c_int32*3),                 #64  
+                ('first_parallel', ctypes.c_float),               #67 
+                ('sec_parallel', ctypes.c_float),                 #68
+                ('central_meridian', ctypes.c_float),             #69
+                ('lat_origin', ctypes.c_float),                   #70
+                ('false_easting', ctypes.c_float),                #71
+                ('false_northing', ctypes.c_float),               #72
+                ('xcoord_cell0', ctypes.c_float),                 #73
+                ('ycoord_cell0', ctypes.c_float),                 #74
                 ]
     
 class SpecifiedInfo6(_GridInfo6,ctypes.Structure):
-    _fields_ = [('info_fsize', ctypes.c_int32),
-                ('grid_type', ctypes.c_int32),                
-                ('info_size', ctypes.c_int32),
-                ('info_gsize', ctypes.c_int32),
-                ('stime', ctypes.c_int32),                    
-                ('etime', ctypes.c_int32),                    
-                ('data_units', ctypes.c_int32*3),             
-                ('data_type', ctypes.c_int32),                
-                ('lower_left_x', ctypes.c_int32),             
-                ('lower_left_y', ctypes.c_int32),            
-                ('cols', ctypes.c_int32),                      
-                ('rows', ctypes.c_int32),                     
-                ('cell_size', ctypes.c_float),                
-                ('compression_method', ctypes.c_int32),       
-                ('compression_size', ctypes.c_int32),     
-                ('compression_factor', ctypes.c_float),       
-                ('compression_base', ctypes.c_float),         
-                ('max_val', ctypes.c_float),                 
-                ('min_val', ctypes.c_float),                 
-                ('mean_val', ctypes.c_float),                
-                ('range_length', ctypes.c_int32),
-                ('range_vals', ctypes.c_float*20),      
-                ('range_counts', ctypes.c_int32*20),    
-                ('version', ctypes.c_int32),
-                ('crs_name_length', ctypes.c_int32),           # no need to specify while writing
-                ('crs_name', ctypes.POINTER(ctypes.c_int32)),
-                ('crs_type', ctypes.c_int32),
-                ('crs_def_length', ctypes.c_int32),            # no need to specify while writing
-                ('crs_def', ctypes.POINTER(ctypes.c_int32)),   
-                ('xcoord_cell0', ctypes.c_float),          
-                ('ycoord_cell0', ctypes.c_float),          
-                ('nodata', ctypes.c_float),                    
-                ('tzid_length', ctypes.c_int32),               # no need to specify while writing 
-                ('tzid', ctypes.POINTER(ctypes.c_int32)),      
-                ('tzoffset', ctypes.c_int32),                  
-                ('is_interval', ctypes.c_int32),               
-                ('time_stamped', ctypes.c_int32),              
+    _fields_ = [('info_fsize', ctypes.c_int32),              #0    0
+                ('grid_type', ctypes.c_int32),               #1    1
+                ('info_size', ctypes.c_int32),               #2    2
+                ('info_gsize', ctypes.c_int32),              #3    3
+                ('stime', ctypes.c_int32),                   #4    4
+                ('etime', ctypes.c_int32),                   #5    5
+                ('data_units', ctypes.c_int32*3),            #6    6
+                ('data_type', ctypes.c_int32),               #7    9
+                ('lower_left_x', ctypes.c_int32),            #8    10
+                ('lower_left_y', ctypes.c_int32),            #9    11
+                ('cols', ctypes.c_int32),                    #10   12
+                ('rows', ctypes.c_int32),                    #11   13
+                ('cell_size', ctypes.c_float),               #12   14
+                ('compression_method', ctypes.c_int32),      #13   15
+                ('compression_size', ctypes.c_int32),        #14   16
+                ('compression_factor', ctypes.c_float),      #15   17
+                ('compression_base', ctypes.c_float),        #16   18 
+                ('max_val', ctypes.c_float),                 #17   19
+                ('min_val', ctypes.c_float),                 #18   20
+                ('mean_val', ctypes.c_float),                #19   21
+                ('range_length', ctypes.c_int32),            #20   22
+                ('range_vals', ctypes.c_float*20),           #21   23 
+                ('range_counts', ctypes.c_int32*20),         #22   43 
+                ('version', ctypes.c_int32),                 #23   63
+                ('crs_name_length', ctypes.c_int32),         #24   64
+                ('crs_name', ctypes.POINTER(ctypes.c_int32)),#25   65
+                ('crs_type', ctypes.c_int32),                #26   65 + crs_name_len 
+                ('crs_def_length', ctypes.c_int32),          #27   66 + crs_name_len
+                ('crs_def', ctypes.POINTER(ctypes.c_int32)), #28   67 + crs_name_len
+                ('xcoord_cell0', ctypes.c_float),            #29   67 + crs_name_len + crs_def_len 
+                ('ycoord_cell0', ctypes.c_float),            #30   68 + crs_name_len + crs_def_len
+                ('nodata', ctypes.c_float),                  #31   69 + crs_name_len + crs_def_len
+                ('tzid_length', ctypes.c_int32),             #32   70 + crs_name_len + crs_def_len
+                ('tzid', ctypes.POINTER(ctypes.c_int32)),    #33   71 + crs_name_len + crs_def_len
+                ('tzoffset', ctypes.c_int32),                #34   71 + crs_name_len + crs_def_len + tzid_len
+                ('is_interval', ctypes.c_int32),             #35   72 + "
+                ('time_stamped', ctypes.c_int32),            #36   73 + "
                 ]
 
 
@@ -455,7 +605,7 @@ def gridinfo7_to_gridinfo6(gridinfo7,pathname):
     elif grid_type == 410:
         # flat size could be a pointer size (i.e.,data_source pointer) 
         # larger than that is necessary, which is OK
-        info_flat_size = ctypes.sizeof(HrapInfo6) + 3*4 
+        info_flat_size = ctypes.sizeof(HrapInfo6) #+ 3*4 
         info_size = 128
         info_gsize = 124
 
@@ -557,3 +707,24 @@ def gridinfo6_to_gridinfo7_compatible_dict(gridinfo6):
         prof6.pop('tzid_length')
 
     return prof6
+
+
+def allocate_specifiedinfo6(crs_name_length=30,crs_def_length = 150, tzid_length = 30):
+    info = SpecifiedInfo6()
+    flat_size = ctypes.sizeof(SpecifiedInfo6)
+    # crs_name
+    count = crs_name_length
+    flat_size += count*4
+    info.crs_name_length = count
+    info.crs_name = (ctypes.c_int32*count)*[0 for x in range(count)]
+    #crs_def
+    count = crs_def_length
+    flat_size += count*4
+    info.crs_def_length = count
+    info.crs_def = (ctypes.c_int32*count)*[0 for x in range(count)]
+    count = tzid_length
+    flat_size += count*4
+    info.tzid_length = count
+    info.tzid = (ctypes.c_int32*count)*[0 for x in range(count)]
+    info.info_fsize = flat_size
+    return info

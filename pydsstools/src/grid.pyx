@@ -15,29 +15,6 @@ _GRID_DATA_TYPE = {v: k for k, v in GRID_DATA_TYPE.items()}
 GRID_COMPRESSION_METHODS = {'undefined': 0, 'uncompressed': 1, 'zlib deflate': 26}
 _GRID_COMPRESSION_METHODS = {v: k for k, v in GRID_COMPRESSION_METHODS.items()}
 
-def lower_left_xy_from_transform(transform,shape,cell_zero_xcoord=0,cell_zero_ycoord=0):
-    cdef:
-        float xmin_easting,ymin_northing
-        float xmin,ymin,ymax
-        int lower_left_x,lower_left_y
-        int rows
-
-    cellsize_x = transform[0] # don't think this can ever be negative
-    xmin = transform[2]
-    cellsize_y = transform[4] # negative for north-up
-    ymax = transform[5]
-
-    if abs(cellsize_x) != abs(cellsize_y):
-        logging.warning('Note that cell sizes in x and y should be same for specified grid stored in HEC-DSS')
-
-    rows = shape[0]
-    xmin_easting = xmin - cell_zero_xcoord
-    ymin = ymax + rows * cellsize_y
-    ymin_northing = ymin - cell_zero_ycoord
-    lower_left_x = <int>(floor(xmin_easting/abs(cellsize_x)))
-    lower_left_y = <int>(floor(ymin_northing/abs(cellsize_y)))
-    return (lower_left_x,lower_left_y)
-
 cdef SpatialGridStruct createSGS(zStructSpatialGrid *zsgs):
     sg_st = SpatialGridStruct()
     if zsgs:
@@ -291,23 +268,32 @@ cdef class SpatialGridStruct:
             tuple origin
             tuple result
 
+        result = ()
         origin = self.cell0_coords()
         xorig,yorig = origin
-        col_bottom = self.lower_left_x()
-        row_bottom = self.lower_left_y()
+        col_ll = self.lower_left_x()
+        row_ll = self.lower_left_y()
 
         if not xorig == UNDEFINED_FLOAT:
             rows = self.rows()
             cols = self.cols()
             cell = self.cellSize()
-            xmin = xorig + col_bottom * cell
-            ymin = yorig + row_bottom * cell
+            xmin = xorig + col_ll * cell
+            ymin = yorig + row_ll * cell
             xmax = xmin + cols * cell
             ymax = ymin + rows * cell
+            result = (xmin,xmax,ymin,ymax)
 
-        result = (xmin,xmax,ymin,ymax)
         return result 
 
+    cpdef tuple get_min_xy(self):
+        cdef:
+            float xmin,ymin
+
+        result = self.get_extents()
+        if result:
+            return (result[0],result[2])
+        return ()
 
     def _get_mview(self, dtype = 'f'):
         cdef:
@@ -530,7 +516,7 @@ cdef int save_grid7(long long *ifltab, const char* pathname, float[:,::1] data, 
         float ycoord_cell0 = 0.0
         float nodata = UNDEFINED
         char * tzid = ""
-        #int  tzoffset = 0
+        int  tzoffset = 0
         int is_interval = 0
         int time_stamped = 0
         #int range_length
@@ -546,8 +532,7 @@ cdef int save_grid7(long long *ifltab, const char* pathname, float[:,::1] data, 
         int range_counts[20]
         float range_vals[20]
         int status
-        int i,rc
-        float rv
+        int i
 
     grid_type = info7.grid_type.value
 
@@ -574,7 +559,7 @@ cdef int save_grid7(long long *ifltab, const char* pathname, float[:,::1] data, 
         logging.error('Invalid grid data type (value = {}). Gridded data was not written'.format(data_type))
         return -1
 
-    compression_method = info7.compresion_method.value
+    compression_method = info7.compression_method.value
     if compression_method == PRECIP_2_BYTE or compression_method <0: # for enum.invalid = -9999
         logging.info('Incompatible compression method (code = {}). ZLIB method used.'.format(compression_method))
         compression_method = ZLIB_COMPRESSION
@@ -590,9 +575,9 @@ cdef int save_grid7(long long *ifltab, const char* pathname, float[:,::1] data, 
     range_length = len(info7.range_vals)
     for i in range(range_length):
         range_vals[i] = <float>(info7.range_vals[i])
-        range_counts[i] = <int>(info7.range_countss[i])
+        range_counts[i] = <int>(info7.range_counts[i])
 
-    if grid_type == 420 or grid_type == 421:
+    if grid_type == 410 or grid_type == 421:
         # Hrap
         data_source = info7.data_source
 
@@ -806,4 +791,191 @@ cdef int save_grid6(long long *ifltab, const char* pathname, float[:,::1] data, 
 
     logging.info("Grid data written to file with status code = {}".format(status[0]))
     return status[0]
+
+cdef int get_gridver_from_path(long long *ifltab, const char* pathname):
+    cdef:
+        int version = -1
+        int status = 0
+
+    status = zspatialGridRetrieveVersion(ifltab,pathname,&version)    
+    if status !=0:
+        return -1
+    # 100 = DSS7 
+    # 0 = DSS6
+    return version    
+
+#cdef np.ndarray read_gridv6(long long *ifltab, const char* pathname, int[::1] info6, bint retrieve_data):
+cdef int get_gridtype_from_path(long long *ifltab, const char* pathname):
+    cdef:
+        zStructRecordSize *srs_ptr = NULL
+        int grid_type = 0
+        int exists = 0
+
+    srs_ptr = zstructRecordSizeNew(pathname)
+    if srs_ptr == NULL:
+        return -1
+
+    exists = zgetRecordSize(ifltab,srs_ptr)
+    if exists != 0:
+        return -1
+
+    grid_type = srs_ptr.dataType
+    # TODO: verify this won't cause any memory leakage
+    zstructFree(srs_ptr)
+    return grid_type
+
+cdef int get_grid_datalen_from_path(long long *ifltab, const char* pathname):
+    cdef:
+        zStructRecordSize *srs_ptr = NULL
+        int comp_len = 0
+        int exists = 0
+
+    srs_ptr = zstructRecordSizeNew(pathname)
+    if srs_ptr == NULL:
+        return -1
+
+    exists = zgetRecordSize(ifltab,srs_ptr)
+    if exists != 0:
+        return -1
+
+    comp_len = srs_ptr.values1Number
+    # TODO: verify this won't cause any memory leakage
+    zstructFree(srs_ptr)
+    return comp_len
+
+cdef np.ndarray read_ver0_grid(long long *ifltab, const char *pathname, object ginfo6, bint retrieve_data):
+    cdef:
+        int grid_type
+        int flat_size = 0
+        np.ndarray info_flat
+        int[::1] info_flat_mv
+        int comp_data_len
+        np.ndarray comp_data
+        int[::1] comp_data_mv
+        int16_t[::1] comp_data16
+        int16_t[::1] comp_data16_mv
+        int comp_method
+        float comp_base
+        float comp_factor
+        np.ndarray out_data
+        f32[::1] out_data_mv
+        int32_t[::1] out_size_mv
+        int data_size
+        int rows
+        int cols
+        float nodata
+        float min_val
+        float max_val
+        int i
+        int dummy_header[1]
+        int zero = 0
+        int plan = 0
+        int found = 0
+        int status
+        int exists
+
+    grid_type = ginfo6.grid_type
+    comp_data_len = get_grid_datalen_from_path(ifltab,pathname)
+
+    #flat_size = ginfo.info_fsize
+    info_flat = ginfo6.to_int_array()
+    info_flat_mv = info_flat
+
+    #comp_buffer = <int*>malloc(comp_data_len * sizeof(int))
+    #if comp_buffer == NULL:
+    #    raise MemoryError()
+    comp_data = np.empty(comp_data_len,dtype=np.int32)
+    comp_data_mv = comp_data
+
+    # fill grid meta into info_flat,get compressed data
+    zreadx(ifltab,
+           pathname,
+           &info_flat_mv[0], &flat_size, &flat_size,
+           dummy_header, &zero, dummy_header,
+           dummy_header, &zero, dummy_header,
+           &comp_data_mv[0], &comp_data_len, &comp_data_len,
+           &plan,
+           &found
+    )
+    if found == 0:
+        return None
+
+    ginfo6.update_from_int_array(info_flat)
+
+    if not retrieve_data:
+        return info_flat
+
+    if retrieve_data:
+        grid_type = ginfo6.grid_type
+        rows = ginfo6.rows
+        cols = ginfo6.cols
+        data_size = rows * cols
+        comp_method = ginfo6.compression_method
+        comp_base = ginfo6.compression_base
+        comp_factor = ginfo6.compression_factor
+        min_val = ginfo6.min_val
+        max_val = ginfo6.max_val
+        logging.debug('rows={},cols={},comp method = {},comp data len = {}'.format(rows,cols,comp_method,comp_data_len))
+
+        if data_size == 0:
+            return None
+
+        if comp_method == NO_COMPRESSION:
+            out_data = np.astype(comp_data,dtype=np.float32)
+
+        elif comp_method == ZLIB_COMPRESSION:
+            #data = <float*>malloc(data_size*sizeof(float))
+            #if data == NULL:
+            #    return None    
+            out_data = np.empty(data_size,dtype=np.float32)
+            out_data_mv = out_data
+
+
+            # int uncompress_zlib(const void* buffer, int size, void* data, int dataSize)
+            status = uncompress_zlib(<void*>&comp_data_mv[0],comp_data_len,
+                                    <void*>&out_data_mv[0],data_size
+                                    )
+            if status != 0:
+                 return
+
+            if grid_type == 430:
+                nodata = ginfo6.nodata
+                out_data[out_data == nodata] = UNDEFINED_FLOAT
+
+            else:
+                out_data[(out_data < min_val) | (out_data > max_val)] = UNDEFINED_FLOAT
+
+        elif comp_method == PRECIP_2_BYTE:
+            #comp_data16_mv = <int16_t[:comp_data_len*2]><int16_t *>&comp_data_mv[0]
+            # OverflowError: character argument not in range(0x110000)
+            # use np.view instead of raw pointer casting
+            comp_data16 = comp_data.view(np.int16)
+            comp_data16_mv = comp_data16
+            out_data = np.empty(data_size,dtype=np.float32)
+            out_data_mv = out_data
+            out_size = np.empty(1,dtype=np.int32)
+            out_size_mv = out_size
+            # TODO: Review needed
+            # assuming int is int32. What if int is 16 or 64? In this case comp_data_len*2 fails
+            status = hec_uncompress(comp_data16_mv,comp_data_len*2,
+                                    comp_factor,comp_base,
+                                    out_data_mv,
+                                    out_size_mv,
+                                    UNDEFINED_FLOAT)
+
+            if grid_type == 430:
+                nodata = ginfo6.nodata
+                out_data[out_data == nodata] = UNDEFINED_FLOAT
+
+            else:
+                out_data[(out_data < min_val) | (out_data > max_val)] = UNDEFINED_FLOAT
+
+        else:
+            out_data =  None
+
+        return out_data
+
+
+
+
 
