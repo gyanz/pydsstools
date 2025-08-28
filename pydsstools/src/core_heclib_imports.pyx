@@ -3,6 +3,7 @@ cimport libcpp
 from cpython cimport array
 from cython cimport view,nogil
 from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
+from cpython.bytes cimport PyBytes_AS_STRING
 from libc.stdint cimport int16_t, int32_t
 from libc.stdlib cimport malloc, free
 from libc.string cimport strlen

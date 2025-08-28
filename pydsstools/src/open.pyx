@@ -269,20 +269,20 @@ cdef class Open:
             return
         return grid_type    
 
-    cpdef np.ndarray _read_ver0_grid(self,const char *pathname, object ginfo6, bint retrieve_data=True):
+    cpdef np.ndarray _read_grid0(self,const char *pathname, object ginfo6, bint retrieve_data=True):
         cdef:
              np.ndarray data
 
-        data =  read_ver0_grid(self.ifltab,pathname,ginfo6,retrieve_data)
+        data =  read_grid0(self.ifltab,pathname,ginfo6,retrieve_data)
         return data   
 
     cpdef int put_grid(self,str pathname, float[:,::1] data, object gridinfo7) except *:
         # TODO: Error check
         save_grid7(self.ifltab,pathname, data, gridinfo7)
 
-    cpdef int put_grid6(self,str pathname,  float[:,::1] data, object gridinfo6) except *:
+    cpdef int put_grid0(self,str pathname,  float[:,::1] data, object gridinfo6) except *:
         # TODO: Error check
-        save_grid6(self.ifltab,pathname, data, gridinfo6)
+        save_grid0(self.ifltab,pathname, data, gridinfo6)
 
     cpdef dict dss_info(self, str pathname):
         return dss_info(self,pathname)

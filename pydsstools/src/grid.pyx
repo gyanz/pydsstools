@@ -643,7 +643,7 @@ cdef int save_grid7(long long *ifltab, const char* pathname, float[:,::1] data, 
     status = zspatialGridStore(ifltab,zsgs)
     return status 
 
-cdef int save_grid6(long long *ifltab, const char* pathname, float[:,::1] data, object gridinfo):
+cdef int save_grid0(long long *ifltab, const char* pathname, float[:,::1] data, object gridinfo):
     cdef:
         int rows = 0
         int cols = 0
@@ -843,7 +843,7 @@ cdef int get_grid_datalen_from_path(long long *ifltab, const char* pathname):
     zstructFree(srs_ptr)
     return comp_len
 
-cdef np.ndarray read_ver0_grid(long long *ifltab, const char *pathname, object ginfo6, bint retrieve_data):
+cdef np.ndarray read_grid0(long long *ifltab, const char *pathname, object ginfo6, bint retrieve_data):
     cdef:
         int grid_type
         int flat_size = 0
@@ -962,16 +962,23 @@ cdef np.ndarray read_ver0_grid(long long *ifltab, const char *pathname, object g
                                     out_data_mv,
                                     out_size_mv,
                                     UNDEFINED_FLOAT)
-
-            if grid_type == 430:
-                nodata = ginfo6.nodata
-                out_data[out_data == nodata] = UNDEFINED_FLOAT
-
-            else:
-                out_data[(out_data < min_val) | (out_data > max_val)] = UNDEFINED_FLOAT
+            if status !=0:
+                logging.error('Problem with decoding HEC-style RLE compressed data for grid')
+                return
+            # It seems the following is unnecessary
+            #if grid_type == 430:
+            #    nodata = ginfo6.nodata
+            #    # TODO: gridinfo will still show nodata value different than UNDEFINED_FLOAT
+            #    out_data[out_data == nodata] = UNDEFINED_FLOAT
+            #
+            #else:
+            #    out_data[(out_data < min_val) | (out_data > max_val)] = UNDEFINED_FLOAT
 
         else:
             out_data =  None
+        
+        if not out_data is None:
+            out_data = np.ma.masked_values(out_data,UNDEFINED_FLOAT)
 
         return out_data
 

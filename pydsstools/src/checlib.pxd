@@ -118,7 +118,9 @@ cdef extern from "heclib.h":
         int endTimeSeconds
         char *pathname
         char *pathnameInternal
-        int boolRetrieveAllTimes  
+        int boolRetrieveAllTimes
+        char *timeZoneName
+
     zStructTimeSeries *zstructTsNewRegFloats(const char* pathname, 
                                                    float *floatValues, 
                                                    int numberValues, 

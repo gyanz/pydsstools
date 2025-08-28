@@ -459,9 +459,11 @@ class Open(_Open):
             grid_type = self._get_gridtype(pathname)
             info6 = GridInfo6.from_grid_type(grid_type)
             if grid_type == 430:
-                info6 = GridInfo6.get_specinfo6(30,150,30)
+                # add space for crs defination, tz id generously
+                # it should be more than what is in the file
+                info6 = GridInfo6.get_specinfo6(50,200,50)
             #info6 is updated with data from the dss file
-            data = super()._read_ver0_grid(pathname,info6,retrieve_data)
+            data = super()._read_grid0(pathname,info6,retrieve_data)
             if metadata_only:
                 if not data is None:
                     return info6.to_gridinfo7()
@@ -569,6 +571,7 @@ class Open(_Open):
                 except:
                     raise Exception('For %s grid type, DPart and EPart of pathname must be datetime string')
                 else:
+                    # unsure about this param
                     gridinfo.time_stamped = 1
                     # update D and E part of pathname
                     stime = stime._toString(end_of_day = False)
@@ -670,7 +673,7 @@ class Open(_Open):
         super().put_grid(pathname, _data, gridinfo)
 
     #@validate_call
-    def put_grid6(self, data:Union[SpatialGridStruct,np.array], pathname:Optional[PathType]=None, gridinfo:Optional[GridInfo]=None, flipud:Optional[bool]=True, compute_stats:Optional[bool]=False, transform:Optional[Any]=None) ->None:
+    def put_grid0(self, data:Union[SpatialGridStruct,np.array], pathname:Optional[PathType]=None, gridinfo:Optional[GridInfo]=None, flipud:Optional[bool]=True, compute_stats:Optional[Union[bool,List[float]]]=True, transform:Optional[Any]=None) ->None:
         """Write spatial grid to DSS-6 file. Writing to DSS-7 file not allowed.
 
         Parameter
@@ -691,8 +694,7 @@ class Open(_Open):
             return
 
         if self.version == 7:
-            logging.warning('put_grid6 does not support writing grid to DSS-7 file')
-            return
+            logging.warning('Writing version 0 (DSS-6 format) grid data to DSS7 file is experimental and may cause problem')
         
         if isinstance(data, SpatialGridStruct):
             if pathname is None: pathname = data.pathname
@@ -830,7 +832,7 @@ class Open(_Open):
             _data = np.ascontiguousarray(_data)
 
 
-        super().put_grid6(pathname, _data, gridinfo6)
+        super().put_grid0(pathname, _data, gridinfo6)
 
     #@validate_call
     def copy(self,pathname_in:PathType,pathname_out:PathType,dss_out:Optional["Open"]=None) ->None:
