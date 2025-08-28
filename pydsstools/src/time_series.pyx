@@ -293,6 +293,21 @@ cdef class TimeSeriesStruct:
         return ''
 
     @property
+    def data_type(self):
+        """Returns the type of the time-series
+        
+        Returns
+        -------
+            # PER-AVER, PER-CUM, INST-VAL or INST-CUM 
+            # These are byte string (or ascii encoded) objects
+
+        """
+        if self.tss:
+            if self.tss[0].type:
+                return self.tss[0].type
+        return ''
+
+    @property
     def units(self):
         """Returns the unit of values in the time-series
         
@@ -391,6 +406,14 @@ cdef class TimeSeriesStruct:
             return "Undefined"
 
     @property
+    def timezone(self):
+        timezone = ''        
+        if self.tss:
+            if self.tss[0].timeZoneName:
+                timezone = self.tss[0].timeZoneName
+        return timezone        
+
+    @property
     def _julian_base_date(self):
         if self.tss:
             return {'julianBaseDate':self.tss[0].julianBaseDate, 'startJulianDate':self.tss[0].startJulianDate}        
@@ -405,6 +428,7 @@ cdef class TimeSeriesContainer:
         public str startDateTime
         public str units
         public str type
+        public str timezone
         public str _startDateBase #for overflowing time in irregular time-series TODO
         object _values
         float *floatValues
@@ -414,6 +438,8 @@ cdef class TimeSeriesContainer:
         void *Values
         int [:] int_mv
         int *intTimes
+        object _timezone_bytes
+        char *timeZoneName
 
     def __init__(self,**kwargs):
         _pathname = kwargs.get('pathname','')
@@ -423,6 +449,7 @@ cdef class TimeSeriesContainer:
         _times = kwargs.get('times',None) 
         _units = kwargs.get('units','')
         _type = kwargs.get('type','')
+        _timezone = kwargs.get('timezone','')
         _startDateTime = kwargs.get('startDateTime','')
 
         self.pathname =_pathname 
@@ -433,6 +460,9 @@ cdef class TimeSeriesContainer:
         self.units = _units
         self.type = _type
         self.startDateTime= _startDateTime
+        self.timezone = _timezone
+        self._timezone_bytes = _timezone.encode('ascii')
+        self.timeZoneName = PyBytes_AS_STRING(self._timezone_bytes)
         self._startDateBase=''
 
     cdef int setFloatValues(self):
@@ -569,6 +599,12 @@ cdef TimeSeriesStruct createNewTimeSeries(TimeSeriesContainer tsc):
         char *startDate
         char *startTime
         char *startDateBase=NULL
+        #char *timeZoneName
+
+    # Temporary solution for RF work
+    if tsc.timezone:
+        tsc._timezone_bytes = tsc.timezone.encode('ascii')
+        tsc.timeZoneName = PyBytes_AS_STRING(tsc._timezone_bytes)
 
     if not interval <= 0:
         startDateTime = HecTime(tsc.startDateTime)
@@ -591,6 +627,9 @@ cdef TimeSeriesStruct createNewTimeSeries(TimeSeriesContainer tsc):
 
     if not tss:
         logging.debug("Empty time-series struct created")
+
+    logging.debug('Setting timezone info: {}'.format(tsc.timezone))
+    tss[0].timeZoneName = tsc.timeZoneName    
 
     ts_st = createTSS(tss)
     logging.debug("length = {}".format(ts_st.numberValues))

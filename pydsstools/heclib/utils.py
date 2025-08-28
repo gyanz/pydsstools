@@ -183,6 +183,7 @@ def check_gridinfo(grid_info,shape,raise_error = False):
             grid_info[k] = default_gridinfo[k]
 
     grid_type = grid_info['grid_type']
+    _grid_type = ''
     if not grid_type in grid_type_names:
         raise Exception('grid_type must be one of %r'%grid_type_names) 
 
@@ -192,14 +193,19 @@ def check_gridinfo(grid_info,shape,raise_error = False):
         grid_info['opt_crs_name'] = 'HRAP'
 
     if grid_type in ['shg','shg-time']:
+        _grid_type = 'shg'
         logging.debug('WKT CRS for SHG grid applied')
         grid_info['grid_crs'] = SHG_WKT
         grid_info['opt_crs_name'] = 'SHG'
 
     if grid_type in ['albers','albers-time']:
+        _grid_type = 'shg'
         logging.debug('WKT CRS for SHG grid applied')
         grid_info['grid_crs'] = SHG_WKT
         grid_info['opt_crs_name'] = 'AlbersInfo'
+
+    if grid_type in ['specified','specified-time']:
+        _grid_type = 'specified'
 
     transform = grid_info['grid_transform']
     if not isinstance(transform, Affine):
@@ -256,18 +262,37 @@ def check_gridinfo(grid_info,shape,raise_error = False):
     else:
         grid_info['opt_time_stamped'] = 0
 
+    # Temporary fix for RF work
     # check lower_left_x and lower_left_y indices
-    ll_x1 = grid_info['opt_lower_left_x']
-    ll_y1 = grid_info['opt_lower_left_y']
-    cell_zero_xcoord = grid_info['opt_cell_zero_xcoord']
-    cell_zero_ycoord = grid_info['opt_cell_zero_ycoord']
-    ll_x2, ll_y2 = lower_left_xy_from_transform(transform,shape,cell_zero_xcoord,cell_zero_ycoord)
-    if ll_x1 != ll_x2 or ll_y1 != ll_y2:
-        msg = 'opt_lower_left_x, opt_lower_left_y has issue or both are incorrect\n'
-        msg += 'Given = %r, computed = %r'%((ll_x1,ll_y1), (ll_x2, ll_y2))
-        logging.error(msg)
-        if raise_error:
-            raise Exception(msg)
+    #ll_x1 = grid_info['opt_lower_left_x']
+    #ll_y1 = grid_info['opt_lower_left_y']
+    #cell_zero_xcoord = grid_info['opt_cell_zero_xcoord']
+    #cell_zero_ycoord = grid_info['opt_cell_zero_ycoord']
+    if _grid_type == 'shg':
+        grid_info['opt_cell_zero_xcoord'] = 0.0
+        grid_info['opt_cell_zero_ycoord'] = 0.0
+        ll_x2, ll_y2 = lower_left_xy_from_transform(transform,shape,0.0,0.0)
+        grid_info['opt_lower_left_x'] = ll_x2
+        grid_info['opt_lower_left_y'] = ll_y2
+
+    elif _grid_type == 'specified':
+        grid_info['opt_lower_left_x'] = 0
+        grid_info['opt_lower_left_y'] = 0
+        dx = transform[0]
+        dy = transform[4]
+        xmin = transform[2]
+        ymax = transform[5]
+        rows = shape[0]
+        ymin = ymax + rows * dy
+        grid_info['opt_cell_zero_xcoord'] = xmin
+        grid_info['opt_cell_zero_ycoord'] = ymin
+
+    #if ll_x1 != ll_x2 or ll_y1 != ll_y2:
+    #    msg = 'opt_lower_left_x, opt_lower_left_y has issue or both are incorrect\n'
+    #    msg += 'Given = %r, computed = %r'%((ll_x1,ll_y1), (ll_x2, ll_y2))
+    #    logging.error(msg)
+    #    if raise_error:
+    #        raise Exception(msg)
 
     # check time stamped vs grid_type and pathname D and F parts in put_grid  
 

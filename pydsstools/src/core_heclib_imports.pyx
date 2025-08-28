@@ -8,6 +8,7 @@ from datetime import datetime,timedelta
 from libc.stdlib cimport malloc, free
 from libc.string cimport strlen
 from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
+from cpython.bytes cimport PyBytes_AS_STRING
 from dateutil import parser
 from dateutil.relativedelta import relativedelta
 from affine import Affine
