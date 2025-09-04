@@ -601,10 +601,6 @@ cdef TimeSeriesStruct createNewTimeSeries(TimeSeriesContainer tsc):
         char *startDateBase=NULL
         #char *timeZoneName
 
-    # Temporary solution for RF work
-    if tsc.timezone:
-        tsc._timezone_bytes = tsc.timezone.encode('ascii')
-        tsc.timeZoneName = PyBytes_AS_STRING(tsc._timezone_bytes)
 
     if not interval <= 0:
         startDateTime = HecTime(tsc.startDateTime)
@@ -628,8 +624,11 @@ cdef TimeSeriesStruct createNewTimeSeries(TimeSeriesContainer tsc):
     if not tss:
         logging.debug("Empty time-series struct created")
 
-    logging.debug('Setting timezone info: {}'.format(tsc.timezone))
-    tss[0].timeZoneName = tsc.timeZoneName    
+    if tsc.timezone:
+        logging.debug('Setting timezone info: {}'.format(tsc.timezone))
+        tsc._timezone_bytes = tsc.timezone.encode('ascii')
+        tsc.timeZoneName = PyBytes_AS_STRING(tsc._timezone_bytes)
+        tss[0].timeZoneName = tsc.timeZoneName    
 
     ts_st = createTSS(tss)
     logging.debug("length = {}".format(ts_st.numberValues))
