@@ -7,6 +7,8 @@ Notes:
      The values attribute can be list, array or numpy array
 
 '''
+import logging
+logging.basicConfig(level=logging.DEBUG)
 from datetime import datetime
 from pydsstools.heclib.dss import HecDss
 from pydsstools.core import TimeSeriesContainer,UNDEFINED
@@ -20,10 +22,11 @@ tsc.numberValues = 7
 tsc.units = "cfs"
 tsc.type = "INST"
 tsc.interval = 1
+tsc.timezone = "GMT-08:00"
 tsc.values = [100,UNDEFINED,500,5000,10000,24.1,25]
 
 fid = HecDss.Open(dss_file)
 fid.deletePathname(tsc.pathname)
 fid.put_ts(tsc)
 ts = fid.read_ts(pathname)
-fid.close()
+#fid.close()
