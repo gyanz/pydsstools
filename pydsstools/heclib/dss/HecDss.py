@@ -150,7 +150,7 @@ class Open(_Open):
 
 
     #@validate_call
-    def put_ts(self,tsc:TimeSeriesContainer,prevent_overflow:Optional[bool]=True) ->None:
+    def put_ts(self,tsc:"TimeSeriesContainer",prevent_overflow:Optional[bool]=True) ->None:
         """Write time-series
 
         Parameter
@@ -254,7 +254,7 @@ class Open(_Open):
 
 
     #@validate_call
-    def read_pd(self,pathname:PathType,window:Optional[DateWindow]=None,dtype:Optional[np.dtype]=None,dataframe:Optional[bool]=True) ->pd.DataFrame:
+    def read_pd(self,pathname:PathType,window:Optional[DateWindow]=None,dtype:Optional["np.dtype"]=None,dataframe:Optional[bool]=True) ->pd.DataFrame:
         """Read paired data as pandas dataframe
 
         Parameter
@@ -330,7 +330,7 @@ class Open(_Open):
         return df
 
     #@validate_call
-    def put_pd(self,pdc_df_array:Union[PairedDataContainer,pd.DataFrame,np.ndarray],curve_index:Optional[int]=None,**kwargs:Any) ->None:
+    def put_pd(self,pdc_df_array:Union["PairedDataContainer","pd.DataFrame","np.ndarray"],curve_index:Optional[int]=None,**kwargs:Any) ->None:
         """Write paired new or edit existing data series
 
         Parameter
@@ -414,7 +414,7 @@ class Open(_Open):
         super().put_pd(pdc)
 
     #@validate_call
-    def preallocate_pd(self,pdc_or_shape:Union[Tuple[int,int],pd.DataFrame,np.ndarray],**kwargs:Any) ->None:
+    def preallocate_pd(self,pdc_or_shape:Union[Tuple[int,int],"pd.DataFrame","np.ndarray"],**kwargs:Any) ->None:
         # Each curve is allocated 10 characters by default if label_size is not specified
         # Curves are labeled 1,2,3 ... by default
         if self.mode != 'rw':
@@ -434,17 +434,43 @@ class Open(_Open):
 
     #@validate_call
     def read_grid(self,pathname:PathType,metadata_only:Optional[bool]=False) ->SpatialGridStruct:
-        """Read spatial grid. Version 0 (DSS-6 format) grid is returned in DSS-7 format.
+        """Reads both version 0 (DSS-6 format) and 100 (latest DSS-7 format) spatial grid data from dss file.
+
+        Returns SpatialGridStruct object.
         """
         sg_st = SpatialGridStruct()
-        retrieve_data = 0 if metadata_only else 1
-        super().read_grid(pathname,sg_st,retrieve_data)
+        retrieve_data = False if metadata_only else True
+        #super().read_grid(pathname,sg_st,retrieve_data)
+        grid_ver = self._get_gridver(pathname)
+
+        if grid_ver is None:
+            logging.error('Invalid grid data or version')
+            return
+
+        elif grid_ver == 100:
+            logging.info('Reading modern format (DSS7) grid')
+            super().read_grid100(pathname,sg_st,retrieve_data)
+
+        else:
+            logging.info('Read grid version {} and convert it to version 100 grid'.format(grid_ver))
+            # find grid_type and create info6
+            grid_type  = self._get_gridtype(pathname)
+            logging.debug('grid type is {}'.format(grid_type))
+            info6 = GridInfo6.from_grid_type(grid_type)
+            logging.debug('grid type in info6 is {}'.format(info6.grid_type))
+            if grid_type == 430:
+                # add space for crs defination, tz id generously
+                # it should be more than what is in the file
+                info6 = GridInfo6.get_specinfo6(50,200,50)
+                logging.debug('grid type in updated info6 is {}'.format(info6.grid_type))
+            super().read_grid0(pathname,sg_st,info6,retrieve_data)
+
         return sg_st
 
-    def read_grid2(self,pathname:PathType,metadata_only:Optional[bool]=False) ->Any:
-        """Reads both version 0 (DSS-6 format) and 100 (DSS-7 format) spatial grid data.
+    def read_grid2(self,pathname:PathType,metadata_only:Optional[bool]=False) ->Optional[tuple]:
+        """Reads both version 0 (DSS-6 format) and 100 (latest DSS-7 format) spatial grid data.
 
-        DSS-7 grid is returned as SpatialgridStruct whilw DSS-6 grid is returned as tuple of np.array and gridinfo.
+        Returns a tuple consisting of np.array and gridinfo.
         """
         retrieve_data = False if metadata_only else True
         grid_ver = self._get_gridver(pathname)
@@ -452,7 +478,12 @@ class Open(_Open):
             logging.error('Invalid grid data or version')
         elif grid_ver != 0:
             logging.info('Reading modern format (DSS7) grid')
-            return self.read_grid(pathname,retrieve_data)
+            ds = self.read_grid(pathname,retrieve_data)
+            if metadata_only:
+                logging.info('Returning metadata of gridded data')
+                return ds.gridinfo
+            else:
+                return ds.read(),ds.gridinfo
         else:
             logging.info('Reading older format (DSS6 or grid version 0) grid')
             # find grid_type and create info6
@@ -463,16 +494,17 @@ class Open(_Open):
                 # it should be more than what is in the file
                 info6 = GridInfo6.get_specinfo6(50,200,50)
             #info6 is updated with data from the dss file
-            data = super()._read_grid0(pathname,info6,retrieve_data)
+            data = super()._read_grid0_array(pathname,info6,retrieve_data)
             if metadata_only:
-                if not data is None:
-                    return info6.to_gridinfo7()
-            if not data is None:
-                info = info6.to_gridinfo7()
-                return data,info        
+                logging.info('Returning metadata of gridded data')
+                if data is not None:
+                    return info6
+            if data is not None:
+                logging.info('Returning metadata/data of gridded data')
+                return data,info6        
         
     #@validate_call
-    def put_grid(self, data:Union[SpatialGridStruct,np.array], pathname:Optional[PathType]=None, gridinfo:Optional[GridInfo]=None, flipud:Optional[bool]=True, compute_stats:Optional[Union[bool,List[float]]]=True, transform:Optional[Any]=None) ->None:
+    def put_grid(self, data:Union["SpatialGridStruct","np.array"], pathname:Optional[PathType]=None, gridinfo:Optional[GridInfo]=None, flipud:Optional[bool]=True, compute_stats:Optional[Union[bool,List[float]]]=True, transform:Optional[Any]=None) ->None:
         """Write spatial grid to DSS-7 file. Writing to DSS-6 file not allowed.
 
         Parameter
@@ -618,9 +650,9 @@ class Open(_Open):
                     # coords_cell0
                     gridinfo.coords_cell0 = (0.0,0.0)
                     # lower_left_cell
-                    if not gridinfo.min_xy is None:
+                    if gridinfo.min_xy is not None:
                         gridinfo.update_albers_lower_left_cell_from_minxy()
-                    elif not transform is None:
+                    elif transform is not None:
                         gridinfo.update_albers_lower_left_cell_from_transform(transform)
                     else:
                         logging.error('Provide gridinfo.min_xy or transform argument to allow calculation of lower_left_cell indices for Albers grid',exc_info=True)
@@ -630,7 +662,7 @@ class Open(_Open):
                     # lower_left_cell
                     gridinfo.lower_left_cell = (0,0)
                     # coords_cell0
-                    if not gridinfo.min_xy is None:
+                    if gridinfo.min_xy is not None:
                         #same as  gridinfo.update_specified_coords_cell0_from_minxy()
                         gridinfo.coords_cell0 = gridinfo.min_xy
                     elif not transform is None:
@@ -673,7 +705,7 @@ class Open(_Open):
         super().put_grid(pathname, _data, gridinfo)
 
     #@validate_call
-    def put_grid0(self, data:Union[SpatialGridStruct,np.array], pathname:Optional[PathType]=None, gridinfo:Optional[GridInfo]=None, flipud:Optional[bool]=True, compute_stats:Optional[Union[bool,List[float]]]=True, transform:Optional[Any]=None) ->None:
+    def put_grid0(self, data:Union["SpatialGridStruct","np.array"], pathname:Optional[PathType]=None, gridinfo:Optional[GridInfo]=None, flipud:Optional[bool]=True, compute_stats:Optional[Union[bool,List[float]]]=True, transform:Optional[Any]=None) ->None:
         """Write spatial grid to DSS-6 file. Writing to DSS-7 file not allowed.
 
         Parameter

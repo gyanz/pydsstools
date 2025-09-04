@@ -65,9 +65,10 @@ class CleanCommand(Command):
         self._clean_me = [ join('pydsstools', 'src', 'core_heclib.c'),
                           join('pydsstools', 'heclib', 'dsslog.dss'),
                          ]
-        self._clean_trees = [join('pydsstools', 'src', 'external', 'gridv6', 'x64'),
-                            join('pydsstools', 'src', 'external', 'gridv6', 'build')
-                            ]
+        #self._clean_trees = [join('pydsstools', 'src', 'external', 'gridv6', 'x64'),
+        #                    join('pydsstools', 'src', 'external', 'gridv6', 'build')
+        #                    ]
+        self._clean_trees = []
 
         self._clean_exclude = []
         self._clean_exclude_dirs = [join('pydsstools', 'src', 'external', 'dss'),
@@ -122,16 +123,18 @@ class CleanCommand(Command):
 class BuildExt(build_ext):
     def build_grid_library(self):
         if is_platform_windows():
-            print('Building external library: grid.lib')
-            batch_file = join(setup_dir,r'pydsstools/src/external/gridv6/build.bat ')
-            call(batch_file)
+            #print('Building external library: grid.lib')
+            #batch_file = join(setup_dir,r'pydsstools/src/external/gridv6/build.bat ')
+            #call(batch_file)
+            pass
         else:
-            print('Building external library: grid.a')
-            make_dir = join(setup_dir,r'pydsstools/src/external/gridv6')
-            call('make all', shell=True, cwd=make_dir)
+            #print('Building external library: grid.a')
+            #make_dir = join(setup_dir,r'pydsstools/src/external/gridv6')
+            #call('make all', shell=True, cwd=make_dir)
+            pass
 
     def build_extensions(self):
-        self.build_grid_library()
+        #self.build_grid_library()
         super().build_extensions()
 
     def finalize_options(self):
@@ -144,7 +147,7 @@ class BuildExt(build_ext):
 
 include_dirs = []
 include_dirs.append(r'pydsstools/src/external/dss/headers')
-include_dirs.append(r'pydsstools/src/external/gridv6/headers')
+#include_dirs.append(r'pydsstools/src/external/gridv6/headers')
 library_dirs = []
 
 if is_platform_windows():
@@ -152,10 +155,11 @@ if is_platform_windows():
     include_dirs.append(r'pydsstools/src/external/zlib')
     # lib dirs
     library_dirs.append(r'pydsstools/src/external/dss/win64')
-    library_dirs.append(r'pydsstools/src/external/gridv6/build')
+    #library_dirs.append(r'pydsstools/src/external/gridv6/build')
     library_dirs.append(r'pydsstools/src/external/zlib')
     # libs
-    libraries = ['heclib_c', 'heclib_f', 'zlibstatic', 'grid']
+    #libraries = ['heclib_c', 'heclib_f', 'zlibstatic', 'grid']
+    libraries = ['heclib_c', 'heclib_f', 'zlibstatic']
     # extra compile args
     extra_compile_args = []
     extra_link_args = ['/NODEFAULTLIB:LIBCMT']
@@ -163,9 +167,10 @@ if is_platform_windows():
 else:
     # lib dirs
     library_dirs.append(r'pydsstools/src/external/dss/linux64')
-    library_dirs.append(r'pydsstools/src/external/gridv6/build')
+    #library_dirs.append(r'pydsstools/src/external/gridv6/build')
     # libs
-    libraries = [':heclib.a', ':grid.a','gfortran', 'pthread', 'm', 'quadmath', 'z', 'stdc++']
+    #libraries = [':heclib.a', ':grid.a','gfortran', 'pthread', 'm', 'quadmath', 'z', 'stdc++']
+    libraries = [':heclib.a', 'gfortran', 'pthread', 'm', 'quadmath', 'z', 'stdc++']
     # extra compile args
     extra_compile_args = []
     extra_link_args = []

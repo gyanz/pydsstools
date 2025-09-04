@@ -11,11 +11,12 @@ import math
 import numpy as np
 from . import HecTime,DssPathName
 from .gridinfo import GridInfoCreate
+from .crs import hrap,make_albers,parse_crs
+from typing import Iterable
 
 __all__ = ['GridInfo6','HrapInfo6','AlbersInfo6','SpecifiedInfo6',
-           'gridinfo7_to_gridinfo6',
-
-          ]
+           'gridinfo7_to_gridinfo6'
+           ]
 # It looks like GridInfo Version in DSSVue is either 2 (Specified grid) or 1 (other grids)
 # Only Specified GridInfo has _version parameter which is set to 2 in pydsstools
 # GridInfo shows up as 1 for other grids even though this parameter is not set in pydsstools
@@ -54,55 +55,39 @@ def str_to_ints(s, endian="little", signed = True):
 
     return ints
 
-def ints_to_str(ints, endian="little", signed=True, encoding="ascii",
-                strip_trailing_nulls=True, stop_at_first_null=False):
-    """
-    Convert a list/iterable of 4-byte integers into a string by packing to bytes
-    and decoding with the given encoding.
-
-    Parameters
-    ----------
-    ints : Iterable[int]
-        32-bit integers representing raw bytes (4 bytes per int).
-    endian : {"little","big"}
-        Byte order used when packing each int.
-    signed : bool
-        Whether ints should be treated as signed (True) or unsigned (False).
-    encoding : str
-        Text encoding to decode bytes into a Python str (default: "ascii").
-    strip_trailing_nulls : bool
-        If True, rstrip trailing b"\\x00" after concatenation.
-    stop_at_first_null : bool
-        If True, truncate at the first NUL byte (C-string style).
-
-    Returns
-    -------
-    str
-        Decoded string.
-
-    Raises
-    ------
-    UnicodeDecodeError
-        If decoding fails under the chosen encoding.
-    """
-    if signed:
-        fmt = '<i' if endian == "little" else '>i'
-    else:
-        fmt = '<I' if endian == "little" else '>I'
+_ID = bytes.maketrans(b"", b"")
+def ints_to_str(ints,
+                endian="little",
+                encoding="ascii",
+                strip_trailing_nulls=True,
+                stop_at_first_null=True):
+    fmt = "<I" if endian == "little" else ">I"
 
     b = bytearray()
-    for val in ints:
-        b.extend(struct.pack(fmt, val))
+    for v in ints:
+        b.extend(struct.pack(fmt, v & 0xFFFFFFFF))
 
+    # 1) Apply C-string semantics *first*, if requested
+    # everything after first NUL is discarded
     if stop_at_first_null:
-        zero = b.find(0)
-        if zero != -1:
-            b = b[:zero]
+        i = b.find(0)
+        if i != -1:
+            del b[i:]           
 
+    # 2) Optionally strip trailing NUL padding (only when not truncating)
     if strip_trailing_nulls and not stop_at_first_null:
-        b = b.rstrip(b'\x00')
+        while b and b[-1] == 0:
+            b.pop()
 
-    return b.decode(encoding)
+    # 3) Now drop unwanted bytes
+    #    a) if you want ASCII *excluding* NUL (your case that should return empty):
+    ascii_only = bytes(b).translate(_ID, b"\x00" + bytes(range(128, 256)))
+    #    b) OR, if you prefer only printable ASCII (keep 0x20–0x7E; drop controls & DEL):
+    # delete = bytes(range(0x00, 0x20)) + b"\x7f" + bytes(range(0x80, 0x100))
+    # ascii_only = bytes(b).translate(_ID, delete)
+
+    return ascii_only.decode(encoding)
+
 
 def float32_to_int32(value, endian='<'):
     """
@@ -127,7 +112,9 @@ class _GridInfo6:
 
     @classmethod
     def from_grid_type(cls,grid_type_info):
-        if isinstance(grid_type_info,str): grid_type_info = grid_type_info.lower()
+        if isinstance(grid_type_info,str):
+            grid_type_info = grid_type_info.lower()
+
         if grid_type_info in ['hrap','hrap-time','hraptime','410','411',410,411]:
             info = HrapInfo6(grid_type=410)
             fsize = ctypes.sizeof(HrapInfo6)
@@ -156,7 +143,7 @@ class _GridInfo6:
 
     @classmethod
     def get_specinfo6(cls,crs_name_length=30,crs_def_length=150, tzid_length=30):
-        info = SpecifiedInfo6()
+        info = SpecifiedInfo6(grid_type=430)
         flat_size = ctypes.sizeof(SpecifiedInfo6)
         # crs_name
         count = crs_name_length
@@ -178,7 +165,7 @@ class _GridInfo6:
     def update_from_int_array(self,ar):
         grid_type = ar[1]
         if self.grid_type != grid_type:
-            logging.error('Can not update info6 object with int array of different grid_type')
+            logging.error('Can not update info6 object ({}) with int array of different grid_type ({})'.format(self.grid_type,grid_type))
             return
         
         # CHECK info flat size
@@ -216,19 +203,33 @@ class _GridInfo6:
                       63,64,65,65,66,67,67,68,69,70,71,71,72,73]
             step =   [1,1,1,1,1,1,3,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,20,20,
                        1, 1]
-            crs_name_len = ar[54]
+            crs_name_len = ar[index2[24]]
+            logging.debug('crs_name_len = %d',crs_name_len)
+            # crs_name 25
+            # crs_type 26
             index2[26] = index2[26] + crs_name_len
+            # crs_def_length 27
             index2[27] = index2[27] + crs_name_len
-            index2[28] = index2[28] + crs_name_len
             crs_def_len = ar[index2[27]]
+            logging.debug('crs_def_len = %d',crs_def_len)
+            # crs_def 28
+            index2[28] = index2[28] + crs_name_len
+            # xcoords_cell0 29
             index2[29] = index2[29] + crs_name_len + crs_def_len
+            # ycoords_cell0 30
             index2[30] = index2[30] + crs_name_len + crs_def_len
+            # nodata 31
             index2[31] = index2[31] + crs_name_len + crs_def_len
+            # tz_length 32
             index2[32] = index2[32] + crs_name_len + crs_def_len
-            index2[33] = index2[33] + crs_name_len + crs_def_len
             tzid_len = ar[index2[32]]
+            # tzid 33
+            index2[33] = index2[33] + crs_name_len + crs_def_len
+            # tzoffset 34
             index2[34] = index2[34] + crs_name_len + crs_def_len + tzid_len
+            # is_interval 35
             index2[35] = index2[35] + crs_name_len + crs_def_len + tzid_len
+            # time_stamped 36
             index2[36] = index2[36] + crs_name_len + crs_def_len + tzid_len
             index2 = index2 + [index2[-1] + 1]
             #info = SpecifiedInfo6()
@@ -267,11 +268,11 @@ class _GridInfo6:
                     val = ar[i]
                     if issubclass(_typ,(ctypes.c_float,)):
                         val = int32_to_float32(val)
-                        vals.append(val)
+                    vals.append(val)
                 if isinstance(vals[0],float):
-                    setattr(info,name,(ctypes.c_float*len)(vals))
+                    setattr(info,name,(ctypes.c_float*len)(*vals))
                 else:    
-                    setattr(info,name,(ctypes.c_int32*len)(vals))
+                    setattr(info,name,(ctypes.c_int32*len)(*vals))
 
                 setattr(info,old_name,len)
 
@@ -383,6 +384,67 @@ class _GridInfo6:
     def to_gridinfo7(self):
         prof7 = gridinfo6_to_gridinfo7_compatible_dict(self)
         return GridInfoCreate(**prof7)
+    
+    def _get_crs_def(self):
+        crs = ''
+        if self.grid_type == 410:
+            # HRAP
+            crs = hrap()
+
+        elif self.grid_type == 420:
+            #Albers
+            crs = make_albers(self.proj_datum,
+                              self.false_easting,
+                              self.false_northing,
+                              self.central_meridian,
+                              self.first_parallel,
+                              self.sec_parallel,
+                              self.lat_origin)
+
+        elif self.grid_type == 430:
+            # Specified
+            len = self.crs_def_length
+            ptr = self.crs_def
+            data = []
+            for i in range(len):
+                val = ptr[i]
+                data.append(val)
+            # convert to string
+            data = ints_to_str(data)
+            crs = data 
+
+        return crs
+
+    def _get_crs_name(self):
+        if self.grid_type == 410:
+            return "HRAP"
+
+        elif self.grid_type == 420:
+            return "ALBERS"
+
+        elif self.grid_type == 430:
+            len = self.crs_name_length
+            ptr = self.crs_name
+            data = []
+            for i in range(len):
+                val = ptr[i]
+                data.append(val)
+            # convert to string
+            data = ints_to_str(data)
+            crs_name = data.strip()
+            if not crs_name:
+                # try to extract from crs_def
+                crs_def = self._get_crs_string()
+                data = parse_crs(crs_def)
+                proj = data.get('proj','')
+                datum = data.get('datum','')
+                if proj and datum:
+                    crs_name =  '{}_{}'.format(proj,datum)
+                elif proj:
+                    crs_name =  proj
+                elif datum:
+                    crs_name =  datum
+            return crs_name 
 
 class GridInfo6(_GridInfo6,ctypes.Structure):
     _fields_ = [('info_fsize', ctypes.c_int32), # no need to specify in the profile dict while writing

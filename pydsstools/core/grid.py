@@ -112,6 +112,7 @@ class SpatialGridStruct(SpatialGridStructBase,TransformMethodsMixin):
                      ('mean_val',self.mean_val),
                      ('range_vals',self.range_vals.tolist()),
                      ('range_counts',self.range_counts.tolist()),
+                     ('nodata',self.nodata),
                      ('crs',self.crs),
                      ('crs_name',self.crs_name),
                      ('data_source',self.data_source),
@@ -120,7 +121,10 @@ class SpatialGridStruct(SpatialGridStructBase,TransformMethodsMixin):
                      ('tzoffset',self.tzoffset),
                      ('is_interval', True if self.is_interval else False),
                      ('time_stamped',True if self.time_stamped else False),
-                     ('min_xy',self.get_min_xy())
+                     ('min_xy',self.get_min_xy()),
+                     ('gridinfo_version',self.version()),
+                     ('struct_version',self._struct_version()),
+                     ('struct_type',self._struct_type()),
                      ])
         
         val = prof['data_type']
@@ -128,7 +132,7 @@ class SpatialGridStruct(SpatialGridStructBase,TransformMethodsMixin):
         return GridInfoCreate(**prof)       
     
     @property
-    def profile2(self):
+    def _profile2(self):
         prof = {}
         prof.update([('grid_type',self.grid_type2), 
                      ('data_units',self.data_units),
@@ -145,6 +149,7 @@ class SpatialGridStruct(SpatialGridStructBase,TransformMethodsMixin):
                      ('mean_val',self.mean_val),
                      ('range_vals',self.range_vals.tolist()),
                      ('range_counts',self.range_counts.tolist()),
+                     ('nodata',self.nodata),
                      ('crs',self.crs),
                      ('crs_name',self.crs_name),
                      ('data_source',self.data_source),

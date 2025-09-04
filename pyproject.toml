@@ -93,3 +93,48 @@ versionfile_build = "pydsstools/_version.py"
 tag_prefix = ""
 #parentdir_prefix = 
 
+[tool.black]
+line-length = 88
+target-version = ["py38","py39","py310","py311","py312","py313"]
+
+[tool.ruff]
+line-length = 88
+extend-include = ["*.pyx", "*.pxd", "*.pyi"]
+
+[tool.ruff.lint]
+# Core rules + pydocstyle (D) for docstrings, and a few useful extras.
+select = [
+  "E",   # pycodestyle errors
+  "F",   # pyflakes
+  "I",   # isort (import sorting)
+  "D",   # pydocstyle (docstrings)
+  "UP",  # pyupgrade
+  "B",   # bugbear
+]
+# Common ignores for scientific/NumPy projects
+ignore = [
+  "D105",  # Missing docstring in magic method (__repr__ etc.)
+  "D107",  # Missing docstring in __init__ (often redundant with class doc)
+  "D203",  # One-blank-line-before-class (conflicts with D211)
+  "D213",  # Multi-line docstring summary on second line (NumPy puts it on first)
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+# Keep __init__.py files from requiring module docstrings
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["D104"]  # Missing docstring in package
+
+[tool.docformatter]
+# Keep widths aligned with Black to reduce noisy diffs
+wrap_summaries = 88
+wrap_descriptions = 88
+# NumPy style usually wants the summary on its own line,
+# with a blank line before the extended description.
+pre_summary_newline = true
+make_summary_multi_line = true
+# Don't force-wrap anything sketchy (headings, lists)
+force_wrap = false
+# Tabs
+tab_width = 4

@@ -4,7 +4,7 @@
 import logging
 from math import floor
 from enum import Enum,IntEnum
-from typing import Any,Tuple,List,Union,Optional
+from typing import Any,Tuple,List,Union,Optional,Iterable
 
 try:
     # python 3.10+
@@ -17,6 +17,7 @@ from pydantic import (Field, AliasChoices,
                       BaseModel,
                       ConfigDict, TypeAdapter,
                       BeforeValidator, AfterValidator,
+                      model_validator
 )
 
 __all__ = ['GridInfoCreate','GridInfo','HrapInfo','AlbersInfo','SpecifiedInfo',
@@ -69,10 +70,59 @@ GridTypeField = Field(validation_alias=AliasChoices('grid_type','type','gtype','
 )
 
 class _GridInfo7(BaseModel):
+    """Base class for GridInfo, HrapInfo, AlbersInfo and SpecifiedInfo
+    """
     model_config = ConfigDict(extra='allow',validate_default=True)
     # extra = ignore, allow, forbid
-    # extra items in instance.__pydantic_extra__
 
+    extra: dict[str, Any] = Field(default_factory=dict)
+    @model_validator(mode='before')
+    @classmethod
+    def _bucket_extras(cls, data: Any) -> Any:
+        # Only normalize mapping-like inputs
+        if not isinstance(data, dict):
+            return data
+
+        # Get declared field names without relying on private attributes.
+        # Prefer the public mapping if present; fall back to annotations.
+        declared = set(getattr(cls, 'model_fields', {}) or getattr(cls, '__annotations__', {}))
+
+        # Separate known vs unknown; keep user's provided 'extra' dict (if any)
+        provided_extra = data.get('extra')
+        extras = {k: v for k, v in data.items() if k not in declared and k != 'extra'}
+        known = {k: v for k, v in data.items() if k in declared}
+
+        # Merge extras (user-supplied extras take precedence)
+        merged_extra: dict[str, Any] = {}
+        if isinstance(provided_extra, dict):
+            merged_extra.update(provided_extra)
+        merged_extra.update(extras)
+
+        # Pass only known fields + our consolidated extra to BaseModel
+        if merged_extra:
+            known['extra'] = merged_extra
+        return known
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        # Known fields behave normally (validated by Pydantic)
+        declared = getattr(self.__class__, 'model_fields', {}) or getattr(self.__class__, '__annotations__', {})
+        if name in declared or name == 'extra' or name.startswith('_'):
+            return super().__setattr__(name, value)
+        # Unknown attributes go into `.extra`
+        self.extra[name] = value 
+    # standard repr() / str()
+
+    def __repr_args__(self) -> Iterable[Tuple[str, Any]]:
+        # show only declared fields 
+        for name in self.__pydantic_fields__:
+            if name in self.__dict__ and name != "extra":
+                yield name, getattr(self, name)
+
+    @property
+    def extra_info(self):
+        #return self.__pydantic_extra__
+        return self.extra
+    
     # lower_left_cell indices update
     def update_albers_lower_left_cell_from_minxy(self):
         if self.grid_type == GridType.albers or self.grid_type == GridType.albers_time:
@@ -127,7 +177,7 @@ class _GridInfo7(BaseModel):
 
     def update_from_crs(self):
         # for Albers and Specified
-        raise NotImplemented
+        raise NotImplementedError
 
     def get_v6_grid_type(self):
         if self.grid_type in [GridType.hrap, GridType.hrap_time]:
@@ -143,19 +193,15 @@ class _GridInfo7(BaseModel):
         if self.grid_type in [GridType.undefined_time,GridType.hrap_time,GridType.albers_time,GridType.specified_time]:
             return True           
 
-# don't use this class directly
-# no defaults for: data_type, cell_size
 class GridInfo(_GridInfo7):
     grid_type:Annotated[
         Literal[GridType.undefined_time,GridType.undefined],
-        #Field(validation_alias=AliasChoices('type','gtype','gridtype','grid'))    
         GridTypeField    
     ] = GridType.undefined_time
     data_units:str = Field(default='', validation_alias=AliasChoices('data_units','du','data_unit'))
     data_type:DataType = Field(validation_alias=AliasChoices('data_type','dt','datatype','dtype'))
     lower_left_cell:Optional[PairLikeInt] = Field(default=None,validation_alias=AliasChoices('lower_left_cell','llc','llci','lower_left_cell_index','lower_cell','ll_cell'))
     shape:Union[Tuple[int,int],Annotated[List[int],Field(min_items=2,max_items=2)]]
-    # default SHG grid cell size is 2 km
     cell_size:float = Field(validation_alias=AliasChoices('cell_size','cellsize','cs','dx','spacing','grid_size'))
     compression_method:CompressionMethod = Field(default=CompressionMethod.zlib, validation_alias=AliasChoices('compression_method','compression','comp'))
     compression_base:float = Field(default=0.0, validation_alias=AliasChoices('compression_base','comp_base','compbase','base','compressionbase'))
@@ -167,23 +213,16 @@ class GridInfo(_GridInfo7):
     range_counts:Annotated[List[int],Field(min_items=0)] = Field(default_factory=list,validation_alias=AliasChoices('range_counts','rc','rangecounts'))
     min_xy:Optional[PairLikeFloat] = Field(default=None, validation_alias=AliasChoices('min_xy','minxy','xy_min','xymin','llxy'))
 
-
-# no defaults for: None
 class HrapInfo(GridInfo):
     grid_type:Annotated[
         Literal[GridType.hrap_time,GridType.hrap],
-        #Field(validation_alias=AliasChoices('type','gtype','gridtype','grid'))    
         GridTypeField    
     ] = GridType.hrap_time
     data_source:str = Field(default='', validation_alias=AliasChoices('data_source','data_sources','data_source','datasource','datasources','dsource','dsources'))
 
-# no defaults for: None
-# No need to provide any information for DSS 7
-# DSS 7 expects standard SHG
 class AlbersInfo(GridInfo):
     grid_type:Annotated[
         Literal[GridType.albers_time,GridType.albers],
-        #Field(validation_alias=AliasChoices('type','gtype','gridtype','grid'))    
         GridTypeField    
     ] = GridType.albers_time
     proj_datum:Datum = Field(default=Datum.nad83, validation_alias=AliasChoices('proj_datum','Datum','datum'))
@@ -199,11 +238,9 @@ class AlbersInfo(GridInfo):
     coords_cell0:Optional[PairLikeFloat] = Field(default=None, validation_alias=AliasChoices('coords_cell0','coordscell0','coords0','xy_cell0'))
 
 
-# no defaults for: nodata
 class SpecifiedInfo(GridInfo):
     grid_type:Annotated[
         Literal[GridType.specified_time,GridType.specified],
-        #Field(validation_alias=AliasChoices('type','gtype','gridtype','grid'))    
         GridTypeField    
     ] = GridType.specified_time
     crs: str = Field(default='', validation_alias=AliasChoices('crs','crs_definition','crs_def','srs','srs_def'))

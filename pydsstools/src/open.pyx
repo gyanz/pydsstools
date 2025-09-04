@@ -248,14 +248,29 @@ cdef class Open:
         pdc.curves_ptr = NULL
         pdc.curves_mv = None
 
-    cpdef void read_grid(self,const char *pathname, SpatialGridStruct sg_st, int boolRetrieveData=1) except *:
+    cpdef void read_grid100(self,const char *pathname, SpatialGridStruct sg_st, bint retrieve_data) except *:
         cdef:
-            zStructSpatialGrid *zsgs = NULL 
+            zStructSpatialGrid *zsgs = NULL
         zsgs = zstructSpatialGridNew(pathname)
-        #self.read_status = zspatialGridRetrieve(self.ifltab,zsgs,boolRetrieveData)
-        self.read_status = RetrieveGriddedData_wrap(self.ifltab,zsgs,boolRetrieveData)
+        #self.read_status = RetrieveGriddedData_wrap(self.ifltab,zsgs,retrieve_data)
+        self.read_status = zspatialGridRetrieve(self.ifltab,zsgs,retrieve_data)
         isError(self.read_status)
         updateSGS(sg_st,zsgs)
+
+    cpdef void read_grid0(self,const char *pathname,SpatialGridStruct sg_st, object ginfo6, bint retrieve_data) except *:
+        cdef:
+            int status
+            zStructSpatialGrid *zsgs = NULL
+        zsgs = zstructSpatialGridNew(pathname)
+        status = read_grid0_as_grid100(self.ifltab,zsgs,ginfo6,retrieve_data)
+        print("status = ",status)
+        updateSGS(sg_st,zsgs)
+
+    cpdef np.ndarray _read_grid0_array(self,const char *pathname, object ginfo6, bint retrieve_data):
+        cdef:
+             np.ndarray data
+        data =  read_grid0(self.ifltab,pathname,ginfo6,retrieve_data)
+        return data   
 
     def _get_gridver(self,const char *pathname):
         ver = get_gridver_from_path(self.ifltab,pathname)
@@ -268,13 +283,6 @@ cdef class Open:
         if grid_type == -1:
             return
         return grid_type    
-
-    cpdef np.ndarray _read_grid0(self,const char *pathname, object ginfo6, bint retrieve_data=True):
-        cdef:
-             np.ndarray data
-
-        data =  read_grid0(self.ifltab,pathname,ginfo6,retrieve_data)
-        return data   
 
     cpdef int put_grid(self,str pathname, float[:,::1] data, object gridinfo7) except *:
         # TODO: Error check
