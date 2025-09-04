@@ -37,7 +37,6 @@ from ...core.gridinfo import GridInfo,GridType
 from ...core.gridv6_internals import gridinfo7_to_gridinfo6,GridInfo6
 from ...core import getPathnameCatalog, deletePathname,PairedDataContainer,HecTime,DssPathName,dss_info
 from ...heclib.utils import compute_grid_stats,UNDEFINED
-from ...heclib import gridv6
 
 DateLike = TypeVar('DateLike',str,datetime,HecTime)
 DateWindow: TypeAlias = Tuple[DateLike,DateLike]
