@@ -4,9 +4,6 @@ requires = [
     "setuptools",
     "Cython>=0.29.0,<3.0.0",
     "versioneer[toml]",
-    #"numpy==1.16.4; python_version=='3.6'",
-    #"numpy==1.21.5; python_version=='3.7'",
-	#"numpy==1.21.5; python_version=='3.9'",
     "numpy>=1.21.5,<2.0.0; python_version>='3.8' and python_version<'3.11'",
     "numpy>=1.26.0,<2.0.0; python_version>='3.11' and python_version<'3.13'",
 	"numpy>=2.0.0; python_version>='3.13'", # not supported yet
@@ -43,12 +40,14 @@ dependencies = [
 	"numpy>=2.0.0; python_version>='3.13'", # not supported yet
     "pandas",
     "affine",
-    "pyproj"
+    "pyproj",
+    "pydantic>=2,<3",
 ]
 
 [project.optional-dependencies]
 test = [
-    "gdal >= 3.2.2",
+    "pyogrios",
+    "geopandas",
     "rasterio >= 1.2.1",
     "matplotlib"
 ]
@@ -90,3 +89,48 @@ versionfile_build = "pydsstools/_version.py"
 tag_prefix = ""
 #parentdir_prefix = 
 
+[tool.black]
+line-length = 88
+target-version = ["py38","py39","py310","py311","py312","py313"]
+
+[tool.ruff]
+line-length = 88
+extend-include = ["*.pyx", "*.pxd", "*.pyi"]
+
+[tool.ruff.lint]
+# Core rules + pydocstyle (D) for docstrings, and a few useful extras.
+select = [
+  "E",   # pycodestyle errors
+  "F",   # pyflakes
+  "I",   # isort (import sorting)
+  "D",   # pydocstyle (docstrings)
+  "UP",  # pyupgrade
+  "B",   # bugbear
+]
+# Common ignores for scientific/NumPy projects
+ignore = [
+  "D105",  # Missing docstring in magic method (__repr__ etc.)
+  "D107",  # Missing docstring in __init__ (often redundant with class doc)
+  "D203",  # One-blank-line-before-class (conflicts with D211)
+  "D213",  # Multi-line docstring summary on second line (NumPy puts it on first)
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+# Keep __init__.py files from requiring module docstrings
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["D104"]  # Missing docstring in package
+
+[tool.docformatter]
+# Keep widths aligned with Black to reduce noisy diffs
+wrap_summaries = 88
+wrap_descriptions = 88
+# NumPy style usually wants the summary on its own line,
+# with a blank line before the extended description.
+pre_summary_newline = true
+make_summary_multi_line = true
+# Don't force-wrap anything sketchy (headings, lists)
+force_wrap = false
+# Tabs
+tab_width = 4

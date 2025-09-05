@@ -37,6 +37,14 @@ cdef extern from "heclib.h":
     char* HRAP_SRC_DEFINITION
     char* SHG_SRC_DEFINITION
     char* UTM_SRC_DEFINITION
+    int DATA_TYPE_UGT
+    int DATA_TYPE_UG
+    int DATA_TYPE_HGT
+    int DATA_TYPE_HG
+    int DATA_TYPE_AGT
+    int DATA_TYPE_AG
+    int DATA_TYPE_SGT
+    int DATA_TYPE_SG
 
     
 #cdef extern from "missing.h":
@@ -119,7 +127,8 @@ cdef extern from "heclib.h":
         char *pathname
         char *pathnameInternal
         int boolRetrieveAllTimes
-        char *timeZoneName  
+        char *timeZoneName
+
     zStructTimeSeries *zstructTsNewRegFloats(const char* pathname, 
                                                    float *floatValues, 
                                                    int numberValues, 
@@ -415,10 +424,10 @@ cdef extern from "heclib.h":
     int zspatialGridRetrieve(long long *ifltab, zStructSpatialGrid *gdStruct, int boolRetrieveData)
     int zspatialGridStore(long long *ifltab, zStructSpatialGrid *gdStruct)
     int compress_zlib(void* array, int size, void **buffer)
-    #int uncompress_zlib(const void* buffer, int size, void* data, int dataSize)
+    int uncompress_zlib(const void* buffer, int size, void* data, int dataSize)
     int zspatialGridRetrieveVersion(long long *ifltab, const char *cpath, int* gridStructVersion)
     #void printGridStruct(long long *ifltab, int funtion_id, zStructSpatialGrid *gdStruct)
 
-cdef extern from "DSSGrid_wrap.h":
-    int RetrieveGriddedData_wrap(long long * ifltab, zStructSpatialGrid * gs, int boolRetrieveData)
+#cdef extern from "DSSGrid_wrap.h":
+#    int RetrieveGriddedData_wrap(long long * ifltab, zStructSpatialGrid * gs, int boolRetrieveData)
 

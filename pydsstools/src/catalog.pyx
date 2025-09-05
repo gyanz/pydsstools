@@ -84,7 +84,7 @@ cdef class CatalogStruct:
         if self.cts:
             zstructFree(self.cts)
 
-cpdef CatalogStruct getPathnameCatalog(Open fid,str pathWithWild, int sort=0, 
+cpdef CatalogStruct getPathnameCatalog(Open fid,str pathWithWild, bint sort=0,
                                        int statusWanted=0, int typeWantedStart=0, int typeWantedEnd=0):
     cdef:
         long long *ifltab = fid.ifltab

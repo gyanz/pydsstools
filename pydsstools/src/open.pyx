@@ -248,22 +248,49 @@ cdef class Open:
         pdc.curves_ptr = NULL
         pdc.curves_mv = None
 
-    cpdef void read_grid(self,const char *pathname, SpatialGridStruct sg_st, int boolRetrieveData=1) except *:
+    cpdef void read_grid100(self,const char *pathname, SpatialGridStruct sg_st, bint retrieve_data) except *:
         cdef:
-            zStructSpatialGrid *zsgs = NULL 
+            zStructSpatialGrid *zsgs = NULL
         zsgs = zstructSpatialGridNew(pathname)
-        #self.read_status = zspatialGridRetrieve(self.ifltab,zsgs,boolRetrieveData)
-        self.read_status = RetrieveGriddedData_wrap(self.ifltab,zsgs,boolRetrieveData)
+        #self.read_status = RetrieveGriddedData_wrap(self.ifltab,zsgs,retrieve_data)
+        self.read_status = zspatialGridRetrieve(self.ifltab,zsgs,retrieve_data)
         isError(self.read_status)
         updateSGS(sg_st,zsgs)
 
-    cpdef int put_grid(self,str pathname, np.ndarray data, float nodata, dict stats, dict profile) except *:
-        # TODO: Error check
-        saveSpatialGrid(self.ifltab,pathname, data, nodata, stats, profile)
+    cpdef void read_grid0(self,const char *pathname,SpatialGridStruct sg_st, object ginfo6, bint retrieve_data) except *:
+        cdef:
+            int status
+            zStructSpatialGrid *zsgs = NULL
+        zsgs = zstructSpatialGridNew(pathname)
+        status = read_grid0_as_grid100(self.ifltab,zsgs,ginfo6,retrieve_data)
+        print("status = ",status)
+        updateSGS(sg_st,zsgs)
 
-    cpdef int put_grid6(self,str pathname,  np.ndarray data, object gridinfo) except *:
+    cpdef np.ndarray _read_grid0_array(self,const char *pathname, object ginfo6, bint retrieve_data):
+        cdef:
+             np.ndarray data
+        data =  read_grid0(self.ifltab,pathname,ginfo6,retrieve_data)
+        return data   
+
+    def _get_gridver(self,const char *pathname):
+        ver = get_gridver_from_path(self.ifltab,pathname)
+        if ver == -1:
+            return
+        return ver
+
+    def _get_gridtype(self,const char *pathname):
+        grid_type = get_gridtype_from_path(self.ifltab,pathname)
+        if grid_type == -1:
+            return
+        return grid_type    
+
+    cpdef int put_grid(self,str pathname, float[:,::1] data, object gridinfo7) except *:
         # TODO: Error check
-        saveGridV6(self.ifltab,pathname, data, gridinfo)
+        save_grid7(self.ifltab,pathname, data, gridinfo7)
+
+    cpdef int put_grid0(self,str pathname,  float[:,::1] data, object gridinfo6) except *:
+        # TODO: Error check
+        save_grid0(self.ifltab,pathname, data, gridinfo6)
 
     cpdef dict dss_info(self, str pathname):
         return dss_info(self,pathname)
