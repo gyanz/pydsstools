@@ -1,6 +1,7 @@
 # Inspired by Pandas project
 # Contains base classes and functions for implementing accessor properties
 
+
 class CachedAccessor:
     def __init__(self, name, accessor):
         self._name = name
@@ -12,6 +13,7 @@ class CachedAccessor:
             return self._accessor
         accessor_obj = self._accessor(obj)
         return accessor_obj
+
 
 def _register_accessor(name, cls):
     def decorator(accessor):
@@ -32,4 +34,5 @@ def _register_accessor(name, cls):
 
 def register_grid_accessor(name):
     from . import SpatialGridStruct
+
     return _register_accessor(name, SpatialGridStruct)

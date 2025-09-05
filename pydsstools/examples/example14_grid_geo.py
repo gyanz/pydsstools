@@ -1,6 +1,7 @@
-'''
+"""
 Spatial Analysis on grid
-'''
+"""
+
 # Notes
 # Experimental geospatial methods for grid
 # Not 100% sure about gridinfo that is computed for the cropped grid esp. for SHG and HRAP
@@ -24,11 +25,11 @@ pathname_out = r"/SHG/LCOLORADO/PRECIP/02JAN2020:1500/02JAN2020:1600/Ex15 OUT/"
 fid = Open(dss_file)
 ds0 = fid.read_grid(pathname)
 
-if not getattr(ds0,'raster',None) is None:
-    ds0.raster.plot(mask_zeros = True, title = 'Original Spatial Grid')
-    bbox = BoundingBox(-50000,6*10**5,50000,7*10**5)
-    ds1 = ds0.raster.mask(bbox,crop = False)
-    ds1.raster.plot(mask_zeros = True, title = 'Clipped Spatial Grid')
-    ds2 = ds1.raster.mask(bbox,crop = True)
-    ds2.raster.plot(mask_zeros = True, title = 'Cropped Spatial Grid')
-    fid.put_grid(pathname_out,ds2)
+if not getattr(ds0, "raster", None) is None:
+    ds0.raster.plot(mask_zeros=True, title="Original Spatial Grid")
+    bbox = BoundingBox(-50000, 6 * 10**5, 50000, 7 * 10**5)
+    ds1 = ds0.raster.mask(bbox, crop=False)
+    ds1.raster.plot(mask_zeros=True, title="Clipped Spatial Grid")
+    ds2 = ds1.raster.mask(bbox, crop=True)
+    ds2.raster.plot(mask_zeros=True, title="Cropped Spatial Grid")
+    fid.put_grid(pathname_out, ds2)
