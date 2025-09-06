@@ -1,4 +1,4 @@
-name: Windows (Intel oneAPI ifx+MKL) & Linux (gfortran) wheels + publish [ci_tests only]
+name: Windows (Intel ifx) & Linux (gfortran) wheels + publish [ci_tests only]
 
 on:
   push:
@@ -12,10 +12,7 @@ on:
         required: false
         default: ""
         type: choice
-        options:
-          - ""        # build only
-          - testpypi
-          - pypi
+        options: ["", "testpypi", "pypi"]
 
 jobs:
   build-wheels:
@@ -28,20 +25,13 @@ jobs:
         os: [windows-2022, ubuntu-22.04]
 
     env:
-      # Build these CPython versions
       CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-*"
       CIBW_SKIP: "pp* *-win32 *-musllinux_*"
       CIBW_ARCHS_WINDOWS: "AMD64"
       CIBW_ARCHS_LINUX: "x86_64"
-
-      # Import check after each wheel is built
       CIBW_TEST_COMMAND: >
         python -c "import pydsstools, sys; print('OK', sys.version, getattr(pydsstools,'__version__','?'))"
-
-      # Use manylinux2014 unless you require newer glibc
       CIBW_MANYLINUX_X86_64_IMAGE: "manylinux2014"
-
-      # Inside the manylinux container, install gfortran & headers
       CIBW_BEFORE_ALL_LINUX: >
         yum -y install gcc gcc-c++ gcc-gfortran zlib-devel libstdc++-devel &&
         echo "Installed gcc/gfortran and headers in manylinux"
@@ -51,28 +41,23 @@ jobs:
         with:
           submodules: recursive
 
-      # Host Python to drive cibuildwheel (not the versions being built)
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      # ----- Windows: Install Intel oneAPI compilers + MKL (Option A) -----
-      - name: Install Intel oneAPI (Windows)
+      # Windows: install Intel Fortran (ifx)
+      - name: Setup Intel Fortran (Windows)
         if: startsWith(matrix.os, 'windows-')
-        uses: rscohn2/setup-oneapi@v0.1.0
+        uses: fortran-lang/setup-fortran@v1
         with:
-          components: |
-            icx
-            ifx
-            mkl
+          compiler: intel         # ifx; use 'intel-classic' for ifort
+          # version: '2025.0'     # optional pin; omit to get latest supported
 
       - name: Show toolchain (Windows)
         if: startsWith(matrix.os, 'windows-')
         shell: cmd
         run: |
-          call "%ONEAPI_ROOT%\setvars.bat" intel64 vs2022
           where ifx   || ver
-          where icx   || ver
           where cl    || ver
 
       - name: Upgrade build tooling
@@ -80,14 +65,12 @@ jobs:
           python -m pip install -U pip wheel setuptools build
           python -m pip install -U cibuildwheel==2.*
 
-      # Build wheels (both OSes). On Windows we activate oneAPI env first and use ifx.
       - name: Build wheels (Windows)
         if: startsWith(matrix.os, 'windows-')
         shell: cmd
         env:
           CIBW_ENVIRONMENT_WINDOWS: "FC=ifx"
         run: |
-          call "%ONEAPI_ROOT%\setvars.bat" intel64 vs2022
           python -m cibuildwheel --output-dir wheelhouse
 
       - name: Build wheels (Linux)
@@ -95,7 +78,6 @@ jobs:
         run: |
           python -m cibuildwheel --output-dir wheelhouse
 
-      # Build sdist (identical on both; last one wins)
       - name: Build sdist
         run: |
           python -m build --sdist
@@ -116,7 +98,6 @@ jobs:
   publish:
     name: Publish to (Test)PyPI
     needs: [build-wheels]
-    # Only allow publish when manually dispatched AND ref is ci_tests
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/ci_tests'
     runs-on: ubuntu-22.04
     steps:
