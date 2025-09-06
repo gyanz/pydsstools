@@ -1,12 +1,12 @@
-name: OptA - Windows (Intel ifx) & Linux (gfortran) wheels + publish [ci_tests only]
+name: OptA - Windows (Intel ifx) & Linux (gfortran) wheels + publish [manual]
 
 on:
-  push:
-    branches: [ ci_tests ]
-  pull_request:
-    branches: [ ci_tests ]
   workflow_dispatch:
     inputs:
+      branch:
+        description: "Branch to build (manual runs)"
+        required: true
+        default: "ci_tests"
       target:
         description: "Publish target"
         required: false
@@ -17,8 +17,8 @@ on:
 jobs:
   build-wheels:
     continue-on-error: true
-    name: Build wheels (${{ matrix.os }}) — ${{ github.ref_name }}
-    if: startsWith(github.ref, 'refs/heads/ci_tests')
+    # show the selected branch in the job name
+    name: Build wheels (${{ matrix.os }}) — ${{ github.event.inputs.branch || github.ref_name }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -42,6 +42,8 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
+          # build the selected branch even though the workflow file lives on master
+          ref: ${{ github.event.inputs.branch }}
 
       - uses: actions/setup-python@v5
         with:
@@ -53,7 +55,6 @@ jobs:
         uses: fortran-lang/setup-fortran@v1
         with:
           compiler: intel         # ifx; use 'intel-classic' for ifort
-          # version: '2025.0'     # optional pin; omit to get latest supported
 
       - name: Show toolchain (Windows)
         if: startsWith(matrix.os, 'windows-')
@@ -100,7 +101,8 @@ jobs:
   publish:
     name: Publish to (Test)PyPI
     needs: [build-wheels]
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/ci_tests'
+    # manual-only; run regardless of which branch the workflow file is on
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/download-artifact@v4
