@@ -85,9 +85,9 @@ jobs:
         run: |
           python -m cibuildwheel --output-dir wheelhouse
 
-      - name: Build sdist
-        run: |
-          python -m build --sdist
+      #- name: Build sdist
+      #  run: |
+      #    python -m build --sdist
 
       - name: Collect artifacts
         shell: bash
@@ -108,6 +108,23 @@ jobs:
     if: ${{ always() && github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-22.04
     steps:
+      # following two 'uses' to build sdist since build sdist in build wheels above got
+      # corrupted due to sdist was build for both windows and linux
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.branch }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build sdist (fresh)
+        run: |
+          python -m pip install -U build
+          python -m build --sdist
+
       - uses: actions/download-artifact@v4
         with:
           pattern: wheels-*
