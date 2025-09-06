@@ -6,7 +6,7 @@ on:
       branch:
         description: "Branch to build (manual runs)"
         required: true
-        default: "ci_tests"
+        default: "3.0.0b1"
       target:
         description: "Publish target"
         required: false
@@ -108,8 +108,8 @@ jobs:
     if: ${{ always() && github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-22.04
     steps:
-      # following two 'uses' to build sdist since build sdist in build wheels above got
-      # corrupted due to sdist was build for both windows and linux
+      # The next couple of steps build the sdist here (once) in the publish job.
+      # Previously, building the sdist in both Windows and Linux wheel jobs caused the merged artifact to be corrupted.
       - uses: actions/checkout@v4
         with:
           submodules: recursive
