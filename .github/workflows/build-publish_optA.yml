@@ -56,6 +56,7 @@ jobs:
         with:
           python-version: '3.11'
 
+<<<<<<< HEAD:.github/workflows/build-publish_optA.yml
       # ----- Windows: Install Intel oneAPI compilers + MKL (Option A) -----
       - name: Install Intel oneAPI (Windows)
         if: startsWith(matrix.os, 'windows-')
@@ -74,11 +75,33 @@ jobs:
           where ifx   || ver
           where icx   || ver
           where cl    || ver
+=======
+      # ----- Windows: Install Intel oneAPI HPC (Fortran) -----
+    - name: Install Intel oneAPI (Windows)
+      if: startsWith(matrix.os, 'windows-')
+      uses: rscohn2/setup-oneapi@v0.1.0
+      with:
+        components: icx,ifx,mkl   # C/C++, Fortran, and MKL
 
-      - name: Upgrade build tooling
-        run: |
-          python -m pip install -U pip wheel setuptools build
-          python -m pip install -U cibuildwheel==2.*
+    - name: Show toolchain (Windows)
+      if: startsWith(matrix.os, 'windows-')
+      shell: cmd
+      run: |
+        call "%ONEAPI_ROOT%\setvars.bat" intel64 vs2022
+        where ifx || ver
+        where ifort || ver
+        where cl || ver
+>>>>>>> 5cbbe80fc5783a74363fd00e408b5c28dcd938d6:.github/workflows/build-publish.yml
+
+    # (then keep your cibuildwheel step; set FC to ifx or ifort)
+    - name: Build wheels (Windows)
+      if: startsWith(matrix.os, 'windows-')
+      shell: cmd
+      env:
+        CIBW_ENVIRONMENT_WINDOWS: "FC=ifx"
+      run: |
+        call "%ONEAPI_ROOT%\setvars.bat" intel64 vs2022
+        python -m cibuildwheel --output-dir wheelhouse
 
       # Build wheels (both OSes). On Windows we activate oneAPI env first and use ifx.
       - name: Build wheels (Windows)
