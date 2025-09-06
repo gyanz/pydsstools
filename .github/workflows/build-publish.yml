@@ -55,27 +55,30 @@ jobs:
           python-version: '3.11'
 
       # ----- Windows: Install Intel oneAPI HPC (Fortran) -----
-      - name: Install Intel oneAPI HPC (Windows)
-        if: startsWith(matrix.os, 'windows-')
-        uses: intel/setup-oneapi@v1
-        with:
-          components: |
-            intel.oneapi.win.ifort-compiler      # classic Fortran (ifort)
-            intel.oneapi.win.ifx-compiler        # new LLVM Fortran (ifx)
+    - name: Install Intel oneAPI (Windows)
+      if: startsWith(matrix.os, 'windows-')
+      uses: rscohn2/setup-oneapi@v0.1.0
+      with:
+        components: icx,ifx,mkl   # C/C++, Fortran, and MKL
 
-      - name: Show toolchain (Windows)
-        if: startsWith(matrix.os, 'windows-')
-        shell: cmd
-        run: |
-          call "%ONEAPI_ROOT%\setvars.bat" intel64 vs2022
-          where ifort || ver
-          where ifx   || ver
-          where cl    || ver
+    - name: Show toolchain (Windows)
+      if: startsWith(matrix.os, 'windows-')
+      shell: cmd
+      run: |
+        call "%ONEAPI_ROOT%\setvars.bat" intel64 vs2022
+        where ifx || ver
+        where ifort || ver
+        where cl || ver
 
-      - name: Upgrade build tooling
-        run: |
-          python -m pip install -U pip wheel setuptools build
-          python -m pip install -U cibuildwheel==2.*
+    # (then keep your cibuildwheel step; set FC to ifx or ifort)
+    - name: Build wheels (Windows)
+      if: startsWith(matrix.os, 'windows-')
+      shell: cmd
+      env:
+        CIBW_ENVIRONMENT_WINDOWS: "FC=ifx"
+      run: |
+        call "%ONEAPI_ROOT%\setvars.bat" intel64 vs2022
+        python -m cibuildwheel --output-dir wheelhouse
 
       # Build wheels (both OSes). On Windows we activate oneAPI env first.
       - name: Build wheels (Windows)
