@@ -1,4 +1,4 @@
-name: Windows (Intel ifx) & Linux (gfortran) wheels + publish [ci_tests only]
+name: OptA - Windows (Intel ifx) & Linux (gfortran) wheels + publish [ci_tests only]
 
 on:
   push:
@@ -16,7 +16,8 @@ on:
 
 jobs:
   build-wheels:
-    name: Build wheels (${{ matrix.os }})
+    continue-on-error: true
+    name: Build wheels (${{ matrix.os }}) — ${{ github.ref_name }}
     if: startsWith(github.ref, 'refs/heads/ci_tests')
     runs-on: ${{ matrix.os }}
     strategy:

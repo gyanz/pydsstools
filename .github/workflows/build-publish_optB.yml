@@ -1,4 +1,4 @@
-name: Windows (Intel oneAPI HPC) & Linux (gfortran) wheels + publish [ci_tests only]
+name: OptB - Windows (Intel oneAPI HPC) & Linux (gfortran) wheels + publish [ci_tests only]
 
 on:
   push:
