@@ -81,6 +81,14 @@ pydsstools = ['examples/*.py','examples/*.ds[cs]',
 [tool.distutils.build_ext]
 inplace = false
 
+[tool.versioneer]
+VCS = "git"
+style = "pep440"
+versionfile_source = "pydsstools/_version.py"
+versionfile_build  = "pydsstools/_version.py"
+tag_prefix = ""      
+parentdir_prefix = "pydsstools-"
+
 [tool.black]
 line-length = 88
 target-version = ["py38","py39","py310","py311","py312"]
