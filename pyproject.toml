@@ -45,8 +45,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = [
-    "pyogrios",
+geo = [
+    "pyogrio",
     "geopandas",
     "rasterio >= 1.2.1",
     "matplotlib"

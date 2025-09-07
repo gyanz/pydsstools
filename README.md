@@ -35,14 +35,6 @@ Documentation
 📖 The full documentation (generated with Sphinx) will be published soon.  
 In the meantime, please refer to the [examples](pydsstools/examples) and the [changelog](CHANGES.MD) for usage details and updates.
 
-Dependencies
-===
-
-- [NumPy](https://www.numpy.org)
-- [pandas](https://pandas.pydata.org/)
-- [affine](https://pypi.org/project/affine/)
-- [MS Visual C++ Redistributable for VS 2015 - 2019](https://aka.ms/vs/16/release/vc_redist.x64.exe)
-
 Build from source
 ===
 Download the source files, open the command prompt in the root directory, and enter the following command. Note that the command prompt must be setup with build tools and python environment.
@@ -60,7 +52,6 @@ Contributing
 ===
 All contributions, bug reports, bug fixes, documentation improvements, enhancements and ideas are welcome.
 Feel free to ask questions on my [email](mailto:gyanBasyalz@gmail.com).
-
 
 License
 ===

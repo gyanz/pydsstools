@@ -1,4 +1,4 @@
-name: OptA - Windows (Intel ifx) & Linux (gfortran) wheels + publish [manual]
+name: Testing - build and publish wheels for Windows and Linux
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ on:
       target:
         description: "Publish target"
         required: false
-        default: ""
+        default: "testpypi"
         type: choice
         options: ["", "testpypi", "pypi"]
 
@@ -94,7 +94,7 @@ jobs:
         run: |
           mkdir -p dist
           cp -v wheelhouse/*.whl dist/
-          cp -v dist/*.tar.gz dist/ 2>/dev/null || true
+          #cp -v dist/*.tar.gz dist/ 2>/dev/null || true
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -140,28 +140,38 @@ jobs:
         id: repo
         shell: bash
         run: |
-          t="${{ github.event.inputs.target }}"
+          t="${{ github.event.inputs.target || 'testpypi' }}"
           echo "Raw target input: '$t'"
-          t="${t,,}"   # lowercase
-          if [[ "$t" == "testpypi" || "$t" == "test" ]]; then
-            echo "url=https://test.pypi.org/legacy/" >> "$GITHUB_OUTPUT"
-            echo "token_name=TEST_PYPI_API_TOKEN" >> "$GITHUB_OUTPUT"
-          elif [[ "$t" == "pypi" || "$t" == "prod" || "$t" == "release" ]]; then
-            echo "url=https://upload.pypi.org/legacy/" >> "$GITHUB_OUTPUT"
-            echo "token_name=PYPI_API_TOKEN" >> "$GITHUB_OUTPUT"
-          else
-            echo "No publish target selected; skipping upload."
-            echo "url=" >> "$GITHUB_OUTPUT"
-            echo "token_name=" >> "$GITHUB_OUTPUT"
-          fi
-          echo "Resolved repo url: '${{ steps.repo.outputs.url }}'"
-          echo "Resolved token name: '${{ steps.repo.outputs.token_name }}'"
+          t="${t,,}"
 
-      - name: Publish (pypa/gh-action-pypi-publish)
-        if: steps.repo.outputs.url != ''
+          url=""
+          token_name=""
+          if [[ "$t" == "testpypi" || "$t" == "test" ]]; then
+            url="https://test.pypi.org/legacy/"
+            token_name="TEST_PYPI_API_TOKEN"
+          elif [[ "$t" == "pypi" || "$t" == "prod" || "$t" == "release" ]]; then
+            url="https://upload.pypi.org/legacy/"
+            token_name="PYPI_API_TOKEN"
+          fi
+
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "token_name=$token_name" >> "$GITHUB_OUTPUT"
+          echo "Resolved (local) url='$url', token_name='$token_name'"
+
+      - name: Publish to TestPyPI
+        if: steps.repo.outputs.token_name == 'TEST_PYPI_API_TOKEN'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: ${{ steps.repo.outputs.url }}
-          password: ${{ secrets[steps.repo.outputs.token_name] }}
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          packages-dir: dist
+          skip-existing: true
+
+      - name: Publish to PyPI
+        if: steps.repo.outputs.token_name == 'PYPI_API_TOKEN'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: ${{ steps.repo.outputs.url }}
+          password: ${{ secrets.PYPI_API_TOKEN }}
           packages-dir: dist
           skip-existing: true
