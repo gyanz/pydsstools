@@ -93,8 +93,8 @@ class SpatialGridStruct(SpatialGridStructBase, TransformMethodsMixin):
                 ("coords_cell0", self.coords_cell0),
                 ("tzid", self.tzid),
                 ("tzoffset", self.tzoffset),
-                ("is_interval", True if self.is_interval else False),
-                ("time_stamped", True if self.time_stamped else False),
+                ("is_interval", bool(self.is_interval)),
+                ("time_stamped", bool(self.time_stamped)),
                 ("min_xy", self.get_min_xy()),
             ]
         )
@@ -127,8 +127,8 @@ class SpatialGridStruct(SpatialGridStructBase, TransformMethodsMixin):
                 ("coords_cell0", self.coords_cell0),
                 ("tzid", self.tzid),
                 ("tzoffset", self.tzoffset),
-                ("is_interval", True if self.is_interval else False),
-                ("time_stamped", True if self.time_stamped else False),
+                ("is_interval", bool(self.is_interval)),
+                ("time_stamped", bool(self.time_stamped)),
                 ("min_xy", self.get_min_xy()),
                 ("gridinfo_version", self.version()),
                 ("struct_version", self._struct_version()),
@@ -167,8 +167,8 @@ class SpatialGridStruct(SpatialGridStructBase, TransformMethodsMixin):
                 ("coords_cell0", self.coords_cell0),
                 ("tzid", self.tzid),
                 ("tzoffset", self.tzoffset),
-                ("is_interval", True if self.is_interval else False),
-                ("time_stamped", True if self.time_stamped else False),
+                ("is_interval",  bool(self.is_interval)),
+                ("time_stamped", bool(self.time_stamped)),
             ]
         )
 

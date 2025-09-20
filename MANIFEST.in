@@ -1,10 +1,11 @@
+include README.md LICENSE Dockerfile CHANGES.MD
 include versioneer.py
 exclude pydsstools/src/*.c
+recursive-include pydsstools/src *.pyx *.pxd *.h
 include pydsstools/src/external/dss/headers/*
 include pydsstools/src/external/dss/linux64/*
 include pydsstools/src/external/dss/win64/*
-include pydsstools/src/external/gridv6/*
-include pydsstools/src/external/gridv6/headers/*
 include pydsstools/src/external/zlib/*.lib
 include pydsstools/src/external/zlib/*.h
+recursive-include tests *.py *.dss
 

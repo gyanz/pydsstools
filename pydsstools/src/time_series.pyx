@@ -88,7 +88,7 @@ cdef class TimeSeriesStruct:
             zstructFree(self.tss)
 
     @property
-    def numberValues(self):
+    def count(self):
         """ 
         Returns
         ------- 
@@ -147,9 +147,9 @@ cdef class TimeSeriesStruct:
                 granularity = self.granularity
                 logging.debug('Computing times for regular time-series (granularity = %r second, startJulianDate = %r, startTimeSeconds = %r ):'%(granularity, self.tss[0].startJulianDate, self.tss[0].startTimeSeconds))
                 logging.debug('Number of seconds each unit of time value = %r',granularity)
-                start_date = self.startDateTime
+                start_date = self.start_datetime
                 start_date = HecTime(start_date,1, self.tss[0].startJulianDate)
-                result = {"start_date":start_date,"interval_seconds":interval, "freq":{}}
+                result = {"start_datetime":start_date,"interval_seconds":interval, "freq":{}}
 
                 # NOTE: DSSVue exclusively supports the specific intervals listed below. 
                 # I believe the HEC-DSS library also exclusively supports these intervals. 
@@ -202,7 +202,7 @@ cdef class TimeSeriesStruct:
         cdef:
             list datetimes
             object times
-            int interval,granularity,num,count
+            int interval,granularity,num
         if self.tss:
             num = self.get_number()
             interval = self.interval
@@ -214,7 +214,7 @@ cdef class TimeSeriesStruct:
                     datetimes = [getPyDateTimeFromValue(x,granularity,self.tss[0].julianBaseDate) for x in times]    
                 else:
                     freq = times['freq']
-                    start_date = times['start_date'].python_datetime
+                    start_date = times['start_datetime'].python_datetime
                     datetimes = [start_date]
                     for i in range(1,num):
                         new_date = datetimes[-1] + relativedelta(**freq)
@@ -278,21 +278,6 @@ cdef class TimeSeriesStruct:
 
 
     @property
-    def type(self):
-        """Returns the type of the time-series
-        
-        Returns
-        -------
-            # PER-AVER, PER-CUM, INST-VAL or INST-CUM 
-            # These are byte string (or ascii encoded) objects
-
-        """
-        if self.tss:
-            if self.tss[0].type:
-                return self.tss[0].type
-        return ''
-
-    @property
     def data_type(self):
         """Returns the type of the time-series
         
@@ -308,7 +293,7 @@ cdef class TimeSeriesStruct:
         return ''
 
     @property
-    def units(self):
+    def data_units(self):
         """Returns the unit of values in the time-series
         
         Returns
@@ -355,17 +340,17 @@ cdef class TimeSeriesStruct:
             return self.tss[0].timeGranularitySeconds
 
     @property
-    def startDateTime(self):
+    def start_datetime(self):
         if self.tss:
             return " ".join(_getDateAndTime(self.tss[0].startTimeSeconds, 1, self.tss[0].startJulianDate))
             
     @property
-    def endDateTime(self):
+    def end_datetime(self):
         if self.tss:
             return " ".join(_getDateAndTime(self.tss[0].endTimeSeconds, 1, self.tss[0].endJulianDate))
 
     @property
-    def startPyDateTime(self):
+    def start_pydatetime(self):
         """Returns start date and time of the time-series
 
         Returns
@@ -377,7 +362,7 @@ cdef class TimeSeriesStruct:
             return getPyDateTimeFromValue(self.tss[0].startTimeSeconds, 1, self.tss[0].startJulianDate)        
 
     @property
-    def endPyDateTime(self):
+    def end_pydatetime(self):
         """Returns end date and time of the time-series
 
         Returns
@@ -406,7 +391,7 @@ cdef class TimeSeriesStruct:
             return "Undefined"
 
     @property
-    def timezone(self):
+    def tzid(self):
         timezone = ''        
         if self.tss:
             if self.tss[0].timeZoneName:
@@ -423,12 +408,12 @@ cdef class TimeSeriesContainer:
         public str pathname
         public int interval
         public int granularity
-        public int numberValues 
+        public int count 
         public object times
-        public str startDateTime
-        public str units
-        public str type
-        public str timezone
+        public str start_datetime
+        public str data_units
+        public str data_type
+        public str tzid
         public str _startDateBase #for overflowing time in irregular time-series TODO
         object _values
         float *floatValues
@@ -447,21 +432,21 @@ cdef class TimeSeriesContainer:
         _granularity = kwargs.get('granularity',60)
         __values = kwargs.get('values',None) 
         _times = kwargs.get('times',None) 
-        _units = kwargs.get('units','')
-        _type = kwargs.get('type','')
-        _timezone = kwargs.get('timezone','')
-        _startDateTime = kwargs.get('startDateTime','')
+        _data_units = kwargs.get('data_units','')
+        _data_type = kwargs.get('data_type','')
+        _tzid = kwargs.get('tzid','')
+        _start_datetime = kwargs.get('start_datetime','')
 
         self.pathname =_pathname 
         self.interval = _interval
         self.granularity = _granularity
         self._values =  __values
         self.times =  _times
-        self.units = _units
-        self.type = _type
-        self.startDateTime= _startDateTime
-        self.timezone = _timezone
-        self._timezone_bytes = _timezone.encode('ascii')
+        self.data_units = _data_units
+        self.data_type = _data_type
+        self.start_datetime= _start_datetime
+        self.tzid = _tzid
+        self._timezone_bytes = _tzid.encode('ascii')
         self.timeZoneName = PyBytes_AS_STRING(self._timezone_bytes)
         self._startDateBase=''
 
@@ -561,12 +546,12 @@ cdef class TimeSeriesContainer:
         """Extension function to set correct pointer type to the user entered values
            data
         """
-        assert self.numberValues > 0, "Number of values should be > 0"
-        assert self.numberValues == len(self._values), "Number of values not equal"
+        assert self.count > 0, "Number of values should be > 0"
+        assert self.count == len(self._values), "Number of values not equal"
         if self.interval <= 0:
             self.setDoubleValues()
             self.Values = self.doubleValues
-            assert self.numberValues == len(self.times), "Number of values not equal to number of times"
+            assert self.count == len(self.times), "Number of values not equal to number of times"
             self.setTimePtr()
         else:
             self.setFloatValues()
@@ -590,47 +575,47 @@ cdef TimeSeriesStruct createNewTimeSeries(TimeSeriesContainer tsc):
         TimeSeriesStruct ts_st
         char *pathname = tsc.pathname
         void *value_pointer = <void *>tsc.Values
-        int numberValues = tsc.numberValues
-        char *units = tsc.units
-        char *_type = tsc.type
+        int count = tsc.count
+        char *data_units = tsc.data_units
+        char *data_type = tsc.data_type
         int interval = tsc.interval
         int *time_pointer
         int granularity
-        char *startDate
-        char *startTime
-        char *startDateBase=NULL
+        char *start_date
+        char *start_time
+        char *start_datebase=NULL
         #char *timeZoneName
 
 
     if not interval <= 0:
-        startDateTime = HecTime(tsc.startDateTime)
-        _startDate = startDateTime.dateString()
-        startDate = _startDate 
-        _startTime = startDateTime.timeString()
-        startTime = _startTime 
-        logging.debug("{},{}".format(startDate,startTime))
+        start_datetime = HecTime(tsc.start_datetime)
+        _start_date = start_datetime.dateString()
+        start_date = _start_date 
+        _start_time = start_datetime.timeString()
+        start_time = _start_time 
+        logging.debug("{},{}".format(start_date,start_time))
         tss = zstructTsNewRegFloats(pathname,<float *>value_pointer,
-                    numberValues,startDate, startTime,units,_type)
+                    count,start_date, start_time,data_units,data_type)
     else:
         time_pointer = <int *>tsc.intTimes
         granularity = tsc.granularity
         #if not (granularity == 1 or granularity == 60):
         #raise GranularityException(granularity,'Granularity of irregular timeseries must be either 1 or 60 seconds')
         if tsc._startDateBase:
-            startDateBase = <char *>tsc._startDateBase
+            start_datebase = <char *>tsc._startDateBase
         tss = zstructTsNewIrregDoubles(pathname,<double *>value_pointer,
-                    numberValues,time_pointer, granularity,startDateBase,units,_type)
+                    count,time_pointer, granularity,start_datebase,data_units,data_type)
 
     if not tss:
         logging.debug("Empty time-series struct created")
 
-    if tsc.timezone:
-        logging.debug('Setting timezone info: {}'.format(tsc.timezone))
-        tsc._timezone_bytes = tsc.timezone.encode('ascii')
+    if tsc.tzid:
+        logging.debug('Setting timezone info: {}'.format(tsc.tzid))
+        tsc._timezone_bytes = tsc.tzid.encode('ascii')
         tsc.timeZoneName = PyBytes_AS_STRING(tsc._timezone_bytes)
         tss[0].timeZoneName = tsc.timeZoneName
 
     ts_st = createTSS(tss)
-    logging.debug("length = {}".format(ts_st.numberValues))
+    logging.debug("length = {}".format(ts_st.count))
     return ts_st  
 

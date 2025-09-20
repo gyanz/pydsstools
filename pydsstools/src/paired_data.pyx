@@ -119,14 +119,25 @@ cdef class PairedDataStruct:
     def labels(self):
         cdef:
             int labelsLength
+            int curve_no
             bytes labels
 
+        curve_no = self.curve_no()
+        label_list = ['' for i in range(curve_no)]
+
         if self.zpds:
-            labelsLength = self.zpds[0].labelsLength
-            labels = <bytes>self.zpds[0].labels[:labelsLength]
-            labels_list = labels.split(b"\x00")
-            labels_list = [x.decode() for x in labels_list if x]
-            return labels_list
+            if self.zpds[0].labelsLength and self.zpds[0].labels:
+                labelsLength = self.zpds[0].labelsLength
+                labels = <bytes>self.zpds[0].labels[:labelsLength]
+                logging.debug("paired data raw labels = ({})".format(labels))
+                _label_list = labels.split(b"\x00")
+                _label_list = [x.decode().strip() for x in _label_list]
+                if _label_list and _label_list[-1] == "":
+                    _label_list = _label_list[:-1]
+                for i,label in enumerate(_label_list):
+                    label_list[i] = label    
+
+        return label_list
 
     @property
     def labels_list(self):
@@ -134,12 +145,27 @@ cdef class PairedDataStruct:
             return self.labels
 
     @property
-    def dataType(self):
+    def data_type(self):
         if self.zpds:
             return self.zpds[0].dataType
 
     @property
+    def row_count(self):
+        return self.data_no()        
+
+    @property
+    def curve_count(self):
+        return self.curve_no()        
+
+    @property
     def independent_units(self):
+        if self.zpds:
+            if self.zpds[0].unitsIndependent:
+                return self.zpds[0].unitsIndependent 
+        return ''
+
+    @property
+    def x_units(self):
         if self.zpds:
             if self.zpds[0].unitsIndependent:
                 return self.zpds[0].unitsIndependent 
@@ -153,6 +179,13 @@ cdef class PairedDataStruct:
         return ''
 
     @property
+    def x_type(self):
+        if self.zpds:
+            if self.zpds[0].typeIndependent:
+                return self.zpds[0].typeIndependent 
+        return ''
+
+    @property
     def dependent_units(self):
         if self.zpds:
             if self.zpds[0].unitsDependent:
@@ -160,7 +193,21 @@ cdef class PairedDataStruct:
         return ''
 
     @property
+    def curve_units(self):
+        if self.zpds:
+            if self.zpds[0].unitsDependent:
+                return self.zpds[0].unitsDependent 
+        return ''
+
+    @property
     def dependent_type(self):
+        if self.zpds:
+            if self.zpds[0].typeDependent:
+                return self.zpds[0].typeDependent 
+        return ''
+
+    @property
+    def curve_type(self):
         if self.zpds:
             if self.zpds[0].typeDependent:
                 return self.zpds[0].typeDependent 

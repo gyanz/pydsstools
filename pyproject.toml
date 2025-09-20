@@ -51,6 +51,7 @@ geo = [
     "rasterio >= 1.2.1",
     "matplotlib"
 ]
+test = ["pytest", "pytest-cov"]
 
 [project.urls]
 repository = "https://github.com/gyanz/pydsstools"
@@ -122,3 +123,12 @@ pre_summary_newline = true
 make_summary_multi_line = true
 force_wrap = false
 tab_width = 4
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+# quietly shows all extra test summary except passed
+addopts = "-ra -v --import-mode=importlib "
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_functions = ["test_*"]
+xfail_strict = true

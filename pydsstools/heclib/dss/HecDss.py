@@ -223,24 +223,24 @@ class Open(_Open):
 
         if tsc.interval > 0:
             # Regular time-series
-            if not len(tsc.values) == tsc.numberValues:
+            if not len(tsc.values) == tsc.count:
                 logging.error(
                     "numberValues attribute of TimeSeriesContainer not equal to length of values"
                 )
                 return
             # check start datetime format
-            sdate = tsc.startDateTime
+            sdate = tsc.start_datetime
             try:
                 sdate = HecTime(sdate, tsc.granularity)
             except:
                 logging.warning(
                     "Start datetime of regular time-series ({}) may be incorrect".format(
-                        tsc.startDateTime
+                        tsc.start_datetime
                     )
                 )
             else:
                 sdate = sdate._toString(end_of_day=False)
-                tsc.startDateTime = sdate
+                tsc.start_datetime = sdate
             super().put(tsc)
 
         else:
@@ -257,7 +257,7 @@ class Open(_Open):
                 )
                 return
 
-            if not (tsc.numberValues == len(times)):
+            if not (tsc.count == len(times)):
                 logging.error("times does not have correct number of elements")
                 return
 
@@ -368,23 +368,23 @@ class Open(_Open):
         pds = super().read_pd(pathname, window)
         if dataframe:
             x, curves, label_list = pds.get_data()
-            tb = np.asarray(curves).T
             # The row in curves array contains curve data
             # Transpose causes the curve data to be in columns (for DataFrame purpose)
-            if label_list:
-                label_list = [x.strip() for x in label_list]
-            else:
-                for i in range(tb.shape[1]):
-                    label_list.append(" ")
-            if not len(label_list) == tb.shape[1]:
-                logging.warn(
-                    "Number of labels is not equal to number of curves. This issue can occur with preallocated paired data."
-                )
-                label_list = [str(i + 1) for i in range(curves.shape[1])]
+            tb = np.asarray(curves).T
+            start_curve = 1
+            end_curve = tb.shape[1]
+            if window:
+                start_curve,end_curve = window[2:]
+            primary_colnames = [f"curve{i}" for i in range(start_curve,end_curve+1)]
+            alias_colnames = ['' for x in range(start_curve,end_curve+1)]
+            for i,label in enumerate(label_list):
+                alias_colnames[i] = label
+
+            column_names = pd.MultiIndex.from_arrays([primary_colnames, alias_colnames], names=["primary", "labels"]) 
 
             indx = list(x[0])
             df = pd.DataFrame(
-                data=tb, index=indx, columns=label_list, dtype=dtype, copy=True
+                data=tb, index=indx, columns=column_names, dtype=dtype, copy=True
             )
             df.index.name = "X"
             return df
@@ -438,15 +438,26 @@ class Open(_Open):
             return
 
         pdc = pdc_df_array
-        if isinstance(pdc_df_array, pd.DataFrame):
+        if isinstance(pdc, pd.DataFrame):
+            logging.info('Writing paired data from DataFrame')
+            pathname = kwargs["pathname"]
             pdc = PairedDataContainer(**kwargs)
             pdc.independent_axis = pdc_df_array.index.values
             pdc.curves = pdc_df_array.values.T
             pdc.curve_no = pdc.curves.shape[0]
             pdc.data_no = pdc.curves.shape[1]
-            pdc.labels_list = pdc_df_array.columns.tolist()
+            labels_list = [x.strip() for x in pdc_df_array.columns.tolist()]
+            try:
+                # if the column index is multilevel and contains level named 'labels'
+                labels_list = pdc_df_array.columns.get_level_values('labels').tolist()
+                labels_list = [x.strip() for x in labels_list]
+            except:
+                pass
 
-        elif not curve_index is None:
+            pdc.labels_list = labels_list
+
+        elif curve_index is not None:
+            logging.info('Writing specific paired data curve to preallocated pairedata set')
             pathname = kwargs["pathname"]
             labels_list = kwargs.get("labels_list", [])
             window = kwargs.get("window", None)
@@ -455,6 +466,7 @@ class Open(_Open):
             total_ordinates = size_info["data_no"]
             total_curves = size_info["curve_no"]
             max_label_size = size_info["label_size"]
+            logging.debug(f'Allowed maximum length for label of a curve in this prealloc paired data is {max_label_size}')
 
             if not (curve_index >= 1 and curve_index <= total_curves):
                 logging.error("Curve index out of bounds.")
@@ -480,9 +492,10 @@ class Open(_Open):
             else:
                 raise BaseException("Unsupported data provided")
 
+            # convert curve data to 2D array
             pdc_df_array = np.reshape(pdc_df_array, [1, -1])
             arr_size = pdc_df_array.size
-            if not arr_size == (end_ord - start_ord + 1):
+            if arr_size != end_ord - start_ord + 1:
                 logging.error("Incorrect size of array provided")
                 return
             pdc = PairedDataContainer(pathname=pathname, labels_list=labels_list)
@@ -490,6 +503,10 @@ class Open(_Open):
             super().put_one_pd(pdc, curve_index, (start_ord, end_ord), max_label_size)
             return
 
+        if not pdc.pathname.strip():
+            logging.error('Dss pathname is not provided')
+            return
+        
         super().put_pd(pdc)
 
     # @validate_call
@@ -498,7 +515,7 @@ class Open(_Open):
         pdc_or_shape: Union[Tuple[int, int], "pd.DataFrame", "np.ndarray"],
         **kwargs: Any,
     ) -> None:
-        # Each curve is allocated 10 characters by default if label_size is not specified
+        # Each curve is allocated 12 characters by default if label_size is not specified
         # Curves are labeled 1,2,3 ... by default
         if self.mode != "rw":
             logging.error(
@@ -514,7 +531,8 @@ class Open(_Open):
             pdc.independent_axis = array("f", [i + 1 for i in range(pdc.data_no)])
             if not pdc.labels_list:
                 pdc.labels_list = [str(i + 1) for i in range(pdc.curve_no)]
-        label_size = max(10, kwargs.get("label_size", 10))
+        label_size = max(12, kwargs.get("label_size", 12))
+        #label_size = min(label_size,24)
         super().prealloc_pd(pdc, label_size)
 
     # @validate_call

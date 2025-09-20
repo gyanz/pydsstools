@@ -74,11 +74,11 @@ class Datum(IntEnum):
 
 
 PairLikeInt: TypeAlias = Union[
-    Tuple[int, int], Annotated[List[int], Field(min_items=2, max_items=2)]
+    Tuple[int, int], Annotated[List[int], Field(min_length=2, max_length=2)]
 ]
 
 PairLikeFloat: TypeAlias = Union[
-    Tuple[float, float], Annotated[List[float], Field(min_items=2, max_items=2)]
+    Tuple[float, float], Annotated[List[float], Field(min_length=2, max_length=2)]
 ]
 
 GridTypeField = Field(
@@ -266,7 +266,7 @@ class GridInfo(_GridInfo7):
             "ll_cell",
         ),
     )
-    shape: Union[Tuple[int, int], Annotated[List[int], Field(min_items=2, max_items=2)]]
+    shape: Union[Tuple[int, int], Annotated[List[int], Field(min_length=2, max_length=2)]]
     cell_size: float = Field(
         validation_alias=AliasChoices(
             "cell_size", "cellsize", "cs", "dx", "spacing", "grid_size"
@@ -310,11 +310,11 @@ class GridInfo(_GridInfo7):
             "mean_val", "mean", "mean_value", "average", "avg"
         ),
     )
-    range_vals: Annotated[List[float], Field(min_items=0)] = Field(
+    range_vals: Annotated[List[float], Field(min_length=0)] = Field(
         default_factory=list,
         validation_alias=AliasChoices("range_vals", "rv", "range_values", "rangevals"),
     )
-    range_counts: Annotated[List[int], Field(min_items=0)] = Field(
+    range_counts: Annotated[List[int], Field(min_length=0)] = Field(
         default_factory=list,
         validation_alias=AliasChoices("range_counts", "rc", "rangecounts"),
     )

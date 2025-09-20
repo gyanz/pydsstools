@@ -1,0 +1,16 @@
+# .pre-commit-config.yaml
+repos:
+  # Black (uses settings from pyproject.toml)
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 25.1.0
+    hooks:
+      - id: black
+
+  # cython-lint + Cython quote fixer (settings from pyproject.toml)
+  - repo: https://github.com/MarcoGorelli/cython-lint
+    rev: v0.16.7
+    hooks:
+      - id: cython-lint
+        files: ^(pydsstools/src/|src/).*\.(pyx|pxd|pxi)$
+      - id: double-quote-cython-strings
+        files: ^(pydsstools/src/|src/).*\.(pyx|pxd|pxi)$

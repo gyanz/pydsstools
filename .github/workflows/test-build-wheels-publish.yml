@@ -102,9 +102,57 @@ jobs:
           name: wheels-${{ matrix.os }}
           path: dist/*
 
+  test-wheels:
+    name: Test wheels (${{ matrix.os }})
+    needs: [build-wheels]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, ubuntu-22.04]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.branch }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Download wheel artifacts for this OS
+        uses: actions/download-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }}
+          path: dist
+
+      - name: Show downloaded files
+        run: |
+          echo "Listing files in dist/"
+          ls -l dist || true
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install -U pip
+          python -m pip install ".[test]"
+
+      - name: Install built wheel
+        run: |
+          python -m pip install dist/*.whl
+          python -c "import pydsstools, sys; print('Imported wheel OK:', getattr(pydsstools,'__version__','?'), sys.version)"
+
+      - name: Run pytest
+        env:
+          # add any runtime env your tests need here
+          PYTHONWARNINGS: default
+        run: |
+          pytest -q
+
   publish:
     name: Publish to (Test)PyPI
-    needs: [build-wheels]
+    needs: [test-wheels]
     if: ${{ always() && github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-22.04
     steps:
