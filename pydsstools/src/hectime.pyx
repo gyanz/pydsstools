@@ -69,7 +69,7 @@ cpdef tuple _getDateAndTime(int timeMinOrSec, int timeGranularitySeconds, int ju
 
     status = getDateAndTime(timeMinOrSec, timeGranularitySeconds, julianBaseDate, 
                             cdate, sizeDateString, ctime, sizeHoursMins)
-    if not status == STATUS_OK:
+    if not status == STATUS_OKAY:
         return ('','')
     return (cdate,ctime)
 

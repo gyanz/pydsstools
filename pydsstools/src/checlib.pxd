@@ -19,10 +19,11 @@ cdef extern from "zerrorCodes.h":
     #hec_zdssLastError zdssLastError # could this be global variable?
 
 cdef extern from "heclib.h":
-    #int STATUS_OK
-    #int STATUS_NOT_OK
-    #int STATUS_RECORD_FOUND
-    #int STATUS_RECORD_NOT_FOUND
+    #hecdss7.h has status codes
+    int STATUS_OKAY
+    int STATUS_NOT_OKAY
+    int STATUS_RECORD_FOUND
+    int STATUS_RECORD_NOT_FOUND
     float UNDEFINED_FLOAT
     double UNDEFINED_DOUBLE
     int UNDEFINED_TIME

@@ -247,6 +247,7 @@ cdef class Open:
         cdef:
             zStructSpatialGrid *zsgs = NULL
         zsgs = zstructSpatialGridNew(pathname)
+        isError(self.read_status)
         #self.read_status = RetrieveGriddedData_wrap(self.ifltab,zsgs,retrieve_data)
         self.read_status = zspatialGridRetrieve(self.ifltab,zsgs,retrieve_data)
         isError(self.read_status)
