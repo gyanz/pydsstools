@@ -1,5 +1,13 @@
 pydsstools changelog
 ================
+3.0.0.b1 (09-22-2025)
+-----------------
+* HEC-DSS 7-IV-1, released July 30, 2025
+* Paired data and Gridded data API changes
+* Gridded data write support for verion 0 grid
+* Added pytests
+* Added github action to build, test and publish wheels
+
 2.4.0 (08-13-2025)
 -----------------
 * Added function to write spatial grid data to HEC-DSS 6 file
