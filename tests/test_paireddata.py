@@ -19,14 +19,16 @@ def fidB():
 
 def test_read_paireddata(fidA):
     pathname = r"/PAIREDDATA/COWLITZ/FREQ-FLOW////"
-    ex_indx = [0.95,0.80,0.60,0.50,0.40,0.30,0.20,0.10,0.05,0.02,0.01,0.005,0.002,0.001]
-    ex_cur1 = [30,40,54,60,70,80,82,86,100,105,110,150,200,500]
-    ex_cols = ['PROB','LOG']
+    ex_index = [0.95,0.80,0.60,0.50,0.40,0.30,0.20,0.10,0.05,0.02,0.01,0.005,0.002,0.001]
+    ex_y0 = [30,40,54,60,70,80,82,86,100,105,110,150,200,500]
+    ex_labels = ['1999']
     df = fidA.read_pd(pathname,dataframe=True)
-    indx = df[ex_cols[0]].values.tolist()
-    cur1 = df[ex_cols[1]].values.tolist()
-    assert indx == pytest.approx(ex_indx)
-    assert cur1 == pytest.approx(ex_cur1)
+    labels = df.columns.get_level_values('labels').tolist()
+    index = df.index.tolist()
+    y0 = df['y0'].values.ravel().tolist()
+    assert labels == ex_labels
+    assert index == pytest.approx(ex_index)
+    assert y0 == pytest.approx(ex_y0)
 
 def test_write_paireddata(fidA):
     pathname = r"/PAIREDDATA/TEST/FREQ-FLOW///WRITE1/"

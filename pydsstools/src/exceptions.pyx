@@ -77,11 +77,12 @@ class DssStatusException(Exception):
         self.status=status
 
 def isError(int status):
-    # TODO: Improve this
+    # TODO: Not working
     cdef:
         DssLastError err_obj
 
     err_obj = DssLastError()
+    logging.debug(f"dss check: error code = {err_obj.errorCode}, error type = {err_obj.errorType}.")
     if err_obj.errorCode != 0:
         if not err_obj.errorType == 1: 
             # type other than warning

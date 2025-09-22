@@ -165,33 +165,29 @@ cdef class Open:
 
     cpdef PairedDataStruct read_pd(self,char *pathname, tuple window = None):
         # Read paired data from the given pathname
+        # indexes are 0-bases while it is 1-based in c code
         cdef:
             zStructPairedData *zpds=NULL 
-            int retrieveSizeFlag = 1 # retrieve as float
-            int data_no, curve_no
-            int start_ord, end_ord, start_curve, end_curve
-
-        #curve_no,data_no,_,_ = pd_size(self.ifltab,pathname)
-        #last_ord = data_no
-        #last_curve = curve_no
+            # retrieve as float
+            int rsize_flag = 1
+            int rows, cols
+            int row_start, row_end, col_start, col_end
 
         zpds = zstructPdNew(pathname)
 
         if window:
-            start_ord, end_ord, start_curve, end_curve = window        
-            zpds[0].startingOrdinate = start_ord
-            zpds[0].endingOrdinate = end_ord
-            zpds[0].startingCurve = start_curve
-            zpds[0].endingCurve = end_curve
+            row_start, row_end, col_start, col_end = window        
+            zpds[0].startingOrdinate = row_start + 1
+            zpds[0].endingOrdinate = row_end + 1
+            zpds[0].startingCurve = col_start + 1
+            zpds[0].endingCurve = col_end + 1
 
-        self.read_status = zpdRetrieve(self.ifltab,zpds,retrieveSizeFlag)
-
+        self.read_status = zpdRetrieve(self.ifltab,zpds,rsize_flag)
         isError(self.read_status)
-
         pd_st = createPDS(zpds)
         return pd_st 
 
-    cpdef int prealloc_pd(self, PairedDataContainer pdc,int label_size) except *:
+    cpdef int prealloc_pd(self, PairedDataContainer pdc) except *:
         # When preallocating pd, it is important to know how much size to allocate
         #   for the labels
         # label_size = number of characters in label for a curve in pd
@@ -201,38 +197,36 @@ cdef class Open:
             PairedDataStruct pd_st
             zStructPairedData *zpds
             int status
-        pdc.setValues(mode=0,label_size = label_size)
-        pd_st = preallocNewPairedData(pdc)
+
+        pdc.set_clabels(pdc_mode.allocate)
+        pd_st = write_allocate_pdata(pdc)
         zpds = pd_st.zpds
         self.write_status = zpdStore(self.ifltab,zpds,10)
         isError(self.write_status)
-        pdc.curves_ptr = NULL
-        pdc.curves_mv = None
+        #pdc._ydata_ptr = NULL
+        #pdc.y_data_mv = None
 
-    cpdef int put_one_pd(self, PairedDataContainer pdc,int i,tuple window = None, int label_size = 0) except *:
-        # i = ith curve no to save in the file, 1 >= i <= curve_no
-        # TODO: Error check
+    cpdef int put_one_pd(self, PairedDataContainer pdc,int col_index, tuple row_window = None) except *:
         cdef:
             PairedDataStruct pd_st
             zStructPairedData *zpds
-            int start_ord,end_ord
+            int row_start, row_end
+            int label_size
 
-        if label_size > 0:
-            label_size = self.pd_info(pdc.pathname)['label_size']
-        pdc.setValues(mode = 1,label_size = label_size)
-        data_no_user = pdc.curves_mv.shape[1]
+        label_size = self.pd_info(pdc.pathname)['label_size']
+        pdc.set_clabels(pdc_mode.one,label_size)
 
-        if not window:
-            pd_st = createOnePairedData(self.ifltab,pdc,i)
+        if not row_window:
+            pd_st = write_one_pdata(self.ifltab,pdc,col_index)
         else:
-            start_ord,end_ord = window
-            pd_st = createOnePairedData(self.ifltab,pdc,i,start_ord,end_ord)
+            row_start,row_end = row_window
+            pd_st = write_one_pdata(self.ifltab,pdc,col_index,row_start,row_end)
 
         zpds = pd_st.zpds
         self.write_status = zpdStore(self.ifltab,zpds,11)
         isError(self.write_status)
-        pdc.curves_ptr = NULL
-        pdc.curves_mv = None
+        #pdc.curves_ptr = NULL
+        #pdc.curves_mv = None
 
     cpdef int put_pd(self, PairedDataContainer pdc) except *:
         # TODO: Error check
@@ -240,13 +234,14 @@ cdef class Open:
             PairedDataStruct pd_st
             zStructPairedData *zpds
             int status
-        pdc.setValues(mode=-1)
-        pd_st = createNewFloatPairedData(pdc)
+
+        pdc.set_clabels(pdc_mode.normal)
+        pd_st = write_normal_pdata(pdc)
         zpds = pd_st.zpds
         self.write_status = zpdStore(self.ifltab,zpds,0)
         isError(self.write_status)
-        pdc.curves_ptr = NULL
-        pdc.curves_mv = None
+        #pdc.curves_ptr = NULL
+        #pdc.curves_mv = None
 
     cpdef void read_grid100(self,const char *pathname, SpatialGridStruct sg_st, bint retrieve_data) except *:
         cdef:

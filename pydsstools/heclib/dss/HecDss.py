@@ -320,11 +320,11 @@ class Open(_Open):
             pathname: string, dss record pathname
 
             window: tuple, default None
-                    tuple of (starting row, ending row, starting curve, ending curve) indices.
+                    tuple of (starting row, ending row, starting column, ending column) indices.
                     If None, read all data.
-                    starting row, starting curve >= 1, i.e., first row or curve is 1, not 0.
-                    ending row, ending curve <= total rows/ordinates in paired data or <=0 ...
-                    0 can be used to specify last row or curve. Negative number works like indexing of python list.
+                    starting row, starting curve >= 0, i.e., first row or column is 0, not 1.
+                    ending row, ending column < total rows/columns in paired data
+                    #0 can be used to specify last row or curve. Negative number works like indexing of python list.
 
             dtype: numpy dtype, default None
                   Data type of returned DataFrame
@@ -344,49 +344,63 @@ class Open(_Open):
         """
         if window:
             size_info = self.pd_info(pathname)
-            total_ordinates = size_info["data_no"]
-            total_curves = size_info["curve_no"]
-            start_ord, end_ord, start_curve, end_curve = window
-            if end_ord <= 0:
-                end_ord = total_ordinates + end_ord
-            if end_curve <= 0:
-                end_curve = total_curves + end_curve
+            #total_ordinates = size_info["data_no"]
+            #total_curves = size_info["curve_no"]
+            rows = size_info["data_no"]
+            cols = size_info["curve_no"]
+            row_start, row_end, col_start, col_end = window
+            if row_end < 0:
+                row_end = rows + row_end
+            if col_end < 0:
+                col_end = cols + col_end
             if not (
-                start_ord >= 1 and end_ord <= total_ordinates and end_ord >= start_ord
+                row_start >= 0 and row_end < rows and row_end >= row_start
             ):
-                logging.error("Ordinate indices of window out of bounds")
+                logging.error("Row indices in window for paired data are out of bounds")
                 return
             if not (
-                start_curve >= 1
-                and end_curve <= total_curves
-                and end_curve >= start_curve
+                col_start >= 0
+                and col_end < cols
+                and col_end >= col_start
             ):
-                logging.error("Curve indices of window out of bounds")
+                logging.error("Column indices of window for paired data are out of bounds")
                 return
-            window = (start_ord, end_ord, start_curve, end_curve)
+            window = (row_start, row_end, col_start, col_end)
 
         pds = super().read_pd(pathname, window)
+
         if dataframe:
-            x, curves, label_list = pds.get_data()
+            #x, curves, label_list = pds.get_data()
+            x_data = pds.x_data
+            y_data = pds.y_data
+            y_labels = pds.y_labels
+            logging.debug(y_labels)
             # The row in curves array contains curve data
             # Transpose causes the curve data to be in columns (for DataFrame purpose)
-            tb = np.asarray(curves).T
-            start_curve = 1
-            end_curve = tb.shape[1]
-            if window:
-                start_curve,end_curve = window[2:]
-            primary_colnames = [f"curve{i}" for i in range(start_curve,end_curve+1)]
-            alias_colnames = ['' for x in range(start_curve,end_curve+1)]
-            for i,label in enumerate(label_list):
+            tb = np.asarray(y_data).T
+            if not window:
+                col_start = 0
+                col_end = tb.shape[1]-1
+
+            primary_colnames = [f"y{i}" for i in range(col_start,col_end+1)]
+            alias_colnames = ['' for x in range(col_start,col_end+1)]
+
+            logging.debug(f'window:{window}')
+            logging.debug(f'col_start/end: {col_start},{col_end}')
+            logging.debug(f'primary colnames: {primary_colnames}')
+            logging.debug(f'alias columns: {alias_colnames}')
+
+            for i,label in enumerate(y_labels):
                 alias_colnames[i] = label
 
+            logging.debug(f'Revised alias columns: {alias_colnames}')
             column_names = pd.MultiIndex.from_arrays([primary_colnames, alias_colnames], names=["primary", "labels"]) 
 
-            indx = list(x[0])
+            indx = list(x_data[0])
             df = pd.DataFrame(
                 data=tb, index=indx, columns=column_names, dtype=dtype, copy=True
             )
-            df.index.name = "X"
+            df.index.name = "x_data"
             return df
         else:
             return pds
@@ -401,7 +415,6 @@ class Open(_Open):
     def put_pd(
         self,
         pdc_df_array: Union["PairedDataContainer", "pd.DataFrame", "np.ndarray"],
-        curve_index: Optional[int] = None,
         **kwargs: Any,
     ) -> None:
         """Write paired new or edit existing data series
@@ -409,13 +422,6 @@ class Open(_Open):
         Parameter
         ---------
             pdc_df_array: PairedDataContainer, pandas dataframe or numpy array
-
-            curve_index: curve or column number, default None
-                         Data in specified curve is changed.
-
-            window: tuple consisting of starting and ending row numbers or ordinates
-                    Used only when curve_index is specified
-
             kwargs: arguments or attributes of PairedDataContainer
                     e.g., pathname, labels_list, etc. While writing single column or curve
                     of preallocated pds, labels_list can be specified to
@@ -437,103 +443,91 @@ class Open(_Open):
             )
             return
 
-        pdc = pdc_df_array
-        if isinstance(pdc, pd.DataFrame):
+        col_index = kwargs.pop("col_index",None)
+        if isinstance(pdc_df_array,PairedDataContainer):
+            super().put_pd(pdc_df_array)
+
+        if isinstance(pdc_df_array, pd.DataFrame):
             logging.info('Writing paired data from DataFrame')
-            pathname = kwargs["pathname"]
-            pdc = PairedDataContainer(**kwargs)
-            pdc.independent_axis = pdc_df_array.index.values
-            pdc.curves = pdc_df_array.values.T
-            pdc.curve_no = pdc.curves.shape[0]
-            pdc.data_no = pdc.curves.shape[1]
-            labels_list = [x.strip() for x in pdc_df_array.columns.tolist()]
+            df = pdc_df_array
+            pathname = kwargs.pop("pathname")
+            shape = df.shape
+
+            pdc = PairedDataContainer(pathname,shape,**kwargs)
+            pdc.x_data = df.index.values
+            pdc.y_data = df.values.T
+            y_labels = [x.strip() for x in df.columns.tolist()]
             try:
                 # if the column index is multilevel and contains level named 'labels'
-                labels_list = pdc_df_array.columns.get_level_values('labels').tolist()
-                labels_list = [x.strip() for x in labels_list]
+                y_labels = df.columns.get_level_values('labels').tolist()
+                y_labels = [x.strip() for x in y_labels]
             except:
                 pass
 
-            pdc.labels_list = labels_list
+            pdc.y_labels = y_labels
+            super().put_pd(pdc)
 
-        elif curve_index is not None:
+        elif col_index is not None:
             logging.info('Writing specific paired data curve to preallocated pairedata set')
-            pathname = kwargs["pathname"]
-            labels_list = kwargs.get("labels_list", [])
-            window = kwargs.get("window", None)
-
+            y_data = pdc_df_array
+            pathname = kwargs.pop("pathname")
+            window = kwargs.pop("window", None)
+            labels = kwargs.get("y_labels", [])
             size_info = self.pd_info(pathname)
-            total_ordinates = size_info["data_no"]
-            total_curves = size_info["curve_no"]
-            max_label_size = size_info["label_size"]
-            logging.debug(f'Allowed maximum length for label of a curve in this prealloc paired data is {max_label_size}')
+            rows = size_info["data_no"]
+            cols = size_info["curve_no"]
 
-            if not (curve_index >= 1 and curve_index <= total_curves):
-                logging.error("Curve index out of bounds.")
-                return
-
-            start_ord, end_ord = (1, total_ordinates)
+            row_start, row_end = (0, rows-1)
             if window:
-                start_ord, end_ord = window
-                if end_ord <= 0:
-                    end_ord = total_ordinates + end_ord
+                row_start, row_end = window
+                if row_end < 0:
+                    row_end = rows + row_end
                 if not (
-                    start_ord >= 1
-                    and end_ord <= total_ordinates
-                    and end_ord >= start_ord
+                    row_start >= 0
+                    and row_end < rows
+                    and row_end >= row_start
                 ):
                     logging.error("Ordinate indices of window out of bounds")
                     return
 
-            if isinstance(pdc_df_array, (array, list, tuple)):
-                pdc_df_array = np.array(pdc_df_array, np.float32)
-            elif isinstance(pdc_df_array, np.ndarray):
-                pass
-            else:
-                raise BaseException("Unsupported data provided")
+            if kwargs.pop('y_data',None) is not None:
+                raise ValueError('Duplicate entry of y_data for paired data')
 
-            # convert curve data to 2D array
-            pdc_df_array = np.reshape(pdc_df_array, [1, -1])
-            arr_size = pdc_df_array.size
-            if arr_size != end_ord - start_ord + 1:
-                logging.error("Incorrect size of array provided")
-                return
-            pdc = PairedDataContainer(pathname=pathname, labels_list=labels_list)
-            pdc.curves = pdc_df_array
-            super().put_one_pd(pdc, curve_index, (start_ord, end_ord), max_label_size)
-            return
+            x_data = kwargs.pop('x_data')
+            x_units = kwargs.pop('x_units','')
+            x_type = kwargs.pop('x_type','linear')
+            y_units = kwargs.pop('y_units','')
+            y_type = kwargs.pop('y_type','linear')
+            y_labels = kwargs.pop('y_labels',[])
+            #label_size = kwargs.pop('label_size',0) # ignore 
+            pdc = PairedDataContainer(pathname,shape, 
+                                      y_data=y_data,
+                                      x_data=x_data,
+                                      x_units=x_units,
+                                      x_type=x_type,
+                                      y_units=y_units,
+                                      y_type=y_type,
+                                      y_labels = y_labels,
+                                      )
+            super().put_one_pd(pdc, col_index, (row_start, row_end))
 
-        if not pdc.pathname.strip():
-            logging.error('Dss pathname is not provided')
-            return
-        
-        super().put_pd(pdc)
+        raise ValueError('Incompatible data for paired data can not be written to dss file')
+
 
     # @validate_call
     def preallocate_pd(
         self,
-        pdc_or_shape: Union[Tuple[int, int], "pd.DataFrame", "np.ndarray"],
+        pathname: Union[str, Path, PathLike,"DssPathName"],
+        shape: Union[List[int],Tuple[int]],
         **kwargs: Any,
     ) -> None:
-        # Each curve is allocated 12 characters by default if label_size is not specified
-        # Curves are labeled 1,2,3 ... by default
         if self.mode != "rw":
             logging.error(
                 "Open the dss file in 'rw' mode to be able to write data on it."
             )
             return
-
-        pdc = pdc_or_shape
-        if isinstance(pdc_or_shape, (list, tuple)):
-            pdc = PairedDataContainer(**kwargs)
-            pdc.data_no = pdc_or_shape[0]
-            pdc.curve_no = pdc_or_shape[1]
-            pdc.independent_axis = array("f", [i + 1 for i in range(pdc.data_no)])
-            if not pdc.labels_list:
-                pdc.labels_list = [str(i + 1) for i in range(pdc.curve_no)]
-        label_size = max(12, kwargs.get("label_size", 12))
-        #label_size = min(label_size,24)
-        super().prealloc_pd(pdc, label_size)
+        pdc = PairedDataContainer(pathname, shape, **kwargs)
+        super().prealloc_pd(pdc)
 
     # @validate_call
     def read_grid(

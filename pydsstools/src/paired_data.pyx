@@ -1,3 +1,8 @@
+cdef enum pdc_mode:
+    normal = 0
+    allocate = 1
+    one = 2
+
 cdef PairedDataStruct createPDS(zStructPairedData *zpds):
     """Creates paired-data struct
     
@@ -32,54 +37,6 @@ cdef class PairedDataStruct:
             zstructFree(self.zpds)
             #self.zpds=NULL
 
-    cpdef tuple _shape(self):
-        cdef:
-            int data_no = 0
-            int curve_no = 0
-
-        if self.zpds:
-            curve_no = self.zpds[0].numberCurves
-            data_no = self.zpds[0].numberOrdinates
-        return (data_no,curve_no)
-
-    cpdef tuple shape(self):
-        return (self.data_no(),self.curve_no())
-
-    cpdef int curve_no(self):
-        """
-        Returns
-        ------
-            int: the total number of curves i.e. no of rows
-        """
-        cdef:
-            int num = 0
-            int start_curve,end_curve
-
-        if self.zpds:
-            num = self.zpds[0].numberCurves
-            start_curve = self.zpds[0].startingCurve
-            if start_curve:
-                end_curve = self.zpds[0].endingCurve
-                num = end_curve - start_curve + 1
-
-        return num 
-    
-    cpdef int data_no(self):
-        """ 
-        Return
-            int: the total number of data per curve i.e. no of columns 
-        """
-        cdef:
-            int num = 0
-            int start_ord,end_ord
-        if self.zpds:
-            num = self.zpds[0].numberOrdinates
-            start_ord = self.zpds[0].startingOrdinate
-            if start_ord:
-                end_ord = self.zpds[0].endingOrdinate
-                num = end_ord - start_ord + 1
-
-        return num 
 
     def get_data(self):
         """Get paired data values
@@ -100,49 +57,44 @@ cdef class PairedDataStruct:
               column is column 1, not row 0 or column 0.        
         """
         cdef:
-            int rows = self.curve_no()
-            int cols = self.data_no()
-            view.array ca_view_x = view.array(shape=(1,cols), 
+            int rows = self.rows
+            int cols = self.cols
+            view.array ca_view_xdata = view.array(shape=(1,rows), 
                                             itemsize=sizeof(float),format='f',
                                             allocate_buffer=False)
 
-            view.array ca_view_curves = view.array(shape=(rows,cols),
+            view.array ca_view_ydata = view.array(shape=(cols,rows),
                                             itemsize=sizeof(float),format='f',
                                             allocate_buffer=False)
 
-        ca_view_x.data = <char *>(self.zpds[0].floatOrdinates)
-        ca_view_curves.data = <char *>(self.zpds[0].floatValues)
+        ca_view_xdata.data = <char *>(self.zpds[0].floatOrdinates)
+        ca_view_ydata.data = <char *>(self.zpds[0].floatValues)
         labels_list = self.labels
-        return ca_view_x,ca_view_curves,labels_list
+        return ca_view_xdata,ca_view_ydata,labels_list
 
     @property
-    def labels(self):
+    def x_data(self):
         cdef:
-            int labelsLength
-            int curve_no
-            bytes labels
+            int rows = self.rows
+            int cols = self.cols
+            view.array ca_view_xdata = view.array(shape=(1,rows), 
+                                            itemsize=sizeof(float),format='f',
+                                            allocate_buffer=False)
 
-        curve_no = self.curve_no()
-        label_list = ['' for i in range(curve_no)]
-
-        if self.zpds:
-            if self.zpds[0].labelsLength and self.zpds[0].labels:
-                labelsLength = self.zpds[0].labelsLength
-                labels = <bytes>self.zpds[0].labels[:labelsLength]
-                logging.debug("paired data raw labels = ({})".format(labels))
-                _label_list = labels.split(b"\x00")
-                _label_list = [x.decode().strip() for x in _label_list]
-                if _label_list and _label_list[-1] == "":
-                    _label_list = _label_list[:-1]
-                for i,label in enumerate(_label_list):
-                    label_list[i] = label    
-
-        return label_list
+        ca_view_xdata.data = <char *>(self.zpds[0].floatOrdinates)
+        return ca_view_xdata
 
     @property
-    def labels_list(self):
-        if self.labels:
-            return self.labels
+    def y_data(self):
+        cdef:
+            int rows = self.rows
+            int cols = self.cols
+            view.array ca_view_ydata = view.array(shape=(cols,rows),
+                                            itemsize=sizeof(float),format='f',
+                                            allocate_buffer=False)
+
+        ca_view_ydata.data = <char *>(self.zpds[0].floatValues)
+        return ca_view_ydata
 
     @property
     def data_type(self):
@@ -150,32 +102,97 @@ cdef class PairedDataStruct:
             return self.zpds[0].dataType
 
     @property
-    def row_count(self):
-        return self.data_no()        
+    def rows(self):
+        """ 
+        Return
+            int: the total number of data per curve i.e. no of columns 
+        """
+        cdef:
+            int count = 0
+            int row_start,row_end
 
-    @property
-    def curve_count(self):
-        return self.curve_no()        
-
-    @property
-    def independent_units(self):
         if self.zpds:
-            if self.zpds[0].unitsIndependent:
-                return self.zpds[0].unitsIndependent 
-        return ''
+            count = self.zpds[0].numberOrdinates
+            row_start = self.zpds[0].startingOrdinate
+            if row_start > 0:
+                row_end = self.zpds[0].endingOrdinate
+                count = row_end - row_start + 1
+
+        return count
+
+    @property
+    def cols(self):
+        """
+        Returns
+        ------
+            int: the total number of curves i.e. no of rows
+        """
+        cdef:
+            int count = 0
+            int col_start,col_end
+
+        if self.zpds:
+            count = self.zpds[0].numberCurves
+            col_start = self.zpds[0].startingCurve
+            if col_start > 0:
+                col_end = self.zpds[0].endingCurve
+                count = col_end - col_start + 1
+
+        return count 
+
+    @property
+    def shape(self):
+        return (self.rows,self.cols)
+    
+    @property
+    def row_start(self):
+        """ 
+        """
+        cdef:
+            int row_start
+
+        if self.zpds:
+            row_start = self.zpds[0].startingOrdinate -1
+            return row_start 
+
+    @property
+    def row_end(self):
+        """ 
+        """
+        cdef:
+            int row_end
+
+        if self.zpds:
+            row_end = self.zpds[0].endingOrdinate - 1
+            return row_end 
+
+    @property
+    def col_start(self):
+        """ 
+        """
+        cdef:
+            int col_start
+
+        if self.zpds:
+            col_start = self.zpds[0].startingCurve -1
+            return col_start 
+
+    @property
+    def col_end(self):
+        """ 
+        """
+        cdef:
+            int col_end
+
+        if self.zpds:
+            col_end = self.zpds[0].endingCurve - 1
+            return col_end 
 
     @property
     def x_units(self):
         if self.zpds:
             if self.zpds[0].unitsIndependent:
                 return self.zpds[0].unitsIndependent 
-        return ''
-
-    @property
-    def independent_type(self):
-        if self.zpds:
-            if self.zpds[0].typeIndependent:
-                return self.zpds[0].typeIndependent 
         return ''
 
     @property
@@ -186,315 +203,402 @@ cdef class PairedDataStruct:
         return ''
 
     @property
-    def dependent_units(self):
+    def y_units(self):
         if self.zpds:
             if self.zpds[0].unitsDependent:
                 return self.zpds[0].unitsDependent 
         return ''
 
     @property
-    def curve_units(self):
-        if self.zpds:
-            if self.zpds[0].unitsDependent:
-                return self.zpds[0].unitsDependent 
-        return ''
-
-    @property
-    def dependent_type(self):
+    def y_type(self):
         if self.zpds:
             if self.zpds[0].typeDependent:
                 return self.zpds[0].typeDependent 
         return ''
 
     @property
-    def curve_type(self):
+    def y_labels(self):
+        cdef:
+            int label_length
+            int col_start,col_end
+            list labels
+            bytes clabel
+
+        col_start = self.col_start
+        col_end = self.col_end
+        labels = ['' for i in range(col_start,col_end+1)]
+
         if self.zpds:
-            if self.zpds[0].typeDependent:
-                return self.zpds[0].typeDependent 
-        return ''
+            if self.zpds[0].labelsLength and self.zpds[0].labels:
+                label_length = self.zpds[0].labelsLength
+                clabel = <bytes>self.zpds[0].labels[:label_length]
+                logging.debug("paired data raw labels = ({})".format(clabel))
+                _labels = clabel.split(b"\x00")
+                _labels = [x.decode().strip() for x in _labels]
+                if _labels and _labels[-1] == "":
+                    _labels = _labels[:-1]
+                for i,label in enumerate(_labels):
+                    labels[i] = label    
+
+        return labels
 
 cdef class PairedDataContainer:
+    """PairedDataContainer(pathname,shape,**kwargs)
+
+    Create paired data container that can be written to dss file.
+    """
+
     cdef:
-        public str pathname
-        public int curve_no
-        public int data_no
-        public str independent_units
-        public str independent_type
-        public str dependent_units 
-        public str dependent_type
-        public list labels_list
-        public object curves
-        public object independent_axis
-        int storageFlag # 10 or 11
-        float [:] independent_axis_mv
-        float [:,::1] curves_mv # delete this after saving to dss
-        float *curves_ptr
-        readonly bytearray labels
-        int labelsLength
-        #public bytes null_separated_bytes       
+        str _pathname
+        tuple _shape
+        np.ndarray _xdata
+        str _xunits
+        str _xtype
+        np.ndarray _ydata
+        str _yunits
+        str _ytype
+        list _ylabels
+        int _ylabel_len
 
-    def __init__(self,**kwargs):
-        _pathname = kwargs.get('pathname','')
-        _curve_no = kwargs.get('curve_no',0) 
-        _labels_list = kwargs.get('labels_list',[])
-        _independent_units = kwargs.get('independent_units','feet')
-        _independent_type = kwargs.get('independent_type','linear')
-        _dependent_units = kwargs.get('dependent_units','feet')
-        _dependent_type = kwargs.get('dependent_type','linear')
-        self.pathname = _pathname
-        self.curve_no = _curve_no
-        self.labels_list = _labels_list
-        self.independent_units = _independent_units
-        self.independent_type = _independent_type
-        self.dependent_units =_dependent_units
-        self.dependent_type =_dependent_type
+        #public int curve_no
+        #public int data_no
+        #public str independent_units
+        #public str independent_type
+        #public str dependent_units 
+        #public str dependent_type
+        #public list labels_list
+        #public object curves
+        #public object independent_axis
 
-    cdef int setFloatData(self) except *:
+        int _storage_flag # 10 or 11
+        float[:] _xdata_mv
+        float* _ydata_ptr
+        float [:,::1] _ydata_mv
+        bytearray _ylabels_bytes
+        #int storageFlag # 10 or 11
+        #float [:] independent_axis_mv
+        #float [:,::1] curves_mv # delete this after saving to dss
+        #float *curves_ptr
+        #readonly bytearray labels
+        #int labelsLength
+
+    def __init__(self,pathname,shape,**kwargs):
+        """PairedDataContainer(pathname,shape,**kwargs)
+        
         """
-        """
-        #logging.debug("Setting floatValues")
-        if isinstance(self.curves,array.array):
-            if self.curves.typecode == 'f':
-                #self.floatValues=&self.curves_mv[0]
-                #self.curves_ca = 
-                raise "Python array input not implemented for Curve Array"
+        self.pathname = pathname
+
+        if not isinstance(shape,(list,tuple)) and len(shape) == 2:
+            raise TypeError(f"Expected list, tuple for shape argument, got {type(shape).__name__}")
+
+        if not (isinstance(shape[0],int) and isinstance(shape[1],int)):
+            raise TypeError(f"Expected int values 'shape', got {type(shape[0]).__name__}")
+
+        if not (shape[0] >=1 and shape[1]>=1):
+            raise TypeError(f"Expected positive values in shape, got {shape}")
+
+        self._shape = shape    
+
+        self.x_units = kwargs.pop("x_units",'')
+        self.x_type = kwargs.pop("x_type",'linear')
+
+        self.y_units = kwargs.pop("y_units",'')
+        self.y_type = kwargs.pop("y_type",'linear')
+
+        self.x_data = kwargs.pop('x_data',None)
+        self.y_data = kwargs.pop('y_data',None)
+
+        self.y_labels = kwargs.pop('y_labels',[])
+        self._ylabel_len = max(kwargs.pop('label_size',12),12)
+
+    @property
+    def pathname(self):
+        return self._pathname    
+
+    @pathname.setter
+    def pathname(self,value):
+        if isinstance(value, str):
+            self._pathname = value   
+        elif isinstance(value, DssPathName):
+            self._pathname = value.text()
+        else:
+            raise ValueError(f'Expected string or DssPathname for pathname, got {type(value).__name__}')        
+
+    @property
+    def shape(self):
+        return self._shape    
+
+    @property
+    def rows(self):
+        return self.shape[0]   
+
+    @property
+    def cols(self):
+        return self.shape[1]
+
+    @property
+    def x_data(self):
+        return self._xdata
+    
+    @x_data.setter
+    def x_data(self,data):
+        if data is not None:
+            if isinstance(data,array.array):
+                _xdata = np.asarray(data,np.float32)
+                
+            elif isinstance(data,np.ndarray):
+                _xdata = np.ascontiguousarray(data,dtype=np.float32)
+
+            elif isinstance(data,(list,tuple)):
+                _xdata = np.array(data,np.float32)
+
             else:
-                raise "Invalid Curve Array Values (must be 32 bit float)"
+                raise "Invalid Independent axis data container"  
 
-        elif isinstance(self.curves,np.ndarray):
-            if self.curves.ndim == 2: 
-                self.curves_mv =  np.ascontiguousarray(self.curves,dtype=np.float32)
-                '''
-                if self.curves.dtype==np.float32:
-                    self.curves_mv = self.curves
+            assert _xdata.shape[0] == self.rows, "Length of x_data or curves does not match the paired data shape[0]"
+
+            self._xdata = _xdata
+            self._xdata_mv = self._xdata    
+
+    @property
+    def x_units(self):
+        return self._xunits
+
+    @x_units.setter
+    def x_units(self,data):
+        self._xunits = data
+
+    @property
+    def x_type(self):
+        return self._xtype
+    
+    @x_type.setter
+    def x_type(self,data):
+        self._xtype = data
+
+    @property
+    def y_data(self):
+        return self._ydata
+
+    @y_data.setter
+    def y_data(self,data):
+        if data is not None:
+            if isinstance(data,np.ndarray):
+                if data.ndim == 2:
+                    _ydata = np.ascontiguousarray(data,dtype=np.float32)
                 else:
-                    self.curves_mv = self.curves.astype(np.float32)
-                '''
+                    raise BaseException("y_data must be 2 dimensional numpy array")
 
-                self.curves_ptr = &self.curves_mv[0,0]
+            elif isinstance(data,(list,tuple)):
+                _ydata = np.asarray(data,np.float32)
+                if _ydata.ndim == 1:
+                    _ydata =_ydata.reshape(1,-1)
+                elif _ydata.ndim > 2:    
+                    raise BaseException("y_data must be 2D array, list or tuple")
+
             else:
-                raise BaseException("Curves data must be 2 dimensional numpy array")
+                raise "Invalid y_data"  
 
-        else:
-            raise BaseException("Invalid Curve Data")
+            assert _ydata.shape[0] == self.cols, "Number of y_data or curves in y_data does not match the paired data shape[1]"
+            assert _ydata.shape[1] == self.rows, "Length of y_data or curves does not match the paired data shape[0]"
+            
+            self._ydata = _ydata
+            self._ydata_mv = self._ydata
+            self._ydata_ptr = &self._ydata_mv[0,0]    
 
-    cdef int setIndependentAxisValues(self) except *:
-        if isinstance(self.independent_axis,array.array):
-            self.independent_axis_mv = np.asarray(self.independent_axis,np.float32)
-        elif isinstance(self.independent_axis,np.ndarray):
-            self.independent_axis_mv = np.ascontiguousarray(self.independent_axis,dtype=np.float32)
-            '''
-            if self.independent_axis.dtype==np.float32:
-                self.independent_axis_mv = self.independent_axis
-            else:
-                self.independent_axis_mv = self.independent_axis_mv.astype(np.float32)
-            '''
-        elif isinstance(self.independent_axis,(list,tuple)):
-            self.independent_axis_mv = np.array(self.independent_axis,np.float32)
+    @property
+    def y_units(self):
+        return self._yunits
 
-        else:
-            raise "Invalid Independent axis data container"  
+    @y_units.setter
+    def y_units(self,data):
+        self._yunits = data
 
-    cdef int setLabels(self,int mode = -1,int label_size = 0) except *:
-        # label_size is necessary for preallocation of pd only
-        # 0 means default allocation
-        # positive value gives length of label characters per curve
+    @property
+    def y_type(self):
+        return self._ytype
+
+    @y_type.setter
+    def y_type(self,data):
+        self._ytype = data
+
+    @property
+    def y_labels(self):
+        return self._ylabels
+
+    @y_labels.setter
+    def y_labels(self,data):
+        if not isinstance(data,(list,tuple)):
+            raise TypeError(f"Expected list, tuple of string for y_labels argument, got {type(data).__name__}")
+
+        if not all(isinstance(x, str) for x in data):
+            raise ValueError("All elements of the y_labels must be strings")
+
+        labels = ['' for x in range(self.cols)]
+        for i,x in enumerate(data):
+            labels[i] = data[i]
+
+        self._ylabels = labels
+    
+    cdef set_clabels(self,pdc_mode mode,int curve_mode_ylabel_len=0):
         cdef:
-            int curve_no = self.curve_no # total number of pd curves
-            int total_label_size # length of character array allocated for pd  
-            int lists_list_length
+            int cols
+            str s
+            list label,labels,rev_labels
+            #bytearray label_byte_string
 
-        labels_list_length = len(self.labels_list) # not necessary for mode = 0 
+        cols = self.cols
+        labels = self.y_labels
+        label_byte_string = b''
 
-        if mode == 0:
-            # preallocate mode
-            # allocate the character array length for the labels!!
-            byte_labels = []
-            if labels_list_length == 0:
-                label_name = ' '*label_size
-                label_name = label_name.encode('ascii')
-                for i in range(curve_no):
-                    byte_labels.append(label_name)
+        if mode == pdc_mode.normal:
+            if all(s=='' for s in labels):
+                labels = []
+            if labels:
+                label_byte_string = "\x00".join([x.encode('ascii') for x in labels]) + b'\x00'
+        
+        elif mode == pdc_mode.allocate:
+            label_max_len = 0
+            for label in labels:
+                label_max_len = max(label_max_len,len(label))
+            label_max_len = max(label_max_len, self._ylabel_len)
 
-            else:
-                for i in range(curve_no):
-                    label_name = self.labels_list[i]
-                    label_name = '{0:<{1:d}s}'.format(label_name,label_size)[0:label_size]
-                    byte_labels.append(label_name.encode('ascii'))
+            rev_labels = []
+            for label in labels:
+                rev_label = '{0:<{1:d}s}'.format(label,label_max_len)
+                rev_labels.append(rev_label)
 
-            null_separated_bytes = b"\x00".join(byte_labels)+b"\x00"
-            # +1 for null byte separating the labels
-            #self.labels = bytearray([0]*total_label_size)
-            self.labels = bytearray(null_separated_bytes)
-            self.labelsLength = len(self.labels)
-
-        elif mode == 1:
-            # single curve to preallocated pd
-            if labels_list_length:
-                label_name = self.labels_list[0]
-                x = '{0:<{1:d}s}'.format(label_name,label_size)[0:label_size] 
-                if x:
-                    if isinstance(x,str):
-                        _x = x.encode('ascii')
-                    elif isinstance(x,bytes):
-                        _x=x
-                    else:
-                        __x = str(x)
-                        _x = __x.encode('ascii')
-
-                    null_separated_bytes = _x+b"\x00"
-                    byte_array = bytearray(null_separated_bytes)
-                    self.labels = byte_array
-                    self.labelsLength = len(byte_array)
-            else:
-                # Assigning labels does not makes sense, setting labelsLength = 0 should retain the current label
-                self.labels = bytearray(' '.encode('ascii')+b"\x00")
-                self.labelsLength = 0
-
-
+            if rev_labels:
+                label_byte_string = "\x00".join([x.encode('ascii') for x in rev_labels]) + b'\x00'
+        
         else:
-            #normal mode
-            byte_labels = []
-            if curve_no == labels_list_length:
-                for x in self.labels_list: 
-                    if isinstance(x,str):
-                        _x = x.encode('ascii')
-                    elif isinstance(x,bytes):
-                        _x=x
-                    else:
-                        __x = str(x)
-                        _x = __x.encode('ascii')
-                    byte_labels.append(_x)
+            if curve_mode_ylabel_len < 1:
+                raise ValueError('Length of label of curve in the preallocated paired data is either not specified or invalid')
 
-                null_separated_bytes = b"\x00".join(byte_labels)+b"\x00"
-                byte_array = bytearray(null_separated_bytes)
-                self.labels = byte_array
-                self.labelsLength = len(byte_array)
+            if labels:
+                label = '{0:<{1:d}s}'.format(labels[0],curve_mode_ylabel_len)[0:curve_mode_ylabel_len]
+                label_byte_string = label.encode('ascii') + b'\x00'
 
-            else:
-                print("WARN: number of labels does not match total curves")
+        self._ylabel_bytes = bytearray(label_byte_string)        
 
 
-    cdef int setValues(self,int mode = -1, int label_size = 0) except *:
-        """
-        mode
-        -----
-            preallocate = 0, 
-            one curve to save in already preallocated pd = 1,
-            normal = any integer except the above values
-
-        """
-
-        if mode == 0:
-            # preallocate pd to store curves later
-            # Requirements:
-            #   pathname
-            #   curve_no
-            #   data_no
-            #   independent_axis_mv
-            #   independent_units    
-            #   independent_type    
-            #   dependent_units    
-            #   dependent_type    
-            assert self.curve_no >=1 and self.data_no >=1, "curve_no and data_no must be > 0"
-            self.setLabels(mode=0, label_size = label_size)
-
-        elif mode == 1:
-            # Save one curve on the preallocated/normal dataset
-            self.setFloatData()
-            self.setLabels(mode=1,label_size = label_size)
-
-        else:
-            # normal pd
-            assert self.curve_no >=1 and self.data_no >=1, "curve_no and data_no must be > 0"
-            self.setFloatData()
-            assert (self.curve_no * self.data_no) == self.curves_mv.size
-            self.setLabels(mode=-1)
-
-        if not mode == 1:
-            # Except for mode ==1, set the independent axis C array
-            self.setIndependentAxisValues()
-            assert len(self.independent_axis_mv) == self.data_no
-        return 0
-
-
-cdef PairedDataStruct preallocNewPairedData(PairedDataContainer pdc):
+cdef PairedDataStruct write_allocate_pdata(PairedDataContainer pdc):
     cdef:
         zStructPairedData *zpds=NULL
         PairedDataStruct pd_st
-        char *pathname = pdc.pathname
-        float *independent_axis = &pdc.independent_axis_mv[0]
-        int data_no = pdc.data_no
-        int curve_no = pdc.curve_no
-        char *independent_units = pdc.independent_units
-        char *independent_type = pdc.independent_type
-        char *dependent_units = pdc.dependent_units
-        char *dependent_type = pdc.dependent_type
+        char *pathname = pdc._pathname
+        float *x_data
+        int rows = pdc.rows
+        int cols = pdc.cols
+        int label_length
+        char *x_units = pdc._xunits
+        char *x_type = pdc._xtype
+        char *y_units = pdc._yunits
+        char *y_type = pdc._ytype
 
+    if pdc.x_data is None:
+        raise ValueError('x_data for pair data is None')
+
+    x_data = &pdc._xdata_mv[0]
+    
     zpds = zstructPdNew(pathname)
-    zpds[0].numberCurves = curve_no
-    zpds[0].numberOrdinates = data_no
-    zpds[0].floatOrdinates = independent_axis
+    zpds[0].numberCurves = cols
+    zpds[0].numberOrdinates = rows
+    zpds[0].floatOrdinates = x_data
     zpds[0].doubleOrdinates = NULL
-    zpds[0].unitsIndependent = independent_units
-    zpds[0].typeIndependent = independent_type
-    zpds[0].unitsDependent = dependent_units
-    zpds[0].typeDependent = dependent_type
+    zpds[0].unitsIndependent = x_units
+    zpds[0].typeIndependent = x_type
+    zpds[0].unitsDependent = y_units
+    zpds[0].typeDependent = y_type
 
-    # additional check
-    if pdc.labelsLength>0:
-        zpds[0].labelsLength = pdc.labelsLength
-        zpds[0].labels = <char *>pdc.labels
+    if pdc._ylabels_bytes is not None:
+        label_length = len(pdc._ylabels_bytes)
+        zpds[0].labelsLength =label_length
+        zpds[0].labels = <char *>pdc._ylabels_bytes
+
     pd_st = createPDS(zpds)
+
     return pd_st
 
-cdef PairedDataStruct createOnePairedData(long long *ifltab,PairedDataContainer pdc,int curve_index,int start_ord_index=0,int end_ord_index=0):
+cdef PairedDataStruct write_one_pdata(long long *ifltab,PairedDataContainer pdc,int col_index,int row_start=-1,int row_end=-1):
+    '''
+
+    column and row index are 0 based on python side while it is 1 based on the c code
+
+    '''
     cdef:
         zStructPairedData *zpds=NULL
         PairedDataStruct pd_st
-        char *pathname = pdc.pathname
-        float *curves = pdc.curves_ptr
+        char *pathname = pdc._pathname
+        float *y_data = NULL
+
+    if pdc.y_data is None:
+        raise ValueError('y_data for pair data is None')
+
+    if pdc.ydata.shape[0] > 1 or pdc.y_data.shape[1] > pdc.rows:
+        raise ValueError('y_data is not valid for writing single paired data curve')    
+
+    if row_start == -1 and row_end == -1:
+        # writes full curve or column data
+        pass
+    elif row_start < 0 or row_end > pdc.rows - 1:
+        raise ValueError('row index for paired data is out of range')
+
+    col_index += 1
+    row_start += 1
+    row_end += 1
+    y_data = pdc._ydata_ptr    
 
     zpds = zstructPdNew(pathname)
-    zpds[0].startingCurve = curve_index
-    zpds[0].endingCurve = curve_index
-    if start_ord_index:
-        zpds[0].startingOrdinate = start_ord_index
-        zpds[0].endingOrdinate = end_ord_index
-
-        
-    zpds[0].floatValues  = curves
+    zpds[0].startingCurve = col_index
+    zpds[0].endingCurve = col_index
+    zpds[0].startingOrdinate = row_start
+    zpds[0].endingOrdinate = row_end
+    zpds[0].floatValues  = y_data
     zpds[0].floatOrdinates = NULL
     zpds[0].doubleOrdinates = NULL
     zpds[0].doubleValues  = NULL
-    if pdc.labelsLength>0:
-        zpds[0].labels=<char *>pdc.labels
-        zpds[0].labelsLength = pdc.labelsLength
+
+    if pdc._ylabels_bytes is not None:
+        label_length = len(pdc._ylabels_bytes)
+        zpds[0].labelsLength = label_length
+        zpds[0].labels = <char *>pdc._ylabels_bytes
 
     pd_st = createPDS(zpds)
     return pd_st
     
-cdef PairedDataStruct createNewFloatPairedData(PairedDataContainer pdc):
+cdef PairedDataStruct write_normal_pdata(PairedDataContainer pdc):
     cdef:
         zStructPairedData *zpds=NULL
         PairedDataStruct pd_st
-        char *pathname = pdc.pathname
-        float *independent_axis = &pdc.independent_axis_mv[0]
-        float *curves = pdc.curves_ptr
-        int data_no = pdc.data_no
-        int curve_no = pdc.curve_no
-        char *independent_units = pdc.independent_units
-        char *independent_type = pdc.independent_type
-        char *dependent_units = pdc.dependent_units
-        char *dependent_type = pdc.dependent_type
+        char *pathname = pdc._pathname
+        float *x_data
+        float *y_data
+        int rows = pdc.rows
+        int cols = pdc.cols
+        int label_length
+        char *x_units = pdc._xunits
+        char *x_type = pdc._xtype
+        char *y_units = pdc._yunits
+        char *y_type = pdc._ytype
 
-    zpds = zstructPdNewFloats(pathname, independent_axis, curves, data_no,
-                              curve_no, independent_units, independent_type,
-                              dependent_units, dependent_type)
-    # additional check
-    if pdc.labelsLength>0:
-        zpds[0].labelsLength = pdc.labelsLength
-        zpds[0].labels = <char *>pdc.labels
+    if pdc.y_data is None:
+        raise ValueError('y_data for pair data is None')
+
+    if pdc.x_data is None:
+        raise ValueError('x_data for pair data is None')
+
+    x_data = &pdc._xdata_mv[0]
+    y_data = pdc._ydata_ptr    
+
+    zpds = zstructPdNewFloats(pathname, x_data, y_data, rows,
+                              cols, x_units, x_type,
+                              y_units, y_type)
+
+    if pdc._ylabels_bytes is not None:
+        label_length = len(pdc._ylabels_bytes)
+        zpds[0].labelsLength = label_length
+        zpds[0].labels = <char *>pdc._ylabels_bytes
 
     pd_st = createPDS(zpds)
     return pd_st
