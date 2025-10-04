@@ -78,11 +78,27 @@ cdef extern from "heclib.h":
     int getDateAndTime(int timeMinOrSec, int timeGranularitySeconds, int julianBaseDate, char *dateString, 
                        int sizeOfDateString, char *hoursMins, int sizeofHoursMins)
     int yearMonthDayToJulian (int year, int month, int day)
+    int julianToYearMonthDay (int julian, int *year, int *month, int *day)
     void getDateTimeString(int julian, char *dateString, 
                            size_t sizeofDateString, int dateStyle,
                         int secondsPastMidnight, char *timeString, 
                             size_t sizeofTimeString, int timeStyle)
-                            
+    int yearMonthDayToDate(int year, int month, int day, int style, char *dateString, size_t lenDateString)                       
+    int addCentury(int year)
+    int isLeapYear (int year)
+    int dateToYearMonthDay(const char *dateString, int *year, int *month, int *day)
+    int dayOfWeek(int julian)
+    int incrementTime(int intervalSeconds, int numberPeriods, int julianStart, int secondsStart, int *julianEnd, int *secondsEnd)
+    void minutesToHourMin(int minutes, char *hoursMins, size_t lenHoursMins)
+    int numberPeriods(int intervalSeconds, 
+                    int julianStart, int secondsStart, 
+                    int julianEnd, int secondsEnd)
+    void secondsToTimeString(int secondsPastMidnight, int millsPastSecond, int timeStyle,
+                            char *timeString, size_t sizeofTimeString)
+    float timeStringToSecondsMills(const char *timeString)
+    int cleanTime(int *julianDate, int *itime, int timeGranularitySeconds)
+
+
 cdef extern from "heclib.h":
     int hec_dss_zopen(long long *ifltab, const char *dssFilename)
     int zopen6(long long *ifltab, const char *dssFilename)
@@ -137,6 +153,16 @@ cdef extern from "heclib.h":
                                                    const char *startTime, 
                                                    const char *units, 
                                                    const char *type)
+
+    zStructTimeSeries *zstructTsNewIrregFloats(const char* pathname,
+                                               float *floatValues,
+                                               int numberValues,
+                                               int *itimes, 
+                                               int minSecFlag,
+                                               const char* startDateBase, 
+                                               const char *units, 
+                                               const char *type)
+
     zStructTimeSeries *zstructTsNewIrregDoubles(const char* pathname,
                                                       double *doubleValues,
                                                       int numberValues,

@@ -132,7 +132,7 @@ cdef class Open:
 
         tss = createTSS(ztss)
         return tss 
-
+    """
     cpdef TimeSeriesStruct put(self,TimeSeriesContainer tsc,int storageFlag=0):
         cdef:
             TimeSeriesStruct ts_st
@@ -147,6 +147,20 @@ cdef class Open:
         self.write_status = ztsStore(self.ifltab,tss,storageFlag)
         isError(self.write_status) 
         return ts_st
+    """
+    cpdef void put(self,TimeSeriesContainer tsc,int storageFlag=0):
+        cdef:
+            TimeSeriesStruct ts_st
+            zStructTimeSeries *tss
+            int status
+        ts_st = tsc.create_tss()
+        tss = ts_st.tss
+        if tss == NULL:
+            logging.error("Failed to write time-series")
+            return
+        self.write_status = ztsStore(self.ifltab,tss,storageFlag)
+        isError(self.write_status)
+        #return self.write_status
 
     cpdef int copyRecordsFrom(self,Open copyFrom,str pathnameFrom,str pathnameTo="") except *:
         cdef int status

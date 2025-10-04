@@ -8,9 +8,13 @@ DATA = Path(__file__).parent / "data"
 
 @pytest.fixture
 def fidB():
-    fid = HecDss.Open(os.path.join(DATA,"sampleB.dss"))
+    fid = HecDss.Open(os.path.join(DATA,"sampleB.dss"),"r")
     return fid
 
+@pytest.fixture
+def fidC():
+    fid = HecDss.Open(os.path.join(DATA,"sampleC.dss"),mode="rw")
+    return fid
 
 def test_read_hrap(fidB):
     pathname = r"/HRAP/MARFC/PRECIP/23JUL2003:0000/23JUL2003:0100/ZLIB-VER0/"

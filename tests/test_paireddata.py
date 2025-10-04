@@ -8,14 +8,18 @@ DATA = Path(__file__).parent / "data"
 
 @pytest.fixture
 def fidA():
-    fid = HecDss.Open(os.path.join(DATA,"sampleA.dss"))
+    fid = HecDss.Open(os.path.join(DATA,"sampleA.dss"),mode="r")
     return fid
 
 @pytest.fixture
 def fidB():
-    fid = HecDss.Open(os.path.join(DATA,"sampleB.dss"))
+    fid = HecDss.Open(os.path.join(DATA,"sampleB.dss"),mode="r")
     return fid
 
+@pytest.fixture
+def fidC():
+    fid = HecDss.Open(os.path.join(DATA,"sampleC.dss"),mode="rw")
+    return fid
 
 def test_read_paireddata(fidA):
     pathname = r"/PAIREDDATA/COWLITZ/FREQ-FLOW////"
@@ -30,10 +34,10 @@ def test_read_paireddata(fidA):
     assert index == pytest.approx(ex_index)
     assert y0 == pytest.approx(ex_y0)
 
-def test_write_paireddata(fidA):
+def test_write_paireddata(fidC):
     pathname = r"/PAIREDDATA/TEST/FREQ-FLOW///WRITE1/"
 
-def _test_prealloc_paireddata(fidA):
+def _test_prealloc_paireddata(fidC):
     pathname = r"/PAIREDDATA/TEST/FREQ-FLOW///WRITE2/"
     rows = 10
     cols = 5

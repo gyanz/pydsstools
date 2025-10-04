@@ -88,6 +88,7 @@ Thumbs.db
 *.dta
 *.xpt
 *.h5
+tests/data/sampleC.dss
 
 
 # Generated Sources #
