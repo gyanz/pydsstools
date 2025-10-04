@@ -169,42 +169,41 @@ class Open(_Open):
                 pathname, retrieve_flag, boolRetrieveAllTimes=retrieve_all
             )
 
-        startdate, enddate = window
-        if isinstance(startdate, str):
-            startdate = HecTime.getPyDateTimeFromString(startdate)
-        elif not isinstance(startdate, datetime):
-            logging.error("startdate is not string or datetime object")
-            return
+        start_date, end_date = window
+        sdate = HecTime(start_date)
+        edate = HecTime(end_date,midnight_as_2400=True)
+        #if isinstance(startdate, str):
+        #    startdate = HecTime.getPyDateTimeFromString(startdate)
+        #elif not isinstance(startdate, datetime):
+        #    logging.error("startdate is not string or datetime object")
+        #    return
 
-        if isinstance(enddate, str):
-            enddate = HecTime.getPyDateTimeFromString(enddate)
-        elif not isinstance(enddate, datetime):
-            logging.error("enddate is not string or datetime object")
-            return
+        #if isinstance(enddate, str):
+        #    enddate = HecTime.getPyDateTimeFromString(enddate)
+        #elif not isinstance(enddate, datetime):
+        #    logging.error("enddate is not string or datetime object")
+        #    return
 
-        sday = startdate.strftime("%d%b%Y")
-        stime = startdate.strftime("%H:%M:%S")
-        eday = enddate.strftime("%d%b%Y")
-        etime = enddate.strftime("%H:%M:%S")
+        #sday = startdate.strftime("%d%b%Y")
+        #stime = startdate.strftime("%H:%M:%S")
+        #eday = enddate.strftime("%d%b%Y")
+        #etime = enddate.strftime("%H:%M:%S")
+        sday = sdate.date()
+        stime = sdate.time(2)
+        eday = edate.date()
+        etime = edate.time(2)
 
         return super().read_window(pathname, sday, stime, eday, etime, retrieve_flag)
 
     # @validate_call
     def put_ts(
-        self, tsc: "TimeSeriesContainer", prevent_overflow: Optional[bool] = True
+        self, tsc: "TimeSeriesContainer"
     ) -> None:
         """Write time-series
 
         Parameter
         ---------
             tsc: TimeSeriesContainer
-
-            prevent_overflow: bool, default True, applies to irregular time-series only
-                  times are int32 values with origin (or Julian Base date) at 01Jan1900 00:00:00,
-                  and can overflow for large/extreme dates or small granularity. To prevent int32 overflow,
-                  the supplied minimum date is used as the origin. This may still overflow if
-                  extreme dates are supplied. In such case, write time-series data one at a time or
-                  in a group with less extreme date variation.
 
         Returns
         --------
@@ -223,87 +222,18 @@ class Open(_Open):
 
         if tsc.interval > 0:
             # Regular time-series
-            if not len(tsc.values) == tsc.count:
-                logging.error(
-                    "numberValues attribute of TimeSeriesContainer not equal to length of values"
-                )
-                return
-            # check start datetime format
-            sdate = tsc.start_datetime
-            try:
-                sdate = HecTime(sdate, tsc.granularity)
-            except:
-                logging.warning(
-                    "Start datetime of regular time-series ({}) may be incorrect".format(
-                        tsc.start_datetime
-                    )
-                )
-            else:
-                sdate = sdate._toString(end_of_day=False)
-                tsc.start_datetime = sdate
-            super().put(tsc)
+            if not tsc.start_time:
+                raise ValueError("Start date/time for regular timeseries container is not provided")
 
         else:
             # Irregular time-series
-            times = tsc.times
-            times_copy = copy(times)
-            values_copy = copy(tsc.values)
-            julianbasedate = 0
-            time_values = []
+            if tsc.times is None:
+                raise ValueError("Times for regular irregular timeseries container is not provided")
 
-            if times is None or not len(times):
-                logging.error(
-                    "times for irregular time-series is not non-empty list, tuple, or array"
-                )
-                return
+        if tsc.values is None:
+            raise ValueError("Values for timeseries container is not provided")
 
-            if not (tsc.count == len(times)):
-                logging.error("times does not have correct number of elements")
-                return
-
-            if not isinstance(times[0], (str, datetime)):
-                logging.error(
-                    "times element must be datetime string or python datetime object"
-                )
-                return
-
-            """
-            if tsc.granularity == 1:
-                # TODO: Implement more restrictions with second granularity
-                pathobj=DssPathName(tsc.pathname)
-                epart = pathobj.getEPart().strip().upper()
-                if epart in ['IR-MONTH','IR-YEAR','IR-DECADE','IR-CENTURY']:
-                    logging.error('Granularity must be minute or larger')
-                    return
-            """
-
-            if isinstance(times[0], str) and prevent_overflow:
-                times = [HecTime.getPyDateTimeFromString(x) for x in times]
-
-            if isinstance(times[0], datetime):
-                min_date = min(times)
-                _julianbasedate = min_date.strftime("%d%b%Y")
-                julianbasedate = HecTime.getJulianDaysFromDate(_julianbasedate)
-                tsc._startDateBase = _julianbasedate
-
-            for i in range(tsc.numberValues):
-                tm = HecTime(times[i], tsc.granularity, julianbasedate)
-                time_values.append(tm.datetimeValue)
-
-            values = tsc.values
-            try:
-                values = values.tolist()
-            except:
-                pass
-            key_val = sorted(zip(time_values, values), key=lambda x: x[0])
-
-            try:
-                tsc.times = [t for t, v in key_val]
-                tsc.values = [v for t, v in key_val]
-                super().put(tsc)
-            finally:
-                tsc.times = times_copy
-                tsc.values = values_copy
+        super().put(tsc)
 
     # @validate_call
     def read_pd(

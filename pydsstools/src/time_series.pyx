@@ -47,20 +47,6 @@ cdef class TimeSeriesStruct:
     def __cinit__(self,*arg,**kwargs):
         self.tss=NULL
 
-    cdef int get_number(self):
-        cdef int num
-        num = self.tss[0].numberValues
-        return num 
-
-    def get_times(self,array_length):
-        cdef: 
-            int length = array_length
-            view.array mview = view.array(shape=(length,), 
-                                            itemsize=sizeof(int),format='i',
-                                            allocate_buffer=False)
-        mview.data = <char *>(self.tss[0].times)
-        return np.asarray(mview)
-
     def get_values(self,array_length):
         cdef: 
             int length = array_length
@@ -85,6 +71,7 @@ cdef class TimeSeriesStruct:
 
     def __dealloc__(self):
         if self.tss:
+            logging.debug("Freeing timeseries struct")
             zstructFree(self.tss)
 
     @property
@@ -95,10 +82,10 @@ cdef class TimeSeriesStruct:
             # Total number of records/data in the time-series.
             # None when the time-series is empty or invalid. 
         """
-        cdef int num
+        cdef int num = 0
         if self.tss:
-            num = self.get_number()
-            return num 
+            num = self.tss[0].numberValues
+        return num 
 
     @property
     def times(self):
@@ -132,94 +119,34 @@ cdef class TimeSeriesStruct:
             
         """
         cdef:
-            int num
-            int interval,granularity
-            list reg_times
-            int i,time_sum_int
-            float time_sum_float
+            int num = self.count
+            int interval
+            int granularity
+            np.ndarray values
+            HecTime htime
+            int i,x
+            view.array mview = view.array(shape=(num,), 
+                                            itemsize=sizeof(int),format='i',
+                                            allocate_buffer=False)
 
         if self.tss:
             interval = self.interval #seconds
-            num = self.get_number()
             if interval <= 0:
-                return self.get_times(num).tolist()
-            else:
                 granularity = self.granularity
-                logging.debug('Computing times for regular time-series (granularity = %r second, startJulianDate = %r, startTimeSeconds = %r ):'%(granularity, self.tss[0].startJulianDate, self.tss[0].startTimeSeconds))
-                logging.debug('Number of seconds each unit of time value = %r',granularity)
-                start_date = self.start_datetime
-                start_date = HecTime(start_date,1, self.tss[0].startJulianDate)
-                result = {"start_datetime":start_date,"interval_seconds":interval, "freq":{}}
+                mview.data = <char *>(self.tss[0].times)
+                values = np.asarray(mview)
+                for i in range(num):
+                    x = values[i]
+                    htime = HecTime(x,granularity=granularity,julian_base=self.tss[0].julianBaseDate)
+                    yield htime
 
-                # NOTE: DSSVue exclusively supports the specific intervals listed below. 
-                # I believe the HEC-DSS library also exclusively supports these intervals. 
-                # Therefore, despite the appearance of broader interval support in the code below, 
-                # using a DSS record with any other interval will probably result in an error. 
-                # Minute = 1-6,10,12,15,20,30
-                # Hour = 1-4,6,8,12
-                # Day = 1
-                # Week = 1
-                # Month = tri, semi, 1
-                # Year = 1
-
-                if interval % (365*24*60*60) == 0:
-                    # multiple of years
-                    years = interval // (365*24*60*60)
-                    result["freq"] = {"years":years}
-
-                elif interval % (30*24*60*60) == 0:
-                    # multiple of months
-                    months = interval // (30*24*60*60)
-                    result["freq"] = {"months":months}
-
-                elif interval % (7*24*60*60) == 0:
-                    # multiple of weeks
-                    weeks = interval // (7*24*60*60)
-                    result["freq"] = {"weeks":weeks}
-
-                elif interval % (24*60*60) == 0:
-                    # multiple of days 
-                    days = interval // (24*60*60)
-                    result["freq"] = {"days":days}
-
-                elif interval % (60*60) == 0:
-                    # multiple of hours 
-                    hours = interval // (60*60)
-                    result["freq"] = {"hours":hours}
-
-                elif interval % 60 == 0:
-                    # multiple of minutes 
-                    mins = interval // 60
-                    result["freq"] = {"minutes":mins}
-                
-                else:
-                    result["freq"] = {"seconds":interval}
-
-                return result
-
-    @property
-    def pytimes(self):
-        cdef:
-            list datetimes
-            object times
-            int interval,granularity,num
-        if self.tss:
-            num = self.get_number()
-            interval = self.interval
-            times = self.times
-            
-            if times:
-                if interval <= 0:
-                    granularity = self.granularity
-                    datetimes = [getPyDateTimeFromValue(x,granularity,self.tss[0].julianBaseDate) for x in times]    
-                else:
-                    freq = times['freq']
-                    start_date = times['start_datetime'].python_datetime
-                    datetimes = [start_date]
-                    for i in range(1,num):
-                        new_date = datetimes[-1] + relativedelta(**freq)
-                        datetimes.append(new_date)
-                return datetimes
+            else:
+                # HecTime
+                htime = self.start_time.clone()
+                for i in range(num):
+                    yield htime
+                    htime = htime.clone()
+                    htime.add_time(interval,1) 
 
 
     @property
@@ -244,7 +171,7 @@ cdef class TimeSeriesStruct:
         """
         cdef int num
         if self.tss:
-            num = self.get_number()
+            num = self.count
             if self.tss[0].floatValues:
                 return self.get_values(num)
             elif self.tss[0].doubleValues:
@@ -340,38 +267,20 @@ cdef class TimeSeriesStruct:
             return self.tss[0].timeGranularitySeconds
 
     @property
-    def start_datetime(self):
+    def start_time(self):
         if self.tss:
-            return " ".join(_getDateAndTime(self.tss[0].startTimeSeconds, 1, self.tss[0].startJulianDate))
+            #return " ".join(_getDateAndTime(self.tss[0].startTimeSeconds, 1, self.tss[0].startJulianDate))
+            #return "{} {}".format(HecTime._datetime_from_value(self.tss[0].startTimeSeconds,1,self.tss[0].startJulianDate))
+            htime = HecTime(self.tss[0].startTimeSeconds, granularity = 1, julian_base = self.tss[0].startJulianDate, midnight_as_2400 = False)
+            return htime
             
     @property
-    def end_datetime(self):
+    def end_time(self):
         if self.tss:
-            return " ".join(_getDateAndTime(self.tss[0].endTimeSeconds, 1, self.tss[0].endJulianDate))
-
-    @property
-    def start_pydatetime(self):
-        """Returns start date and time of the time-series
-
-        Returns
-        -------
-            # Python datetime object
-    
-        """
-        if self.tss:
-            return getPyDateTimeFromValue(self.tss[0].startTimeSeconds, 1, self.tss[0].startJulianDate)        
-
-    @property
-    def end_pydatetime(self):
-        """Returns end date and time of the time-series
-
-        Returns
-        -------
-            # Python datetime object
-    
-        """
-        if self.tss:
-            return getPyDateTimeFromValue(self.tss[0].endTimeSeconds, 1, self.tss[0].startJulianDate)        
+            #return " ".join(_getDateAndTime(self.tss[0].endTimeSeconds, 1, self.tss[0].endJulianDate))
+            #return "{} {}".format(HecTime._datetime_from_value(self.tss[0].endTimeSeconds,1,self.tss[0].endJulianDate))
+            htime = HecTime(self.tss[0].endTimeSeconds, granularity = 1, julian_base = self.tss[0].endJulianDate, midnight_as_2400 = True)
+            return htime
 
     @property
     def interval(self):
@@ -399,176 +308,258 @@ cdef class TimeSeriesStruct:
         return timezone        
 
     @property
-    def _julian_base_date(self):
-        if self.tss:
-            return {'julianBaseDate':self.tss[0].julianBaseDate, 'startJulianDate':self.tss[0].startJulianDate}        
+    def julian(self):
+        if self.interval <= 0:
+            return self.tss[0].julianBaseDate
+        
+        else:
+            return (self.tss[0].startJulianDate,self.tss[0].endJulianDate)
+
 
 cdef class TimeSeriesContainer:
     cdef:
-        public str pathname
-        public int interval
-        public int granularity
-        public int count 
-        public object times
-        public str start_datetime
-        public str data_units
-        public str data_type
-        public str tzid
-        public str _startDateBase #for overflowing time in irregular time-series TODO
-        object _values
-        float *floatValues
-        double *doubleValues
-        float [:] float_mv
-        double [:] double_mv
-        void *Values
-        int [:] int_mv
-        int *intTimes
-        object _timezone_bytes
-        char *timeZoneName
+        str _pathname
+        int _count
+        int _interval
+        int _granularity
+        np.ndarray _values
+        np.ndarray _times
+        HecTime _start_time
+        HecTime _julian_base
+        str _data_units
+        str _data_type
+        object _tzid
 
-    def __init__(self,**kwargs):
-        _pathname = kwargs.get('pathname','')
-        _interval = kwargs.get('interval',1) # regular tsc by default
-        _granularity = kwargs.get('granularity',60)
-        __values = kwargs.get('values',None) 
-        _times = kwargs.get('times',None) 
-        _data_units = kwargs.get('data_units','')
-        _data_type = kwargs.get('data_type','')
-        _tzid = kwargs.get('tzid','')
-        _start_datetime = kwargs.get('start_datetime','')
+        float[:] _values_mv
+        float* _values_ptr
+        int[:] _times_mv
+        int* _times_ptr
+        char *_ctzid
 
-        self.pathname =_pathname 
-        self.interval = _interval
-        self.granularity = _granularity
-        self._values =  __values
-        self.times =  _times
-        self.data_units = _data_units
-        self.data_type = _data_type
-        self.start_datetime= _start_datetime
-        self.tzid = _tzid
-        self._timezone_bytes = _tzid.encode('ascii')
-        self.timeZoneName = PyBytes_AS_STRING(self._timezone_bytes)
-        self._startDateBase=''
+    def __init__(self,pathname,count,interval,**kwargs):
 
-    cdef int setFloatValues(self):
-        """ Used by setValues member function to set Regular time-series values
-        """
-        logging.debug("Setting floatValues")
-        if isinstance(self._values,array.array):
-            if self._values.typecode == 'f':
-                self.float_mv = self._values
-                self.floatValues=&self.float_mv[0]
-            else:
-                self.setPyListType('f')
+        self.pathname = pathname
+        self.count = count
+        self.interval = interval
+        #self.start_time = kwargs.pop("start_time","31DEC1899:0000")    
+        self.data_units = kwargs.pop("data_units","")    
+        self.data_type = kwargs.pop("data_type","")    
+        self.tzid = kwargs.pop("tzid","")    
+        self.julian_base = kwargs.pop("julian_base",HecTime("31DEC1899:0000",granularity=60))    
+        #self._timezone_bytes = _tzid.encode('ascii')
+        #self.timeZoneName = PyBytes_AS_STRING(self._timezone_bytes)
+        #self._startDateBase=''
 
-        elif isinstance(self._values,(list,tuple)):
-            self.setPyListType('f')
+    @property
+    def pathname(self):
+        return self._pathname    
 
-        elif isinstance(self._values,np.ndarray):
-            if self._values.dtype==np.float32:
-                self.float_mv = self._values
-                self.floatValues=&self.float_mv[0]
-            else:
-                self.float_mv = self._values.astype(np.float32)
-                self.floatValues=&self.float_mv[0]
-
+    @pathname.setter
+    def pathname(self,value):
+        if isinstance(value, str):
+            self._pathname = value   
+        elif isinstance(value, DssPathName):
+            self._pathname = value.text()
         else:
-            raise "Invalid Values"
+            raise ValueError(f'Expected string or DssPathname for pathname, got {type(value).__name__}')        
 
-        self.doubleValues=NULL
+    @property
+    def count(self):
+        return self._count
 
-    cdef int setDoubleValues(self):
-        """ Used by setValues member function to set Irregular time-series values
-        """
-        logging.debug("Setting doubleValues")
-        if isinstance(self._values,array.array):
-            if self._values.typecode == 'd':
-                self.double_mv = self._values
-                self.doubleValues=&self.double_mv[0]
-            else:
-                self.setPyListType('d')
+    @count.setter
+    def count(self,count):
+        if not isinstance(count,int):
+            raise TypeError(f"Expect integer value for length of values, got {type(count).__name__}")
 
-        elif isinstance(self._values,(list,tuple)):
-            self.setPyListType('d')
-
-        elif isinstance(self._values,np.ndarray):
-            if self._values.dtype==np.float64:
-                self.double_mv = self._values
-                self.doubleValues=&self.double_mv[0]
-            else:
-                self.double_mv = self._values.astype(np.float64)
-                self.doubleValues=&self.double_mv[0]
-
-        else:
-            raise "Invalid Values"
-
-        self.floatValues=NULL
-
-    cdef int setPyListType(self,type_code='f'):
-        if type_code == 'f':
-            self.float_mv = array.array(type_code,self._values)
-            self.floatValues=&self.float_mv[0]
-        elif type_code == 'd':
-            self.double_mv = array.array(type_code,self._values)
-            self.doubleValues=&self.double_mv[0]
-        else:
-            pass
+        if count <=0:
+            raise ValueError(f"Length of values cannot be zero or less")
         
-    cdef int setTimePtr(self) except *:
-        """Sets pointer to time array, only needed for irregular time-series
-        """
-        logging.debug("Setting times")
-        if isinstance(self.times,array.array):
-            if self.times.typecode in ('i',):
-                self.int_mv = self.times
-                self.intTimes=&self.int_mv[0]
+        self._count = count
+
+    @property
+    def interval(self):
+        return self._interval
+
+    @interval.setter
+    def interval(self,interval):
+        if not isinstance(interval,int):
+            raise TypeError(f"Expect integer value for interval, got {type(interval).__name__}")
+        self._interval = interval
+
+    @property
+    def start_time(self):
+        if self.count > 0:
+            return self._start_time
+
+    @start_time.setter
+    def start_time(self,datetime):
+        if self.count > 0:
+            if isinstance(datetime,str):
+                self._start_time = HecTime(datetime,60,midnight_as_2400=False)
+            elif isinstance(datetime,HecTime):
+                self._start_time = datetime
             else:
-                logging.error('Typecode error: Time array typecode must be i') 
-                raise Exception("Typecode error: Time array typecode must be i") 
-
-        elif isinstance(self.times,(list,tuple)):
-            self.int_mv = np.array(self.times,dtype=np.int32) #array.array('l',self.times)
-            self.intTimes=&self.int_mv[0]
-
-        elif isinstance(self.times,np.ndarray):
-            if self.times.dtype==np.int32:
-                self.int_mv = self.times
-                self.intTimes=&self.int_mv[0]
-            else:
-                self.int_mv = self.times.astype(np.int32)
-                self.intTimes=&self.int_mv[0]
-
-        else:
-            logging.error('Value error: Time array is invalid') 
-            raise Exception("Invalid Time Values/Type")
-    
-    cpdef int setValues(self):
-        """Extension function to set correct pointer type to the user entered values
-           data
-        """
-        assert self.count > 0, "Number of values should be > 0"
-        assert self.count == len(self._values), "Number of values not equal"
-        if self.interval <= 0:
-            self.setDoubleValues()
-            self.Values = self.doubleValues
-            assert self.count == len(self.times), "Number of values not equal to number of times"
-            self.setTimePtr()
-        else:
-            self.setFloatValues()
-            self.Values = self.floatValues
+                raise TypeError(f"start time for regular timeseries must be HecTime or date string, got {type(datetime).__name__}") 
 
     @property
     def values(self):
-        """Return values inputted by the user
-        """
         return self._values
-
+    
     @values.setter
     def values(self,values):
-        """Allows user to set time-series values
-        """
-        self._values = values
+        if values is not None:
+            if isinstance(values,array.array):
+                _values = np.asarray(values,np.float32)
+                
+            elif isinstance(values,np.ndarray):
+                _values = np.ascontiguousarray(values,dtype=np.float32)
 
+            elif isinstance(values,(list,tuple)):
+                _values = np.array(values,np.float32)
+
+            else:
+                raise "Invalid value"  
+
+            assert _values.ndim == 1, f"value should be 1 dimension array type, got dimension of {_values.ndim}"
+            assert len(_values) == self.count, "Length of value does not match the count"
+
+            self._values = _values
+            self._values_mv = self._values    
+            self._values_ptr = &self._values_mv[0]    
+
+    @property
+    def times(self):
+        return self._times
+    
+    @times.setter
+    def times(self,values):
+        if values is not None and self.interval <= 0:
+            if not isinstance(values,(np.ndarray,array.array,list,tuple)):
+                raise ValueError(f"Expect array,ndarray,array,list or tupe of HecTime or integer time value, got {type(values).__name__}")    
+
+            if isinstance(values[0],HecTime):
+                _times = np.array([x.value() for x in values], dtype=np.int32)
+
+            elif isinstance(values[0],datetime):
+                _times = np.array([HecTime(x,granularity=60).value() for x in values], dtype=np.int32)
+
+            elif isinstance(values,array.array):
+                _times = np.asarray(values,np.int32)
+                
+            elif isinstance(values,np.ndarray):
+                assert values.ndim == 1, f"times should be 1 dimension np.array type, got dimension of {values.ndim}"
+                _times = np.ascontiguousarray(values,dtype=np.int32)
+
+            elif isinstance(values,(list,tuple)):
+                _times = np.array(values,np.int32)
+
+            else:
+                raise "Invalid times"  
+
+            assert _times.ndim == 1, f"times should be 1 dimension array type, got dimension of {_times.ndim}"
+            assert len(_times) == self.count, "Length of times does not match the count"
+
+            self._times = _times
+            self._times_mv = self._times    
+
+    @property
+    def data_units(self):
+        return self._data_units
+
+    @data_units.setter
+    def data_units(self,data):
+        self._data_units = data
+
+    @property
+    def data_type(self):
+        return self._data_type
+
+    @data_type.setter
+    def data_type(self,data):
+        self._data_type = data
+
+    @property
+    def tzid(self):
+        return self._tzid.decode("ascii")
+
+    @tzid.setter
+    def tzid(self,data):
+        self._tzid = data.encode("ascii")
+        self._ctzid = PyBytes_AS_STRING(self._tzid)
+
+    @property
+    def julian_base(self):
+        if self.interval <=0:
+            return self._julian_base.date()
+
+    @julian_base.setter
+    def julian_base(self,date):
+        if self.interval <=0:
+            if isinstance(date,str):
+                self._julian_base = HecTime(date,60)
+            elif isinstance(date,HecTime):
+                self._julian_base = date
+            else:
+                raise TypeError(f"Julian base date for irregular timeseries must be HecTime or date string, got {type(date).__name__}") 
+
+    cdef TimeSeriesStruct create_tss(self):
+        cdef:
+            zStructTimeSeries *tss=NULL
+            TimeSeriesStruct ts_st
+            char *pathname = self._pathname
+            float *val_ptr
+            int count = self._count
+            char *data_units = self._data_units
+            char *data_type = self._data_type
+            int interval = self._interval
+            int *time_ptr
+            int granularity
+            char *start_date
+            char *start_time
+            char *julian_base
+
+        if self._values is None:
+            raise ValueError("Timeseries values is not defined")
+
+        val_ptr = self._values_ptr
+
+        if interval > 0:
+            # Regular Timeseries
+            _start_date = self.start_time.date()
+            _start_time = self.start_time.time()
+            start_date = _start_date
+            start_time = _start_time
+            tss = zstructTsNewRegFloats(pathname,val_ptr, count,
+                                        start_date, start_time,
+                                        data_units,data_type)
+
+        else:
+            # Irregular Timeseries
+            if self._times is None:
+                raise ValueError("Irregular timeseries times is not defined")
+
+            time_ptr = <int *>&self._times_mv[0]
+            granularity = self._granularity
+
+            julian_base = NULL
+            if self._julian_base is HecTime:
+                _julian_base = self.julian_base.date()
+                julian_base = _julian_base
+
+            tss = zstructTsNewIrregFloats(pathname,val_ptr, count,
+                                          time_ptr, granularity,
+                                          julian_base,
+                                          data_units,data_type)
+        if self._tzid:
+            tss[0].timeZoneName = self._ctzid
+
+        ts_st = createTSS(tss)
+        #logging.debug("length = {}".format(ts_st.count))
+        return ts_st  
+
+
+"""
 cdef TimeSeriesStruct createNewTimeSeries(TimeSeriesContainer tsc):
     cdef:
         zStructTimeSeries *tss=NULL
@@ -618,4 +609,4 @@ cdef TimeSeriesStruct createNewTimeSeries(TimeSeriesContainer tsc):
     ts_st = createTSS(tss)
     logging.debug("length = {}".format(ts_st.count))
     return ts_st  
-
+"""
