@@ -11,6 +11,10 @@ def fidA():
     fid = HecDss.Open(os.path.join(DATA,"SampleA.dss"),mode="r")
     return fid
 
+@pytest.fixture
+def fidC():
+    fid = HecDss.Open(os.path.join(DATA,"sampleC.dss"),mode="rw")
+    return fid
 
 def test_read_hrap(fidA):
     pathname = "/HRAP/MARFC/PRECIP/23JUL2003:0000/23JUL2003:0100/ZLIB-VER100"
