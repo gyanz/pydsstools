@@ -148,7 +148,7 @@ jobs:
           # add any runtime env your tests need here
           PYTHONWARNINGS: default
         run: |
-          pytest -q
+          pytest -v
 
   publish:
     name: Publish to (Test)PyPI
