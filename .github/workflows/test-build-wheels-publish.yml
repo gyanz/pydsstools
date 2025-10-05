@@ -140,7 +140,7 @@ jobs:
 
       - name: Install built wheel
         run: |
-          python -m pip install dist/*.whl
+          python -m pip install --no-index --find-links=dist pydsstools
           python -c "import pydsstools, sys; print('Imported wheel OK:', getattr(pydsstools,'__version__','?'), sys.version)"
 
       - name: Run pytest
