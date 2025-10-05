@@ -136,7 +136,7 @@ jobs:
       - name: Install test dependencies
         run: |
           python -m pip install -U pip
-          python -m pip install ".[test]"
+          python -m pip install pytest pytest-cov
 
       - name: Install built wheel
         run: |
