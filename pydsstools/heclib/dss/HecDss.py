@@ -197,7 +197,8 @@ class Open(_Open):
 
     # @validate_call
     def put_ts(
-        self, tsc: "TimeSeriesContainer"
+        self, tsc: "TimeSeriesContainer",
+        **kwargs: Any
     ) -> None:
         """Write time-series
 
@@ -220,18 +221,19 @@ class Open(_Open):
             )
             return
 
-        if tsc.interval > 0:
-            # Regular time-series
-            if not tsc.start_time:
-                raise ValueError("Start date/time for regular timeseries container is not provided")
+        if isinstance(tsc,TimeSeriesContainer):
+            if tsc.interval > 0:
+                # Regular time-series
+                if not tsc.start_time:
+                    raise ValueError("Start date/time for regular timeseries container is not provided")
 
-        else:
-            # Irregular time-series
-            if tsc.times is None:
-                raise ValueError("Times for regular irregular timeseries container is not provided")
+            else:
+                # Irregular time-series
+                if tsc.times is None:
+                    raise ValueError("Times for regular irregular timeseries container is not provided")
 
-        if tsc.values is None:
-            raise ValueError("Values for timeseries container is not provided")
+            if tsc.values is None:
+                raise ValueError("Values for timeseries container is not provided")
 
         super().put(tsc)
 

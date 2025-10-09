@@ -51,7 +51,7 @@ geo = [
     "rasterio >= 1.2.1",
     "matplotlib"
 ]
-test = ["pytest", "pytest-cov"]
+test = ["pytest", "pytest-cov", "pytest-order"]
 
 [project.urls]
 repository = "https://github.com/gyanz/pydsstools"

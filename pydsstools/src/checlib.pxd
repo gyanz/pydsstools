@@ -115,6 +115,9 @@ cdef extern from "heclib.h":
                 int *readPlan,                                                                 # &0 
                 int *recordFound)                                                              # &found
 
+    # This is preferred to zreadx - compatible with both DSS-6 and DSS-7 
+    int zread(long long *ifltab, zStructTransfer* ztransfer)
+
     # most of these parameters are in ZStructTransfer.h
     void zwritex(long long *ifltab, 
                  const char *path, int *npath,
@@ -126,6 +129,7 @@ cdef extern from "heclib.h":
                  int *plan,
                  int *status, 
                  int *recordFound)                                                              # exists or not
+
 
     ctypedef struct zStructTimeSeries:
         int *times

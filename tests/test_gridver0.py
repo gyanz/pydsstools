@@ -1,10 +1,12 @@
+import pytest
+pytestmark = pytest.mark.order("last")
 import os
 from pathlib import Path
-import pytest
 import numpy as np
 from pydsstools.heclib.dss import HecDss
-
 DATA = Path(__file__).parent / "data"
+
+
 
 @pytest.fixture
 def fidB():
