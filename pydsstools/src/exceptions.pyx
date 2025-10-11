@@ -98,6 +98,11 @@ def isError(int status):
     if status == nok:
         raise DssStatusException(status,f'Error code {status} returned by HEC-DSS function call. Either record does not exist or another error may have occured.')    
 
+    if status == -123:
+        # Line 43 in hec-dss/heclib/heclib_c/src/DssInterface/v6and7/zopen.c
+        logging.error(f'Error code {status} returned by HEC-DSS open call. DSS 6 is not supported in Linux and Mac OS.')    
+        raise DssStatusException(status,f'DSS6 not supported in Mac and Linux')    
+
     return status
 
 
