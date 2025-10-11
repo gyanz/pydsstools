@@ -9,7 +9,7 @@ DATA = Path(__file__).parent / "data"
 
 @pytest.fixture
 def fidA():
-    fid = HecDss.Open(os.path.join(DATA,"SampleA.dss"),mode="r")
+    fid = HecDss.Open(os.path.join(DATA,"sampleA.dss"),mode="r")
     return fid
 
 @pytest.fixture
