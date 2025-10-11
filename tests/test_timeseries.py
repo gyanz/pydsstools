@@ -13,11 +13,6 @@ def fidA():
     return fid
 
 @pytest.fixture
-def fidB():
-    fid = HecDss.Open(os.path.join(DATA,"SampleB.dss"),mode="r")
-    return fid
-
-@pytest.fixture
 def fidC():
     fid = HecDss.Open(os.path.join(DATA,"sampleC.dss"),mode="rw")
     return fid

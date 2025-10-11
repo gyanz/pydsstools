@@ -1,11 +1,11 @@
 import pytest
-pytestmark = pytest.mark.order("last")
+pytestmark = pytest.mark.skipif(sys.platform != "win32", reason="Windows-only tests")
+#pytestmark = pytest.mark.order("last")
 import os
 from pathlib import Path
 import numpy as np
 from pydsstools.heclib.dss import HecDss
 DATA = Path(__file__).parent / "data"
-
 
 
 @pytest.fixture
