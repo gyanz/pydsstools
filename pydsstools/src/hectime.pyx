@@ -68,8 +68,9 @@ cdef class HecTime:
             date_str, time_str = self.split_datetime(date_time)
             # the API functions requires colon between date and time later on
             # TODO: check if API function supports AM/PM
-            if not time_str.strip():
-                logging.info(f"HecTime parsing of '{date_time}' returned an empty time component (date part = {date_str}); defaulting time to 0000")
+
+            # TODO: time_str can still be invalid at this point
+            if not time_str:
                 time_str = "0000"
 
             datetime_str = f"{date_str}:{time_str}"
@@ -301,6 +302,77 @@ cdef class HecTime:
           - Plain trailing digits: '... 1000' or '... 010000'
           - Trims trailing punctuation on the date; preserves AM/PM dots.
         """
+
+        """
+        def _guard_date(date):
+            result = ()
+            try:
+                dt = parser.parse(date)
+            except:
+                pass
+            else:    
+                if not (dt.hour != 0 or dt.minute != 0 or dt.second != 0):
+                    # is date but may have hanging 0.. time part that dateutil is ok with
+                    dcopy = copy.copy(date)
+                    if date[-4:] == "0000":
+                        j = len(date)
+                        for i,x in enumerate(reversed(date)):
+                            if not x.strip():
+                                # space found
+                                j = j - i
+                                break
+
+                        _date = (date[0:j]).strip()
+
+                        try:
+                            _dt = parser.parse(_date)
+                        except:
+                            pass
+                        else:
+                            if _dt == dt:
+                                dcopy = _date
+
+                    result = (dcopy,)
+
+            if not result:
+                logging.debug(f"Check of date via dateutil: Parsed date '{date}' is not valid")
+
+            return result
+            """
+
+        def _is_date(date):
+            success =  False
+            try:
+                dt = parser.parse(date)
+            except:
+                pass
+            else:    
+                if not (dt.hour != 0 or dt.minute != 0 or dt.second != 0):
+                    # is date but may have hanging 0.. time part that dateutil is ok with
+                    success = True
+                    if date.endswith("0"):
+                        j = len(date)
+                        for i,x in enumerate(reversed(date)):
+                            if not x.strip():
+                                # space found
+                                j = j - i
+                                break
+
+                        _date = (date[0:j]).strip()
+
+                        try:
+                            _dt = parser.parse(_date)
+                            if _dt == dt:
+                                # has trailing 0 ...
+                                success = False
+                        except:
+                            pass
+
+            if not success:
+                logging.debug(f"Check of parsed date only part: Parsed date '{date}' is not valid")
+
+            return success
+
         if s is None:
             return ("", "")
 
@@ -310,24 +382,51 @@ cdef class HecTime:
             logging.debug(f"Parsed as {result}")
             return result
 
+        success_with_dateutil = False
         try:
             # Defined regex fails to parse date string (no time part)
-            # Using dateutils to fix this
-            dt = parser.parse(s)
-            result = dt.strftime("%d%b%Y:%H%M%S")
-            result = result.split(":")
-            if dt.hour == 0 and dt.minute == 0 and dt.second == 0:
-                logging.debug(f"Parsed by dateutil: {s} only contains date")
-                s = s.strip()
-                if s[-1] in (".",",","-","_",";",":"):
-                    s = s[0:-1]
-                return (s,"")
-
-            # At this point, dateutil has parsed the datetime string; however, we want the date+time to be parsed by regex instead.
-            # This makes the pytest "expected" value deterministic and explicitly defined.
+            # Try dateutil to fix this
+            dt = parser.parse(s_stripped)
+            success_with_dateutil = True
 
         except:
             logging.debug(f"Failed to parse '{s}' with dateutil; falling back to regex-based parsing.")        
+
+        else:   
+            if dt.hour == 0 and dt.minute == 0 and dt.second == 0:
+                logging.debug(f"Parsed via dateutil: {s} only contains date")
+                s = s.strip()
+                if s[-1] in (".",",","-","_",";",":"):
+                    s = (s[0:-1]).strip()
+                
+                _dt = None
+                if s[-2:] == "00":
+                    # there is possibility that s contain time string but hh,mm or ss are all 00
+                    j = len(s)
+                    for i,x in enumerate(reversed(s)):
+                        if not x in ("0",":"):
+                            j = len(s) - i
+                            break
+                    _sd = (s[0:j]).strip()
+                    _st = s[j:] 
+                    if _sd[-1] in (".",",","-","_",";",":"):
+                        _sd = (_sd[0:-1]).strip()
+                    
+                    logging.debug(f"dateutil: {s} was split as {_sd} and {_st} to check whether timepart are all zeros.")
+
+                    try:
+                        _dt = parser.parse(_sd)
+                        if _dt == dt:
+                            logging.debug(f"dateutil: {s} was cleaned, removing all zero time part '{_st}' while parsing")
+                            s = _sd
+                    except:
+                        pass
+
+                result = (s,"")
+                logging.debug(f"Parsed as {result}")
+                return result
+
+            # Use the following regex parser if it has timepart that is nozero
 
         # 1) ISO/XML
         m = __ISO.match(s_stripped)
@@ -335,7 +434,8 @@ cdef class HecTime:
             logging.debug("Parsed datetime: ISO format")
             result = (m.group('date'), m.group('time'))
             logging.debug(f"Parsed as {result}")
-            return result
+            if _is_date(result[0]):
+                return result
 
         # 2) GRID (exactly one colon in entire input)
         if s_stripped.count(':') == 1:
@@ -344,7 +444,8 @@ cdef class HecTime:
                 logging.debug("Parsed datetime: GRID format")
                 result =  (mg.group('date').rstrip(' ,;:.'), mg.group('time'))
                 logging.debug(f"Parsed as {result}")
-                return result
+                if _is_date(result[0]):
+                    return result
 
         # 3) Trailing hh:mm[:ss][ AM/PM]
         m = __COLON_TIME.search(s_stripped)
@@ -355,7 +456,8 @@ cdef class HecTime:
             right = s_stripped[start:].strip().rstrip(' ,;')  # keep '.' for "P.M."
             result = (left,right)
             logging.debug(f"Parsed as {result}")
-            return result
+            if _is_date(result[0]):
+                return result
 
         # 4) Trailing hhmm[ AM/PM]
         m = __PLAIN_TIME.search(s_stripped)
@@ -366,13 +468,14 @@ cdef class HecTime:
             right = s_stripped[start:].strip().rstrip(' ,;')  # keep '.' for "P.M."
             result = (left,right)
             logging.debug(f"Parsed as {result}")
-            return result
+            if _is_date(result[0]):
+                return result
 
-        # 5) No time found — trim trailing punctuation commonly seen after dates
-        logging.debug("Parsed datetime: time not found")
-        result =  (s_stripped.rstrip(' ,;:.'), "")
-        logging.debug(f"Parsed as {result}")
-        return result
+        if success_with_dateutil:
+            logging.info(f"Falling back to dateutil parsed datetime: '{dt}'")
+            return dt.strftime("%d%b%Y:%H%M%S").split(":")
+
+        raise ValueError(f"Unable to parse the provide datetime string '{s}'.")
 
     def __repr__(self):
         return self.__class__.__name__ + "("+ self.date() + " " + self.time() + f" midnight-as-2400={self._midnight_as_2400}" +")"

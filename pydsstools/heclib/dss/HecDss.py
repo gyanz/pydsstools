@@ -197,14 +197,15 @@ class Open(_Open):
 
     # @validate_call
     def put_ts(
-        self, tsc: "TimeSeriesContainer",
+        self, data: Union[str, Path, PathLike,"TimeSeriesContainer"],
         **kwargs: Any
     ) -> None:
-        """Write time-series
+        """Write time-series data.
 
         Parameter
         ---------
-            tsc: TimeSeriesContainer
+            data: pathname or TimeSeriesContainer
+            kwargs: keyword arguments for TimeSeriesContainer when data is pathname
 
         Returns
         --------
@@ -212,16 +213,38 @@ class Open(_Open):
 
         Usage
         ---------
-            >>> ts = fid.read_ts(pathname,window=('10MAR2006 24:00:00', '09APR2006 24:00:00'))
-            >>> ts = fid.read_ts(pathname,regular=False)
+            >>> from pydsstools.heclib.dss.HecDss import Open
+            >>> from pydsstools.core import TimeSeriesContainer
+            >>> fid = Open("dss_file.dss",mode="rw")
+            >>> pathname = r"/A/B/C//1HOUR/F/" 
+            >>> values = [10,20,30,40,50]
+            >>> interval = 1
+            >>> start_time = r"01JAN2025 1500"
+            >>> data_units = "ft"
+            >>> data_type = "inst"
+            >>> timezone = "UTC"  
+            >>> tsc = TimeSeriesContainer(pathname,len(values),interval,start_time=start_time,data_units=data_units,data_type=data_type,tzid=timezone)
+            >>> fid.put_ts(tsc)
+
+            Write timeseries data (e.g., irregular timeseries) without using TimeSeries Container. Timeseries type is inferred from E-part.
+            >>> pathname = r"/A/B/C//IR-DAY/F/"
+            >>> julian_base = "01JAN2000"
+            >>> times =  ["02JUL2010 1200", "05JAN2012 0000", "15MAR2014 0200", "25FEB2018 0500", "19DEC2024 1200"]
+            >>> values = [1,20,30,40,50]
+            >>> fid.put_ts(pathname,values=values,times=times,julian_base=julian_base,data_units=data_units,data_type=data_type,yzid=timezone)
         """
+
         if self.mode != "rw":
             logging.error(
                 "Open the dss file in 'rw' mode to be able to write data on it."
             )
             return
 
-        if isinstance(tsc,TimeSeriesContainer):
+        if not isinstance(data,(str,DssPathName,TimeSeriesContainer)):
+            raise TypeError(f"Expected pathname or TimeSeriesContainer, got {type(data).__name__}.")
+
+        if isinstance(data,TimeSeriesContainer):
+            tsc = data
             if tsc.interval > 0:
                 # Regular time-series
                 if not tsc.start_time:
@@ -234,6 +257,35 @@ class Open(_Open):
 
             if tsc.values is None:
                 raise ValueError("Values for timeseries container is not provided")
+        
+        else:
+            pathname = data
+            if pathname in kwargs:
+                logging.warning("Ignorning pathname for TimeSeriesContainer provided as keyword argument")
+
+            if isinstance(pathname,DssPathName):
+                pathname = pathname.text()
+
+            # -1 = irregular
+            #  1 = regular
+            #  0 = invalid
+            interval = self._ts_type_from_pathname(pathname)
+            if interval == 0:
+                raise ValueError("The pathname for timeseries has invalid interval information")
+            
+            values = kwargs["values"]
+            count = len(values)
+            _count = kwargs.pop("count",None)
+
+            if _count is not None:  # noqa: SIM102
+                if _count != count:
+                    logging.warning(f"Ignoring count argument value (={_count}) as it is not equal to the length of values (={count})")
+
+            if interval < 0:
+                # required for irregular time-series
+                times = kwargs["times"]
+
+            tsc = TimeSeriesContainer(pathname,count,interval,**kwargs)
 
         super().put(tsc)
 

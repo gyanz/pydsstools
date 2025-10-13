@@ -98,7 +98,6 @@ cdef extern from "heclib.h":
     float timeStringToSecondsMills(const char *timeString)
     int cleanTime(int *julianDate, int *itime, int timeGranularitySeconds)
 
-
 cdef extern from "heclib.h":
     int hec_dss_zopen(long long *ifltab, const char *dssFilename)
     int zopen6(long long *ifltab, const char *dssFilename)
@@ -185,6 +184,8 @@ cdef extern from "heclib.h":
         char *pathnameInternal
         int boolRetrieveAllTimes
         char *timeZoneName
+
+    int ztsPathCheckInterval(long long *ifltab, char *pathname, size_t sizeofPathname)
 
     zStructTimeSeries *zstructTsNewRegFloats(const char* pathname, 
                                                    float *floatValues, 

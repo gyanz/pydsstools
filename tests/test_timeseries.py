@@ -60,4 +60,33 @@ def test_write_reg_timeseries(fidC):
     assert times == ex_times
 
 def test_read_ireg_timeseries(fidA):
-    pass             
+    pathname = "/IRREGULAR/TIMESERIES/PARAM//IR-Decade//"
+    ex_times = [
+        dt.strptime("01Jan2019 02:01","%d%b%Y %H:%M"),
+        dt.strptime("01Jan5000 01:02","%d%b%Y %H:%M"),
+    ]
+    ex_flows = [2019,5000]
+    ts = fidA.read_ts(pathname)
+    times = [x.datetime() for x in ts.times]
+    flows = ts.values.tolist()
+    assert flows == pytest.approx(ex_flows,rel=1e-3,abs=1e-4)
+    assert times == ex_times               
+
+def test_write_ireg_timeseries(fidC):
+    from pydsstools.core import HecTime
+    pathname = r"/A/B/C//IR-DAY/Write/"
+    julian_base = "01JAN2000"
+    times =  ["02JUL2010 1200", "05JAN2012 0000", "15MAR2014 0200", "25FEB2018 0500", "19DEC2024 1200"]
+    values = [1,20,30,40,50]
+    data_units = "ft"
+    data_type = "INST"
+    tzid = "UTC"
+    fidC.put_ts(pathname,values=values,times=times,julian_base=julian_base,data_units=data_units,data_type=data_type,tzid=tzid)
+    # Read back
+    ts = fidC.read_ts(pathname,regular=False)
+    ex_values = values
+    ex_times = [HecTime(x).datetime() for x in times]
+    values =  list(ts.values)
+    times = [x.datetime() for x in ts.times]
+    assert values == pytest.approx(ex_values,rel=1e-3,abs=1e-4)
+    assert times == ex_times

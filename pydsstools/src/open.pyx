@@ -148,7 +148,7 @@ cdef class Open:
         isError(self.write_status) 
         return ts_st
     """
-    cpdef void put(self,TimeSeriesContainer tsc,int storageFlag=0):
+    cpdef void put(self,TimeSeriesContainer tsc,int storageFlag=0) except *:
         cdef:
             TimeSeriesStruct ts_st
             zStructTimeSeries *tss
@@ -339,6 +339,26 @@ cdef class Open:
             dtype = 'OTHER'
 
         return dtype
+    
+    cpdef int _ts_type_from_pathname(self,char* pathname):
+        cdef:
+            path_len = strlen(pathname)
+            int cresult
+            int interval
+
+        cresult = ztsPathCheckInterval(self.ifltab, pathname, path_len)
+        if cresult == -1:
+            # not a timeseries pathname
+            interval = 0
+        elif cresult == 0:
+            # regular timeseries pathname
+            interval = 1
+        else:
+            # = 1
+            # irregular timeseries pathname
+            interval = -1
+        return interval
+
 
     def __dealloc__(self):
         if self.ifltab != NULL:

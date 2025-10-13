@@ -346,9 +346,8 @@ cdef class TimeSeriesContainer:
         self.data_type = kwargs.pop("data_type","")    
         self.tzid = kwargs.pop("tzid","")    
         self.julian_base = kwargs.pop("julian_base",HecTime("31DEC1899:0000",granularity=60))    
-        #self._timezone_bytes = _tzid.encode('ascii')
-        #self.timeZoneName = PyBytes_AS_STRING(self._timezone_bytes)
-        #self._startDateBase=''
+        self.values = kwargs.pop("values",None)
+        self.times = kwargs.pop("times",None)
 
     @property
     def pathname(self):
@@ -395,7 +394,7 @@ cdef class TimeSeriesContainer:
     @start_time.setter
     def start_time(self,datetime):
         if self.count > 0:
-            if isinstance(datetime,str):
+            if isinstance(datetime,(str,datetime)):
                 self._start_time = HecTime(datetime,60,midnight_as_2400=False)
             elif isinstance(datetime,HecTime):
                 self._start_time = datetime
@@ -441,6 +440,9 @@ cdef class TimeSeriesContainer:
             if isinstance(values[0],HecTime):
                 _times = np.array([x.value() for x in values], dtype=np.int32)
 
+            elif isinstance(values[0],str):
+                _times = np.array([HecTime(x,granularity=60).value() for x in values], dtype=np.int32)
+
             elif isinstance(values[0],datetime):
                 _times = np.array([HecTime(x,granularity=60).value() for x in values], dtype=np.int32)
 
@@ -459,6 +461,9 @@ cdef class TimeSeriesContainer:
 
             assert _times.ndim == 1, f"times should be 1 dimension array type, got dimension of {_times.ndim}"
             assert len(_times) == self.count, "Length of times does not match the count"
+
+            if not np.all(np.diff(_times)>= 0):
+                raise ValueError("Irregular timeseries does not have ascending times.")
 
             self._times = _times
             self._times_mv = self._times    
@@ -496,7 +501,7 @@ cdef class TimeSeriesContainer:
     @julian_base.setter
     def julian_base(self,date):
         if self.interval <=0:
-            if isinstance(date,str):
+            if isinstance(date,(str,datetime)):
                 self._julian_base = HecTime(date,60)
             elif isinstance(date,HecTime):
                 self._julian_base = date
