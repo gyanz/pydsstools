@@ -350,6 +350,8 @@ cdef class PairedDataContainer:
 
     @x_units.setter
     def x_units(self,data):
+        if data is None:
+            data = ""
         self._xunits = data
 
     @property
@@ -358,6 +360,8 @@ cdef class PairedDataContainer:
     
     @x_type.setter
     def x_type(self,data):
+        if data is None:
+            data = ""
         self._xtype = data
 
     @property
@@ -396,6 +400,8 @@ cdef class PairedDataContainer:
 
     @y_units.setter
     def y_units(self,data):
+        if data is None:
+            data = ""
         self._yunits = data
 
     @property
@@ -404,6 +410,8 @@ cdef class PairedDataContainer:
 
     @y_type.setter
     def y_type(self,data):
+        if data is None:
+            data = ""
         self._ytype = data
 
     @property

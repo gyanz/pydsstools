@@ -275,7 +275,7 @@ class Open(_Open):
             >>> data_units = "ft"
             >>> data_type = "inst"
             >>> timezone = "UTC"  
-            >>> tsc = TimeSeriesContainer(pathname,len(values),interval,start_time=start_time,data_units=data_units,data_type=data_type,tzid=timezone)
+            >>> tsc = TimeSeriesContainer(pathname,len(values),interval,values=values,start_time=start_time,data_units=data_units,data_type=data_type,tzid=timezone)
             >>> fid.put_ts(tsc)
 
             Write timeseries data (e.g., irregular timeseries) without using TimeSeries Container. Timeseries type is inferred from E-part.
@@ -434,8 +434,8 @@ class Open(_Open):
             )
             df.index.name = "x_data"
             return df
-        else:
-            return pds
+
+        return pds
 
     # @validate_call
     def read_pd_labels(self, pathname: Union[str, "DssPathName"]):
@@ -448,18 +448,17 @@ class Open(_Open):
     # @validate_call
     def put_pd(
         self,
-        data: Union["PairedDataContainer", "pd.DataFrame", "np.ndarray", str, "DssPathName"],
+        data: Union["PairedDataContainer", str, "DssPathName"],
         **kwargs: Any,
     ) -> None:
         """ Write new paired data or edit an existing paired data record in the DSS file.
 
         Parameters
         ----------
-        data : PairedDataContainer, pandas.DataFrame, numpy.ndarray, str, or DssPathName
+        data : PairedDataContainer,  str, or DssPathName
             Input data to write. Can be:
                 - A PairedDataContainer object.
-                - A pandas DataFrame or NumPy array containing the data values.
-                - A string or DssPathName specifying an existing DSS record pathname.
+                - A string or DssPathName specifying an existing or new DSS record pathname.
 
         **kwargs : Any
             Additional keyword arguments or attributes for the PairedDataContainer.
@@ -489,7 +488,7 @@ class Open(_Open):
             >>> import pandas as pd
             >>> pathname = "/A/B/STAGE-FLOW/D/E/F/"
             >>> df = pd.DataFrame({"Curve #1":[1,2],"Curve #2":[3,4]},index=[0.5,0.6]) 
-            >>> fid.put_pd(df,pathname=pathname,x_units="ft",x_type="linear",y_units="cfs",y_type="linear")
+            >>> fid.put_pd(pathname,x_units="ft",x_type="linear",y_data=df,y_units="cfs",y_type="linear")
 
             Write a curve to preallocated paired data record
             >>> pathname = "/A/B/STAGE-FLOW/D/E/PREALLOC/"
@@ -504,112 +503,121 @@ class Open(_Open):
 
         if isinstance(data,PairedDataContainer):
             super().put_pd(data)
+            return
 
-        elif isinstance(data, pd.DataFrame):
-            logging.info('Writing paired data from DataFrame')
-            df = data
-            pathname = DssPathName(kwargs.pop("pathname"))
-            shape = df.shape
-
-            pdc = PairedDataContainer(pathname.text(),shape,**kwargs)
-            pdc.x_data = df.index.values
-            pdc.y_data = df.values.T
-            y_labels = [x.strip() for x in df.columns.tolist()]
-
-            try:
-                # if the column index is multilevel and contains level named 'labels'
-                y_labels = df.columns.get_level_values('labels').tolist()
-                y_labels = [x.strip() for x in y_labels]
-            except:
-                pass
-
-            pdc.y_labels = y_labels
-            super().put_pd(pdc)
-
-        elif isinstance(data, (str,DssPathName)):
-            logging.info('Writing single paired data curve to preallocated pairedata set')
+        if isinstance(data, (str,DssPathName)):
             pathname = DssPathName(data)
+            y_data = kwargs.pop("y_data",None)
+            col_index = kwargs.pop("col_index")
 
             if "pathname" in kwargs:
                 logging.warning("Ignorning pathname for TimeSeriesContainer provided as keyword argument")
+
+            if isinstance(y_data, pd.DataFrame):
+                logging.info('Writing paired data from DataFrame')
+                df = y_data
+                shape = df.shape
+
+                pdc = PairedDataContainer(pathname.text(),shape,**kwargs)
+                pdc.x_data = df.index.values
+                pdc.y_data = df.values.T
+                y_labels = [x.strip() for x in df.columns.tolist()]
+
+                # TODO: check for multilevel index explicitly
+                try:
+                    # if the column index is multilevel and contains level named 'labels'
+                    y_labels = df.columns.get_level_values('labels').tolist()
+                    y_labels = [x.strip() for x in y_labels]
+                except:
+                    pass
+
+                pdc.y_labels = y_labels
+                super().put_pd(pdc)
+                return
+
+            elif isinstance(col_index, int):
+                logging.info('Writing single paired data curve to preallocated pairedata set')
+                # pd_info raise error if the record does not exist
+                size_info = self.pd_info(pathname.text())
+                rows = size_info["data_no"]
+                cols = size_info["curve_no"]
+                logging.debug(f"The paired data record ({pathname.text()}) in file has rows={rows} and cols={cols}")
+                
+                # 1-based col_index
+                logging.debug(f"Input 0-based col_index = {col_index}")
+                col_index,_ = _normalize_span(col_index,None,cols)
+                logging.debug(f"Updated 1-based col_index = {col_index}")
+
+                # 1-based default indices
+                row_start, row_end = (1, rows)
+                logging.debug(f"1-based (row_start,row_end) assuming full curve data is replaced: ({row_start},{row_end}.")
+
+                # update indices based on input
+                window = kwargs.pop("window", None)
+                if window:
+                    if not isinstance(window, (tuple,list)):
+                        raise ValueError("The window for writing single paired data must be tuple/list containing start and end row indices.")
+
+                    if len(window) < 2:
+                        raise ValueError(f"The window for writing single paired data curve must contain two integers; provided '{window}'.")
+
+                    elif len(window) > 2:
+                        window = window[0:2]
+
+                    # 0-based
+                    _row_start, _row_end = window
+                    logging.debug(f"0-based (row_start,row_end) provided as input: ({_row_start},{_row_end}.")
+                    # 1-based
+                    row_start, row_end = _normalize_span(_row_start,_row_end,rows)
+                    logging.debug(f"1-based (row_start,row_end) derived from input: ({row_start},{row_end}.")
+
+                y_labels = kwargs.pop('y_labels',[])
+
+                # Verify y_data has ndim == 1, or if ndim == 1 shape[0] == 1
+                _y_data = y_data
+                if isinstance(y_data,(tuple,list)):
+                    _y_data = np.array(y_data,np.float32)
+                
+                if not isinstance(_y_data,np.ndarray):
+                    raise TypeError("y_data for paired data is not of valid type")
+                
+                if _y_data.ndim > 2:
+                    raise ValueError("The dimension of y_data should be 1 or 2.")
+
+                if _y_data.ndim == 1:
+                    _y_data = np.ascontiguousarray(_y_data.reshape(1,-1))
+
+                if _y_data.ndim == 2 and _y_data.shape[0] != 1:
+                    logging.warning("The y_data for single curve has multiple rows; flattening the data as single row of values.")
+                    _y_data = np.ascontiguousarray(_y_data.reshape(1,-1))
+                
+                y_data = _y_data
+
+                shape = (y_data.shape[1],1)
+
+                if shape[0] + row_start - 1 > rows:
+                    raise IndexError("y_data has too many values exceeding allowable row_end index")
+                
+                # update  row_end based on number of y_data values 
+                if row_end != row_start + shape[0] - 1:
+                    logging.debug("row_end updated based on the number of y_data")
+                    row_end = row_start + shape[0] - 1
+
+                logging.debug(f"Single paired data curve to be written with 1-based row_start={row_start} and row_end={row_end}. Total rows in dss = {rows}.")
+                pdc = PairedDataContainer(pathname.text(),shape, 
+                                        y_data=y_data,
+                                        x_data=None,
+                                        x_units=None,
+                                        x_type=None,
+                                        y_units=None,
+                                        y_type=None,
+                                        y_labels = y_labels,
+                                        )
+
+                super().put_one_pd(pdc, col_index, (row_start, row_end))
+                return
         
-            col_index = kwargs.pop("col_index")
-
-            if not isinstance(col_index,int):
-                raise IndexError(f"col_index indicating 0-based column or curve index of paired data is not an integer; got {col_index}.")
-            
-            window = kwargs.pop("window", None)
-            labels = kwargs.get("y_labels", [])
-            size_info = self.pd_info(pathname.text())
-            rows = size_info["data_no"]
-            cols = size_info["curve_no"]
-            logging.debug(f"The paired data record ({pathname.text()}) in file has rows={rows} and cols={cols}")
-            
-            # 1-based col_index
-            logging.debug(f"Input 0-based col_index = {col_index}")
-            col_index,_ = _normalize_span(col_index,None,cols)
-            logging.debug(f"Updated 1-based col_index = {col_index}")
-
-            # 1-based
-            row_start, row_end = (1, rows)
-            logging.debug(f"1-based (row_start,row_end) assuming full curve data is replaced: ({row_start},{row_end}.")
-            if window:
-                # 0-based
-                _row_start, _row_end = window
-                logging.debug(f"0-based (row_start,row_end) provided as input: ({_row_start},{_row_end}.")
-                # 1-based
-                row_start, row_end = _normalize_span(_row_start,_row_end,rows)
-                logging.debug(f"1-based (row_start,row_end) derived from input: ({row_start},{row_end}.")
-
-            y_data = kwargs.pop('y_data')
-            y_units = kwargs.pop('y_units','')
-            y_type = kwargs.pop('y_type','linear')
-            y_labels = kwargs.pop('y_labels',[])
-
-            # Verify y_data has ndim == 1, or if ndim == 1 shape[0] == 1
-            _y_data = y_data
-            if isinstance(y_data,(tuple,list)):
-                _y_data = np.array(y_data,np.float32)
-            
-            if not isinstance(_y_data,np.ndarray):
-                raise TypeError("y_data for paired data is not of valid type")
-            
-            if _y_data.ndim > 2:
-                raise ValueError("The dimension of y_data should be 1 or 2.")
-
-            if _y_data.ndim == 1:
-                _y_data = np.ascontiguousarray(_y_data.reshape(1,-1))
-
-            if _y_data.ndim == 2 and _y_data.shape[0] != 1:
-                logging.warning("The y_data for single curve has multiple rows; flattening the data as single row of values.")
-                _y_data = np.ascontiguousarray(_y_data.reshape(1,-1))
-            
-            y_data = _y_data
-
-            shape = (y_data.shape[1],1)
-
-            if shape[0] + row_start - 1 > rows:
-                raise IndexError("y_data has too many values exceeding allowable row_end index")
-            
-            # update  row_end based on number of y_data values 
-            if row_end != row_start + shape[0] - 1:
-                logging.debug("row_end updated based on the number of y_data")
-                row_end = row_start + shape[0] - 1
-
-            logging.debug(f"Single paired data curve to be written with 1-based row_start={row_start} and row_end={row_end}. Total rows in dss = {rows}.")
-            pdc = PairedDataContainer(pathname.text(),shape, 
-                                      y_data=y_data,
-                                      x_data=None,
-                                      x_units=None,
-                                      x_type=None,
-                                      y_units=y_units,
-                                      y_type=y_type,
-                                      y_labels = y_labels,
-                                      )
-            super().put_one_pd(pdc, col_index, (row_start, row_end))
-        
-        else:
-            raise ValueError('Incompatible input parameters provided to write paired data to dss file')
+        raise ValueError('Incompatible input parameters provided to write paired data to dss file')
 
 
     # @validate_call

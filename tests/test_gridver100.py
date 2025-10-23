@@ -17,7 +17,7 @@ def fidC():
     return fid
 
 def test_read_hrap(fidA):
-    pathname = "/HRAP/MARFC/PRECIP/23JUL2003:0000/23JUL2003:0100/ZLIB-VER100"
+    pathname = "/HRAP/MARFC/PRECIP/23JUL2003:0000/23JUL2003:0100/ZLIB-VER100/"
     exp_info = {"grid_type":410,
                 "data_units":"mm",
                 "data_type":1,

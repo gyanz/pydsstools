@@ -83,7 +83,7 @@ def test_write_ireg_timeseries(fidC):
     tzid = "UTC"
     fidC.put_ts(pathname,values=values,times=times,julian_base=julian_base,data_units=data_units,data_type=data_type,tzid=tzid)
     # Read back
-    ts = fidC.read_ts(pathname,regular=False)
+    ts = fidC.read_ts(pathname)
     ex_values = values
     ex_times = [HecTime(x).datetime() for x in times]
     values =  list(ts.values)

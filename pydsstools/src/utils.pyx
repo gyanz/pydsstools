@@ -71,10 +71,11 @@ cdef class dss_info:
         if not self.status == 0: # STATUS_OK != 0
             zstructFree(self.recordSize)
             self.recordSize=NULL
-            raise BaseException("Seems invalid Data Size Query!!")
+            raise BaseException(f"The queried dss record is either invalid or does not exist: {pathname}.")
 
         # ALL
         self.dataType = self.recordSize[0].dataType
+        logging.debug(f"RecordSize: data type = {self.dataType}.")
         self.version = self.recordSize[0].version
         self.numberValues = self.recordSize[0].numberValues
         self.logicalNumberValues = self.recordSize[0].logicalNumberValues
@@ -108,6 +109,9 @@ cpdef list pd_size(Open fid,char *pathname):
         int curve_no,data_no,data_type,label_size
 
     info = dss_info(fid,pathname)
+    if not (info.dataType >= 200 and info.dataType <=205):
+        raise TypeError(f"Problem with paired data information querry. The provided dss record is not paired data type: {pathname}.")
+
     curve_no = info.pd_curve_no
     label_size = int((info.pdLabelsLength - curve_no)/curve_no*1.0)
     data_no = info.pd_data_no
@@ -238,7 +242,7 @@ cdef class DssPathName:
     
     @property
     def apart(self):
-        self._parts["A"]
+        return self._parts["A"]
 
     @apart.setter
     def apart(self,val):
@@ -246,7 +250,7 @@ cdef class DssPathName:
 
     @property
     def bpart(self):
-        self._parts["B"]
+        return self._parts["B"]
 
     @bpart.setter
     def bpart(self,val):
@@ -254,7 +258,7 @@ cdef class DssPathName:
 
     @property
     def cpart(self):
-        self._parts["C"]
+        return self._parts["C"]
 
     @cpart.setter
     def cpart(self,val):
@@ -262,7 +266,7 @@ cdef class DssPathName:
 
     @property
     def dpart(self):
-        self._parts["D"]
+        return self._parts["D"]
 
     @dpart.setter
     def dpart(self,val):
@@ -270,7 +274,7 @@ cdef class DssPathName:
 
     @property
     def epart(self):
-        self._parts["E"]
+        return self._parts["E"]
 
     @epart.setter
     def epart(self,val):
@@ -278,7 +282,7 @@ cdef class DssPathName:
 
     @property
     def fpart(self):
-        self._parts["F"]
+        return self._parts["F"]
 
     @fpart.setter
     def fpart(self,val):

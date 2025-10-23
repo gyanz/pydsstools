@@ -339,6 +339,7 @@ cdef class Open:
         data['data_no'] = result[1]
         data['dtype'] = result[3]
         data['label_size'] = result[4]
+        logging.debug(f"Paired data queried info: {data}")
         return data
 
     cpdef int _record_type_code(self,str pathname):
