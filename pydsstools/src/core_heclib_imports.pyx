@@ -10,6 +10,7 @@ from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
 from cpython.unicode cimport PyUnicode_AsUTF8AndSize
 from cpython.exc   cimport PyErr_NoMemory
 from cpython.bytes cimport PyBytes_AS_STRING
+from cpython.unicode cimport PyUnicode_DecodeASCII
 from libc.stdint cimport int16_t, int32_t,SIZE_MAX
 from libc.stddef  cimport size_t
 from libc.stdlib cimport malloc,calloc, free

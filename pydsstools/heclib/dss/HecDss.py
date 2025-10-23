@@ -66,6 +66,45 @@ DateLike = TypeVar("DateLike", str, datetime, HecTime)
 DateWindow: TypeAlias = Tuple[DateLike, DateLike]
 PathType: TypeAlias = Union[str, Path, PathLike]
 
+def _normalize_span(start0, end0, size):
+    # private helper function to convert 0-based indices to 1-based indices for paired data
+    # python function expect 0-based indices while C API used 1-based indices
+    if not isinstance(size, int) or size < 0:
+        raise IndexError("size must be a non-negative int")
+    if size == 0:
+        raise IndexError("Size of the span being indexed can not be zero")
+
+    # start (0-based, wrap negatives; must be in [0, size-1])
+    if start0 is None:
+        s0 = 0
+    else:
+        if not isinstance(start0, int):
+            raise IndexError("start must be int or None")
+        # wrap negative
+        s0 = start0 + size if start0 < 0 else start0
+        if not (0 <= s0 < size):
+            raise IndexError(f"start {s0} out of range for size={size}")
+
+    # end (0-based, wrap negatives; allow [0, size-1], clip only if >= size)
+    if end0 is None:
+        e0 = size - 1
+    else:
+        if not isinstance(end0, int):
+            raise IndexError("end must be int or None")
+        # wrap negative
+        e0 = end0 + size if end0 < 0 else end0
+        if e0 < 0:
+            raise IndexError(f"end {e0} out of range after wrap")
+        if e0 >= size:
+            # clip
+            e0 = size - 1
+
+    if s0 > e0:
+        raise IndexError(f"invalid span: start {s0} > end {e0}")
+
+    # map 0-based to 1-based
+    return (s0 + 1, e0 + 1)
+
 
 class Open(_Open):
     """Open a DSS file and create a dataset object that supports input/output operations.
@@ -86,14 +125,14 @@ class Open(_Open):
         """
         Parameter
         ---------
-        dss_path:
+        dss_path: str
             Path of the dss file.
-        version:
+        version: int, optional
             Version of the DSS file. Supported versions are 6 (legacy) and 7 (latest).
             When opening an existing file, the specified version must match the file's version.
             Setting this parameter to None will automatically detect and use the correct version.
             When opening a new file (if the specified file does not exist), using None will create a version 7 file.
-        mode:
+        mode: 
             Optional string specifying the mode in which the DSS file is opened.
             Defaults to 'rw', which allows both reading from and writing to the file.
             Use 'r' to open the file in read-only mode.
@@ -108,33 +147,42 @@ class Open(_Open):
     # @validate_call
     def read_ts(
         self,
-        pathname: Union[str, Path, PathLike],
+        pathname: Union[str, DssPathName],
         window: Optional[DateWindow] = None,
         trim_missing: bool = False,
-        regular: bool = True,
         window_flag: Literal[0, 1, 1, 3] = 0,
+        reg: Optional[bool] = False,
+        ireg: Optional[bool] = False
     ) -> TimeSeriesStruct:
         """Read time-series record
 
         Parameter
         ---------
-        pathname:
-            dss record pathname
+        pathname: str or DssPathname
+            DSS record pathname.
 
-        window:
-            tuple of start and end dates. If it is None, uses date from D-part of pathname.
-
-        regular: bool, default True
-            If False, the read data is treated as irregular time-series.
+        window: tupe of (start, end), optional
+            Time window to read. If ```None```, the date range encoded in the D-part of the ```pathname``` is used.
 
         trim_missing: bool,default True, applies to regular time-series only
             Removes missing values at the beginning and end of data set
+        
+        reg and ireg: bool, default ```False```, optional
+            If reg is ``True``, treat the data as a regular time series; if ireg is ``False``, treat it as an irregular time series.
+            If both are ```False``` or ```True```, the type of timeseries will be determined from E-part of ```pathname```.  
 
-        window_flag: integer 0,1,2 or 3, default 0, applies to irregular time-series only
-                        0 - adhere to time window
-                        1 - Retrieve one value previous to start of time window
-                        2 - Retrieve one value after end of time window
-                        3 - Retrieve one value before and one value after time window
+        window_flag: {0, 1, 2, 3}, default 0
+            Applies to irregular time series only. Controls how the time window
+            is applied:
+                0
+                    Strictly adhere to the time window.
+                1
+                    Also retrieve one value immediately before the start of the window.
+                2
+                    Also retrieve one value immediately after the end of the window.
+                3
+                    Retrieve one value immediately before the start and one immediately
+                    after the end of the window.
 
         Returns
         --------
@@ -143,61 +191,65 @@ class Open(_Open):
         Examples
         ---------
             >>> ts = fid.read_ts(pathname,window=('10MAR2006 24:00:00', '09APR2006 24:00:00'))
-            >>> ts = fid.read_ts(pathname,regular=False)
+            >>> ts = fid.read_ts(pathname)
 
         """
-        retrieve_flag = 0  # adhere to window
+        pathname = DssPathName(pathname)
 
-        if regular:
-            retrieve_flag = -1 if trim_missing else retrieve_flag
+        infer_type = True
+        if reg and ireg:
+            logging.info("The timeseries to be read is specified as both regular and irregular type; type will be inferred from the pathname.")
+        elif reg:
+            infer_type = False
+            interval = 1
+        elif ireg:
+            infer_type = False
+            interval = -1
+
+        if infer_type:
+            # find whether the ts is regular, irregular or not ts
+            logging.debug("Determining the type of timeseries record.")
+            interval = self._ts_type_from_pathname(pathname.text())
+
+            if interval == 0:
+                raise ValueError("The pathname does not correspond to valid regular and irregular timeseries record. Verify E-part has standard interval.")
+
+        if interval == 1:
+            logging.debug("Reading regular time series.")
+            retrieve_flag = -1 if trim_missing else 0
 
         else:
+            logging.debug("Reading irregular time series.")
             if window_flag in [0, 1, 2, 3]:
                 retrieve_flag = window_flag
             else:
                 logging.error("Invalid window_flag for irregular dss record")
                 return
 
-        if not window:
-            pathobj = DssPathName(pathname)
+        if window:
+            start_date, end_date = window
+            sdate = HecTime(start_date,midnight_as_2400=False)
+            edate = HecTime(end_date,midnight_as_2400=True)
+            sday = sdate.date()
+            stime = sdate.time(2)
+            eday = edate.date()
+            etime = edate.time(2)
+            return super().read_ts_window(pathname.text(), sday, stime, eday, etime, retrieve_flag)
+        
+        else:
             retrieve_all = 0
             if (
-                not pathobj.getDPart().strip()
+                not pathname.dpart.strip()
             ):  # if date part is empty, retrieve all data ignoring date
                 retrieve_all = 1
-            return super().read_path(
-                pathname, retrieve_flag, boolRetrieveAllTimes=retrieve_all
+            return super().read_ts_normal(
+                pathname.text(), retrieve_flag, boolRetrieveAllTimes=retrieve_all
             )
 
-        start_date, end_date = window
-        sdate = HecTime(start_date)
-        edate = HecTime(end_date,midnight_as_2400=True)
-        #if isinstance(startdate, str):
-        #    startdate = HecTime.getPyDateTimeFromString(startdate)
-        #elif not isinstance(startdate, datetime):
-        #    logging.error("startdate is not string or datetime object")
-        #    return
-
-        #if isinstance(enddate, str):
-        #    enddate = HecTime.getPyDateTimeFromString(enddate)
-        #elif not isinstance(enddate, datetime):
-        #    logging.error("enddate is not string or datetime object")
-        #    return
-
-        #sday = startdate.strftime("%d%b%Y")
-        #stime = startdate.strftime("%H:%M:%S")
-        #eday = enddate.strftime("%d%b%Y")
-        #etime = enddate.strftime("%H:%M:%S")
-        sday = sdate.date()
-        stime = sdate.time(2)
-        eday = edate.date()
-        etime = edate.time(2)
-
-        return super().read_window(pathname, sday, stime, eday, etime, retrieve_flag)
 
     # @validate_call
     def put_ts(
-        self, data: Union[str, Path, PathLike,"TimeSeriesContainer"],
+        self, data: Union[str, "DssPathName","TimeSeriesContainer"],
         **kwargs: Any
     ) -> None:
         """Write time-series data.
@@ -259,17 +311,14 @@ class Open(_Open):
                 raise ValueError("Values for timeseries container is not provided")
         
         else:
-            pathname = data
-            if pathname in kwargs:
+            pathname = DssPathName(data)
+            if "pathname" in kwargs:
                 logging.warning("Ignorning pathname for TimeSeriesContainer provided as keyword argument")
-
-            if isinstance(pathname,DssPathName):
-                pathname = pathname.text()
 
             # -1 = irregular
             #  1 = regular
             #  0 = invalid
-            interval = self._ts_type_from_pathname(pathname)
+            interval = self._ts_type_from_pathname(pathname.text())
             if interval == 0:
                 raise ValueError("The pathname for timeseries has invalid interval information")
             
@@ -285,76 +334,75 @@ class Open(_Open):
                 # required for irregular time-series
                 times = kwargs["times"]
 
-            tsc = TimeSeriesContainer(pathname,count,interval,**kwargs)
+            tsc = TimeSeriesContainer(pathname.text(),count,interval,**kwargs)
 
         super().put(tsc)
 
     # @validate_call
     def read_pd(
         self,
-        pathname: PathType,
+        pathname: Union[str, "DssPathName"],
         window: Optional[DateWindow] = None,
-        dtype: Optional["np.dtype"] = None,
         dataframe: Optional[bool] = True,
     ) -> pd.DataFrame:
-        """Read paired data as pandas dataframe
+        """Read paired data.
 
         Parameter
         ---------
-            pathname: string, dss record pathname
+            pathname : str or DssPathName
+                DSS record pathname.
 
-            window: tuple, default None
-                    tuple of (starting row, ending row, starting column, ending column) indices.
-                    If None, read all data.
-                    starting row, starting curve >= 0, i.e., first row or column is 0, not 1.
-                    ending row, ending column < total rows/columns in paired data
-                    #0 can be used to specify last row or curve. Negative number works like indexing of python list.
+            window : tuple[int, int, int, int], optional
+                Index window to read. If ``None``, all rows and columns are read.
 
-            dtype: numpy dtype, default None
-                  Data type of returned DataFrame
+                Supported forms:
+                    - ``(row_start, row_end, col_start, col_end)``
 
-            dataframe: boolean, default True
-                  Returns dataframe object if True, otherwise ruturns paired data structure
+                Indexing rules:
+                    - Zero-based and **inclusive at both ends**.
+                    - ``row_start`` / ``col_start`` ≥ 0 (first row/column is 0).
+                    - ``row_end`` / ``col_end`` ≤ last valid index.
+                    - ``None`` for any bound selects the respective first/last index.
+                    - Negative indices are allowed (Python-style) and are **wrapped**.
+                    - If an **end** index overflows the table size, it is **clipped**.
+                    - Any other out-of-range condition raises ``IndexError``.
 
+                dataframe : bool, default True
+                    If ``True``, return a pandas DataFrame.
+                    If ``False``, return a PairedDataStruct object.
         Returns
-        --------
-            DataFrame object
-
+        -------
+        pandas.DataFrame or PairedDataStruct
+            Paired data in the requested format.
 
         Usage
         ---------
             >>> fid.read_pd(pathname,window=(2,5))
             >>> fid.read_pd(pathname)
         """
+        pathname = DssPathName(pathname)
+
         if window:
-            size_info = self.pd_info(pathname)
-            #total_ordinates = size_info["data_no"]
-            #total_curves = size_info["curve_no"]
+            logging.debug(f"Input paired data window = '{window}'")
+            size_info = self.pd_info(pathname.text())
             rows = size_info["data_no"]
             cols = size_info["curve_no"]
-            row_start, row_end, col_start, col_end = window
-            if row_end < 0:
-                row_end = rows + row_end
-            if col_end < 0:
-                col_end = cols + col_end
-            if not (
-                row_start >= 0 and row_end < rows and row_end >= row_start
-            ):
-                logging.error("Row indices in window for paired data are out of bounds")
-                return
-            if not (
-                col_start >= 0
-                and col_end < cols
-                and col_end >= col_start
-            ):
-                logging.error("Column indices of window for paired data are out of bounds")
-                return
+            # user's 0-based indices
+            _row_start, _row_end, _col_start, _col_end = window
+
+            row_start, row_end = _normalize_span(_row_start,_row_end,rows)
+            col_start, col_end = _normalize_span(_col_start,_col_end,cols)
+
             window = (row_start, row_end, col_start, col_end)
 
-        pds = super().read_pd(pathname, window)
+            # updated zero based indices
+            _row_start, _row_end, _col_start, _col_end = [x-1 for x in window]
+
+            logging.debug(f"Updated window = '{window}'")
+
+        pds = super().read_pd(pathname.text(), window)
 
         if dataframe:
-            #x, curves, label_list = pds.get_data()
             x_data = pds.x_data
             y_data = pds.y_data
             y_labels = pds.y_labels
@@ -363,14 +411,14 @@ class Open(_Open):
             # Transpose causes the curve data to be in columns (for DataFrame purpose)
             tb = np.asarray(y_data).T
             if not window:
-                col_start = 0
-                col_end = tb.shape[1]-1
+                _col_start = 0
+                _col_end = tb.shape[1]-1
 
-            primary_colnames = [f"y{i}" for i in range(col_start,col_end+1)]
-            alias_colnames = ['' for x in range(col_start,col_end+1)]
+            primary_colnames = [f"y{i}" for i in range(_col_start,_col_end+1)]
+            alias_colnames = ['' for x in range(_col_start,_col_end+1)]
 
             logging.debug(f'window:{window}')
-            logging.debug(f'col_start/end: {col_start},{col_end}')
+            logging.debug(f'col_start/end: {_col_start},{_col_end}')
             logging.debug(f'primary colnames: {primary_colnames}')
             logging.debug(f'alias columns: {alias_colnames}')
 
@@ -382,7 +430,7 @@ class Open(_Open):
 
             indx = list(x_data[0])
             df = pd.DataFrame(
-                data=tb, index=indx, columns=column_names, dtype=dtype, copy=True
+                data=tb, index=indx, columns=column_names, copy=True
             )
             df.index.name = "x_data"
             return df
@@ -390,35 +438,62 @@ class Open(_Open):
             return pds
 
     # @validate_call
-    def read_pd_labels(self, pathname: PathType):
-        _df = self.read_pd(pathname, window=(1, 1, 1, 0))
-        df = pd.DataFrame(data=_df.columns, columns=["label"])
-        return df
+    def read_pd_labels(self, pathname: Union[str, "DssPathName"]):
+        pathname = DssPathName(pathname)
+        _df = self.read_pd(pathname.text(), window=(0, 0, 0, None))
+        label0 = _df.columns.get_level_values(0).tolist()
+        label1 = _df.columns.get_level_values(1).tolist()
+        return dict(zip(label0,label1))
 
     # @validate_call
     def put_pd(
         self,
-        pdc_df_array: Union["PairedDataContainer", "pd.DataFrame", "np.ndarray"],
+        data: Union["PairedDataContainer", "pd.DataFrame", "np.ndarray", str, "DssPathName"],
         **kwargs: Any,
     ) -> None:
-        """Write paired new or edit existing data series
+        """ Write new paired data or edit an existing paired data record in the DSS file.
 
-        Parameter
-        ---------
-            pdc_df_array: PairedDataContainer, pandas dataframe or numpy array
-            kwargs: arguments or attributes of PairedDataContainer
-                    e.g., pathname, labels_list, etc. While writing single column or curve
-                    of preallocated pds, labels_list can be specified to
-                    update the label that was set during preallocation.
+        Parameters
+        ----------
+        data : PairedDataContainer, pandas.DataFrame, numpy.ndarray, str, or DssPathName
+            Input data to write. Can be:
+                - A PairedDataContainer object.
+                - A pandas DataFrame or NumPy array containing the data values.
+                - A string or DssPathName specifying an existing DSS record pathname.
+
+        **kwargs : Any
+            Additional keyword arguments or attributes for the PairedDataContainer.
 
         Returns
-        --------
-            None
-
+        -------
+        None
+            This method does not return a value.
 
         Usage
         ---------
-            >>> fid.put_pd([1,2,3,4],2,window=(2,5),pathname='...',labels_list=['Curve 2'])
+            Write PairedDataContainer 
+            >>> from pydsstools.core import PairedDataContainer
+            >>> pathname = "/A/B/STAGE-FLOW/D/E/F/"
+            >>> curves = 2
+            >>> rows = 5
+            >>> pdc = PairedDataContainer(pathname,(rows,curves))
+            >>> pdc.x_data = [0.1,0.2,0.3,0.4,0.5] 
+            >>> pdc.y_data = [[10,20,30,40,50],[1,2,3,4,5]]
+            >>> pdc.x_units = "ft" 
+            >>> pdc.x_type = "linear" 
+            >>> pdc.y_units = "cfs" 
+            >>> pdc.y_type = "linear"
+            >>> fid.put_pd(pdc) 
+
+            Write dataframe
+            >>> import pandas as pd
+            >>> pathname = "/A/B/STAGE-FLOW/D/E/F/"
+            >>> df = pd.DataFrame({"Curve #1":[1,2],"Curve #2":[3,4]},index=[0.5,0.6]) 
+            >>> fid.put_pd(df,pathname=pathname,x_units="ft",x_type="linear",y_units="cfs",y_type="linear")
+
+            Write a curve to preallocated paired data record
+            >>> pathname = "/A/B/STAGE-FLOW/D/E/PREALLOC/"
+            >>> fid.put_pd(pathname,col_index=2,y_data=[1,2,3,4],window=(2,5))
 
         """
         if self.mode != "rw":
@@ -427,20 +502,20 @@ class Open(_Open):
             )
             return
 
-        col_index = kwargs.pop("col_index",None)
-        if isinstance(pdc_df_array,PairedDataContainer):
-            super().put_pd(pdc_df_array)
+        if isinstance(data,PairedDataContainer):
+            super().put_pd(data)
 
-        if isinstance(pdc_df_array, pd.DataFrame):
+        elif isinstance(data, pd.DataFrame):
             logging.info('Writing paired data from DataFrame')
-            df = pdc_df_array
-            pathname = kwargs.pop("pathname")
+            df = data
+            pathname = DssPathName(kwargs.pop("pathname"))
             shape = df.shape
 
-            pdc = PairedDataContainer(pathname,shape,**kwargs)
+            pdc = PairedDataContainer(pathname.text(),shape,**kwargs)
             pdc.x_data = df.index.values
             pdc.y_data = df.values.T
             y_labels = [x.strip() for x in df.columns.tolist()]
+
             try:
                 # if the column index is multilevel and contains level named 'labels'
                 y_labels = df.columns.get_level_values('labels').tolist()
@@ -451,57 +526,96 @@ class Open(_Open):
             pdc.y_labels = y_labels
             super().put_pd(pdc)
 
-        elif col_index is not None:
-            logging.info('Writing specific paired data curve to preallocated pairedata set')
-            y_data = pdc_df_array
-            pathname = kwargs.pop("pathname")
+        elif isinstance(data, (str,DssPathName)):
+            logging.info('Writing single paired data curve to preallocated pairedata set')
+            pathname = DssPathName(data)
+
+            if "pathname" in kwargs:
+                logging.warning("Ignorning pathname for TimeSeriesContainer provided as keyword argument")
+        
+            col_index = kwargs.pop("col_index")
+
+            if not isinstance(col_index,int):
+                raise IndexError(f"col_index indicating 0-based column or curve index of paired data is not an integer; got {col_index}.")
+            
             window = kwargs.pop("window", None)
             labels = kwargs.get("y_labels", [])
-            size_info = self.pd_info(pathname)
+            size_info = self.pd_info(pathname.text())
             rows = size_info["data_no"]
             cols = size_info["curve_no"]
+            logging.debug(f"The paired data record ({pathname.text()}) in file has rows={rows} and cols={cols}")
+            
+            # 1-based col_index
+            logging.debug(f"Input 0-based col_index = {col_index}")
+            col_index,_ = _normalize_span(col_index,None,cols)
+            logging.debug(f"Updated 1-based col_index = {col_index}")
 
-            row_start, row_end = (0, rows-1)
+            # 1-based
+            row_start, row_end = (1, rows)
+            logging.debug(f"1-based (row_start,row_end) assuming full curve data is replaced: ({row_start},{row_end}.")
             if window:
-                row_start, row_end = window
-                if row_end < 0:
-                    row_end = rows + row_end
-                if not (
-                    row_start >= 0
-                    and row_end < rows
-                    and row_end >= row_start
-                ):
-                    logging.error("Ordinate indices of window out of bounds")
-                    return
+                # 0-based
+                _row_start, _row_end = window
+                logging.debug(f"0-based (row_start,row_end) provided as input: ({_row_start},{_row_end}.")
+                # 1-based
+                row_start, row_end = _normalize_span(_row_start,_row_end,rows)
+                logging.debug(f"1-based (row_start,row_end) derived from input: ({row_start},{row_end}.")
 
-            if kwargs.pop('y_data',None) is not None:
-                raise ValueError('Duplicate entry of y_data for paired data')
-
-            x_data = kwargs.pop('x_data')
-            x_units = kwargs.pop('x_units','')
-            x_type = kwargs.pop('x_type','linear')
+            y_data = kwargs.pop('y_data')
             y_units = kwargs.pop('y_units','')
             y_type = kwargs.pop('y_type','linear')
             y_labels = kwargs.pop('y_labels',[])
-            #label_size = kwargs.pop('label_size',0) # ignore 
-            pdc = PairedDataContainer(pathname,shape, 
+
+            # Verify y_data has ndim == 1, or if ndim == 1 shape[0] == 1
+            _y_data = y_data
+            if isinstance(y_data,(tuple,list)):
+                _y_data = np.array(y_data,np.float32)
+            
+            if not isinstance(_y_data,np.ndarray):
+                raise TypeError("y_data for paired data is not of valid type")
+            
+            if _y_data.ndim > 2:
+                raise ValueError("The dimension of y_data should be 1 or 2.")
+
+            if _y_data.ndim == 1:
+                _y_data = np.ascontiguousarray(_y_data.reshape(1,-1))
+
+            if _y_data.ndim == 2 and _y_data.shape[0] != 1:
+                logging.warning("The y_data for single curve has multiple rows; flattening the data as single row of values.")
+                _y_data = np.ascontiguousarray(_y_data.reshape(1,-1))
+            
+            y_data = _y_data
+
+            shape = (y_data.shape[1],1)
+
+            if shape[0] + row_start - 1 > rows:
+                raise IndexError("y_data has too many values exceeding allowable row_end index")
+            
+            # update  row_end based on number of y_data values 
+            if row_end != row_start + shape[0] - 1:
+                logging.debug("row_end updated based on the number of y_data")
+                row_end = row_start + shape[0] - 1
+
+            logging.debug(f"Single paired data curve to be written with 1-based row_start={row_start} and row_end={row_end}. Total rows in dss = {rows}.")
+            pdc = PairedDataContainer(pathname.text(),shape, 
                                       y_data=y_data,
-                                      x_data=x_data,
-                                      x_units=x_units,
-                                      x_type=x_type,
+                                      x_data=None,
+                                      x_units=None,
+                                      x_type=None,
                                       y_units=y_units,
                                       y_type=y_type,
                                       y_labels = y_labels,
                                       )
             super().put_one_pd(pdc, col_index, (row_start, row_end))
-
-        raise ValueError('Incompatible data for paired data can not be written to dss file')
+        
+        else:
+            raise ValueError('Incompatible input parameters provided to write paired data to dss file')
 
 
     # @validate_call
     def preallocate_pd(
         self,
-        pathname: Union[str, Path, PathLike,"DssPathName"],
+        pathname: Union[str, "DssPathName"],
         shape: Union[List[int],Tuple[int]],
         **kwargs: Any,
     ) -> None:
@@ -510,21 +624,24 @@ class Open(_Open):
                 "Open the dss file in 'rw' mode to be able to write data on it."
             )
             return
-        pdc = PairedDataContainer(pathname, shape, **kwargs)
+        
+        pathname = DssPathName(pathname)
+        pdc = PairedDataContainer(pathname.text(), shape, **kwargs)
         super().prealloc_pd(pdc)
 
     # @validate_call
     def read_grid(
-        self, pathname: PathType, metadata_only: Optional[bool] = False
+        self, pathname: Union[str, "DssPathName"], metadata_only: Optional[bool] = False
     ) -> SpatialGridStruct:
         """Reads both version 0 (DSS-6 format) and 100 (latest DSS-7 format) spatial grid data from dss file.
 
         Returns SpatialGridStruct object.
         """
+        pathname = DssPathName(pathname)
         sg_st = SpatialGridStruct()
         retrieve_data = False if metadata_only else True
         # super().read_grid(pathname,sg_st,retrieve_data)
-        grid_ver = self._get_gridver(pathname)
+        grid_ver = self._get_gridver(pathname.text())
 
         if grid_ver is None:
             logging.error("Invalid grid data or version")
@@ -532,7 +649,7 @@ class Open(_Open):
 
         elif grid_ver == 100:
             logging.info("Reading modern format (DSS7) grid")
-            super().read_grid100(pathname, sg_st, retrieve_data)
+            super().read_grid100(pathname.text(), sg_st, retrieve_data)
 
         else:
             logging.info(
@@ -541,7 +658,7 @@ class Open(_Open):
                 )
             )
             # find grid_type and create info6
-            grid_type = self._get_gridtype(pathname)
+            grid_type = self._get_gridtype(pathname.text())
             logging.debug("grid type is {}".format(grid_type))
             info6 = GridInfo6.from_grid_type(grid_type)
             logging.debug("grid type in info6 is {}".format(info6.grid_type))
@@ -552,24 +669,25 @@ class Open(_Open):
                 logging.debug(
                     "grid type in updated info6 is {}".format(info6.grid_type)
                 )
-            super().read_grid0(pathname, sg_st, info6, retrieve_data)
+            super().read_grid0(pathname.text(), sg_st, info6, retrieve_data)
 
         return sg_st
 
     def read_grid2(
-        self, pathname: PathType, metadata_only: Optional[bool] = False
+        self, pathname: Union[str, "DssPathName"], metadata_only: Optional[bool] = False
     ) -> Optional[tuple]:
         """Reads both version 0 (DSS-6 format) and 100 (latest DSS-7 format) spatial grid data.
 
         Returns a tuple consisting of np.array and gridinfo.
         """
+        pathname = DssPathName(pathname)
         retrieve_data = False if metadata_only else True
-        grid_ver = self._get_gridver(pathname)
+        grid_ver = self._get_gridver(pathname.text())
         if grid_ver is None:
             logging.error("Invalid grid data or version")
         elif grid_ver != 0:
             logging.info("Reading modern format (DSS7) grid")
-            ds = self.read_grid(pathname, retrieve_data)
+            ds = self.read_grid(pathname.text(), retrieve_data)
             if metadata_only:
                 logging.info("Returning metadata of gridded data")
                 return ds.gridinfo
@@ -578,14 +696,14 @@ class Open(_Open):
         else:
             logging.info("Reading older format (DSS6 or grid version 0) grid")
             # find grid_type and create info6
-            grid_type = self._get_gridtype(pathname)
+            grid_type = self._get_gridtype(pathname.text())
             info6 = GridInfo6.from_grid_type(grid_type)
             if grid_type == 430:
                 # add space for crs defination, tz id generously
                 # it should be more than what is in the file
                 info6 = GridInfo6.get_specinfo6(50, 200, 50)
             # info6 is updated with data from the dss file
-            data = super()._read_grid0_array(pathname, info6, retrieve_data)
+            data = super()._read_grid0_array(pathname.text(), info6, retrieve_data)
             if metadata_only:
                 logging.info("Returning metadata of gridded data")
                 if data is not None:
@@ -598,7 +716,7 @@ class Open(_Open):
     def put_grid(
         self,
         data: Union["SpatialGridStruct", "np.array"],
-        pathname: Optional[PathType] = None,
+        pathname: Optional[Union[str, "DssPathName"]] = None,
         gridinfo: Optional[GridInfo] = None,
         flipud: Optional[bool] = True,
         compute_stats: Optional[Union[bool, List[float]]] = True,
@@ -639,6 +757,7 @@ class Open(_Open):
             overrides transform parameters in `gridinfo`.
 
         """
+
         if self.mode != "rw":
             logging.error(
                 "Open the dss file in 'rw' mode to be able to write data on it."
@@ -652,7 +771,10 @@ class Open(_Open):
         if isinstance(data, SpatialGridStruct):
             # use this for copying from one file to another or updating statistics
             if pathname is None:
-                pathname = data.pathname
+                pathname = DssPathName(data.pathname)
+            else:
+                pathname = DssPathName(pathname)
+
             gridinfo = data.gridinfo
             grid_type = gridinfo.grid_type
             shape = gridinfo.shape
@@ -688,6 +810,7 @@ class Open(_Open):
                 )
                 return
 
+            pathname = DssPathName(pathname)
             grid_type = gridinfo.grid_type
             shape = data.shape
             nodata = UNDEFINED
@@ -696,14 +819,13 @@ class Open(_Open):
 
             if gridinfo.grid_type_has_time():
                 # Verify the D and E parts are valid datetime string
-                pathobj = DssPathName(pathname)
-                dpart = pathobj.getDPart()
-                epart = pathobj.getEPart()
+                dpart = pathname.dpart
+                epart = pathname.epart
                 try:
                     # check if dpart, epart or both are not datetime
                     # TODO: Found out HecTime('1') passes this test
-                    stime = HecTime(dpart)
-                    etime = HecTime(epart)
+                    stime = HecTime(dpart,midnight_as_2400 = False)
+                    etime = HecTime(epart,midnight_as_2400 = True)
                 except:
                     raise Exception(
                         "For %s grid type, DPart and EPart of pathname must be datetime string"
@@ -712,11 +834,8 @@ class Open(_Open):
                     # unsure about this param
                     gridinfo.time_stamped = 1
                     # update D and E part of pathname
-                    stime = stime._toString(end_of_day=False)
-                    etime = etime._toString(end_of_day=True)
-                    pathobj.setDPart(stime)
-                    pathobj.setEPart(etime)
-                    pathname = pathobj.text()
+                    pathname.dpart = stime
+                    pathname.epart = etime
 
             _data = data
             inplace = False
@@ -822,13 +941,13 @@ class Open(_Open):
         if not _data.flags["C_CONTIGUOUS"]:
             _data = np.ascontiguousarray(_data)
 
-        super().put_grid(pathname, _data, gridinfo)
+        super().put_grid(pathname.text(), _data, gridinfo)
 
     # @validate_call
     def put_grid0(
         self,
         data: Union["SpatialGridStruct", "np.array"],
-        pathname: Optional[PathType] = None,
+        pathname: Optional[Union[str, "DssPathName"]] = None,
         gridinfo: Optional[GridInfo] = None,
         flipud: Optional[bool] = True,
         compute_stats: Optional[Union[bool, List[float]]] = True,
@@ -862,7 +981,10 @@ class Open(_Open):
 
         if isinstance(data, SpatialGridStruct):
             if pathname is None:
-                pathname = data.pathname
+                pathname = DssPathName(data.pathname)
+            else:
+                pathname = DssPathName(pathname)
+
             gridinfo7 = data.gridinfo
             grid_type = gridinfo7.grid_type
             shape = gridinfo7.shape
@@ -896,6 +1018,8 @@ class Open(_Open):
                 )
                 return
 
+            pathname = DssPathName(pathname)
+
             # convert to gridinfo 7, which is pythonic and easy to work with
             if isinstance(gridinfo, GridInfo6):
                 gridinfo = gridinfo.to_gridinfo7()
@@ -909,12 +1033,11 @@ class Open(_Open):
             # Set alway true for DSS6 for now
             # unlike in DSS7, grid_type does not indicate the time information
             if 1 or gridinfo.grid_type_has_time():
-                pathobj = DssPathName(pathname)
-                dpart = pathobj.getDPart()
-                epart = pathobj.getEPart()
+                dpart = pathname.dpart
+                epart = pathname.epart
                 try:
-                    stime = HecTime(dpart)
-                    etime = HecTime(epart)
+                    stime = HecTime(dpart,midnight_as_2400=False)
+                    etime = HecTime(epart,midnight_as_2400=True)
                 except:
                     raise Exception(
                         "For %s grid type, DPart and EPart of pathname must be datetime string"
@@ -922,12 +1045,8 @@ class Open(_Open):
                 else:
                     gridinfo.time_stamped = 1
                     # update D and E part of pathname
-                    stime = stime._toString(end_of_day=False)
-                    # 02JAN2025:0000 is changed to 01JAN2025:2400 with end_of_day = True
-                    etime = etime._toString(end_of_day=True)
-                    pathobj.setDPart(stime)
-                    pathobj.setEPart(etime)
-                    pathname = pathobj.text()
+                    pathname.dpart = stime
+                    pathname.epart = etime
 
             _data = data
             inplace = False
@@ -1009,18 +1128,18 @@ class Open(_Open):
                     gridinfo.coords_cell0 = (0.0, 0.0)
                     gridinfo.lower_left_cell = (0.0, 0.0)
 
-            gridinfo6 = gridinfo7_to_gridinfo6(gridinfo, pathname)
+            gridinfo6 = gridinfo7_to_gridinfo6(gridinfo, pathname.text())
 
         if not _data.flags["C_CONTIGUOUS"]:
             _data = np.ascontiguousarray(_data)
 
-        super().put_grid0(pathname, _data, gridinfo6)
+        super().put_grid0(pathname.text(), _data, gridinfo6)
 
     # @validate_call
     def copy(
         self,
-        pathname_in: PathType,
-        pathname_out: PathType,
+        pathname_in: Union[str, "DssPathName"],
+        pathname_out: Union[str, "DssPathName"],
         dss_out: Optional["Open"] = None,
     ) -> None:
         dss_fid = dss_out if isinstance(dss_out, self.__class__) else self
@@ -1029,22 +1148,27 @@ class Open(_Open):
                 "Open the dss file in 'rw' mode to be able to write data on it."
             )
             return
+        
+        pathname_in = DssPathName(pathname_in)
+        pathname_out = DssPathName(pathname_out)
 
         if (
-            pathname_in.lower() == pathname_out.lower() or not pathname_out
+            pathname_in.text().lower() == pathname_out.text().lower()
         ) and dss_fid is self:
             # overwriting with exact data is pointless
             return
-        self.copyRecordsTo(dss_fid, pathname_in, pathname_out)
+        self.copyRecordsTo(dss_fid, pathname_in.text(), pathname_out.text())
 
     # @validate_call
-    def deletePathname(self, pathname: PathType) -> None:
+    def deletePathname(self, pathname: Union[str, "DssPathName"]) -> None:
         if self.mode != "rw":
             logging.error(
                 "Open the dss file in 'rw' mode to be able to write data on it."
             )
             return
 
+        pathname = DssPathName(pathname)
+        pathname = pathname.text()
         pathname = pathname.replace("//", "/*/")
         pathlist = self.getPathnameList(pathname)
         for pth in pathlist:
@@ -1052,10 +1176,11 @@ class Open(_Open):
 
     # @validate_call
     def getPathnameList(
-        self, pathname: PathType, sort: Optional[bool] = False
+        self, pathname: Union[str, "DssPathName"], sort: Optional[bool] = False
     ) -> List[str]:
         # pathname string which can include wild card * for defining pattern
-        catalog = getPathnameCatalog(self, pathname, sort)
+        pathname = DssPathName(pathname)
+        catalog = getPathnameCatalog(self, pathname.text(), sort)
         path_list = catalog.getPathnameList()
         return path_list
 

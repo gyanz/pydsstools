@@ -260,27 +260,11 @@ cdef class PairedDataContainer:
         list _ylabels
         int _ylabel_len
 
-        #public int curve_no
-        #public int data_no
-        #public str independent_units
-        #public str independent_type
-        #public str dependent_units 
-        #public str dependent_type
-        #public list labels_list
-        #public object curves
-        #public object independent_axis
-
         int _storage_flag # 10 or 11
         float[:] _xdata_mv
         float* _ydata_ptr
         float [:,::1] _ydata_mv
         bytearray _ylabels_bytes
-        #int storageFlag # 10 or 11
-        #float [:] independent_axis_mv
-        #float [:,::1] curves_mv # delete this after saving to dss
-        #float *curves_ptr
-        #readonly bytearray labels
-        #int labelsLength
 
     def __init__(self,pathname,shape,**kwargs):
         """PairedDataContainer(pathname,shape,**kwargs)
@@ -443,19 +427,22 @@ cdef class PairedDataContainer:
     cdef set_clabels(self,pdc_mode mode,int curve_mode_ylabel_len=0):
         cdef:
             int cols
-            str s
-            list label,labels,rev_labels
-            #bytearray label_byte_string
+            str s,label
+            list labels,rev_labels
+            #bytes label_byte_string
 
         cols = self.cols
         labels = self.y_labels
         label_byte_string = b''
+        logging.debug(f"Setting clabels for paired data. y_labels given are: {labels}")
 
         if mode == pdc_mode.normal:
             if all(s=='' for s in labels):
                 labels = []
             if labels:
                 label_byte_string = "\x00".join([x.encode('ascii') for x in labels]) + b'\x00'
+
+            self._ylabels_bytes = bytearray(label_byte_string)        
         
         elif mode == pdc_mode.allocate:
             label_max_len = 0
@@ -470,16 +457,19 @@ cdef class PairedDataContainer:
 
             if rev_labels:
                 label_byte_string = "\x00".join([x.encode('ascii') for x in rev_labels]) + b'\x00'
+
+            self._ylabels_bytes = bytearray(label_byte_string)        
         
         else:
             if curve_mode_ylabel_len < 1:
                 raise ValueError('Length of label of curve in the preallocated paired data is either not specified or invalid')
 
-            if labels:
+            if labels and labels[0]:
                 label = '{0:<{1:d}s}'.format(labels[0],curve_mode_ylabel_len)[0:curve_mode_ylabel_len]
                 label_byte_string = label.encode('ascii') + b'\x00'
-
-        self._ylabel_bytes = bytearray(label_byte_string)        
+                self._ylabels_bytes = bytearray(label_byte_string)        
+            # else
+            #   self._ylabels_bytes is None that prevents overwriting previous label is not specified or is empty string in write_one_pdata function
 
 
 cdef PairedDataStruct write_allocate_pdata(PairedDataContainer pdc):
@@ -520,10 +510,9 @@ cdef PairedDataStruct write_allocate_pdata(PairedDataContainer pdc):
 
     return pd_st
 
-cdef PairedDataStruct write_one_pdata(long long *ifltab,PairedDataContainer pdc,int col_index,int row_start=-1,int row_end=-1):
+cdef PairedDataStruct write_one_pdata(long long *ifltab,PairedDataContainer pdc,int col_index,int row_start=0,int row_end=0):
     '''
-
-    column and row index are 0 based on python side while it is 1 based on the c code
+    Indices are 1-based. When start and end indeces are both zero, full curve/y_data is written.
 
     '''
     cdef:
@@ -535,18 +524,9 @@ cdef PairedDataStruct write_one_pdata(long long *ifltab,PairedDataContainer pdc,
     if pdc.y_data is None:
         raise ValueError('y_data for pair data is None')
 
-    if pdc.ydata.shape[0] > 1 or pdc.y_data.shape[1] > pdc.rows:
+    if pdc.y_data.shape[0] > 1 or pdc.y_data.shape[1] > pdc.rows:
         raise ValueError('y_data is not valid for writing single paired data curve')    
 
-    if row_start == -1 and row_end == -1:
-        # writes full curve or column data
-        pass
-    elif row_start < 0 or row_end > pdc.rows - 1:
-        raise ValueError('row index for paired data is out of range')
-
-    col_index += 1
-    row_start += 1
-    row_end += 1
     y_data = pdc._ydata_ptr    
 
     zpds = zstructPdNew(pathname)

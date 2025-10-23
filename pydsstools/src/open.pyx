@@ -50,7 +50,7 @@ cdef class Open:
     def get_status(self):
         return (self.file_status,self.read_status,self.write_status)
 
-    cpdef TimeSeriesStruct read_path(self,char *pathname,int retrieveFlag=-1,
+    cpdef TimeSeriesStruct read_ts_normal(self,char *pathname,int retrieveFlag=-1,
                                         int boolRetrieveDoubles=1,
                                         int boolRetrieveQualityNotes=0, int boolRetrieveAllTimes=0):
         """Read time-series data from the dss file handle
@@ -108,7 +108,7 @@ cdef class Open:
         tss = createTSS(ztss)
         return tss 
 
-    cpdef TimeSeriesStruct read_window(self,char *pathname,char *startDate,
+    cpdef TimeSeriesStruct read_ts_window(self,char *pathname,char *startDate,
                                             char *startTime,char *endDate,
                                             char *endTime,
                                             int retrieveFlag=-1,
@@ -179,7 +179,7 @@ cdef class Open:
 
     cpdef PairedDataStruct read_pd(self,char *pathname, tuple window = None):
         # Read paired data from the given pathname
-        # indexes are 0-bases while it is 1-based in c code
+        # indexes are 1-based
         cdef:
             zStructPairedData *zpds=NULL 
             # retrieve as float
@@ -191,10 +191,10 @@ cdef class Open:
 
         if window:
             row_start, row_end, col_start, col_end = window        
-            zpds[0].startingOrdinate = row_start + 1
-            zpds[0].endingOrdinate = row_end + 1
-            zpds[0].startingCurve = col_start + 1
-            zpds[0].endingCurve = col_end + 1
+            zpds[0].startingOrdinate = row_start
+            zpds[0].endingOrdinate = row_end
+            zpds[0].startingCurve = col_start
+            zpds[0].endingCurve = col_end
 
         self.read_status = zpdRetrieve(self.ifltab,zpds,rsize_flag)
         isError(self.read_status)
@@ -224,16 +224,43 @@ cdef class Open:
         cdef:
             PairedDataStruct pd_st
             zStructPairedData *zpds
+            dict info
+            int rows, cols
             int row_start, row_end
             int label_size
 
-        label_size = self.pd_info(pdc.pathname)['label_size']
+        # TODO: check data size and indexes
+        info = self.pd_info(pdc.pathname)
+        rows = info["data_no"]
+        cols = info["curve_no"]
+        label_size = info['label_size']
+        logging.debug(f"Average label size of preallocated paired data = {label_size}")
         pdc.set_clabels(pdc_mode.one,label_size)
 
+        if col_index < 1 or col_index > cols:
+            raise ValueError(f"Curve index '{col_index}' is outside the range '1 - {cols}'")
+
         if not row_window:
+            if pdc.rows != rows:
+                raise ValueError(f"The number of elements in the curve '{pdc.rows}' is not equal to total rows '{rows}' in the paired data record in the file.")
+
             pd_st = write_one_pdata(self.ifltab,pdc,col_index)
+
         else:
             row_start,row_end = row_window
+
+            if row_start < 1 or row_start > rows:
+                raise ValueError(f"Paired data row_start index '{row_start}' is outside the range '1 - {rows}'")
+
+            if row_end < 1 or row_end > rows:
+                raise ValueError(f"Paired data row_end index '{row_end}' is outside the range '1 - {rows}'")
+
+            if row_start > row_end:
+                raise ValueError(f"Paired data row_start '{row_start}' is greater than row_end '{row_end}'")
+
+            if row_start + pdc.rows - 1 > rows:
+                raise IndexError("Paired data curve has too many values exceeding allowable row_end index")
+
             pd_st = write_one_pdata(self.ifltab,pdc,col_index,row_start,row_end)
 
         zpds = pd_st.zpds
@@ -347,7 +374,9 @@ cdef class Open:
             int interval
 
         cresult = ztsPathCheckInterval(self.ifltab, pathname, path_len)
-        if cresult == -1:
+        logging.debug(f"path interval check returned {cresult}.")
+
+        if cresult == nok: #-1
             # not a timeseries pathname
             interval = 0
         elif cresult == 0:

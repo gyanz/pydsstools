@@ -186,6 +186,7 @@ cdef extern from "heclib.h":
         char *timeZoneName
 
     int ztsPathCheckInterval(long long *ifltab, char *pathname, size_t sizeofPathname)
+    int ztsGetStandardInterval(int dssVersion, int *intervalSeconds, char *Epart, size_t sizeofEpart, int *operation)
 
     zStructTimeSeries *zstructTsNewRegFloats(const char* pathname, 
                                                    float *floatValues, 

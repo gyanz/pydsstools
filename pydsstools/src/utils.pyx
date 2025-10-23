@@ -200,78 +200,159 @@ cpdef int get_grid_version(Open _open, str pathname):
         free(zversion)
     return ver
 
-class DssPathName(object):
+cdef class DssPathName:
+    cdef:
+        dict _parts
+
     def __init__(self,pathname):
-        self.pathname = pathname
-        self.pathname_parts = []
-        self.parse()
+        self._parts = DssPathName._parse(pathname)
 
-    def parse(self):
-        if not self.pathname:
-            logging.warn('Invalid dss pathname')
-            self.pathname = '/A/B/C/D/E/F/'
+    @staticmethod
+    def _parse(pathname):
+        if isinstance(pathname,str):
+            parts = pathname.split('/')[1:-1]    
+            if not len(parts) == 6:
+                logging.error('Invalid dss pathname: No of pathname parts not equal to six')
+                raise DssPathException('Invalid dss pathname: No of pathname parts not equal to six')
 
-        if isinstance(self.pathname, DssPathName):
-            self.pathname = self.pathname.pathname    
-            
-        if (not self.pathname[0] == '/') or (not self.pathname[-1] == '/'):
-            #logging.error('Invalid dss pathname: not starting or ending with character "/"',exc_info=True)
-            logging.info('%s',self.pathname)
-            logging.error('Invalid dss pathname: not starting or ending with character "/"')
-            raise DssPathException('Invalid dss pathname: not starting or ending with character "/"')
-
-        parts = self.pathname.split('/')[1:-1]
-        if not len(parts) == 6:
-            #logging.error('Invalid dss pathname: No of pathname parts not equal to six',exc_info=True)
-            logging.error('Invalid dss pathname: No of pathname parts not equal to six')
-            raise DssPathException('Invalid dss pathname: No of pathname parts not equal to six')
-
-        self.pathname_parts = parts
+            return dict(zip(("A","B","C","D","E","F"),parts))
+        
+        elif isinstance(pathname,DssPathName):
+            return pathname._parts.copy()
+        
+        else:
+            raise TypeError(f"Expected string or DssPathname, got {type(pathname).__name__}")
 
     def __repr__(self):
-        string_rep = '/'
-        for x in self.pathname_parts:
-            string_rep += x + '/'
-        return string_rep
+        return self.text()
 
     def text(self):
-        return self.__repr__()
+        txt = "/"
+        for _,part in self._parts.items():
+            txt += part + "/"
+        return txt
+    
+    @property
+    def str(self):
+        return self.text()
+    
+    @property
+    def apart(self):
+        self._parts["A"]
 
-    def setAPart(self,A):
-        self.pathname_parts[0]=A
+    @apart.setter
+    def apart(self,val):
+        self._parts["A"] = val
 
-    def setBPart(self,B):
-        self.pathname_parts[1]=B
+    @property
+    def bpart(self):
+        self._parts["B"]
 
-    def setCPart(self,C):
-        self.pathname_parts[2]=C
+    @bpart.setter
+    def bpart(self,val):
+        self._parts["B"] = val
 
-    def setDPart(self,D):
-        self.pathname_parts[3]=D
+    @property
+    def cpart(self):
+        self._parts["C"]
 
-    def setEPart(self,E):
-        self.pathname_parts[4]=E
+    @cpart.setter
+    def cpart(self,val):
+        self._parts["C"] = val
 
-    def setFPart(self,F):
-        self.pathname_parts[5]=F
+    @property
+    def dpart(self):
+        self._parts["D"]
 
-    def getAPart(self):
-        return self.pathname_parts[0]
+    @dpart.setter
+    def dpart(self,val):
+        self._parts["D"] = val
 
-    def getBPart(self):
-        return self.pathname_parts[1]
+    @property
+    def epart(self):
+        self._parts["E"]
 
-    def getCPart(self):
-        return self.pathname_parts[2]
+    @epart.setter
+    def epart(self,val):
+        self._parts["E"] = val
 
-    def getDPart(self):
-        return self.pathname_parts[3]
+    @property
+    def fpart(self):
+        self._parts["F"]
 
-    def getEPart(self):
-        return self.pathname_parts[4]
+    @fpart.setter
+    def fpart(self,val):
+        self._parts["F"] = val
 
-    def getFPart(self):
-        return self.pathname_parts[5]
+    @property
+    def parts(self):
+        return list(self._parts.values())
 
-    def getParts(self):
-        return [self.getAPart(),self.getBPart(),self.getCPart(),self.getDPart(),self.getEPart(),self.getFPart()]
+    def epart_to_interval(self,dss_ver=7):
+        return DssPathName._epart_operations(self.epart, dss_ver, opt = 1) 
+
+    @staticmethod
+    def interval_to_epart(int interval, dss_ver=7):
+        return DssPathName._epart_operations(interval, dss_ver, opt = 2) 
+
+    @staticmethod
+    def _epart_operations(object data, int dss_ver=7, int opt=0):
+        cdef:
+            char* _epart
+            bytearray epart
+            unsigned char[:] epart_view
+            size_t _size_epart
+            Py_ssize_t n        
+            str epart_revised
+            int _interval
+            int interval
+            int _opt
+            int status
+
+        if opt < 0 or opt > 2:
+            raise ValueError(f"Operation code '{opt}' is out of range.")
+
+        _opt = <int>opt 
+        
+        if opt == 0:
+            # Epart to interval seconds and fixed Epart
+            epart = bytearray(25)
+            n = len(epart)
+            epart[:n] = data.encode("ascii")
+            epart_view = epart
+            _size_epart = n
+            status = ztsGetStandardInterval(dss_ver, &_interval, <char*>&epart_view[0], _size_epart, &_opt)
+            if status == nok:
+                return None
+            n = strlen(<char*>&epart_view[0])
+            epart_revised = bytes(epart[:n]).decode("ascii")
+            return (_interval,epart_revised)
+
+        elif opt == 1:
+            # Epart to interval seconds    
+            epart = bytearray(25)
+            n = len(epart)
+            epart[:n] = data.encode("ascii")
+            epart_view = epart
+            _size_epart = n
+            status = ztsGetStandardInterval(dss_ver, &_interval, <char*>&epart_view[0], _size_epart, &_opt)
+            if status == nok:
+                return None
+            return _interval
+
+        #elif opt == 2:
+        else:
+            # interval seconds to Epart
+            epart = bytearray(25)
+            _size_epart = len(epart)
+            epart_view = epart
+            interval = int(data)
+            _interval = <int>interval    
+            status = ztsGetStandardInterval(dss_ver, &_interval, <char*>&epart_view[0], _size_epart, &_opt)
+            if status == nok:
+                return None
+            n = strlen(<char*>&epart_view[0])
+            epart_revised = bytes(epart[:n]).decode("ascii")
+            return epart_revised
+
+        
