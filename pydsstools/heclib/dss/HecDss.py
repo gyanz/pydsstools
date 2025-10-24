@@ -1168,7 +1168,7 @@ class Open(_Open):
         self.copyRecordsTo(dss_fid, pathname_in.text(), pathname_out.text())
 
     # @validate_call
-    def deletePathname(self, pathname: Union[str, "DssPathName"]) -> None:
+    def del_path(self, pathname: Union[str, "DssPathName"]) -> None:
         if self.mode != "rw":
             logging.error(
                 "Open the dss file in 'rw' mode to be able to write data on it."
@@ -1183,7 +1183,7 @@ class Open(_Open):
             status = deletePathname(self, pth)
 
     # @validate_call
-    def getPathnameList(
+    def search_path(
         self, pathname: Union[str, "DssPathName"], sort: Optional[bool] = False
     ) -> List[str]:
         # pathname string which can include wild card * for defining pattern
@@ -1193,7 +1193,7 @@ class Open(_Open):
         return path_list
 
     # @validate_call
-    def getPathnameDict(self) -> Dict[str, str]:
+    def path_dict(self) -> Dict[str, str]:
         # TODO: This does not work with DSS-6
         # This method necessary because type option in getPathnameList is not working
         path_dict = dict(
