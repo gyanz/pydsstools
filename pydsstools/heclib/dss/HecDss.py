@@ -53,8 +53,7 @@ from ...core import SpatialGridStruct
 from ...core.gridinfo import GridInfo, GridType
 from ...core.gridv6_internals import gridinfo7_to_gridinfo6, GridInfo6
 from ...core import (
-    getPathnameCatalog,
-    deletePathname,
+    delete_pathname,
     PairedDataContainer,
     HecTime,
     DssPathName,
@@ -115,7 +114,6 @@ class Open(_Open):
 
     """
 
-    # @validate_call
     def __init__(
         self,
         dss_path: PathType,
@@ -144,7 +142,6 @@ class Open(_Open):
         super().__init__(dss_path, version)
         self.mode = mode
 
-    # @validate_call
     def read_ts(
         self,
         pathname: Union[str, DssPathName],
@@ -247,7 +244,6 @@ class Open(_Open):
             )
 
 
-    # @validate_call
     def put_ts(
         self, data: Union[str, "DssPathName","TimeSeriesContainer"],
         **kwargs: Any
@@ -338,7 +334,6 @@ class Open(_Open):
 
         super().put(tsc)
 
-    # @validate_call
     def read_pd(
         self,
         pathname: Union[str, "DssPathName"],
@@ -437,7 +432,6 @@ class Open(_Open):
 
         return pds
 
-    # @validate_call
     def read_pd_labels(self, pathname: Union[str, "DssPathName"]):
         pathname = DssPathName(pathname)
         _df = self.read_pd(pathname.text(), window=(0, 0, 0, None))
@@ -445,7 +439,6 @@ class Open(_Open):
         label1 = _df.columns.get_level_values(1).tolist()
         return dict(zip(label0,label1))
 
-    # @validate_call
     def put_pd(
         self,
         data: Union["PairedDataContainer", str, "DssPathName"],
@@ -620,7 +613,6 @@ class Open(_Open):
         raise ValueError('Incompatible input parameters provided to write paired data to dss file')
 
 
-    # @validate_call
     def preallocate_pd(
         self,
         pathname: Union[str, "DssPathName"],
@@ -637,7 +629,6 @@ class Open(_Open):
         pdc = PairedDataContainer(pathname.text(), shape, **kwargs)
         super().prealloc_pd(pdc)
 
-    # @validate_call
     def read_grid(
         self, pathname: Union[str, "DssPathName"], metadata_only: Optional[bool] = False
     ) -> SpatialGridStruct:
@@ -720,7 +711,6 @@ class Open(_Open):
                 logging.info("Returning metadata/data of gridded data")
                 return data, info6
 
-    # @validate_call
     def put_grid(
         self,
         data: Union["SpatialGridStruct", "np.array"],
@@ -951,7 +941,6 @@ class Open(_Open):
 
         super().put_grid(pathname.text(), _data, gridinfo)
 
-    # @validate_call
     def put_grid0(
         self,
         data: Union["SpatialGridStruct", "np.array"],
@@ -1143,8 +1132,7 @@ class Open(_Open):
 
         super().put_grid0(pathname.text(), _data, gridinfo6)
 
-    # @validate_call
-    def copy(
+    def copy_path(
         self,
         pathname_in: Union[str, "DssPathName"],
         pathname_out: Union[str, "DssPathName"],
@@ -1167,7 +1155,6 @@ class Open(_Open):
             return
         self.copyRecordsTo(dss_fid, pathname_in.text(), pathname_out.text())
 
-    # @validate_call
     def del_path(self, pathname: Union[str, "DssPathName"]) -> None:
         if self.mode != "rw":
             logging.error(
@@ -1180,26 +1167,105 @@ class Open(_Open):
         pathname = pathname.replace("//", "/*/")
         pathlist = self.getPathnameList(pathname)
         for pth in pathlist:
-            status = deletePathname(self, pth)
+            status = delete_pathname(self, pth)
 
-    # @validate_call
     def search_path(
         self, pathname: Union[str, "DssPathName"], sort: Optional[bool] = False
     ) -> List[str]:
         # pathname string which can include wild card * for defining pattern
-        pathname = DssPathName(pathname)
-        catalog = getPathnameCatalog(self, pathname.text(), sort)
-        path_list = catalog.getPathnameList()
+        if pathname:
+            pathname = DssPathName(pathname)
+            pathname = pathname.text()
+
+        catalog = self.get_catalog(self, pathname, sort)
+        path_list = catalog.paths()
         return path_list
 
-    # @validate_call
-    def path_dict(self) -> Dict[str, str]:
-        # TODO: This does not work with DSS-6
-        # This method necessary because type option in getPathnameList is not working
-        path_dict = dict(
-            zip(["TS", "RTS", "ITS", "PD", "GRID", "OTHER"], [[], [], [], [], [], []])
-        )
-        path_list = self.getPathnameList("")
+    def path_dict(self,sub_type: Optional[bool] = False) -> Dict[str, str]:
+        ts_rts = []
+        ts_its = []
+        pd = []
+        text_data = []
+        text_table = []
+        grid_undefined = []
+        grid_hrap = []
+        grid_albers = []
+        grid_spec = []
+        tin = []
+        location = []
+        array_data = []
+        image_data = []
+        generic_data = []
+        undefined_data = []
+
+        path_list = self.search_path("")
         for path in path_list:
-            path_dict[self._record_type(path)].append(path)
-        return path_dict
+            name = self._record_type_name(path,abbr=True)
+            logging.debug(f"{path} is record type {name}.")
+            name = name.upper()
+            if name.startswith("RT"):
+                ts_rts.append(path)
+            elif name.startswith("IT"):
+                ts_its.append(path)
+            elif name.startswith("PD"):
+                pd.append(path)
+            elif name.startswith("TXT"):
+                text_data.append(path)
+            elif name.startswith("TT"):
+                text_table.append(path)
+            #elif name.startswith(("UG","HG","AG","SG")):
+            elif name.startswith("UG"):
+                grid_undefined.append(path)    
+            elif name.startswith("HG"):
+                grid_hrap.append(path)    
+            elif name.startswith("AG"):
+                grid_albers.append(path)    
+            elif name.startswith("SG"):
+                grid_spec.append(path)    
+            elif name.startswith("SPA"):
+                tin.append(path)    
+            elif name.startswith("LOC"):
+                location.append(path)    
+            elif name.startswith("ARR"):
+                array_data.append(path)    
+            elif name.startswith("IM"):
+                image_data.append(path)    
+            elif name.startswith("GEN"):
+                generic_data.append(path)    
+            else:
+                undefined_data.append(path)
+        
+        if sub_type:
+            result = {
+                "ts-reg":ts_rts,
+                "ts-irreg":ts_its,
+                "pd":pd,
+                "text":text_data,
+                "text-table":text_table,
+                "grid-undefined":grid_undefined,
+                "grid-hrap":grid_hrap,
+                "grid-albers":grid_albers,
+                "grid-spec":grid_spec,
+                "tin":tin,
+                "location":location,
+                "array":array_data,
+                "image":image_data,
+                "generic":generic_data,
+                "undefined":undefined_data,
+            }
+        else:
+            result = {
+                "ts":ts_rts + ts_its,
+                "pd":pd,
+                "text":text_data,
+                "text-table":text_table,
+                "grid": grid_undefined + grid_hrap + grid_albers + grid_spec,
+                "tin":tin,
+                "location":location,
+                "array":array_data,
+                "image":image_data,
+                "generic":generic_data,
+                "undefined":undefined_data,
+            }
+
+        return result

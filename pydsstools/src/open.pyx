@@ -347,26 +347,84 @@ cdef class Open:
         typecode = zdataType(self.ifltab,pathname)
         return typecode
 
-    cpdef str _record_type(self,str pathname):
+    cpdef str _record_type_name(self,str pathname,bint abbr=False):
         cdef:
+            const char* cname
+            str name
             int typecode
-            str dtype
 
+        name = None
         typecode = zdataType(self.ifltab,pathname)
+        logging.debug(f"dss record typecode:{typecode}")
 
-        if typecode >= 100 and typecode < 200:
-            dtype = 'TS'
+        # cname is static char* and shouldn't be freed manually
+        cname = ztypeName(typecode, abbr)
+        if cname != NULL:
+            name = (<bytes>cname).decode("ascii","strict")
 
-        elif typecode >= 200 and typecode < 300:
-            dtype = 'PD'
+        # bugfix for gridded data since it is undefined according to zdataType
+        if typecode >= 400 and typecode <= 431:
+            if typecode == 400:
+                if abbr:
+                    name = "UGT"
+                else:
+                    cname = DATA_TYPE_400
+                    name = (<bytes>cname).decode("ascii","strict")
+                    #name = PyUnicode_DecodeASCII(cname,-1,"strict")
+            elif typecode == 401:
+                if abbr:
+                    name = "UG"
+                else:
+                    cname = DATA_TYPE_401
+                    name = (<bytes>cname).decode("ascii","strict")
+                    #name = PyUnicode_DecodeASCII(cname,-1,"strict")
+            elif typecode == 410:
+                if abbr:
+                    name = "HGT"
+                else:
+                    cname = DATA_TYPE_410
+                    name = (<bytes>cname).decode("ascii","strict")
+                    #name = PyUnicode_DecodeASCII(cname,-1,"strict")
+            elif typecode == 411:
+                if abbr:
+                    name = "HG"
+                else:
+                    cname = DATA_TYPE_411
+                    name = (<bytes>cname).decode("ascii","strict")
+                    #name = PyUnicode_DecodeASCII(cname,-1,"strict")
+            elif typecode == 420:
+                if abbr:
+                    name = "AGT"
+                else:
+                    cname = DATA_TYPE_420
+                    name = (<bytes>cname).decode("ascii","strict")
+                    #name = PyUnicode_DecodeASCII(cname,-1,"strict")
+            elif typecode == 421:
+                if abbr:
+                    name = "AG"
+                else:
+                    cname = DATA_TYPE_421
+                    name = (<bytes>cname).decode("ascii","strict")
+                    #name = PyUnicode_DecodeASCII(cname,-1,"strict")
+            elif typecode == 430:
+                if abbr:
+                    name = "SGT"
+                else:
+                    cname = DATA_TYPE_430
+                    name = (<bytes>cname).decode("ascii","strict")
+                    #name = PyUnicode_DecodeASCII(cname,-1,"strict")
+            elif typecode == 431:
+                if abbr:
+                    name = "SG"
+                else:
+                    cname = DATA_TYPE_431
+                    name = (<bytes>cname).decode("ascii","strict")
+                    #name = PyUnicode_DecodeASCII(cname,-1,"strict")
+            else:
+                raise ValueError("Unknown record data type code: {typecode}.")        
 
-        elif typecode >= 400 and typecode < 450:
-            dtype = 'GRID'
+        return name
 
-        else:
-            dtype = 'OTHER'
-
-        return dtype
     
     cpdef int _ts_type_from_pathname(self,char* pathname):
         cdef:
@@ -388,7 +446,19 @@ cdef class Open:
             # irregular timeseries pathname
             interval = -1
         return interval
-
+    
+    cpdef CatalogStruct get_catalog(self,
+                                    str pathname,
+                                    bint sort=0,
+                                    int max_count=0,
+                                    int status_wanted=0,
+                                    int record_type_code_start=0,
+                                    int record_type_code_end=0,
+                                    int last_write_time_search=0,
+                                    int last_write_time_search_flag=0,
+                                    bint include_dates = 0
+                                    ):
+        return CatalogStruct.new(self,pathname,sort,max_count,status_wanted,last_write_time_search,last_write_time_search_flag,include_dates)
 
     def __dealloc__(self):
         if self.ifltab != NULL:

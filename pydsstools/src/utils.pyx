@@ -301,8 +301,9 @@ cdef class DssPathName:
 
     @staticmethod
     def _epart_operations(object data, int dss_ver=7, int opt=0):
+        # TODO: return interval in seconds for dss = 7
         cdef:
-            char* _epart
+            #char* _epart
             bytearray epart
             unsigned char[:] epart_view
             size_t _size_epart

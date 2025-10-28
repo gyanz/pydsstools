@@ -46,7 +46,61 @@ cdef extern from "heclib.h":
     int DATA_TYPE_AG
     int DATA_TYPE_SGT
     int DATA_TYPE_SG
-
+    char* DATA_TYPE_20
+    char* DATA_TYPE_ABBR_20
+    char* DATA_TYPE_90
+    char* DATA_TYPE_ABBR_90
+    char* DATA_TYPE_100
+    char* DATA_TYPE_ABBR_100
+    char* DATA_TYPE_101
+    char* DATA_TYPE_ABBR_101
+    char* DATA_TYPE_102
+    char* DATA_TYPE_ABBR_102
+    char* DATA_TYPE_105
+    char* DATA_TYPE_ABBR_105
+    char* DATA_TYPE_107
+    char* DATA_TYPE_ABBR_107
+    char* DATA_TYPE_110
+    char* DATA_TYPE_ABBR_110
+    char* DATA_TYPE_111
+    char* DATA_TYPE_ABBR_111
+    char* DATA_TYPE_112
+    char* DATA_TYPE_ABBR_112
+    char* DATA_TYPE_115
+    char* DATA_TYPE_ABBR_115
+    char* DATA_TYPE_117
+    char* DATA_TYPE_ABBR_117
+    char* DATA_TYPE_200
+    char* DATA_TYPE_ABBR_200
+    char* DATA_TYPE_205
+    char* DATA_TYPE_ABBR_205
+    char* DATA_TYPE_300
+    char* DATA_TYPE_ABBR_300
+    char* DATA_TYPE_310
+    char* DATA_TYPE_ABBR_310
+    char* DATA_TYPE_400
+    #char* DATA_TYPE_ABBR_400
+    char* DATA_TYPE_401
+    #char* DATA_TYPE_ABBR_401
+    char* DATA_TYPE_410
+    #char* DATA_TYPE_ABBR_410
+    char* DATA_TYPE_411
+    #char* DATA_TYPE_ABBR_411
+    char* DATA_TYPE_420
+    #char* DATA_TYPE_ABBR_420
+    char* DATA_TYPE_421
+    #char* DATA_TYPE_ABBR_421
+    char* DATA_TYPE_430
+    #char* DATA_TYPE_ABBR_430
+    char* DATA_TYPE_431
+    #char* DATA_TYPE_ABBR_431
+    char* DATA_TYPE_450
+    char* DATA_TYPE_ABBR_450
+    char* DATA_TYPE_600
+    char* DATA_TYPE_ABBR_600
+    char* DATA_TYPE_610
+    char* DATA_TYPE_ABBR_610
+    char* DATA_TYPE_UNDEFINED
     
 #cdef extern from "missing.h":
 #    int zerror(hec_zdssLastError *errorStruct)
@@ -185,6 +239,7 @@ cdef extern from "heclib.h":
         int boolRetrieveAllTimes
         char *timeZoneName
 
+    const char *ztypeName(int recordType, int boolAbbreviation)
     int ztsPathCheckInterval(long long *ifltab, char *pathname, size_t sizeofPathname)
     int ztsGetStandardInterval(int dssVersion, int *intervalSeconds, char *Epart, size_t sizeofEpart, int *operation)
 
