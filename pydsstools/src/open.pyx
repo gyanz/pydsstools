@@ -362,8 +362,20 @@ cdef class Open:
         if cname != NULL:
             name = (<bytes>cname).decode("ascii","strict")
 
-        # bugfix for gridded data since it is undefined according to zdataType
-        if typecode >= 400 and typecode <= 431:
+        # bugfix for file, image and gridded data since it is undefined according to zdataType
+        if typecode == 600:
+                if abbr:
+                    name = "FILE"
+                else:
+                    cname = DATA_TYPE_600
+                    name = (<bytes>cname).decode("ascii","strict")
+        elif typecode == 610:
+                if abbr:
+                    name = "IMAGE"
+                else:
+                    cname = DATA_TYPE_610
+                    name = (<bytes>cname).decode("ascii","strict")
+        elif typecode >= 400 and typecode <= 431:
             if typecode == 400:
                 if abbr:
                     name = "UGT"
