@@ -23,7 +23,14 @@ from pydantic import (
     model_validator,
 )
 
+from .enums import *
+from .crs import hrap,albers,albers_params_from_wkt, is_equal_area_conic,make_albers,crs_short_name
+
 __all__ = [
+    "is_undefined_grid",
+    "is_hrap_grid",
+    "is_albers_grid",
+    "is_specified_grid",
     "GridInfoCreate",
     "GridInfo",
     "HrapInfo",
@@ -35,43 +42,6 @@ __all__ = [
     "Datum",
 ]
 # Using GridInfoCreate is recommended to generate each type of grid
-
-
-class GridType(IntEnum):
-    invalid = -9999
-    undefined_time = 400
-    undefined = 401
-    hrap_time = 410
-    hrap = 411
-    albers_time = 420
-    albers = 421
-    specified_time = 430
-    specified = 431
-
-
-class DataType(IntEnum):
-    invalid = -9999
-    per_aver = 0
-    per_cum = 1
-    inst_val = 2
-    inst_cum = 3
-    freq = 4
-
-
-class CompressionMethod(IntEnum):
-    invalid = -9999
-    undefined = 0
-    uncompressed = 1
-    zlib = 26
-    hec = 101001  # PRECIP_2_BYTE
-
-
-class Datum(IntEnum):
-    invalid = -9999
-    undefined = 0
-    nad27 = 1
-    nad83 = 2
-
 
 PairLikeInt: TypeAlias = Union[
     Tuple[int, int], Annotated[List[int], Field(min_length=2, max_length=2)]
@@ -85,6 +55,22 @@ GridTypeField = Field(
     validation_alias=AliasChoices("grid_type", "type", "gtype", "gridtype", "grid"),
 )
 
+
+def is_undefined_grid(grid_type):
+    if grid_type in (GridType.undefined, GridType.undefined_time):
+        return True
+
+def is_hrap_grid(grid_type):
+    if grid_type in (GridType.hrap, GridType.hrap_time):
+        return True
+
+def is_albers_grid(grid_type):
+    if grid_type in (GridType.albers, GridType.albers_time):
+        return True
+
+def is_specified_grid(grid_type):
+    if grid_type in (GridType.specified, GridType.specified_time):
+        return True
 
 class _GridInfo7(BaseModel):
     """Base class for GridInfo, HrapInfo, AlbersInfo and SpecifiedInfo"""
@@ -145,6 +131,14 @@ class _GridInfo7(BaseModel):
     def extra_info(self):
         # return self.__pydantic_extra__
         return self.extra
+
+    @property
+    def all_info(self):
+        return self.model_dump()
+    
+    def update_minxy_from_transform(self, transform):
+        xy_min = minxy_from_transform_shape(transform,self.shape)
+        self.min_xy = xy_min
 
     # lower_left_cell indices update
     def update_albers_lower_left_cell_from_minxy(self):
@@ -221,9 +215,23 @@ class _GridInfo7(BaseModel):
             self.lower_left_cell = (0, 0)
             self.coords_cell0 = coords_cell0
 
-    def update_from_crs(self):
-        # for Albers and Specified
-        raise NotImplementedError
+    def update_from_crs(self,crs_wkt):
+        # for Albers
+        if is_albers_grid(self.grid_type):
+            params = albers_params_from_wkt(crs_wkt)
+            if not is_equal_area_conic(crs_wkt):
+                logging.warning(
+                    "The provided CRS WKT does not represent an equal-area conic projection. Check parameters carefully before updating Albers gridinfo."
+                )
+            self.proj_datum = params["datum"]
+            self.proj_units = params["proj_units"]
+            self.lat_0 = params["lat_origin"]
+            self.lat_1 = params["first_parallel"]
+            self.lat_2 = params["second_parallel"]
+            self.lon_0 = params["central_meridian"]
+            self.x_0 = params["false_easting"]  
+            self.y_0 = params["false_northing"]
+
 
     def get_v6_grid_type(self):
         if self.grid_type in [GridType.hrap, GridType.hrap_time]:
@@ -243,7 +251,60 @@ class _GridInfo7(BaseModel):
             GridType.specified_time,
         ]:
             return True
+    
+    def _infer_crs(self):
+        # get crs definition from extra info if available or standardard crs for the grid_type
+        if is_specified_grid(self.grid_type):
+            return self.crs
+        
+        crs = ""
+        if "crs" in self.extra_info:
+            crs = self.extra_info["crs"].strip()
 
+        if crs:
+            if is_albers_grid(self.grid_type):
+                if not is_equal_area_conic(crs):
+                    logging.warning(
+                        "The provided CRS WKT does not represent an equal-area conic projection."
+                    )
+        
+        else :
+            if is_hrap_grid(self.grid_type):
+                crs = hrap()
+            elif is_albers_grid(self.grid_type):
+                crs = make_albers(
+                    self.proj_datum,
+                    self.x_0,
+                    self.y_0,
+                    self.lon_0,
+                    self.lat_1,
+                    self.lat_2,
+                    self.lat_0,
+                )
+        return crs
+    
+    def _infer_crs_name(self):
+        # get crs name from extra info if available or standardard crs name for the grid_type
+        if is_specified_grid(self.grid_type):
+            return self.crs_name
+        
+        crs_name = ""
+        if "crs_name" in self.extra_info:
+            crs_name = self.extra_info["crs_name"].strip()
+
+        if crs_name:
+            return crs_name
+        else :
+            if is_hrap_grid(self.grid_type):
+                crs_name = "HRAP"
+            elif is_albers_grid(self.grid_type):
+                # normally "EPSG:5070"  # NAD83 / Conus Albers
+                crs_name = crs_short_name(self._infer_crs())
+                if crs_name is None:
+                    crs_name = ""
+
+            return crs_name
+    
 
 class GridInfo(_GridInfo7):
     grid_type: Annotated[
@@ -474,6 +535,20 @@ def create_gridinfo(**kwargs) -> _GridInfo7:
 GridInfoCreate = create_gridinfo
 # ==============================================================================
 
+def minxy_from_transform_shape(transform,shape):
+    cellsize_x = transform[0] 
+    xmin = transform[2]
+    cellsize_y = transform[4]
+    ymax = transform[5]
+
+    if abs(cellsize_x) != abs(cellsize_y):
+        logging.warning(
+            "Note that cell sizes in x and y should be same for specified grid stored in HEC-DSS"
+        )
+
+    rows = shape[0]
+    ymin = ymax + rows * cellsize_y
+    return (xmin, ymin)
 
 def lower_left_cell_from_transform(transform, shape, xcoord_cell0=0, ycoord_cell0=0):
     # https://www.hec.usace.army.mil/confluence/hmsdocs/hmsum/4.8/geographic-information/coordinate-reference-systems

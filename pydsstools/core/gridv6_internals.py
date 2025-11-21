@@ -12,7 +12,7 @@ import math
 import numpy as np
 from . import HecTime, DssPathName
 from .gridinfo import GridInfoCreate
-from .crs import hrap, make_albers, parse_crs
+from .crs import hrap, make_albers, parse_crs, crs_short_name
 from typing import Iterable
 
 __all__ = [
@@ -771,7 +771,7 @@ class _GridInfo6:
         prof7 = gridinfo6_to_gridinfo7_compatible_dict(self)
         return GridInfoCreate(**prof7)
 
-    def _get_crs_def(self):
+    def _infer_crs(self):
         crs = ""
         if self.grid_type == 410:
             # HRAP
@@ -803,7 +803,7 @@ class _GridInfo6:
 
         return crs
 
-    def _get_crs_name(self):
+    def _infer_crs_name(self):
         if self.grid_type == 410:
             return "HRAP"
 
@@ -822,16 +822,10 @@ class _GridInfo6:
             crs_name = data.strip()
             if not crs_name:
                 # try to extract from crs_def
-                crs_def = self._get_crs_string()
-                data = parse_crs(crs_def)
-                proj = data.get("proj", "")
-                datum = data.get("datum", "")
-                if proj and datum:
-                    crs_name = "{}_{}".format(proj, datum)
-                elif proj:
-                    crs_name = proj
-                elif datum:
-                    crs_name = datum
+                crs_name = crs_short_name(self._infer_crs())
+                if crs_name is None:
+                    crs_name = ""
+
             return crs_name
 
 
@@ -979,14 +973,15 @@ class SpecifiedInfo6(_GridInfo6, ctypes.Structure):
 
 
 def gridinfo6_init_from_grid_type(grid_type):
-    if grid_type == 400:
-        return GridInfo6()
-    elif grid_type == 410:
-        return HrapInfo6()
-    elif grid_type == 420:
-        return AlbersInfo6()
-    elif grid_type == 430:
-        return SpecifiedInfo6()
+    return _GridInfo6.from_grid_type(grid_type)
+    #if grid_type == 400:
+    #    return GridInfo6()
+    #elif grid_type == 410:
+    #    return HrapInfo6()
+    #elif grid_type == 420:
+    #    return AlbersInfo6()
+    #elif grid_type == 430:
+    #    return SpecifiedInfo6()
 
 
 def gridinfo7_to_gridinfo6(gridinfo7, pathname):
@@ -999,19 +994,20 @@ def gridinfo7_to_gridinfo6(gridinfo7, pathname):
     # -----------------------------------------
     # start and end time from dss pathname
     path = DssPathName(pathname)
-    dpart = path.getDPart()
-    epart = path.getEPart()
+    dpart = path.dpart
+    epart = path.epart
+    # UNUSED ??
     flag_time = False
     try:
-        stime = HecTime(dpart, 60)
-        info6.stime = stime.datetimeValue
+        stime = HecTime(dpart, granularity = 60)
+        info6.stime = stime.value()
     except:
         stime = 0
         flag_time = True
 
     try:
-        etime = HecTime(epart, 60)
-        info6.etime = etime.datetimeValue
+        etime = HecTime(epart, granularity = 60)
+        info6.etime = etime.value()
     except:
         etime = 0
         flag_time = True
@@ -1158,12 +1154,22 @@ def gridinfo6_to_gridinfo7_compatible_dict(gridinfo6):
 
     prof6.pop("range_length")
 
+    prof6["crs_name"] = gridinfo6._infer_crs_name()
+    prof6["crs"] = gridinfo6._infer_crs()
+
+    if grid_type == 410:
+        # HRAP
+        # extra or default crs info
+        pass
+
     if grid_type == 420:
+        # Albers
         xcoord = prof6.pop("xcoord_cell0")
         ycoord = prof6.pop("ycoord_cell0")
         prof6["coords_cell0"] = (xcoord, ycoord)
 
     if grid_type == 430:
+        # Specified
         xcoord = prof6.pop("xcoord_cell0")
         ycoord = prof6.pop("ycoord_cell0")
         prof6["coords_cell0"] = (xcoord, ycoord)

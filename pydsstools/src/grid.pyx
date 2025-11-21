@@ -1106,11 +1106,11 @@ cdef int read_grid0_as_grid100(long long *ifltab, zStructSpatialGrid *zsgs, obje
 
     if grid_type == DATA_TYPE_HGT:
         set_cstring(&zsgs[0]._dataSource,info_dict['data_source'])
-        set_cstring(&zsgs[0]._srsDefinition,ginfo6._get_crs_def())
+        set_cstring(&zsgs[0]._srsDefinition,ginfo6._infer_crs())
         zsgs[0]._xCoordOfGridCellZero = 0
         zsgs[0]._yCoordOfGridCellZero = 0
         zsgs[0]._srsDefinitionType = 0
-        set_cstring(&zsgs[0]._srsName,ginfo6._get_crs_name())
+        set_cstring(&zsgs[0]._srsName,ginfo6._infer_crs_name())
         set_cstring(&zsgs[0]._timeZoneID,'UTC (Undefined)')
         zsgs[0]._timeZoneRawOffset = 0
         zsgs[0]._isInterval = 0
@@ -1118,11 +1118,11 @@ cdef int read_grid0_as_grid100(long long *ifltab, zStructSpatialGrid *zsgs, obje
 
     elif grid_type == DATA_TYPE_AGT:
         set_cstring(&zsgs[0]._dataSource,'')
-        set_cstring(&zsgs[0]._srsDefinition,ginfo6._get_crs_def())
+        set_cstring(&zsgs[0]._srsDefinition,ginfo6._infer_crs())
         zsgs[0]._xCoordOfGridCellZero = 0
         zsgs[0]._yCoordOfGridCellZero = 0
         zsgs[0]._srsDefinitionType = 0
-        set_cstring(&zsgs[0]._srsName,ginfo6._get_crs_name())
+        set_cstring(&zsgs[0]._srsName,ginfo6._infer_crs_name())
         set_cstring(&zsgs[0]._timeZoneID,'UTC (Undefined)')
         zsgs[0]._timeZoneRawOffset = 0
         zsgs[0]._isInterval = 0
@@ -1130,11 +1130,11 @@ cdef int read_grid0_as_grid100(long long *ifltab, zStructSpatialGrid *zsgs, obje
 
     elif grid_type == DATA_TYPE_SGT:
         set_cstring(&zsgs[0]._dataSource,'')
-        set_cstring(&zsgs[0]._srsDefinition,ginfo6._get_crs_def())
+        set_cstring(&zsgs[0]._srsDefinition,ginfo6._infer_crs())
         zsgs[0]._xCoordOfGridCellZero = ginfo6.xcoord_cell0
         zsgs[0]._yCoordOfGridCellZero = ginfo6.ycoord_cell0
         zsgs[0]._srsDefinitionType = 0
-        set_cstring(&zsgs[0]._srsName,ginfo6._get_crs_name())
+        set_cstring(&zsgs[0]._srsName,ginfo6._infer_crs_name())
         set_cstring(&zsgs[0]._timeZoneID,info_dict['tzid'])
         zsgs[0]._timeZoneRawOffset = ginfo6.tzoffset
         zsgs[0]._isInterval = ginfo6.is_interval
