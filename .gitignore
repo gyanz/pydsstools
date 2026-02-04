@@ -26,6 +26,7 @@ pydsstools/src/external/gridv6/.vs/
 pydsstools/src/external/gridv6/build/
 build_*.bat
 *.bat
+!docs/make.bat
 *.swo
 setup.cfg
 
@@ -54,7 +55,7 @@ build
 dist
 _dist
 # sphinx build directory
-doc/_build
+docs/build
 # Egg metadata
 *.egg-info
 .eggs
@@ -94,10 +95,6 @@ tests/data/sampleC.dss
 
 # Generated Sources #
 #####################
-#*.c
-#*.cpp
-#!pydsstools/src/external/gridv6/*.c
-#!pydsstools/src/external/gridv6/*.cpp
 pydsstools/src/core_heclib.c
 
 # Unit / Performance Testing #
@@ -108,6 +105,3 @@ pydsstools/src/core_heclib.c
 #################################
 API.MD
 *.html
-docs/build/
-docs/_*.bat
-docs/_*.bat
