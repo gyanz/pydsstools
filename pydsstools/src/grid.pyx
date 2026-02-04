@@ -562,9 +562,9 @@ cdef int save_grid7(long long *ifltab, const char* pathname, float[:,::1] data, 
 
     data_units = info7.data_units
     data_type = info7.data_type.value
-    if data_type < -1:
-        logging.error('Invalid grid data type (value = {}). Gridded data was not written'.format(data_type))
-        return -1
+    if data_type == -9999:
+        logging.warning('Invalid grid data type (value = {}) provided.')
+        data_type = GRID_DATA_TYPE['invalid']
 
     compression_method = info7.compression_method.value
     if compression_method == PRECIP_2_BYTE or compression_method <0: # for enum.invalid = -9999
@@ -772,6 +772,10 @@ cdef int save_grid0(long long *ifltab, const char* pathname, float[:,::1] data, 
         logging.info('Incompatible compression method provided. Grid version 6 data was not written.')
         return -1
 
+    # Check data_type value: pydsstools uses -9999 for invalid while CAPI uses 5
+    if gridinfo.data_type == -9999 or gridinfo.data_type < 0 or gridinfo.data_type > 5:
+        gridinfo.data_type = GRID_DATA_TYPE['invalid']
+
     # get flatten (numpy int32 gridinfo buffer) from profile
     # grid info/meta data as int buffer
     logging.debug('Final gridinfo header in string format to be written to dss file:\n{}'.format(gridinfo.to_dict()))
@@ -854,9 +858,10 @@ cdef np.ndarray read_grid0(long long *ifltab, const char *pathname, object ginfo
     cdef:
         int grid_type
         int flat_size = 0
+        int flat_size_qc = 0
         np.ndarray info_flat
         int[::1] info_flat_mv
-        int comp_data_len
+        int comp_data_len = 0
         np.ndarray comp_data
         int[::1] comp_data_mv
         int16_t[::1] comp_data16
@@ -874,7 +879,8 @@ cdef np.ndarray read_grid0(long long *ifltab, const char *pathname, object ginfo
         float min_val
         float max_val
         int i
-        int dummy_header[1]
+        int dummy_int[1]
+        #short dummy_short
         int zero = 0
         int plan = 0
         int found = 0
@@ -883,24 +889,22 @@ cdef np.ndarray read_grid0(long long *ifltab, const char *pathname, object ginfo
         #zlib_diag diag
 
     grid_type = ginfo6.grid_type
-    comp_data_len = get_grid_datalen_from_path(ifltab,pathname)
 
+    logging.info("Retrieve the flat gridinfo and length of compressed data as int from DSS file")
+    flat_size = ginfo6.info_fsize
     info_flat = ginfo6.to_int_array()
     info_flat_mv = info_flat
 
-    comp_data = np.empty(comp_data_len,dtype=np.int32)
-    comp_data_mv = comp_data
+    #comp_data = np.empty(comp_data_len,dtype=np.int32)
+    #comp_data_mv = comp_data
 
-    # fill grid meta into info_flat,get compressed data
-    zreadx(ifltab,
-           pathname,
-           &info_flat_mv[0], &flat_size, &flat_size,
-           dummy_header, &zero, dummy_header,
-           dummy_header, &zero, dummy_header,
-           &comp_data_mv[0], &comp_data_len, &comp_data_len,
-           &plan,
-           &found
-    )
+    zreadx(ifltab, pathname,
+           &info_flat_mv[0], &flat_size, &flat_size, # retrieves flat info since flat_size > 0
+           dummy_int, &zero, dummy_int,
+           dummy_int, &zero, dummy_int,
+           dummy_int, &zero, &comp_data_len, # retrieves comp_data_len since second term is zero
+           &plan, &found)
+
     if found == 0:
         return None
 
@@ -912,7 +916,22 @@ cdef np.ndarray read_grid0(long long *ifltab, const char *pathname, object ginfo
         return info_flat
 
     if retrieve_data:
-        grid_type = ginfo6.grid_type
+        logging.debug('Retrieving ver0 grid data')
+        comp_data = np.zeros(comp_data_len,dtype=np.intc)
+        comp_data_mv = comp_data
+
+        zreadx(ifltab, pathname,
+            dummy_int, &zero, &flat_size_qc, 
+            dummy_int, &zero, dummy_int,
+            dummy_int, &zero, dummy_int,
+            &comp_data_mv[0], &comp_data_len, &comp_data_len, #retrieves data 
+            &plan, &found
+        )
+
+        if flat_size != flat_size_qc:
+            logging.warning('Mismatch in expected grid info size and retrieved grid info size from dss file: expected = {}, retrieved = {}'.format(flat_size,flat_size_qc))
+
+        #grid_type = ginfo6.grid_type
         rows = ginfo6.rows
         cols = ginfo6.cols
         data_size = rows * cols
@@ -924,13 +943,15 @@ cdef np.ndarray read_grid0(long long *ifltab, const char *pathname, object ginfo
         logging.debug('rows={},cols={},comp method = {},comp data len = {}'.format(rows,cols,comp_method,comp_data_len))
 
         if data_size == 0:
+            logging.error('The gridded data is empty')
             return None
 
         if comp_method == NO_COMPRESSION:
-            logging.debug('Grid data do not need decompressed')
+            logging.debug('Grid data is not compressed')
             out_data = np.astype(comp_data,dtype=np.float32)
 
         elif comp_method == ZLIB_COMPRESSION:
+            logging.info('Apply zlib decompression to gridded data from dss file.')
             out_data = np.empty(data_size,dtype=np.float32)
             out_data_mv = out_data
 
@@ -961,26 +982,21 @@ cdef np.ndarray read_grid0(long long *ifltab, const char *pathname, object ginfo
             #    logging.error('avail_out = {}'.format(diag.avail_out))
             #    return
 
-            if grid_type == 430:
-                nodata = ginfo6.nodata
-                out_data[out_data == nodata] = UNDEFINED_FLOAT
-
-            else:
-                out_data[(out_data < min_val) | (out_data > max_val)] = UNDEFINED_FLOAT
-
         elif comp_method == PRECIP_2_BYTE:
             #comp_data16_mv = <int16_t[:comp_data_len*2]><int16_t *>&comp_data_mv[0]
             # OverflowError: character argument not in range(0x110000)
             # use np.view instead of raw pointer casting
+            # int32 from DSS packs two int16 tokens per element in big-endian order
+            # On little-endian, view(int16) gives [lower16, upper16] per int32 — pair-swapped
             comp_data16 = comp_data.view(np.int16)
+            if sys.byteorder == 'little':
+                comp_data16 = comp_data16.reshape(-1, 2)[:, ::-1].ravel().copy()
             comp_data16_mv = comp_data16
             out_data = np.empty(data_size,dtype=np.float32)
             out_data_mv = out_data
             out_size = np.empty(1,dtype=np.int32)
             out_size_mv = out_size
-            # TODO: Review needed
-            # assuming int is int32. What if int is 16 or 64? In this case comp_data_len*2 fails
-            status = hec_uncompress(comp_data16_mv,comp_data_len*2,
+            status = hec_uncompress(comp_data16_mv,comp_data_len*4,
                                     comp_factor,comp_base,
                                     out_data_mv,
                                     out_size_mv,
@@ -988,19 +1004,18 @@ cdef np.ndarray read_grid0(long long *ifltab, const char *pathname, object ginfo
             if status !=0:
                 logging.error('Problem with decoding HEC-style RLE compressed data for grid (status = {})'.format(status))
                 return
-            # It seems the following is unnecessary
-            #if grid_type == 430:
-            #    nodata = ginfo6.nodata
-            #    # TODO: gridinfo will still show nodata value different than UNDEFINED_FLOAT
-            #    out_data[out_data == nodata] = UNDEFINED_FLOAT
-            #
-            #else:
-            #    out_data[(out_data < min_val) | (out_data > max_val)] = UNDEFINED_FLOAT
 
         else:
             out_data =  None
         
         if not out_data is None:
+            if grid_type == 430:
+                nodata = ginfo6.nodata
+                out_data[out_data == nodata] = UNDEFINED_FLOAT
+            
+            else:
+                out_data[(out_data < min_val) | (out_data > max_val)] = UNDEFINED_FLOAT
+
             out_data = np.ma.masked_values(out_data,UNDEFINED_FLOAT)
 
         return out_data
@@ -1009,13 +1024,14 @@ cdef int read_grid0_as_grid100(long long *ifltab, zStructSpatialGrid *zsgs, obje
     cdef:
         char* pathname 
         int flat_size = 0
+        int flat_size_qc = 0
         np.ndarray info_flat
         int grid_type
         int[::1] info_flat_mv
-        int comp_data_len
+        int comp_data_len = 0
         np.ndarray comp_data
         int[::1] comp_data_mv
-        int16_t[::1] comp_data16
+        np.ndarray comp_data16
         int16_t[::1] comp_data16_mv
         int comp_method
         float comp_base
@@ -1031,7 +1047,8 @@ cdef int read_grid0_as_grid100(long long *ifltab, zStructSpatialGrid *zsgs, obje
         float nodata
         float min_val
         float max_val
-        int dummy_header[1]
+        int dummy_int[1]
+        #short dummy_short
         int zero = 0
         int plan = 0
         int found = 0
@@ -1040,27 +1057,21 @@ cdef int read_grid0_as_grid100(long long *ifltab, zStructSpatialGrid *zsgs, obje
         #zlib_diag diag
 
     pathname = zsgs[0].pathname
-
     grid_type = ginfo6.grid_type
-    comp_data_len = get_grid_datalen_from_path(ifltab,pathname)
 
+    logging.info("Retrieve the flat gridinfo and length of compressed data as int from DSS file")
+    logging.debug("QC: comp_data_len using func: %s",get_grid_datalen_from_path(ifltab,pathname))
+    # We already know info flat size
+    flat_size = ginfo6.info_fsize
     info_flat = ginfo6.to_int_array()
     info_flat_mv = info_flat
 
-    comp_data = np.zeros(comp_data_len,dtype=np.intc)
-    comp_data_mv = comp_data
-
-    # fill grid meta into info_flat,get compressed data
-    # I don't think isError API function catches error from this low level call
-    # It needs to be handled separately
-    zreadx(ifltab,
-           pathname,
-           &info_flat_mv[0], &flat_size, &flat_size,
-           dummy_header, &zero, dummy_header,
-           dummy_header, &zero, dummy_header,
-           &comp_data_mv[0], &comp_data_len, &comp_data_len,
-           &plan,
-           &found
+    zreadx(ifltab, pathname,
+           &info_flat_mv[0], &flat_size, &flat_size, # retrieves flat info since flat_size > 0
+           dummy_int, &zero, dummy_int,
+           dummy_int, &zero, dummy_int,
+           dummy_int, &zero, &comp_data_len, # retrieves comp_data_len since second term is zero
+           &plan, &found
     )
     if found == 0:
         logging.error('The pathname does not corresponds to valid ver0 grid data')
@@ -1070,6 +1081,7 @@ cdef int read_grid0_as_grid100(long long *ifltab, zStructSpatialGrid *zsgs, obje
     info_dict =ginfo6.to_dict()
     grid_type = ginfo6.grid_type
     logging.debug('ginfo6 to dict = {}'.format(info_dict))
+    logging.info("Compressed data length (as int elements) = {}".format(comp_data_len))
 
     # SpatialGridStruct
     zsgs[0]._data = NULL
@@ -1084,6 +1096,7 @@ cdef int read_grid0_as_grid100(long long *ifltab, zStructSpatialGrid *zsgs, obje
     zsgs[0]._cellSize = ginfo6.cell_size
     zsgs[0]._compressionMethod = ginfo6.compression_method
     if ginfo6.compression_method == PRECIP_2_BYTE:
+        logging.warning("Grid version 0 record has compression type ** hec or PRECIP_2_BYTE **. Type is changed to **UNDEEFINED** while converting to version 100 grid record.")
         zsgs[0]._compressionMethod = UNDEFINED_COMPRESSION_METHOD
     zsgs[0]._maxDataValue = <void*>float_ref(ginfo6.max_val)
     zsgs[0]._minDataValue = <void*>float_ref(ginfo6.min_val)
@@ -1142,6 +1155,20 @@ cdef int read_grid0_as_grid100(long long *ifltab, zStructSpatialGrid *zsgs, obje
 
     if retrieve_data:
         logging.debug('Retrieving ver0 grid data')
+        comp_data = np.zeros(comp_data_len,dtype=np.intc)
+        comp_data_mv = comp_data
+
+        zreadx(ifltab, pathname,
+            dummy_int, &zero, &flat_size_qc, 
+            dummy_int, &zero, dummy_int,
+            dummy_int, &zero, dummy_int,
+            &comp_data_mv[0], &comp_data_len, &comp_data_len, #retrieves data 
+            &plan, &found
+        )
+
+        if flat_size != flat_size_qc:
+            logging.warning('Mismatch in expected grid info size and retrieved grid info size from dss file: expected = {}, retrieved = {}'.format(flat_size,flat_size_qc))
+
         rows = ginfo6.rows
         cols = ginfo6.cols
         data_size = rows * cols
@@ -1151,7 +1178,7 @@ cdef int read_grid0_as_grid100(long long *ifltab, zStructSpatialGrid *zsgs, obje
         comp_factor = ginfo6.compression_factor
         min_val = ginfo6.min_val
         max_val = ginfo6.max_val
-        logging.debug('rows={},cols={},comp method = {},comp data len = {},data_size = {}'.format(rows,cols,comp_method,comp_data_len,data_size))
+        logging.debug('rows={},cols={},comp method = {},comp data len = {},data_size = {},comp_base = {},comp_factor = {}'.format(rows,cols,comp_method,comp_data_len,data_size,comp_base,comp_factor))
 
         if data_size == 0:
             logging.error('The gridded data is empty')
@@ -1163,11 +1190,6 @@ cdef int read_grid0_as_grid100(long long *ifltab, zStructSpatialGrid *zsgs, obje
             out_data_cv = view.array(shape=(nlen,), itemsize=sizeof(f32), format="f", allocate_buffer=False)
             out_data_cv.data = <char*>out_data
             out_data_np = np.asarray(out_data_cv)
-            if grid_type == 430:
-                nodata = ginfo6.nodata
-                out_data_np[out_data_np == nodata] = UNDEFINED_FLOAT
-            else:
-                out_data_np[(out_data_np < min_val) | (out_data_np > max_val)] = UNDEFINED_FLOAT
 
         elif comp_method == ZLIB_COMPRESSION:
             logging.info('Apply zlib decompression to gridded data from dss file.')
@@ -1208,40 +1230,45 @@ cdef int read_grid0_as_grid100(long long *ifltab, zStructSpatialGrid *zsgs, obje
 
             #out_data_np = np.asarray(out_data_mv)
             out_data_np = np.asarray(out_data_cv)
-            if grid_type == 430:
-                nodata = ginfo6.nodata
-                out_data_np[out_data_np == nodata] = UNDEFINED_FLOAT
-            else:
-                out_data_np[(out_data_np < min_val) | (out_data_np > max_val)] = UNDEFINED_FLOAT
-
         elif comp_method == PRECIP_2_BYTE:
+            # int32 from DSS packs two int16 tokens per element in big-endian order
+            # On little-endian, view(int16) gives [lower16, upper16] per int32 — pair-swapped
             comp_data16 = comp_data.view(np.int16)
+            if sys.byteorder == 'little':
+                comp_data16 = comp_data16.reshape(-1, 2)[:, ::-1].ravel().copy()
             comp_data16_mv = comp_data16
             out_data = <f32*>malloc(<size_t>data_size*sizeof(f32))
             if out_data == NULL:
                 raise MemoryError()
-            #out_data_mv = <f32[:<Py_ssize_t>data_size:1]>(out_data)
             out_data_cv = view.array(shape=(nlen,), itemsize=sizeof(f32), format="f", allocate_buffer=False)
             out_data_cv.data = <char*>out_data
-            # compress/uncompress uses size in bytes, not length of array
-            # comp_data_len is length of 32-bit buffer, the length of corresponding 16-bit interpreted buffer is 2 times
-            comp_data_len = comp_data_len * 2 
-            #
             out_size = np.empty(1,dtype=np.int32)
             out_size_mv = out_size
-            # TODO: Review needed
-            # assuming int is int32. What if int is 16 or 64? In this case comp_data_len*2 fails
-            status = hec_uncompress(comp_data16_mv,comp_data_len,
+            status = hec_uncompress(comp_data16_mv,comp_data_len*4,
                                     comp_factor,comp_base,
                                     out_data_cv,
                                     out_size_mv,
                                     UNDEFINED_FLOAT)
             if status !=0:
                 logging.error('Problem with decoding HEC-style RLE compressed data for grid')
+            
+            logging.debug('Compressed int16 data buffer shape = {}, int16 mv = {}, int array length = {}'.format(comp_data16.shape[0],comp_data16_mv.shape[0],out_data_cv.shape[0]))
+
+            if out_size_mv[0] != data_size:
+                logging.warning('Decompressed gridded data size mismatch: expected = {}, retrieved = {}'.format(data_size,out_size_mv[0]))
+
+            out_data_np = np.asarray(out_data_cv)
 
         else:
             logging.error('Invalid compression method for gridded data.')
         
-        zsgs[0]._data = <void*>out_data
+        if not out_data_np is None:
+            if grid_type == 430:
+                nodata = ginfo6.nodata
+                out_data_np[out_data_np == nodata] = UNDEFINED_FLOAT
+            else:
+                out_data_np[(out_data_np < min_val) | (out_data_np > max_val)] = UNDEFINED_FLOAT
+        
+            zsgs[0]._data = <void*>out_data
 
     return 0

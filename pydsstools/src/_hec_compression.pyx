@@ -28,6 +28,7 @@ Encoding summary:
 """
 
 ctypedef float f32
+ctypedef double f64
 # cython: boundscheck=False, wraparound=False, cdivision=True, initializedcheck=False, nonecheck=False
 
 cdef inline int16_t _quantize_f32(f32 v, f32 scale, f32 base) nogil:
@@ -43,6 +44,7 @@ cdef inline int16_t _quantize_f32(f32 v, f32 scale, f32 base) nogil:
         return <int16_t>-1
     longval = <int>(((v - base) * scale) + 0.5)
     if longval > 32768:
+        # TODO: check if this should be >= 32768
         return <int16_t>-1
     return <int16_t>longval   # 0..32767 or -1 (already handled)
 
@@ -121,7 +123,7 @@ cdef int hec_compress(const f32[::1] arrayin,             # float32 input (C-con
 
 
 cdef int hec_uncompress(const int16_t[::1] arrayin,   # RLE tokens
-                        int bytesin,                  # valid BYTES in stream
+                        int bytesin,                  # valid BYTES in stream 
                         f32 scale,                    # compressionScaleFactor (float32)
                         f32 base,                     # compressionBase (float32)
                         f32[::1] arrayout,            # decoded floats
@@ -152,17 +154,18 @@ cdef int hec_uncompress(const int16_t[::1] arrayin,   # RLE tokens
         sval = arrayin[i]
         i += 1
         tag = (<int>sval) & 0xC000
+        #tag = ((<int>sval) & 0xFFFF) & 0xC000
 
         if (sval & 0x8000) == 0x0000:
             if out_i >= arrayout.shape[0]:
-                return -1
+                break  # output buffer full (possible padding token)
             arrayout[out_i] = <f32>(sval)
             out_i += 1
 
         elif tag == 0xC000:
             cnt = (<int>sval) & 0x3FFF
             if out_i + cnt > arrayout.shape[0]:
-                return -1
+                break  # output buffer full (possible padding token)
             while cnt > 0:
                 arrayout[out_i] = <f32>-1.0
                 out_i += 1
@@ -171,7 +174,7 @@ cdef int hec_uncompress(const int16_t[::1] arrayin,   # RLE tokens
         elif tag == 0x8000:
             cnt = (<int>sval) & 0x3FFF
             if out_i + cnt > arrayout.shape[0]:
-                return -1
+                break  # output buffer full (possible padding token)
             while cnt > 0:
                 arrayout[out_i] = <f32>0.0
                 out_i += 1
@@ -186,7 +189,7 @@ cdef int hec_uncompress(const int16_t[::1] arrayin,   # RLE tokens
         if tmp < <f32>0.0:
             arrayout[k] = undefined_float
         else:
-            arrayout[k] = <f32>(tmp / scale + base)
+            arrayout[k] = <f32>(<f64>tmp / <f64>scale + <f64>base)
 
     sizeout[0] = <int32_t>out_i
     return 0

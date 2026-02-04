@@ -3,9 +3,11 @@ import numpy as np
 import numpy.ma as ma
 from collections import namedtuple
 from .._lib import SpatialGridStruct as SpatialGridStructBase
-from .transform import TransformMethodsMixin, array_bounds, Affine
-from .gridinfo import GridInfoCreate, DataType, GridType,is_albers_grid
-from .gridv6_internals import gridinfo7_to_gridinfo6
+from ._transform import TransformMethodsMixin, array_bounds, Affine
+from .gridinfo import GridInfoCreate, is_albers_grid
+from .enums import GridType, DataType
+#from .gridv6_internals import gridinfo7_to_gridinfo6
+from .gridinfo.v6.conversion import gridinfo7_to_gridinfo6
 from .crs import albers_params_from_wkt, is_equal_area_conic
 
 _BoundingBox = namedtuple("BoundingBox", ("left", "bottom", "right", "top"))
@@ -112,6 +114,7 @@ class SpatialGridStruct(SpatialGridStructBase, TransformMethodsMixin):
                 albers_params = albers_params_from_wkt(prof["crs"])
                 prof.update(albers_params)
             except Exception:
+                logging.debug("crs=\n%s",prof["crs"])
                 logging.warning("Failed to extract Albers parameters from WKT")
 
         return GridInfoCreate(**prof)

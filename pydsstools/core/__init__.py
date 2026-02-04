@@ -1,34 +1,27 @@
 __all__ = [
-    "core_heclib",
-    "UNDEFINED",
-    "NODATA_TIME",
-    "NODATA_TIME",
     "Open",
     "TimeSeriesContainer",
-    "TimeSeriesStruct",  # can't use this from python directly
+    #"TimeSeriesStruct",
     "PairedDataContainer",
-    "PairedDataStruct",  # can't use this from python directly
-    "SpatialGridStruct",
-    "GRID_DATA_TYPE",
-    "GRID_COMPRESSION_METHODS",
-    "gridInfo",
-    "HRAP_WKT",
-    "SHG_WKT",
-    "check_shg_gridinfo",
-    "correct_shg_gridinfo",
-    "lower_left_xy_from_transform",
-    "delete_pathname",
-    "dss_info",
+    #"PairedDataStruct",
+    #"SpatialGridStruct",
     "HecTime",
     "DssPathName",
-    "DssStatusException",
-    "GranularityException",
-    "ArgumentException",
-    "DssLastError",
-    "setMessageLevel" "squeeze_file",
+    "UNDEFINED",
+    "HrapInfo",
+    "AlbersInfo",
+    "SpecifiedInfo",
+    "GridInfoCreate",
+    "Datum",
+    "GridType",
+    "DataType",
+    "CompressionMethod",
+    #"gridinfo"
 ]
 
-
 from .._lib import *
+#from . import gridinfo
+from .gridinfo import *
+from .gridinfo.v6 import *
 from .grid import SpatialGridStruct
 from . import grid_accessors

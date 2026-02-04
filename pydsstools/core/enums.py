@@ -17,7 +17,7 @@ class GridType(IntEnum):
 
 
 class DataType(IntEnum):
-    invalid = -9999
+    invalid = -9999 # CAPI used 5
     per_aver = 0
     per_cum = 1
     inst_val = 2
