@@ -25,8 +25,11 @@ from dateutil import parser
 from dateutil.relativedelta import relativedelta
 #from affine import Affine
 #from collections import namedtuple
-import numpy as np 
-np.seterr(over='raise')
+import numpy as np
+# NumPy 2.0 compatibility: import_array() is required for C API usage
+# Cython 3.0+ handles this automatically, but explicit call ensures compatibility
 cimport numpy as np
 cimport numpy as cnp
+np.import_array()
+np.seterr(over='raise')
 import re

@@ -189,11 +189,14 @@ else:
 
 # include_dirs.append(numpy.get_include())
 
-# why new api causing error C2039: 'dimensions': is not a member of 'tag PyArrayObject' ?
-# macros = [("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
-
-# macros = [('Py_LIMITED_API','0x03070000')]
-macros = []
+# NumPy 2.0 compatibility:
+# - NPY_NO_DEPRECATED_API suppresses deprecated API warnings and ensures forward compatibility
+# - NPY_1_7_API_VERSION is the minimum stable API version that works with both NumPy 1.x and 2.x
+# - When building with NumPy 1.x (via oldest-supported-numpy), wheels are forward-compatible
+#   with NumPy 2.x if we use only the stable C API subset
+# - The previous error "C2039: 'dimensions' is not a member of 'tagPyArrayObject'" was caused
+#   by using deprecated array access macros. Cython 0.29.x+ handles this properly.
+macros = [("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
 
 extensions = [
     Extension(

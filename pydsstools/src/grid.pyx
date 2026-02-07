@@ -948,7 +948,7 @@ cdef np.ndarray read_grid0(long long *ifltab, const char *pathname, object ginfo
 
         if comp_method == NO_COMPRESSION:
             logging.debug('Grid data is not compressed')
-            out_data = np.astype(comp_data,dtype=np.float32)
+            out_data = np.asarray(comp_data).astype(np.float32)
 
         elif comp_method == ZLIB_COMPRESSION:
             logging.info('Apply zlib decompression to gridded data from dss file.')
@@ -988,9 +988,10 @@ cdef np.ndarray read_grid0(long long *ifltab, const char *pathname, object ginfo
             # use np.view instead of raw pointer casting
             # int32 from DSS packs two int16 tokens per element in big-endian order
             # On little-endian, view(int16) gives [lower16, upper16] per int32 — pair-swapped
-            comp_data16 = comp_data.view(np.int16)
+            # NumPy 2.0 compat: ensure we have a NumPy array (not memoryview) for .view() and .reshape()
+            comp_data16 = np.asarray(comp_data).view(np.int16)
             if sys.byteorder == 'little':
-                comp_data16 = comp_data16.reshape(-1, 2)[:, ::-1].ravel().copy()
+                comp_data16 = np.asarray(comp_data16).reshape(-1, 2)[:, ::-1].ravel().copy()
             comp_data16_mv = comp_data16
             out_data = np.empty(data_size,dtype=np.float32)
             out_data_mv = out_data
@@ -1233,9 +1234,9 @@ cdef int read_grid0_as_grid100(long long *ifltab, zStructSpatialGrid *zsgs, obje
         elif comp_method == PRECIP_2_BYTE:
             # int32 from DSS packs two int16 tokens per element in big-endian order
             # On little-endian, view(int16) gives [lower16, upper16] per int32 — pair-swapped
-            comp_data16 = comp_data.view(np.int16)
+            comp_data16 = np.asarray(comp_data).view(np.int16)
             if sys.byteorder == 'little':
-                comp_data16 = comp_data16.reshape(-1, 2)[:, ::-1].ravel().copy()
+                comp_data16 = np.asarray(comp_data16).reshape(-1, 2)[:, ::-1].ravel().copy()
             comp_data16_mv = comp_data16
             out_data = <f32*>malloc(<size_t>data_size*sizeof(f32))
             if out_data == NULL:

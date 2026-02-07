@@ -1,13 +1,14 @@
 # Refer to PEP 621, 518 and 517
 [build-system]
+# NumPy 2.0 Compatibility Strategy:
+# - Build with oldest-supported-numpy to ensure ABI compatibility with both NumPy 1.x and 2.x
+# - Cython 3.0+ is required for full NumPy 2.0 support (handles NPY_2_0_API changes)
+# - Wheels built with NumPy 1.x are forward-compatible with NumPy 2.x when using stable C API
 requires = [
-    "setuptools",
-    "Cython>=0.29.0",
+    "setuptools>=61.0",
+    "Cython>=3.0.0",
     "versioneer[toml]",
-    #"numpy>=1.21.5,<2.0.0; python_version>='3.8' and python_version<'3.11'",
-    #"numpy>=1.26.0,<2.0.0; python_version>='3.11' and python_version<'3.13'",
-	#"oldest-supported-numpy; python_version>='3.13'", # not supported yet
-	"oldest-supported-numpy",
+    "oldest-supported-numpy",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -34,11 +35,12 @@ classifiers = [
 ]
 
 dependencies = [
-    #"numpy>=1.16.4; python_version=='3.6'",
-    #"numpy>=1.21.5; python_version=='3.7'",
-    "numpy>=1.21.5,<3.0.0; python_version>='3.8' and python_version<'3.11'",
-    "numpy>=1.26.0,<3.0.0; python_version>='3.11' and python_version<'3.13'",
-	"numpy>=2.1.0; python_version>='3.13'", # not supported yet
+    # NumPy version constraints supporting both NumPy 1.x and 2.x:
+    "numpy>=1.21.5; python_version>='3.8' and python_version<'3.10'",
+    "numpy>=1.23.2; python_version>='3.10' and python_version<'3.11'",
+    "numpy>=1.23.2; python_version>='3.11' and python_version<'3.12'",
+    "numpy>=1.26.0; python_version>='3.12' and python_version<'3.13'",
+    "numpy>=2.1.0; python_version>='3.13'",
     "pandas",
     "affine",
     "pyproj",
@@ -96,7 +98,7 @@ parentdir_prefix = "pydsstools-"
 
 [tool.black]
 line-length = 88
-target-version = ["py38","py39","py310","py311","py312"]
+target-version = ["py38","py39","py310","py311","py312","py313"]
 
 [tool.ruff]
 line-length = 88
