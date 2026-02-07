@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 import numpy as np
 from pydsstools.heclib.dss import HecDss
+from pydsstools.core.enums import CompressionMethod
 
 DATA = Path(__file__).parent / "data"
 
@@ -82,6 +83,54 @@ def test_read_albers(fidA):
                 "range_count1":1127,
                 "range_count2":16,
                 "range_count3":0,
+                "proj_datum":2,
+                }
+
+    ds = fidA.read_grid(pathname)
+    ginfo = ds.gridinfo
+    range_vals = ginfo.range_vals
+    range_counts = ginfo.range_counts
+    
+    info = {"grid_type":ginfo.grid_type,
+            "data_units":ginfo.data_units,
+            "data_type":ginfo.data_type,
+            "lower_left_cell":ginfo.lower_left_cell,
+            "shape":ginfo.shape,
+            "cell_size":ginfo.cell_size,
+            "compression_method":ginfo.compression_method,
+            "max_val":ginfo.max_val,
+            "min_val":ginfo.min_val,
+            "mean_val":ginfo.mean_val,
+            "range_val1":range_vals[1],
+            "range_val3":range_vals[3],
+            "range_count0":range_counts[0],
+            "range_count1":range_counts[1],
+            "range_count2":range_counts[2],
+            "range_count3":range_counts[3],
+            "proj_datum":ginfo.proj_datum}
+    
+    for k,exp_v in exp_info.items():
+        v = info[k]
+        assert v == pytest.approx(exp_v), "Mismatch at key:{k}, value:{v} | expected:{exp_v}"
+
+def test_read_albers_v0(fidA):
+    pathname = "/SHG/LCOLORADO/PRECIP/02JAN2020:1500/02JAN2020:1600/P2B-VER0/"
+    exp_info = {"grid_type":420,
+                "data_units":"MM",
+                "data_type":1,
+                "lower_left_cell":(-225,300),
+                "shape":(250,250),
+                "cell_size":2000.0,
+                "compression_method":CompressionMethod.undefined,
+                "max_val":1.2691166,
+                "min_val":0.0,
+                "mean_val":7.3108405e-2,
+                "range_val1":0,
+                "range_val3":1.0,
+                "range_count0":62500,
+                "range_count1":35025,
+                "range_count2":11168,
+                "range_count3":127,
                 "proj_datum":2,
                 }
 

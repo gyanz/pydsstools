@@ -15,7 +15,7 @@ UNIT[\"Degree\",0.0174532925199433]],PROJECTION[\"Albers\"],\
 PARAMETER[\"False_Easting\",{1}],PARAMETER[\"False_Northing\",{2}],\
 PARAMETER[\"Central_Meridian\",{3}],PARAMETER[\"Standard_Parallel_1\",{4}],\
 PARAMETER[\"Standard_Parallel_2\",{5}],PARAMETER[\"Latitude_Of_Origin\",{6}],\
-UNIT[\"Meter\",1.0]]"""
+UNIT[\"{7}\",1.0]]"""
 
 
 HEC_SHG_CELLSIZE = (10000, 5000, 2000, 1000, 500, 200, 100, 50, 20, 10)  # meters
@@ -43,15 +43,15 @@ def shg():
     return SHG_WKT
 
 def make_albers(
-    datum, false_easting, false_northing, cmeridian, par1, par2, lat_origin
+    datum, false_easting, false_northing, cmeridian, par1, par2, lat_origin, proj_units="Meter"
 ):
     dtm = "UNDEFINED"
     if datum == Datum.nad83:
-        dtm = "North_American_1983"
+        dtm = "1983"
     elif datum == Datum.nad27:
-        dtm = "North_American_1927"
+        dtm = "1927"
     return SHG_WKT_CUSTOM.format(
-        dtm, false_easting, false_northing, cmeridian, par1, par2, lat_origin
+        dtm, false_easting, false_northing, cmeridian, par1, par2, lat_origin, proj_units
     )
 
 

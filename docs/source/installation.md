@@ -1,12 +1,48 @@
 # Installation
 
-## Easy Installation from [PyPI](https://pypi.org/project/pydsstools/)
-```
+## From PyPI
+
+Install the latest stable release:
+
+```bash
 pip install pydsstools
 ```
 
-## Build from source
-Download the source files, open the command prompt in the root directory, and enter the following command. Note that the command prompt must be setup with build tools and python environment.
+Install a pre-release version (if available):
+
+```bash
+pip install --pre pydsstools
 ```
-python -m build 
+
+## Optional Dependencies
+
+For geospatial features (rasterio, geopandas, etc.):
+
+```bash
+pip install pydsstools[geo]
 ```
+
+## Build from Source
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/gyanz/pydsstools.git
+   cd pydsstools
+   ```
+
+2. Build the wheel (requires build tools and a C compiler):
+
+   ```bash
+   pip install build
+   python -m build
+   ```
+
+3. Install the built wheel:
+
+   ```bash
+   pip install dist/pydsstools-*.whl
+   ```
+
+> **Note:** On Windows, you need Visual Studio Build Tools with C++ workload.
+> On Linux, you need `gcc`, `gfortran`, and development headers.

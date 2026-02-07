@@ -1,12 +1,24 @@
-project = "pydsstools"
-copyright = "2025, Gyan Basyal"
-author = "Gyan Basyal"
-release = "latest"
-
 import sys
 import warnings
 
+# -- Project information -----------------------------------------------------
+project = "pydsstools"
+copyright = "2025, Gyan Basyal"
+author = "Gyan Basyal"
+
+# Get version from the installed package (versioneer)
+try:
+    from pydsstools import __version__
+    release = __version__
+    # Extract major.minor for short version (e.g., "2.4" from "2.4.0+5.g1234abc")
+    version = ".".join(release.split(".")[:2]).split("+")[0]
+except ImportError:
+    release = "dev"
+    version = "dev"
+
+# Debug output for Sphinx builds
 print("SPHINX python:", sys.executable)
+print("SPHINX pydsstools version:", release)
 try:
     import pydsstools.heclib.dss.HecDss as m
     print("SPHINX HecDss:", m)

@@ -14,7 +14,7 @@ projection, data units, and compression.
 | **Grid Version 0** | Legacy format used in DSS-6 files. Can be read and converted. |
 | **GridInfo** | Object holding grid metadata (projection, cell size, shape, units, etc.). |
 | **GridType** | Enum for projection type: `hrap`, `albers`, `specified`, or `undefined` (with `_time` variants). |
-| **SpatialGridStruct** | Container returned by `read_grid()` — holds the data array, GridInfo, etc. |
+ | **SpatialGridStruct** | Container returned by `read_grid()` — holds the data array, GridInfo, etc. |
 | **UNDEFINED** | Sentinel value representing missing data in DSS grid cells. |
 
 ## Grid Type Overview
@@ -151,12 +151,17 @@ with Open(dss_file) as fid:
 The conversion is transparent — code that works with version-100 grids works
 identically with version-0 grids.
 
-> **Note:** There are slight differences in grid metadata between version-0 and
-> version-100 grids. For example, the RLE-style compression used for
-> precipitation data is supported only in version-0 grids. When a version-0
-> grid is read using `read_grid()`, this compression method is reported in the
-> returned `gridinfo` as *undefined compression*. If you need to read a
-> version-0 grid and write it back while preserving its original format, use
+> **Note:** There are differences in how grid metadata is stored between
+> version-0 and version-100 formats:
+>
+> - **Compression:** Version-0 uses RLE-style compression for precipitation
+>   data, which has no direct equivalent in version-100. When read via
+>   `read_grid()`, this appears as *undefined compression* in `gridinfo`.
+> - **Projection:** Version-0 stores Albers parameters explicitly, while
+>   version-100 stores a WKT string in `crs` (or implies SHG when `crs` is empty).
+>
+> These differences are handled automatically during conversion. If you need
+> to preserve the original version-0 format when writing back, use
 > `read_grid2()` instead.
 
 ---

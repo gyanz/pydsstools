@@ -1,6 +1,7 @@
-# Advanced Topics
+# Topics
 
 ```{toctree}
+:caption:
 :maxdepth: 1
 
 hectime

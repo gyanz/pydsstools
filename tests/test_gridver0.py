@@ -5,6 +5,8 @@ pytestmark = pytest.mark.skipif(sys.platform != "win32", reason="Windows-only te
 from pathlib import Path
 import numpy as np
 from pydsstools.heclib.dss import HecDss
+from pydsstools.core.enums import CompressionMethod
+
 DATA = Path(__file__).parent / "data"
 
 
@@ -128,6 +130,73 @@ def test_read_albers(fidB):
             "lat_origin":ginfo["lat_origin"],
             "false_easting":ginfo["false_easting"],
             "false_northing":ginfo["false_northing"],
+            }
+    
+    for k,exp_v in exp_info.items():
+        v = info[k]
+        assert v == pytest.approx(exp_v), f"Mismatch at key:{k}, value:{v} | expected:{exp_v}"
+
+def test_read_albers_as_v100(fidB):
+    # prproj is used to extract CRS parameters from the generated WKT and normalize equivalent values that may appear in different cases or forms (e.g., proj_unit METERS appear as meter) 
+    pathname = r"/SHG/BALDEAGLE/PRECIP/23JUL2003:0000/23JUL2003:0100/P2B-VER0/"
+    exp_info = {"grid_type":420,
+                "data_units":"mm",
+                "data_type":1,
+                "lower_left_cell":(741,1055),
+                "shape":(41,31),
+                "cell_size":2000.0,
+                "compression_method":CompressionMethod.undefined,
+                "max_val":0.077867515,
+                "min_val":0.0,
+                "mean_val":7.8371016e-4,
+                "range_val1":0,
+                "range_val3":1.0,
+                "range_count0":1271,
+                "range_count1":1127,
+                "range_count2":19,
+                "range_count3":0,
+                "coords_cell0":(0.0,0.0),
+                "proj_datum":2,
+                "proj_units":"meter",
+                "first_parallel":29.5,
+                "sec_parallel":45.5,
+                "central_meridian":-96.0, 
+                "lat_origin":23.0,
+                "false_easting":0.0,
+                "false_northing":0.0,
+                }
+
+    ds = fidB.read_grid(pathname)
+    ginfo = ds.gridinfo
+    range_vals = ginfo.range_vals
+    range_counts = ginfo.range_counts
+    
+    info = {
+            "grid_type":ginfo.grid_type,
+            "data_units":ginfo.data_units,
+            "data_type":ginfo.data_type,
+            "lower_left_cell":ginfo.lower_left_cell,
+            "shape":ginfo.shape,
+            "cell_size":ginfo.cell_size,
+            "compression_method":ginfo.compression_method,
+            "max_val":ginfo.max_val,
+            "min_val":ginfo.min_val,
+            "mean_val":ginfo.mean_val,
+            "range_val1":range_vals[1],
+            "range_val3":range_vals[3],
+            "range_count0":range_counts[0],
+            "range_count1":range_counts[1],
+            "range_count2":range_counts[2],
+            "range_count3":range_counts[3],
+            "coords_cell0":ginfo.coords_cell0,
+            "proj_datum":ginfo.proj_datum,
+            "proj_units":ginfo.proj_units,
+            "first_parallel":ginfo.lat_1,
+            "sec_parallel":ginfo.lat_2,
+            "central_meridian":ginfo.lon_0,
+            "lat_origin":ginfo.lat_0,
+            "false_easting":ginfo.x_0,
+            "false_northing":ginfo.y_0,
             }
     
     for k,exp_v in exp_info.items():

@@ -1,0 +1,9 @@
+# Documentation build dependencies for ReadTheDocs
+# These are also listed in pyproject.toml [project.optional-dependencies] doc
+
+myst-parser>=4.0.1
+numpydoc
+sphinx>=8.2.3
+sphinx-rtd-theme
+sphinx-autodoc-typehints
+autodoc-pydantic>=2.0.0

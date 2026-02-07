@@ -461,6 +461,7 @@ class GridInfo6Base:
                 self.first_parallel,
                 self.sec_parallel,
                 self.lat_origin,
+                self.proj_units
             )
 
         elif self.grid_type == 430:
