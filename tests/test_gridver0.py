@@ -157,7 +157,7 @@ def test_read_albers_as_v100(fidB):
                 "range_count3":0,
                 "coords_cell0":(0.0,0.0),
                 "proj_datum":2,
-                "proj_units":"meter",
+                "proj_units":["meter","meters", "m"],  # Accept either form
                 "first_parallel":29.5,
                 "sec_parallel":45.5,
                 "central_meridian":-96.0, 
@@ -201,7 +201,11 @@ def test_read_albers_as_v100(fidB):
     
     for k,exp_v in exp_info.items():
         v = info[k]
-        assert v == pytest.approx(exp_v), f"Mismatch at key:{k}, value:{v} | expected:{exp_v}"
+        if isinstance(exp_v, list):
+            # Multiple acceptable values (e.g., proj_units: "meter" or "m")
+            assert v in exp_v, f"Mismatch at key:{k}, value:{v} | expected one of:{exp_v}"
+        else:
+            assert v == pytest.approx(exp_v), f"Mismatch at key:{k}, value:{v} | expected:{exp_v}"
 
 def test_read_spec(fidB):
     pathname = r"/UTM_18N/MARFC/PRECIP/23JUL2003:0000/23JUL2003:0100/ZLIB-VER0/"

@@ -27,6 +27,15 @@ on:
           - "cp38-*"
           - "cp310-* cp311-* cp312-*"
           - "cp38-* cp39-* cp310-* cp311-* cp312-* cp313-*"
+      os:
+        description: "OS to build"
+        required: false
+        default: "both"
+        type: choice
+        options:
+          - "both"
+          - "windows"
+          - "linux"
 
 jobs:
   build-wheels:
@@ -36,7 +45,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022, ubuntu-22.04]
+        os: ${{ fromJSON(
+          github.event.inputs.os == 'windows' && '["windows-2022"]' ||
+          github.event.inputs.os == 'linux' && '["ubuntu-22.04"]' ||
+          '["windows-2022", "ubuntu-22.04"]'
+          ) }}
 
     env:
       CIBW_BUILD: ${{ github.event.inputs.python_version || 'cp311-*' }}
@@ -121,7 +134,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022, ubuntu-22.04]
+        os: ${{ fromJSON(
+          github.event.inputs.os == 'windows' && '["windows-2022"]' ||
+          github.event.inputs.os == 'linux' && '["ubuntu-22.04"]' ||
+          '["windows-2022", "ubuntu-22.04"]'
+          ) }}
 
     steps:
       - uses: actions/checkout@v4
@@ -176,7 +193,7 @@ jobs:
   publish:
     name: Publish to (Test)PyPI
     needs: [test-wheels]
-    if: ${{ always() && github.event_name == 'workflow_dispatch' }}
+    if: ${{ needs.test-wheels.result == 'success' && github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-22.04
     steps:
       # The next couple of steps build the sdist here (once) in the publish job.

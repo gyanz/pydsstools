@@ -468,7 +468,7 @@ class RasterSpatialGrid:
         obj = RasterSpatialGrid(ds,grid_type=self.grid_type,data_units=self.data_units,data_type=self.data_type)
         return obj
 
-    def reproject(self, dst_crs, method=Resampling.nearest, cellsize=None):
+    def reproject(self, dst_crs, method=None, cellsize=None):
         """
         Reproject the raster to a new CRS.
 
@@ -490,6 +490,9 @@ class RasterSpatialGrid:
             New :class:`RasterSpatialGrid` instance in the target CRS,
             with appropriately sized output grid and transform.
         """
+        if method is None:
+            method = Resampling.nearest
+
         src_prof = self.profile
         src_trans = self.transform
         src_width = self.width
