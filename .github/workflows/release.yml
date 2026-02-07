@@ -19,14 +19,18 @@ on:
         default: "cp311-*"
         type: choice
         options:
-          - "cp311-*"
+          - "cp38-*"
+          - "cp39-*"
           - "cp310-*"
+          - "cp311-*"
           - "cp312-*"
           - "cp313-*"
-          - "cp39-*"
-          - "cp38-*"
+          - "cp314-*"
+          - "cp315-*"
+          - "cp38-* cp39-* cp310-*"
           - "cp310-* cp311-* cp312-*"
-          - "cp38-* cp39-* cp310-* cp311-* cp312-* cp313-*"
+          - "cp313-* cp314-* cp315-*"
+          - "cp38-* cp39-* cp310-* cp311-* cp312-* cp313-* cp314-* cp315-*"
       os:
         description: "OS to build"
         required: false

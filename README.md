@@ -2,6 +2,7 @@
 
 [![Documentation Status](https://readthedocs.org/projects/pydsstools/badge/?version=latest)](https://pydsstools.readthedocs.io/en/latest/?badge=latest)
 [![PyPI version](https://badge.fury.io/py/pydsstools.svg)](https://badge.fury.io/py/pydsstools)
+[![NumPy](https://img.shields.io/badge/NumPy-1.x%20%7C%202.x-blue?logo=numpy)](https://numpy.org)
 
 A Cython-based Python library for reading and writing [HEC-DSS](http://www.hec.usace.army.mil/software/hec-dssvue/) database files.
 
