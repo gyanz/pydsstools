@@ -836,8 +836,10 @@ class Open(_Open):
 
         Notes
         -----
-        .. todo::
-           Support reading version-0 grids stored in DSS-7 files.
+           There are slight differences in grid metadata between version-0 and version-100 grids. For example, the RLE-style compression 
+           used for precipitation data is supported only in version-0 grids. When a version-0 grid is read using ``read_grid``, this 
+           compression method is reported in the returned ``gridinfo`` as *undefined compression*. Consequently, if a version-0 grid 
+           needs to be read and written back while preserving its original format, the ``read_grid2`` method should be used instead.
         """
         pathname = DssPathName(pathname)
         sg_st = SpatialGridStruct()

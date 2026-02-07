@@ -8,12 +8,6 @@ specific points in time. Common uses include streamflow hydrographs,
 precipitation measurements, water level observations, and reservoir
 operations data.
 
-## Prerequisites
-
-```python
-pip install pydsstools numpy
-```
-
 ## Key Concepts
 
 | Concept | Description |

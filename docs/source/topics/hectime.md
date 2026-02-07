@@ -8,12 +8,6 @@ since December 31, 1899) and **seconds since midnight** (0-86400). It
 provides parsing, formatting, arithmetic, and conversion to/from Python
 `datetime` objects.
 
-## Prerequisites
-
-```python
-pip install pydsstools
-```
-
 ## Key Concepts
 
 | Concept | Description |

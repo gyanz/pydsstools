@@ -1,21 +1,10 @@
 # Gridded Data
 
-This guide walks through reading, writing, and performing spatial analysis on
-gridded records stored in HEC-DSS files using **pydsstools**.
-
 DSS gridded records store spatially distributed data — precipitation fields,
 temperature surfaces, elevation models — on regular grids tied to a map
 projection. Each record carries both the cell values (as a 2-D NumPy array) and
 a **GridInfo** metadata object that describes the grid dimensions, cell size,
 projection, data units, and compression.
-
-## Prerequisites
-
-```python
-pip install pydsstools numpy
-# For geospatial examples (Example 5) also install:
-pip install rasterio gdal matplotlib
-```
 
 ## Key Concepts
 
@@ -23,9 +12,9 @@ pip install rasterio gdal matplotlib
 |---------|-------------|
 | **Grid Version 100** | Modern DSS-7 native grid format. Recommended for new data. |
 | **Grid Version 0** | Legacy format used in DSS-6 files. Can be read and converted. |
-| **GridInfo** | Pydantic model holding grid metadata (projection, cell size, shape, units, etc.). |
+| **GridInfo** | Object holding grid metadata (projection, cell size, shape, units, etc.). |
 | **GridType** | Enum for projection type: `hrap`, `albers`, `specified`, or `undefined` (with `_time` variants). |
-| **SpatialGridStruct** | Container returned by `read_grid()` — holds the data array, profile, and GridInfo. |
+| **SpatialGridStruct** | Container returned by `read_grid()` — holds the data array, GridInfo, etc. |
 | **UNDEFINED** | Sentinel value representing missing data in DSS grid cells. |
 
 ## Grid Type Overview
@@ -39,6 +28,58 @@ pydsstools supports four grid projection types:
 - **Specified** — User-defined CRS via EPSG code, PROJ string, or WKT.
   Maximum flexibility for custom projections.
 - **Undefined** — No projection information. Suitable for generic raster data.
+
+## Grid Coordinate Concepts
+
+DSS grids use two important coordinate parameters to position grids within a
+projection system: **coords_cell0** and **lower_left_cell**. These work
+differently depending on the grid type.
+
+### For Albers/SHG Grids
+
+Albers grids reference a global coordinate system where the projection origin
+is typically (0, 0):
+
+| Parameter | Description |
+|-----------|-------------|
+| **coords_cell0** | Coordinates of the southwest corner of cell (0, 0) in the global grid system. For SHG (EPSG:5070), this is usually `(0.0, 0.0)` — the projection origin (false easting, false northing). |
+| **lower_left_cell** | Cell indices `(x_cell, y_cell)` indicating which cell in the global grid corresponds to your grid's lower-left corner. Calculated as `(floor((xmin - x_0) / cellsize), floor((ymin - y_0) / cellsize))`. |
+| **min_xy** | The actual geographic coordinates `(xmin, ymin)` of your grid's lower-left corner in projection units (meters for SHG). |
+
+This design allows multiple grids to be spatially referenced within the same
+global SHG coordinate system, even if they cover different regions.
+
+**Example:** A grid covering part of the eastern US might have:
+- `coords_cell0 = (0.0, 0.0)` — SHG projection origin
+- `lower_left_cell = (-750, 250)` — cell indices relative to origin
+- `min_xy = (-1500000, 500000)` — actual coordinates in meters (EPSG:5070)
+
+### For Specified Grids
+
+Specified grids follow the HEC-MetVue convention where the grid's own corner
+serves as the reference:
+
+| Parameter | Description |
+|-----------|-------------|
+| **coords_cell0** | Equals `min_xy` — the actual coordinates of the grid's lower-left corner. |
+| **lower_left_cell** | Always `(0, 0)` — the grid is self-referencing. |
+| **min_xy** | The geographic coordinates `(xmin, ymin)` of the grid's lower-left corner. |
+
+This simpler convention makes specified grids more portable but requires an
+explicit CRS definition.
+
+### Summary Table
+
+| Grid Type | coords_cell0 | lower_left_cell |
+|-----------|--------------|-----------------|
+| **Albers/SHG** | Projection origin, typically `(0, 0)` | Calculated cell indices (can be negative) |
+| **Specified** | Same as `min_xy` | Always `(0, 0)` |
+| **HRAP** | HRAP origin coordinates | Calculated cell indices |
+| **Undefined** | User-defined or `(0, 0)` | User-defined or `(0, 0)` |
+
+> **Note:** When writing grids with `put_grid()`, the `normalize` parameter
+> (default `True`) automatically calculates `coords_cell0` and `lower_left_cell`
+> from `min_xy` or the input transform based on the grid type.
 
 ---
 
@@ -110,6 +151,14 @@ with Open(dss_file) as fid:
 The conversion is transparent — code that works with version-100 grids works
 identically with version-0 grids.
 
+> **Note:** There are slight differences in grid metadata between version-0 and
+> version-100 grids. For example, the RLE-style compression used for
+> precipitation data is supported only in version-0 grids. When a version-0
+> grid is read using `read_grid()`, this compression method is reported in the
+> returned `gridinfo` as *undefined compression*. If you need to read a
+> version-0 grid and write it back while preserving its original format, use
+> `read_grid2()` instead.
+
 ---
 
 ## Example 3 — Read a Version-0 Grid (DSS-6, low-level API)
@@ -138,6 +187,8 @@ with Open(dss_file) as fid:
 
 **When to use `read_grid2()`:**
 
+- You need to read and write back a version-0 grid while preserving its
+  original format (including RLE-style compression for precipitation data).
 - You only need the raw array and basic metadata.
 - You are working with legacy DSS-6 files and want minimal overhead.
 - You do not need the rasterio-backed spatial methods (plotting, masking,

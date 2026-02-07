@@ -2,11 +2,12 @@
 [build-system]
 requires = [
     "setuptools",
-    "Cython>=0.29.0,<3.0.0",
+    "Cython>=0.29.0",
     "versioneer[toml]",
-    "numpy>=1.21.5,<2.0.0; python_version>='3.8' and python_version<'3.11'",
-    "numpy>=1.26.0,<2.0.0; python_version>='3.11' and python_version<'3.13'",
-	"numpy>=2.0.0; python_version>='3.13'", # not supported yet
+    #"numpy>=1.21.5,<2.0.0; python_version>='3.8' and python_version<'3.11'",
+    #"numpy>=1.26.0,<2.0.0; python_version>='3.11' and python_version<'3.13'",
+	#"oldest-supported-numpy; python_version>='3.13'", # not supported yet
+	"oldest-supported-numpy",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -35,9 +36,9 @@ classifiers = [
 dependencies = [
     #"numpy>=1.16.4; python_version=='3.6'",
     #"numpy>=1.21.5; python_version=='3.7'",
-    "numpy>=1.21.5,<2.0.0; python_version>='3.8' and python_version<'3.11'",
-    "numpy>=1.26.0,<2.0.0; python_version>='3.11' and python_version<'3.13'",
-	"numpy>=2.0.0; python_version>='3.13'", # not supported yet
+    "numpy>=1.21.5,<3.0.0; python_version>='3.8' and python_version<'3.11'",
+    "numpy>=1.26.0,<3.0.0; python_version>='3.11' and python_version<'3.13'",
+	"numpy>=2.1.0; python_version>='3.13'", # not supported yet
     "pandas",
     "affine",
     "pyproj",

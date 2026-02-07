@@ -8,12 +8,6 @@ Paired data records store tabular relationships between an independent variable
 include stage-discharge rating curves, frequency-flow relationships,
 elevation-area-volume tables, and damage-stage functions.
 
-## Prerequisites
-
-```python
-pip install pydsstools numpy pandas
-```
-
 ## Key Concepts
 
 | Concept | Description |
