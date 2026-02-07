@@ -387,7 +387,7 @@ class RasterSpatialGrid:
         with rasterio.open(filepath, "w", **profile) as dst:
             dst.write(data, 1)
 
-    def resample(self, scale, method=Resampling.bilinear, memory=64):
+    def resample(self, scale, method=None, memory=64):
         """
         Resample the raster by a uniform scale factor in x and y.
 
@@ -415,6 +415,9 @@ class RasterSpatialGrid:
         """
         if self.grid_type in (GridType.hrap,GridType.hrap_time):
             raise NotImplementedError("Resampling not implemented for HRAP grid.")
+        
+        if method is None:
+            method = Resampling.bilinear
         
         src_prof = self.profile
         src_trans = self.transform

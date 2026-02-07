@@ -10,15 +10,28 @@ on:
       target:
         description: "Publish target"
         required: false
-        default: "testpypi"
+        default: ""
         type: choice
         options: ["", "testpypi", "pypi"]
+      python_version:
+        description: "Python version(s) to build"
+        required: false
+        default: "cp311-*"
+        type: choice
+        options:
+          - "cp311-*"
+          - "cp310-*"
+          - "cp312-*"
+          - "cp313-*"
+          - "cp39-*"
+          - "cp38-*"
+          - "cp310-* cp311-* cp312-*"
+          - "cp38-* cp39-* cp310-* cp311-* cp312-* cp313-*"
 
 jobs:
   build-wheels:
     continue-on-error: true
-    # show the selected branch in the job name
-    name: Build wheels (${{ matrix.os }}) — ${{ github.event.inputs.branch || github.ref_name }}
+    name: Build wheels (${{ matrix.os }}, ${{ github.event.inputs.python_version || 'cp311-*' }}) — ${{ github.event.inputs.branch || github.ref_name }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -26,8 +39,7 @@ jobs:
         os: [windows-2022, ubuntu-22.04]
 
     env:
-      #CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-*"
-      CIBW_BUILD: "cp311-*"
+      CIBW_BUILD: ${{ github.event.inputs.python_version || 'cp311-*' }}
       CIBW_SKIP: "pp* *-win32 *-musllinux_*"
       CIBW_ARCHS_WINDOWS: "AMD64"
       CIBW_ARCHS_LINUX: "x86_64"
@@ -118,9 +130,20 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.inputs.branch }}
 
+      # Extract Python version from input (e.g., "cp311-*" → "3.11", "cp310-* cp311-*" → "3.10")
+      - name: Determine Python version
+        id: pyver
+        shell: bash
+        run: |
+          input="${{ github.event.inputs.python_version || 'cp311-*' }}"
+          # Extract first cpXYZ pattern and convert to X.YZ format
+          ver=$(echo "$input" | grep -oE 'cp[0-9]+' | head -1 | sed 's/cp\([0-9]\)\([0-9]*\)/\1.\2/')
+          echo "version=$ver"
+          echo "version=$ver" >> "$GITHUB_OUTPUT"
+
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: ${{ steps.pyver.outputs.version }}
 
       - name: Download wheel artifacts for this OS
         uses: actions/download-artifact@v4
@@ -188,7 +211,7 @@ jobs:
         id: repo
         shell: bash
         run: |
-          t="${{ github.event.inputs.target || 'testpypi' }}"
+          t="${{ github.event.inputs.target }}"
           echo "Raw target input: '$t'"
           t="${t,,}"
 
