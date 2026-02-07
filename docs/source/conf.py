@@ -6,25 +6,17 @@ project = "pydsstools"
 copyright = "2025, Gyan Basyal"
 author = "Gyan Basyal"
 
-# Get version from the installed package (versioneer)
+# Get version from the installed package (PyPI wheel on RTD)
 try:
     from pydsstools import __version__
     release = __version__
-    # Extract major.minor for short version (e.g., "2.4" from "2.4.0+5.g1234abc")
+    # Extract major.minor for short version (e.g., "3.0" from "3.0.0b3")
     version = ".".join(release.split(".")[:2]).split("+")[0]
 except ImportError:
     release = "dev"
     version = "dev"
 
-# Debug output for Sphinx builds
-print("SPHINX python:", sys.executable)
-print("SPHINX pydsstools version:", release)
-try:
-    import pydsstools.heclib.dss.HecDss as m
-    print("SPHINX HecDss:", m)
-    print("SPHINX has Open:", hasattr(m, "Open"))
-except Exception as e:
-    print("SPHINX import failed:", repr(e))
+print(f"SPHINX version: {version}, release: {release}")
 
 # Suppress sphinx_autodoc_typehints deprecation warnings (Sphinx 9/10 compatibility)
 warnings.filterwarnings(

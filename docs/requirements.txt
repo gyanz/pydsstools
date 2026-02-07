@@ -1,6 +1,12 @@
 # Documentation build dependencies for ReadTheDocs
-# These are also listed in pyproject.toml [project.optional-dependencies] doc
 
+# Install pydsstools from PyPI (pre-built wheel, can't compile on RTD)
+# Note: RTD docs will reflect the latest PyPI release
+# Use --pre to include pre-release versions (e.g., 3.0.0b3)
+--pre
+pydsstools
+
+# Sphinx and extensions
 myst-parser>=4.0.1
 numpydoc
 sphinx>=8.2.3

@@ -13,10 +13,6 @@ sphinx:
 
 python:
   install:
-    # Install docs dependencies
+    # Install pre-built wheel from PyPI (can't compile Cython on RTD)
+    # Note: docs will reflect the PyPI version, not the current branch
     - requirements: docs/requirements.txt
-    # Install the package itself (needed for autodoc and version)
-    - method: pip
-      path: .
-      extra_requirements:
-        - doc
