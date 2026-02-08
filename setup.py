@@ -152,7 +152,8 @@ class BuildExt(build_ext):
         import numpy as np
 
         self.include_dirs.append(np.get_include())
-        print("Test", np.get_include())
+        print(f"Build-time NumPy version: {np.__version__}")
+        print(f"NumPy include path: {np.get_include()}")
 
 
 # Create compiler arguments
