@@ -193,10 +193,6 @@ jobs:
           python -m pip install --no-index --find-links=dist pydsstools
           python -c "import pydsstools, sys; print('Imported wheel OK:', getattr(pydsstools,'__version__','?'), sys.version)"
 
-      - name: Show NumPy version
-        run: |
-          python -c "import numpy; print('NumPy version:', numpy.__version__)"
-
       - name: Run pytest
         env:
           # add any runtime env your tests need here
