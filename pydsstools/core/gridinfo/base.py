@@ -4,6 +4,8 @@ This module provides the abstract base class and shared functionality for all
 grid metadata types. It also includes type-checking utilities.
 """
 
+from __future__ import annotations
+
 import logging
 from typing import Any, Tuple, List, Union, Optional, Iterable
 

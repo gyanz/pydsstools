@@ -19,6 +19,8 @@ See Also
 conversion : Conversion functions between v6 and v7 formats
 """
 
+from __future__ import annotations
+
 import logging
 import ctypes
 import numpy as np

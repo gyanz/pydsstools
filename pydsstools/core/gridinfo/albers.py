@@ -5,6 +5,8 @@ Grid (SHG) commonly used in HEC-HMS modeling. SHG uses Albers Equal Area Conic
 projection with NAD83 datum.
 """
 
+from __future__ import annotations
+
 import logging
 from typing import Optional
 

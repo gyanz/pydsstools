@@ -5,6 +5,8 @@ coordinate reference systems. This is the most flexible grid type, supporting
 any CRS via WKT, PROJ, or EPSG codes.
 """
 
+from __future__ import annotations
+
 import logging
 from typing import Optional
 

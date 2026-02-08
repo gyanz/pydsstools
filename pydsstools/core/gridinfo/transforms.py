@@ -7,6 +7,8 @@ This module provides utilities for:
 - Validating grid consistency
 """
 
+from __future__ import annotations
+
 import logging
 from math import floor
 from typing import Optional, List

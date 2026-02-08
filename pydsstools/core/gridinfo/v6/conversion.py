@@ -15,6 +15,8 @@ characters packed in little-endian byte order:
 Each int32 holds 4 bytes: H(72), R(82), A(65), P(80) → 0x50415248 = 1347571272
 """
 
+from __future__ import annotations
+
 import logging
 import struct
 import ctypes
