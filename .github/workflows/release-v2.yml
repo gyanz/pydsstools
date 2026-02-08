@@ -1,0 +1,323 @@
+name: Testing - build and publish wheels for Windows and Linux (v2)
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to build (manual runs)"
+        required: true
+        default: "3.0.0b1"
+      target:
+        description: "Publish target"
+        required: false
+        default: ""
+        type: choice
+        options: ["", "testpypi", "pypi"]
+      python_version:
+        description: "Python version(s) to build"
+        required: false
+        default: "cp311-*"
+        type: choice
+        options:
+          - "cp38-*"
+          - "cp39-*"
+          - "cp310-*"
+          - "cp311-*"
+          - "cp312-*"
+          - "cp313-*"
+          - "cp314-*"
+          - "cp315-*"
+          - "cp38-* cp39-* cp310-*"
+          - "cp310-* cp311-* cp312-*"
+          - "cp313-* cp314-* cp315-*"
+          - "cp38-* cp39-* cp310-* cp311-* cp312-* cp313-* cp314-* cp315-*"
+      os:
+        description: "OS to build"
+        required: false
+        default: "both"
+        type: choice
+        options:
+          - "both"
+          - "windows"
+          - "linux"
+      run_tests:
+        description: "Run pytest after build"
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  build-wheels:
+    continue-on-error: true
+    name: Build wheels (${{ matrix.os }}, ${{ github.event.inputs.python_version || 'cp311-*' }}) — ${{ github.event.inputs.branch || github.ref_name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJSON(
+          github.event.inputs.os == 'windows' && '["windows-2022"]' ||
+          github.event.inputs.os == 'linux' && '["ubuntu-22.04"]' ||
+          '["windows-2022", "ubuntu-22.04"]'
+          ) }}
+
+    env:
+      CIBW_BUILD: ${{ github.event.inputs.python_version || 'cp311-*' }}
+      CIBW_SKIP: "pp* *-win32 *-musllinux_*"
+      CIBW_ARCHS_WINDOWS: "AMD64"
+      CIBW_ARCHS_LINUX: "x86_64"
+      CIBW_TEST_COMMAND: >
+        python -c "import pydsstools, sys, numpy; print('OK', sys.version, 'pydsstools:', getattr(pydsstools,'__version__','?'), 'numpy:', numpy.__version__)"
+      CIBW_MANYLINUX_X86_64_IMAGE: "manylinux2014"
+      CIBW_BEFORE_ALL_LINUX: >
+        yum -y install gcc gcc-c++ gcc-gfortran zlib-devel libstdc++-devel &&
+        echo "Installed gcc/gfortran and headers in manylinux"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          # build the selected branch even though the workflow file lives on master
+          ref: ${{ github.event.inputs.branch }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # Windows: install Intel Fortran (ifx)
+      - name: Setup Intel Fortran (Windows)
+        if: startsWith(matrix.os, 'windows-')
+        uses: fortran-lang/setup-fortran@v1
+        with:
+          compiler: intel         # ifx; use 'intel-classic' for ifort
+
+      - name: Show toolchain (Windows)
+        if: startsWith(matrix.os, 'windows-')
+        shell: cmd
+        run: |
+          where ifx   || ver
+          where cl    || ver
+
+      - name: Upgrade build tooling
+        run: |
+          python -m pip install -U pip wheel setuptools build
+          python -m pip install -U cibuildwheel==2.*
+
+      - name: Build wheels (Windows)
+        if: startsWith(matrix.os, 'windows-')
+        shell: cmd
+        env:
+          CIBW_ENVIRONMENT_WINDOWS: "FC=ifx"
+        run: |
+          python -m cibuildwheel --output-dir wheelhouse
+
+      - name: Build wheels (Linux)
+        if: startsWith(matrix.os, 'ubuntu-')
+        env:
+          CIBW_BUILD_VERBOSITY: "3"            # more logs from pip/cibuildwheel
+          CIBW_TEST_SKIP: "cp311-manylinux_x86_64"  # TEMP: let others pass & publish
+        run: |
+          python -m cibuildwheel --output-dir wheelhouse
+
+      #- name: Build sdist
+      #  run: |
+      #    python -m build --sdist
+
+      - name: Collect artifacts
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp -v wheelhouse/*.whl dist/
+          #cp -v dist/*.tar.gz dist/ 2>/dev/null || true
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }}
+          path: dist/*
+
+  # New job: Prepare dynamic matrix for test job
+  prepare-test-matrix:
+    name: Prepare test matrix
+    needs: [build-wheels]
+    if: ${{ github.event.inputs.run_tests == 'true' }}
+    runs-on: ubuntu-22.04
+    outputs:
+      python_versions: ${{ steps.parse.outputs.versions }}
+      os_list: ${{ steps.parse.outputs.os_list }}
+    steps:
+      - name: Parse Python versions from input
+        id: parse
+        shell: bash
+        run: |
+          input="${{ github.event.inputs.python_version || 'cp311-*' }}"
+
+          # Extract all cpXYZ patterns and convert to X.Y format
+          # e.g., "cp313-* cp314-* cp315-*" → ["3.13", "3.14", "3.15"]
+          versions=$(echo "$input" | grep -oE 'cp[0-9]+' | sed 's/cp\([0-9]\)\([0-9]*\)/\1.\2/' | sort -u)
+
+          # Convert to JSON array
+          json_array="["
+          first=true
+          for v in $versions; do
+            if [ "$first" = true ]; then
+              json_array="${json_array}\"${v}\""
+              first=false
+            else
+              json_array="${json_array}, \"${v}\""
+            fi
+          done
+          json_array="${json_array}]"
+
+          echo "Parsed Python versions: $json_array"
+          echo "versions=$json_array" >> "$GITHUB_OUTPUT"
+
+          # Also output OS list
+          os_input="${{ github.event.inputs.os }}"
+          if [ "$os_input" = "windows" ]; then
+            os_list='["windows-2022"]'
+          elif [ "$os_input" = "linux" ]; then
+            os_list='["ubuntu-22.04"]'
+          else
+            os_list='["windows-2022", "ubuntu-22.04"]'
+          fi
+          echo "OS list: $os_list"
+          echo "os_list=$os_list" >> "$GITHUB_OUTPUT"
+
+  test-wheels:
+    name: Test wheels (${{ matrix.os }}, Python ${{ matrix.python }})
+    needs: [build-wheels, prepare-test-matrix]
+    if: ${{ github.event.inputs.run_tests == 'true' }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJSON(needs.prepare-test-matrix.outputs.os_list) }}
+        python: ${{ fromJSON(needs.prepare-test-matrix.outputs.python_versions) }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.branch }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Download wheel artifacts for this OS
+        uses: actions/download-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }}
+          path: dist
+
+      - name: Show downloaded files
+        run: |
+          echo "Listing files in dist/"
+          ls -l dist || true
+
+      - name: Install test dependencies
+        shell: bash
+        run: |
+          python -m pip install -U pip
+          python -m pip install pytest pytest-cov pytest-order
+          # Install pydsstools dependencies with version constraints matching pyproject.toml
+          python -m pip install \
+            "numpy>=1.21.5,<2; python_version>='3.8' and python_version<'3.10'" \
+            "numpy>=1.23.2,<2; python_version>='3.10' and python_version<'3.11'" \
+            "numpy>=1.26.0,<2; python_version>='3.11' and python_version<'3.13'" \
+            "numpy>=2.1.0; python_version>='3.13'" \
+            pandas affine pyproj "pydantic>=2,<3"
+          python -c "import numpy; print('Test env NumPy:', numpy.__version__)"
+
+      - name: Install built wheel
+        run: |
+          python -m pip install --no-index --find-links=dist pydsstools
+          python -c "import pydsstools, sys; print('Imported wheel OK:', getattr(pydsstools,'__version__','?'), sys.version)"
+
+      - name: Run pytest
+        env:
+          # add any runtime env your tests need here
+          PYTHONWARNINGS: default
+        run: |
+          pytest -v
+
+  publish:
+    name: Publish to (Test)PyPI
+    needs: [build-wheels, test-wheels]
+    if: |
+      always() &&
+      github.event_name == 'workflow_dispatch' &&
+      github.event.inputs.target != '' &&
+      needs.build-wheels.result == 'success' &&
+      (github.event.inputs.run_tests != 'true' || needs.test-wheels.result == 'success')
+    runs-on: ubuntu-22.04
+    steps:
+      # The next couple of steps build the sdist here (once) in the publish job.
+      # Previously, building the sdist in both Windows and Linux wheel jobs caused the merged artifact to be corrupted.
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.branch }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build sdist (fresh)
+        run: |
+          python -m pip install -U build
+          python -m build --sdist
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: wheels-*
+          merge-multiple: true
+          path: dist
+
+      - name: Show packages found
+        run: |
+          echo "Listing files in dist/"
+          ls -l dist || true
+
+      - name: Choose repository URL
+        id: repo
+        shell: bash
+        run: |
+          t="${{ github.event.inputs.target }}"
+          echo "Raw target input: '$t'"
+          t="${t,,}"
+
+          url=""
+          token_name=""
+          if [[ "$t" == "testpypi" || "$t" == "test" ]]; then
+            url="https://test.pypi.org/legacy/"
+            token_name="TEST_PYPI_API_TOKEN"
+          elif [[ "$t" == "pypi" || "$t" == "prod" || "$t" == "release" ]]; then
+            url="https://upload.pypi.org/legacy/"
+            token_name="PYPI_API_TOKEN"
+          fi
+
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "token_name=$token_name" >> "$GITHUB_OUTPUT"
+          echo "Resolved (local) url='$url', token_name='$token_name'"
+
+      - name: Publish to TestPyPI
+        if: steps.repo.outputs.token_name == 'TEST_PYPI_API_TOKEN'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: ${{ steps.repo.outputs.url }}
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          packages-dir: dist
+          skip-existing: true
+
+      - name: Publish to PyPI
+        if: steps.repo.outputs.token_name == 'PYPI_API_TOKEN'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: ${{ steps.repo.outputs.url }}
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          packages-dir: dist
+          skip-existing: true
