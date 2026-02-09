@@ -67,7 +67,9 @@ jobs:
       CIBW_MANYLINUX_X86_64_IMAGE: "manylinux2014"
       CIBW_BEFORE_ALL_LINUX: >
         yum -y install gcc gcc-c++ gcc-gfortran zlib-devel libstdc++-devel &&
-        echo "Installed gcc/gfortran and headers in manylinux"
+        echo "Installed gcc/gfortran and headers in manylinux" &&
+        yum -y install proj proj-devel &&
+        echo "Installed proj and proj-devel in manylinux"
 
     steps:
       - uses: actions/checkout@v4
