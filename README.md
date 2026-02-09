@@ -39,3 +39,8 @@ Feel free to ask questions via [email](mailto:gyanBasyalz@gmail.com).
 ## License
 
 This program is free software: you can modify and/or redistribute it under the [MIT](LICENSE) license.
+
+## Sponsorship
+
+If pydsstools is useful in your work, consider sponsoring its development via GitHub Sponsors.
+Support helps with adding new featues, ongoing maintenance, testing, and compatibility with new Python/NumPy releases.
