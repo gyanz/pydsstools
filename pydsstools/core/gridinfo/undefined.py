@@ -4,7 +4,9 @@ This module provides the GridInfo class for basic/undefined grid types that
 don't use specific projection information.
 """
 
-from typing import Union, Tuple, List, Optional
+from __future__ import annotations
+
+from typing import Union, Optional
 
 try:
     from typing import Annotated, Literal
@@ -88,7 +90,7 @@ class GridInfo(GridInfoBase):
     )
     """tuple[int, int] or None: (x, y) indices of the lower-left cell. Default ``(0, 0)``."""
 
-    shape: Union[Tuple[int, int], Annotated[List[int], Field(min_length=2, max_length=2)]] = Field(
+    shape: Union[tuple[int, int], Annotated[list[int], Field(min_length=2, max_length=2)]] = Field(
         description="Grid dimensions as (rows, columns)"
     )
     """tuple[int, int]: Grid dimensions as (rows, columns). Required."""
@@ -157,14 +159,14 @@ class GridInfo(GridInfoBase):
     )
     """float: Mean data value in grid. Default ``0.0``."""
 
-    range_vals: Annotated[List[float], Field(min_length=0)] = Field(
+    range_vals: Annotated[list[float], Field(min_length=0)] = Field(
         default_factory=list,
         validation_alias=AliasChoices("range_vals", "rv", "range_values", "rangevals"),
         description="Histogram bin edges for data distribution"
     )
     """list[float]: Histogram bin edges for data distribution. Default ``[]``."""
 
-    range_counts: Annotated[List[int], Field(min_length=0)] = Field(
+    range_counts: Annotated[list[int], Field(min_length=0)] = Field(
         default_factory=list,
         validation_alias=AliasChoices("range_counts", "rc", "rangecounts"),
         description="Count of values in each histogram bin"

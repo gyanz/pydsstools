@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import logging
 from math import floor
-from typing import Optional, List
+from typing import Optional
 
 __all__ = [
     "minxy_from_transform_shape",
@@ -337,7 +337,7 @@ def grids_overlap(gridinfo1, gridinfo2, tolerance: float = 0.001) -> bool:
 # Grid Validation Utilities
 # ============================================================================
 
-def validate_grid_consistency(gridinfo) -> List[str]:
+def validate_grid_consistency(gridinfo) -> list[str]:
     """Check grid metadata for common configuration errors.
 
     Validates:

@@ -7,7 +7,7 @@ grid metadata types. It also includes type-checking utilities.
 from __future__ import annotations
 
 import logging
-from typing import Any, Tuple, List, Union, Optional, Iterable
+from typing import Any, Union, Optional, Iterable
 
 try:
     from typing import Annotated, TypeAlias, Literal
@@ -50,11 +50,11 @@ __all__ = [
 # ============================================================================
 
 PairLikeInt: TypeAlias = Union[
-    Tuple[int, int], Annotated[List[int], Field(min_length=2, max_length=2)]
+    tuple[int, int], Annotated[list[int], Field(min_length=2, max_length=2)]
 ]
 
 PairLikeFloat: TypeAlias = Union[
-    Tuple[float, float], Annotated[List[float], Field(min_length=2, max_length=2)]
+    tuple[float, float], Annotated[list[float], Field(min_length=2, max_length=2)]
 ]
 
 #GridTypeField = Field(
@@ -270,7 +270,7 @@ class GridInfoBase(BaseModel):
         # Unknown attributes go into .extra
         self.extra[name] = value
 
-    def __repr_args__(self) -> Iterable[Tuple[str, Any]]:
+    def __repr_args__(self) -> Iterable[tuple[str, Any]]:
         """Generate arguments for string representation.
 
         Only shows declared fields, not the 'extra' dictionary.

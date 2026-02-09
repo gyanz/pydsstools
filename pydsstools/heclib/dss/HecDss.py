@@ -22,10 +22,6 @@ from typing import (
     Any,
     Optional,
     Union,
-    Tuple,
-    List,
-    Dict,
-    Set,
     Iterable,
     Iterator,
     Sequence,
@@ -44,8 +40,8 @@ from typing import (
 try:
     # python 3.10+
     from typing import Annotated, TypeAlias, Literal
-except:
-    # 3.8 <= python < 3.10
+except ImportError:
+    # python 3.9
     from typing_extensions import Annotated, TypeAlias, Literal
 
 from ...core import Open as _Open
@@ -64,7 +60,7 @@ from ...core import (
 )
 
 DateLike = TypeVar("DateLike", str, datetime, HecTime)
-DateWindow: TypeAlias = Tuple[DateLike, DateLike]
+DateWindow: TypeAlias = tuple[DateLike, DateLike]
 PathType: TypeAlias = Union[str, Path, PathLike]
 
 
@@ -380,7 +376,7 @@ class Open(_Open):
     def read_pd(
         self,
         pathname: Union[str, "DssPathName"],
-        window: Optional[Tuple[int, int, int, int]] = None,
+        window: Optional[tuple[int, int, int, int]] = None,
         dataframe: Optional[bool] = True,
     ) -> Union[pd.DataFrame, PairedDataStruct]:
         """
@@ -492,7 +488,7 @@ class Open(_Open):
 
         return pds
 
-    def read_pd_labels(self, pathname: Union[str, "DssPathName"]) -> Dict[str, str]:
+    def read_pd_labels(self, pathname: Union[str, "DssPathName"]) -> dict[str, str]:
         """
         Read paired data labels from DSS file.
 
@@ -518,7 +514,7 @@ class Open(_Open):
         label1 = _df.columns.get_level_values(1).tolist()
         return dict(zip(label0, label1))
 
-    def pd_info(self, pathname: Union[str, "DssPathName"]) -> Dict[str, Any]:
+    def pd_info(self, pathname: Union[str, "DssPathName"]) -> dict[str, Any]:
         """
         Get information about a paired data record.
 
@@ -762,7 +758,7 @@ class Open(_Open):
     def preallocate_pd(
         self,
         pathname: Union[str, "DssPathName"],
-        shape: Union[List[int], Tuple[int, int]],
+        shape: Union[list[int], tuple[int, int]],
         **kwargs: Any,
     ) -> None:
         """
@@ -882,7 +878,7 @@ class Open(_Open):
 
     def read_grid2(
         self, pathname: Union[str, "DssPathName"], metadata_only: Optional[bool] = False
-    ) -> Optional[Union[Tuple[np.ndarray, GridInfo], GridInfo]]:
+    ) -> Optional[Union[tuple[np.ndarray, GridInfo], GridInfo]]:
         """
         Read spatial grid data from DSS file and return as tuple.
 
@@ -958,7 +954,7 @@ class Open(_Open):
         gridinfo: Optional[GridInfo] = None,
         flipud: Optional[bool] = True,
         inplace: Optional[bool] = False,
-        compute_stats: Optional[Union[bool, List[float]]] = True,
+        compute_stats: Optional[Union[bool, list[float]]] = True,
         transform: Optional[Any] = None,
         normalize: Optional[bool] = True,
     ) -> None:
@@ -1122,7 +1118,7 @@ class Open(_Open):
         gridinfo: Optional[Union[GridInfo, GridInfo6]] = None,
         flipud: Optional[bool] = True,
         inplace: Optional[bool] = False,
-        compute_stats: Optional[Union[bool, List[float]]] = True,
+        compute_stats: Optional[Union[bool, list[float]]] = True,
         transform: Optional[Any] = None,
         normalize: Optional[bool] = True,
     ) -> None:
@@ -1357,7 +1353,7 @@ class Open(_Open):
 
     def search_path(
         self, pathname: Union[str, "DssPathName"] = "", sort: Optional[bool] = False
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Search for DSS pathnames matching a pattern.
 
@@ -1395,7 +1391,7 @@ class Open(_Open):
         path_list = catalog.paths()
         return path_list
 
-    def path_dict(self, sub_type: Optional[bool] = False) -> Dict[str, List[str]]:
+    def path_dict(self, sub_type: Optional[bool] = False) -> dict[str, list[str]]:
         """
         Get all pathnames in DSS file organized by data type.
 
@@ -1544,7 +1540,7 @@ def _normalize_span(
     size: int,
     start0: Optional[int],
     end0: Optional[int],
-) -> Tuple[int, int]:
+) -> tuple[int, int]:
     """
     Convert 0-based indices to 1-based indices for paired data.
 
