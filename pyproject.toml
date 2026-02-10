@@ -57,9 +57,8 @@ geo = [
     "matplotlib"
 ]
 test = ["pytest", "pytest-cov", "pytest-order"]
-doc = ["myst-parser>=4.0.1", "numpydoc", "pandoc", "nbsphinx",
-       "sphinx>=8.2.3", "sphinx-rtd-theme", "sphinx-autodoc-typehints",
-       "autodoc-pydantic>=2.0.0"]
+doc = ["myst-parser>=4.0.1", "sphinx>=8.2.3", "sphinx-rtd-theme", 
+       "sphinx-autodoc-typehints", "autodoc-pydantic>=2.0.0"]
 
 [project.urls]
 repository = "https://github.com/gyanz/pydsstools"
