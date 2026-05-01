@@ -206,7 +206,7 @@ cpdef int get_grid_version(Open _open, str pathname):
 
 cdef class DssPathName:
     cdef:
-        dict _parts
+        readonly dict _parts
 
     def __init__(self,pathname):
         self._parts = DssPathName._parse(pathname)

@@ -341,13 +341,16 @@ cdef class TimeSeriesContainer:
         self.pathname = pathname
         self.count = count
         self.interval = interval
-        #self.start_time = kwargs.pop("start_time","31DEC1899:0000")    
         self.data_units = kwargs.pop("data_units","")    
         self.data_type = kwargs.pop("data_type","")    
         self.tzid = kwargs.pop("tzid","")    
         self.julian_base = kwargs.pop("julian_base",HecTime("31DEC1899:0000",granularity=60))    
         self.values = kwargs.pop("values",None)
         self.times = kwargs.pop("times",None)
+        start_time = kwargs.pop("start_time",None)
+        if start_time is None and (self.times is not None and len(self.times)>0):
+            start_time = self.times[0]
+            self.start_time = start_time    
 
     @property
     def pathname(self):
@@ -531,6 +534,8 @@ cdef class TimeSeriesContainer:
 
         if interval > 0:
             # Regular Timeseries
+            if self.start_time is None:
+                raise ValueError(f"start_time value for regular timeseries is must be specified, got None.")
             _start_date = self.start_time.date()
             _start_time = self.start_time.time()
             start_date = _start_date

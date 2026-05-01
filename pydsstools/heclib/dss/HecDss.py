@@ -1347,7 +1347,7 @@ class Open(_Open):
             return
 
         pathname_pattern = _process_pathname_pattern(pathname)
-        pathlist = self.getPathnameList(pathname_pattern)
+        pathlist = self.search_path(pathname_pattern)
         for pth in pathlist:
             status = self._delete_pathname(pth)
 
@@ -1384,11 +1384,13 @@ class Open(_Open):
 
         >>> paths = fid.search_path("/A/*/*/*/*/F/", sort=True)
         """
+        path_list = []
         if pathname:
             pathname = _process_pathname_pattern(pathname)
 
         catalog = self._get_catalog(pathname, sort)
-        path_list = catalog.paths()
+        if catalog is not None:
+            path_list = catalog.paths()
         return path_list
 
     def path_dict(self, sub_type: Optional[bool] = False) -> dict[str, list[str]]:
