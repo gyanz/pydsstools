@@ -337,7 +337,6 @@ cdef class TimeSeriesContainer:
         char *_ctzid
 
     def __init__(self,pathname,count,interval,**kwargs):
-
         self.pathname = pathname
         self.count = count
         self.interval = interval
@@ -348,9 +347,12 @@ cdef class TimeSeriesContainer:
         self.values = kwargs.pop("values",None)
         self.times = kwargs.pop("times",None)
         start_time = kwargs.pop("start_time",None)
-        if start_time is None and interval >0 and (self.times is not None and len(self.times)>0):
+        if start_time is not None:
+            self.start_time = start_time
+        elif interval > 0 and (self.times is not None and len(self.times) > 0):
             start_time = self.times[0]
             self.start_time = start_time    
+
 
     @property
     def pathname(self):
@@ -391,18 +393,18 @@ cdef class TimeSeriesContainer:
 
     @property
     def start_time(self):
-        if self.count > 0:
+        if self.interval > 0:
             return self._start_time
 
     @start_time.setter
-    def start_time(self,datetime):
-        if self.count > 0:
-            if isinstance(datetime,(str,datetime)):
-                self._start_time = HecTime(datetime,60,midnight_as_2400=False)
-            elif isinstance(datetime,HecTime):
-                self._start_time = datetime
+    def start_time(self,date_time):
+        if self.interval > 0:
+            if isinstance(date_time,(str,datetime)):
+                self._start_time = HecTime(date_time,60,midnight_as_2400=False)
+            elif isinstance(date_time,HecTime):
+                self._start_time = date_time
             else:
-                raise TypeError(f"start time for regular timeseries must be HecTime or date string, got {type(datetime).__name__}") 
+                raise TypeError(f"start time for regular timeseries must be HecTime or date string, got {type(date_time).__name__}") 
 
     @property
     def values(self):
