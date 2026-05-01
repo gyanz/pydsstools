@@ -348,7 +348,7 @@ cdef class TimeSeriesContainer:
         self.values = kwargs.pop("values",None)
         self.times = kwargs.pop("times",None)
         start_time = kwargs.pop("start_time",None)
-        if start_time is None and (self.times is not None and len(self.times)>0):
+        if start_time is None and interval >0 and (self.times is not None and len(self.times)>0):
             start_time = self.times[0]
             self.start_time = start_time    
 
