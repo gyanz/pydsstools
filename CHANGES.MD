@@ -1,6 +1,21 @@
 pydsstools changelog
 ================
-3.0.0.b1 (09-22-2025)
+3.0.0 (05-01-2026)
+-----------------
+* First stable 3.x release
+* Dropped Python 3.8 support; added Python 3.13 support
+* NumPy 2.0 and Cython 3.0 compatibility (builds against NumPy 1.x for 3.9-3.12, 2.x for 3.13+)
+* Linux wheels built on manylinux_2_28 with PROJ system dependencies
+* Sphinx/ReadTheDocs documentation
+* CI: per-Python pytest matrix across Windows and Linux
+* TimeSeriesContainer: `start_time` defaults to `times[0]` when omitted; raises if a regular series has no `start_time`
+* HecDss.Open: `deletePathname` now uses `search_path`; `search_path` guards against a None catalog
+* DssPathName: `_parts` exposed as readonly; API revisions
+* Paired data: 0-based indexing; `put_pd` accepts DataFrame input; single-curve write
+* HecTime parsing fixes; irregular time-series ordering check
+* Removed `pydsstools.utils.contrail` and `pydsstools.utils.usgs` (revised versions will ship in a separate library)
+
+3.0.0b1 (09-22-2025)
 -----------------
 * HEC-DSS 7-IV-1, released July 30, 2025
 * Paired data and Gridded data API changes

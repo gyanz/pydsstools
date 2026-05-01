@@ -10,7 +10,7 @@ author = "Gyan Basyal"
 try:
     from pydsstools import __version__
     release = __version__
-    # Extract major.minor for short version (e.g., "3.0" from "3.0.0b3")
+    # Extract major.minor for short version (e.g., "3.0" from "3.0.0")
     version = ".".join(release.split(".")[:2]).split("+")[0]
 except ImportError:
     release = "dev"

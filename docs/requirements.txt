@@ -2,13 +2,11 @@
 
 # Install pydsstools from PyPI (pre-built wheel, can't compile on RTD)
 # Note: RTD docs will reflect the latest PyPI release
-# Use --pre to include pre-release versions (e.g., 3.0.0b3)
 #
 # IMPORTANT: Pin NumPy <2 because wheel was built with NumPy 1.x (oldest-supported-numpy)
 # RTD would otherwise install NumPy 2.x causing ABI mismatch error:
 # "numpy.dtype size changed, may indicate binary incompatibility"
 numpy<2
---pre
 pydsstools
 
 # Sphinx and extensions

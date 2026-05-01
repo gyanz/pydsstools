@@ -28,6 +28,8 @@ build_*.bat
 *.bat
 !docs/make.bat
 *.swo
+*.tmp
+*.tmp.*
 setup.cfg
 
 # Compiled source #
