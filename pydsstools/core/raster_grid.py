@@ -6,7 +6,7 @@ from . import UNDEFINED
 from .gridinfo import is_hrap_grid,is_albers_grid,is_specified_grid,is_undefined_grid, GridInfoCreate
 from ._transform import Affine, from_bounds, from_origin, array_bounds
 from .grid import BoundingBox
-from .enums import GridType
+from .enums import GridType, DataType
 from .crs import wkt_to_crs,is_equal_area_conic,is_hrap
 
 has_rasterio = True
@@ -169,8 +169,18 @@ class RasterSpatialGrid:
         """dict: Rasterio dataset metadata profile.
 
         Includes driver, dtype, crs, transform, width, height, etc.
+
+        When the underlying dataset has no nodata value set, a default
+        is supplied based on dtype: ``UNDEFINED`` for floating-point
+        dtypes and ``-9999`` for integer dtypes.
         """
-        return self._ds.meta
+        meta = self._ds.meta
+        if meta["nodata"] is None:
+            if np.issubdtype(np.dtype(meta["dtype"]), np.floating):
+                meta["nodata"] = UNDEFINED
+            else:
+                meta["nodata"] = -9999
+        return meta
 
     @property
     def transform(self):
@@ -259,7 +269,10 @@ class RasterSpatialGrid:
 
         Provided at construction via keyword arguments.
         """
-        return self._kwargs.get("data_type","")
+        data_type = self._kwargs.get("data_type","")
+        if data_type and isinstance(data_type,str):
+            data_type = data_type.lower().replace("-","_")
+        return data_type
     
     @property
     def grid_type(self):
@@ -292,6 +305,7 @@ class RasterSpatialGrid:
         grid_type, with coordinates normalized from the raster transform.
         """
         prof = self.gridinfo_dict()
+        prof["data_type"] = DataType[prof["data_type"]]
         trans = self.transform
         ginfo = GridInfoCreate(**prof)
         ginfo.normalize(trans)
@@ -468,7 +482,7 @@ class RasterSpatialGrid:
         obj = RasterSpatialGrid(ds,grid_type=self.grid_type,data_units=self.data_units,data_type=self.data_type)
         return obj
 
-    def reproject(self, dst_crs, method=None, cellsize=None):
+    def reproject(self, dst_crs, method=None, cell_size=None, unit_factor=None, data_units=None):
         """
         Reproject the raster to a new CRS.
 
@@ -479,10 +493,22 @@ class RasterSpatialGrid:
             PROJ string, EPSG code, or dict).
         method : rasterio.enums.Resampling, default Resampling.nearest
             Resampling algorithm to use during reprojection.
-        cellsize : float or tuple, optional
+        cell_size : float or tuple, optional
             Target pixel size (in units of ``dst_crs``). If None, a
             default resolution is chosen by
             :func:`rasterio.warp.calculate_default_transform`.
+        unit_factor : float, optional
+            Multiplicative factor applied to source values before
+            reprojection (e.g., ``3600`` to convert in/sec to in/hour).
+            Nodata pixels are preserved. When supplied, output dtype is
+            promoted to ``float32`` to avoid integer overflow or
+            truncation; the source nodata sentinel is carried over
+            unchanged. Must be paired with ``data_units``.
+        data_units : str, optional
+            Data units to assign to the returned grid. Required when
+            ``unit_factor`` is supplied, since scaling values changes
+            their units. When omitted, the source grid's ``data_units``
+            are carried over unchanged.
 
         Returns
         -------
@@ -493,14 +519,21 @@ class RasterSpatialGrid:
         if method is None:
             method = Resampling.nearest
 
+        if unit_factor is not None and data_units is None:
+            raise ValueError(
+                "data_units is required when unit_factor is set "
+                "(scaling values changes their units)."
+            )
+
         src_prof = self.profile
         src_trans = self.transform
         src_width = self.width
         src_height = self.height
         src_crs = self.crs
+        src_nodata = self.nodata
         src_data = self.read()
 
-        dst_transform, dst_width, dst_height = calculate_default_transform(src_crs, dst_crs, src_width, src_height, *self.bounds, resolution=cellsize)
+        dst_transform, dst_width, dst_height = calculate_default_transform(src_crs, dst_crs, src_width, src_height, *self.bounds, resolution=cell_size)
         dst_prof = src_prof.copy()
         dst_prof.update({
             "crs": dst_crs,
@@ -508,17 +541,30 @@ class RasterSpatialGrid:
             "width": dst_width,
             "height": dst_height
         })
+
+        if unit_factor is not None:
+            src_data = src_data.astype(np.float32, copy=True)
+            if src_nodata is not None:
+                valid = src_data != src_nodata
+                src_data[valid] *= unit_factor
+            else:
+                src_data *= unit_factor
+            dst_prof["dtype"] = "float32"
+
         dst_ds = self._make_rasterio_dataset(None,dst_prof)
         reproject(
             source=src_data,
             destination=rasterio.band(dst_ds, 1),
             src_transform=src_trans,
             src_crs=src_crs,
+            src_nodata=src_nodata,
             dst_transform=dst_transform,
             dst_crs=dst_crs,
+            dst_nodata=dst_prof["nodata"],
             resampling=method
         )
-        obj = RasterSpatialGrid(dst_ds,data_units=self.data_units,data_type=self.data_type)
+        out_data_units = data_units if data_units is not None else self.data_units
+        obj = RasterSpatialGrid(dst_ds,data_units=out_data_units,data_type=self.data_type)
         return obj
 
     def mask(
