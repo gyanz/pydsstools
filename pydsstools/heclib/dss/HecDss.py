@@ -1071,7 +1071,7 @@ class Open(_Open):
             pathname = DssPathName(pathname)
 
         # Verify pathname has valid datetime stamps when grid is specified to have time component
-        if gridinfo.grid_type_has_time():
+        if gridinfo.has_time():
             dpart = pathname.dpart
             epart = pathname.epart
             try:
@@ -1109,6 +1109,7 @@ class Open(_Open):
         if normalize:
             gridinfo.normalize(transform)
 
+        logging.debug(f"{gridinfo}")
         super()._put_grid(pathname.text(), _data, gridinfo)
 
     def put_grid0(
@@ -1222,7 +1223,7 @@ class Open(_Open):
                 gridinfo = gridinfo.to_gridinfo7()
 
         # Verify pathname has valid datetime stamps when grid is specified to have time component
-        if gridinfo.grid_type_has_time():
+        if gridinfo.has_time():
             dpart = pathname.dpart
             epart = pathname.epart
             try:
@@ -1610,7 +1611,7 @@ def _sanitize_grid_array_for_dss_write(data,nodata,shape,flipud=True,inplace=Fal
 
     is_masked = isinstance(data,ma.core.MaskedArray)
     is_sgrid = isinstance(data,SpatialGridStruct)
-    is_nodata_undefined = nodata == UNDEFINED
+    is_nodata_undefined = np.float32(nodata) == np.float32(UNDEFINED)
 
     # Convert data to _data and mask arrays
     mask = None
@@ -1671,32 +1672,39 @@ def _sanitize_grid_array_for_dss_write(data,nodata,shape,flipud=True,inplace=Fal
         _data = np.ascontiguousarray(_data)
     
     def _compute_stats():
+        _undef_f32 = np.float32(UNDEFINED)
+        _nodata_f32 = np.float32(nodata)
         data_count = _data.size
 
         if is_masked:
             filtered_data = _data[~mask]
         else:
             if is_nodata_undefined:
-                filtered_data = _data[_data != UNDEFINED]
+                filtered_data = _data[_data != _undef_f32]
             else:
-                filtered_data = _data[(_data != UNDEFINED) & (_data != nodata)]
-        
+                filtered_data = _data[(_data != _undef_f32) & (_data != _nodata_f32)]
+
         min_val = filtered_data.min()
         max_val = filtered_data.max()
-        mean_val = filtered_data.mean()
+        mean_val = filtered_data.mean(dtype=np.float64)
         range_counts = [data_count]
 
         if isinstance(range_values,(list,tuple)):
             range_vals = [x for x in range_values]
+            logging.debug("range_vals from user-supplied list: %s", range_vals)
 
         elif is_sgrid:
             range_vals = data.gridinfo.range_vals
-        
+            logging.debug("range_vals from gridinfo: %s", range_vals)
+
         else:
-            # compute range values as quartiles
+            # compute range values as quartiles + mean
             range_vals = list(np.percentile(filtered_data,[25,50,75]))
-        
-        range_vals = sorted([x for x in range_vals if not (np.isnan(x) or x < min_val or x > max_val) or x==nodata or x==UNDEFINED])
+            if mean_val is not None and not np.isnan(mean_val):
+                range_vals.append(mean_val)
+            logging.debug("range_vals from quartiles + mean: %s", range_vals)
+
+        range_vals = sorted(set([x for x in range_vals if not (np.isnan(x) or x < min_val or x > max_val) or np.float32(x) == _nodata_f32 or np.float32(x) == _undef_f32]))
         range_vals = range_vals[0:20]
         range_vals.insert(0,UNDEFINED)
         for val in range_vals[1:]:
@@ -1710,6 +1718,7 @@ def _sanitize_grid_array_for_dss_write(data,nodata,shape,flipud=True,inplace=Fal
             "range_vals": range_vals,
             "range_counts": range_counts
         }
+        logging.debug("compute_stats: %s", stats)
 
         return stats
     

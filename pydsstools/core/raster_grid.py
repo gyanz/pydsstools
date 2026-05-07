@@ -14,6 +14,7 @@ has_gdal = True
 
 try:
     import rasterio
+    from rasterio.profiles import DefaultGTiffProfile
     from rasterio.warp import reproject, Resampling, calculate_default_transform
     from rasterio.crs import CRS
     from rasterio.plot import show as _show  # matplotlib?
@@ -531,25 +532,38 @@ class RasterSpatialGrid:
         src_height = self.height
         src_crs = self.crs
         src_nodata = self.nodata
-        src_data = self.read()
+        src_data = self.read().astype(np.float32)
+        logging.debug(
+            "reproject src: crs=%s transform=%s width=%s height=%s nodata=%s data_shape=%s dtype=%s",
+            src_crs, src_trans, src_width, src_height, src_nodata, src_data.shape, src_data.dtype,
+        )
 
         dst_transform, dst_width, dst_height = calculate_default_transform(src_crs, dst_crs, src_width, src_height, *self.bounds, resolution=cell_size)
-        dst_prof = src_prof.copy()
+        #dst_prof = src_prof.copy()
+
+        dst_prof = DefaultGTiffProfile(count=1)
         dst_prof.update({
             "crs": dst_crs,
             "transform": dst_transform,
             "width": dst_width,
-            "height": dst_height
+            "height": dst_height,
+            "dtype": "float32",
+            "nodata": src_nodata,
         })
 
+        if dst_width < 256 or dst_height < 256:
+            dst_prof.pop('blockxsize')
+            dst_prof.pop('blockysize')
+
+        logging.debug("reproject dst_prof: %s", dst_prof)
+
+        src_data = src_data.astype(np.float32, copy=False)
         if unit_factor is not None:
-            src_data = src_data.astype(np.float32, copy=True)
             if src_nodata is not None:
-                valid = src_data != src_nodata
+                valid = src_data != np.float32(src_nodata)
                 src_data[valid] *= unit_factor
             else:
                 src_data *= unit_factor
-            dst_prof["dtype"] = "float32"
 
         dst_ds = self._make_rasterio_dataset(None,dst_prof)
         reproject(
