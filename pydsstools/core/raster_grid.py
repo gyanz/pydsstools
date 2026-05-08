@@ -1,5 +1,6 @@
 import logging
 import traceback
+from pathlib import Path
 # from contextlib import contextmanager
 import numpy.ma as ma
 from . import UNDEFINED
@@ -136,6 +137,23 @@ class RasterSpatialGrid:
                 ds.write(data, 1)
             ds = memfile.open()
         return ds
+
+    @staticmethod
+    def _make_gtiff_profile(crs, transform, width, height, nodata):
+        """Return a clean GeoTIFF-compatible rasterio profile (float32, 1 band)."""
+        prof = DefaultGTiffProfile(count=1)
+        prof.update({
+            "crs": crs,
+            "transform": transform,
+            "width": width,
+            "height": height,
+            "dtype": "float32",
+            "nodata": nodata,
+        })
+        if width < 256 or height < 256:
+            prof.pop("blockxsize", None)
+            prof.pop("blockysize", None)
+        return prof
 
     def _make_gdal_datasource(self):
         """Create an in-memory GDAL raster datasource from the current data.
@@ -433,12 +451,25 @@ class RasterSpatialGrid:
         Parameters
         ----------
         filepath : str or path-like
-            Path of the output GeoTIFF file. The current dataset profile
-            (including CRS, transform, dtype, nodata) is preserved.
+            Path of the output GeoTIFF file. Must have a ``.tif`` or
+            ``.tiff`` extension.
+
+        Raises
+        ------
+        ValueError
+            If ``filepath`` does not have a ``.tif`` or ``.tiff`` extension.
         """
+        suffix = Path(filepath).suffix.lower()
+        if suffix not in (".tif", ".tiff"):
+            raise ValueError(
+                f"filepath must have a .tif or .tiff extension, got '{suffix or '(none)'}'"
+            )
+
+        src = self.profile
+        dst_prof = self._make_gtiff_profile(src["crs"], src["transform"], src["width"], src["height"], src["nodata"])
+
         data = self.read()
-        profile = self.profile
-        with rasterio.open(filepath, "w", **profile) as dst:
+        with rasterio.open(filepath, "w", **dst_prof) as dst:
             dst.write(data, 1)
 
     def resample(self, scale, method=None, memory=64):
@@ -487,12 +518,9 @@ class RasterSpatialGrid:
             src_trans.f,
         )
 
-        dst_prof = dict(src_prof)
-        dst_prof["transform"] = dst_trans
-        dst_prof["width"] = int(src_prof["width"] // scale)
-        dst_prof["height"] = int(src_prof["height"] // scale)
-        dst_width = dst_prof["width"]
-        dst_height = dst_prof["width"]
+        dst_width = int(src_prof["width"] // scale)
+        dst_height = int(src_prof["height"] // scale)
+        dst_prof = self._make_gtiff_profile(src_prof["crs"], dst_trans, dst_width, dst_height, nodata)
 
         src_data = self.read()
         dst_data = np.empty((dst_height, dst_width), np.float32)
@@ -579,23 +607,7 @@ class RasterSpatialGrid:
 
         dst_transform, dst_width, dst_height = calculate_default_transform(src_crs, dst_crs, src_width, src_height, *self.bounds, resolution=cell_size)
 
-        # Use a clean GeoTIFF profile for the destination rather than copying src_prof,
-        # which may carry source-driver-specific keys (e.g., from GRIB) that are incompatible
-        # as a reproject destination.
-        dst_prof = DefaultGTiffProfile(count=1)
-        dst_prof.update({
-            "crs": dst_crs,
-            "transform": dst_transform,
-            "width": dst_width,
-            "height": dst_height,
-            "dtype": "float32",
-            "nodata": src_nodata,
-        })
-
-        if dst_width < 256 or dst_height < 256:
-            dst_prof.pop('blockxsize')
-            dst_prof.pop('blockysize')
-
+        dst_prof = self._make_gtiff_profile(dst_crs, dst_transform, dst_width, dst_height, src_nodata)
         logging.debug("reproject dst_prof: %s", dst_prof)
 
         if unit_factor is not None:
@@ -685,10 +697,10 @@ class RasterSpatialGrid:
             pad_width=pad_width,
         )
         dst_data = np.ma.masked_values(dst_data, self.nodata)
-        dst_prof = src_prof.copy()
-        dst_prof["transform"] = dst_transform
+        dst_height, dst_width = dst_data[0].shape
+        dst_prof = self._make_gtiff_profile(src_prof["crs"], dst_transform, dst_width, dst_height, src_prof["nodata"])
 
-        dst_ds = self._make_rasterio_dataset(dst_data[0],dst_prof)
+        dst_ds = self._make_rasterio_dataset(dst_data[0], dst_prof)
         obj = RasterSpatialGrid(dst_ds,grid_type=self.grid_type,data_units=self.data_units,data_type=self.data_type)
         return obj
 
