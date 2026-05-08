@@ -175,7 +175,9 @@ class RasterSpatialGrid:
         Returns
         -------
         ndarray or numpy.ma.MaskedArray
-            2D array of raster values for band 1.
+            2D array of raster values for band 1, always as ``float32``.
+            If the underlying dataset is already stored as ``float32``,
+            no copy is made.
         """
 
         return self._ds.read(1, masked=masked).astype(np.float32, copy=False)

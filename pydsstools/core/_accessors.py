@@ -1,5 +1,6 @@
 # Inspired by Pandas project
 # Contains base classes and functions for implementing accessor properties
+import warnings
 
 
 class CachedAccessor:
