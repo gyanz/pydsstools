@@ -1684,9 +1684,15 @@ def _sanitize_grid_array_for_dss_write(data,nodata,shape,flipud=True,inplace=Fal
             else:
                 filtered_data = _data[(_data != _undef_f32) & (_data != _nodata_f32)]
 
-        min_val = filtered_data.min()
-        max_val = filtered_data.max()
-        mean_val = filtered_data.mean(dtype=np.float64)
+        if filtered_data.size == 0:
+            min_val = UNDEFINED
+            max_val = UNDEFINED
+            mean_val = UNDEFINED
+        else:
+            min_val = filtered_data.min()
+            max_val = filtered_data.max()
+            mean_val = filtered_data.mean(dtype=np.float64)
+
         range_counts = [data_count]
 
         if isinstance(range_values,(list,tuple)):
@@ -1699,12 +1705,21 @@ def _sanitize_grid_array_for_dss_write(data,nodata,shape,flipud=True,inplace=Fal
 
         else:
             # compute range values as quartiles + mean
-            range_vals = list(np.percentile(filtered_data,[25,50,75]))
-            if mean_val is not None and not np.isnan(mean_val):
-                range_vals.append(mean_val)
+            if filtered_data.size == 0:
+                range_vals = []
+            else:
+                range_vals = list(np.percentile(filtered_data,[25,50,75]))
+                if mean_val is not None and not np.isnan(mean_val):
+                    range_vals.append(mean_val)
             logging.debug("range_vals from quartiles + mean: %s", range_vals)
 
-        range_vals = sorted(set([x for x in range_vals if not (np.isnan(x) or x < min_val or x > max_val) or np.float32(x) == _nodata_f32 or np.float32(x) == _undef_f32]))
+        range_vals = sorted(set([
+            x for x in range_vals
+            if not (np.isnan(x) or x < min_val or x > max_val)
+            or np.float32(x) == _nodata_f32
+            or np.float32(x) == _undef_f32
+        ]))
+
         range_vals = range_vals[0:20]
         range_vals.insert(0,UNDEFINED)
         for val in range_vals[1:]:
