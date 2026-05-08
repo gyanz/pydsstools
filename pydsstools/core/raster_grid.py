@@ -55,18 +55,59 @@ class RasterSpatialGrid:
     intended to behave similarly to :class:`SpatialGridStruct`, but backed
     by a rasterio dataset instead of a DSS/structured grid.
     """
-    def __init__(self, ds,**kwargs):
+    def __init__(self, ds, **kwargs):
         self._ds = ds
         self._kwargs = kwargs
+        self._owns_ds = False
         # revise minimum x, y coordinates
         # self._ginfo.update_minxy_from_transform(self.transform)
         # revise lower left cell indices: compute (albers), set to 0,0 (specified)
         # self._ginfo.update_albers_lower_left_cell_from_minxy()
         # self._ginfo.update_specified_lower_left_cell()
         # revise coords of cell0: set to min_xy (specified grid)
-        # self._ginfo.update_specified_coords_cell0_from_transform(self.transform) 
+        # self._ginfo.update_specified_coords_cell0_from_transform(self.transform)
 
-    def _make_rasterio_dataset(self,data,profile):
+    @classmethod
+    def from_file(cls, path, **kwargs):
+        """
+        Open a raster file and return a :class:`RasterSpatialGrid` instance.
+
+        The instance owns the underlying dataset and should be closed when
+        no longer needed — either via :meth:`close` or as a context manager.
+
+        Parameters
+        ----------
+        path : str or path-like
+            Path to any raster format supported by rasterio (GeoTIFF,
+            GRIB, HDF5, etc.).
+        **kwargs
+            Passed through to :meth:`__init__` (e.g. ``grid_type``,
+            ``data_units``, ``data_type``).
+
+        Returns
+        -------
+        RasterSpatialGrid
+        """
+        ds = rasterio.open(path)
+        obj = cls(ds, **kwargs)
+        obj._owns_ds = True
+        return obj
+
+    def close(self):
+        """Close the underlying dataset if this instance owns it."""
+        if self._owns_ds and not self._ds.closed:
+            self._ds.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_):
+        self.close()
+
+    def __del__(self):
+        self.close()
+
+    def _make_rasterio_dataset(self, data, profile):
         """
         Create an in-memory rasterio dataset from data and a profile.
 
@@ -137,7 +178,7 @@ class RasterSpatialGrid:
             2D array of raster values for band 1.
         """
 
-        return self._ds.read(1, masked=masked)
+        return self._ds.read(1, masked=masked).astype(np.float32, copy=False)
 
     def get_extents(self):
         """
@@ -170,17 +211,13 @@ class RasterSpatialGrid:
         """dict: Rasterio dataset metadata profile.
 
         Includes driver, dtype, crs, transform, width, height, etc.
-
-        When the underlying dataset has no nodata value set, a default
-        is supplied based on dtype: ``UNDEFINED`` for floating-point
-        dtypes and ``-9999`` for integer dtypes.
+        dtype is always reported as ``float32``. When the underlying
+        dataset has no nodata value set, ``UNDEFINED`` is used.
         """
         meta = self._ds.meta
+        meta["dtype"] = "float32"
         if meta["nodata"] is None:
-            if np.issubdtype(np.dtype(meta["dtype"]), np.floating):
-                meta["nodata"] = UNDEFINED
-            else:
-                meta["nodata"] = -9999
+            meta["nodata"] = UNDEFINED
         return meta
 
     @property
@@ -532,7 +569,7 @@ class RasterSpatialGrid:
         src_height = self.height
         src_crs = self.crs
         src_nodata = self.nodata
-        src_data = self.read().astype(np.float32)
+        src_data = self.read()
         logging.debug(
             "reproject src: crs=%s transform=%s width=%s height=%s nodata=%s data_shape=%s dtype=%s",
             src_crs, src_trans, src_width, src_height, src_nodata, src_data.shape, src_data.dtype,
@@ -559,7 +596,6 @@ class RasterSpatialGrid:
 
         logging.debug("reproject dst_prof: %s", dst_prof)
 
-        src_data = src_data.astype(np.float32, copy=False)
         if unit_factor is not None:
             if src_nodata is not None:
                 valid = src_data != np.float32(src_nodata)
