@@ -124,7 +124,11 @@ class Open(_Open):
         version: Optional[Literal[6, 7]] = None,
         mode: Literal["rw", "r"] = "rw",
     ) -> None:
-        super().__init__(dss_path, version)
+        if not isinstance(dss_path, (str, Path, PathLike)):
+            raise TypeError(
+                f"dss_path must be str, Path, or PathLike, got {type(dss_path).__name__}"
+            )
+        super().__init__(str(Path(dss_path)), version)
         self.mode = mode
 
     def read_ts(
