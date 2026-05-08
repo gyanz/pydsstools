@@ -539,8 +539,10 @@ class RasterSpatialGrid:
         )
 
         dst_transform, dst_width, dst_height = calculate_default_transform(src_crs, dst_crs, src_width, src_height, *self.bounds, resolution=cell_size)
-        #dst_prof = src_prof.copy()
 
+        # Use a clean GeoTIFF profile for the destination rather than copying src_prof,
+        # which may carry source-driver-specific keys (e.g., from GRIB) that are incompatible
+        # as a reproject destination.
         dst_prof = DefaultGTiffProfile(count=1)
         dst_prof.update({
             "crs": dst_crs,
