@@ -50,7 +50,7 @@ from ...core import PairedDataStruct, PairedDataContainer
 from ...core import SpatialGridStruct
 from ...core.enums import GridType
 from ...core.gridinfo import GridInfo
-from ...core.gridinfo.v6 import gridinfo7_to_gridinfo6, GridInfo6 
+from ...core.gridinfo.v6 import gridinfo7_to_gridinfo6, GridInfo6
 #from ...core.gridv6_internals import gridinfo7_to_gridinfo6, GridInfo6
 from ...core import (
     PairedDataContainer,
@@ -58,6 +58,7 @@ from ...core import (
     DssPathName,
     UNDEFINED,
 )
+from ...core.location import LocationInfo
 
 DateLike = TypeVar("DateLike", str, datetime, HecTime)
 DateWindow: TypeAlias = tuple[DateLike, DateLike]
@@ -138,8 +139,9 @@ class Open(_Open):
         trim_missing: bool = False,
         window_flag: Literal[0, 1, 2, 3] = 0,
         reg: Optional[bool] = False,
-        ireg: Optional[bool] = False
-    ) -> TimeSeriesStruct:
+        ireg: Optional[bool] = False,
+        location: Optional[bool] = None,
+    ) -> Union[TimeSeriesStruct, tuple[TimeSeriesStruct, Optional[LocationInfo]]]:
         """
         Read time-series record from DSS file.
 
@@ -172,10 +174,18 @@ class Open(_Open):
             If both ``reg`` and ``ireg`` are ``False`` or both are ``True``, the type of
             time series will be determined from the E-part of ``pathname``.
 
+        location : bool or None, optional
+            If True, also read the location record associated with the pathname
+            and return ``(TimeSeriesStruct, LocationInfo)``.  If no location
+            record exists a warning is logged and ``None`` is returned in its
+            place.  Default is None (return TimeSeriesStruct only).
+
         Returns
         -------
         TimeSeriesStruct
             Time series data structure containing the requested data.
+        tuple of (TimeSeriesStruct, LocationInfo or None)
+            Returned when ``location=True``.
 
         Raises
         ------
@@ -196,6 +206,10 @@ class Open(_Open):
         Read regular time series with trimming:
 
         >>> ts = fid.read_ts(pathname, trim_missing=True, reg=True)
+
+        Read time series and its location record together:
+
+        >>> ts, loc = fid.read_ts(pathname, location=True)
         """
         pathname = DssPathName(pathname)
 
@@ -241,7 +255,7 @@ class Open(_Open):
             stime = sdate.time(2)
             eday = edate.date()
             etime = edate.time(2)
-            return super()._read_ts_window(pathname.text(), sday, stime, eday, etime, retrieve_flag)
+            tss = super()._read_ts_window(pathname.text(), sday, stime, eday, etime, retrieve_flag)
 
         else:
             retrieve_all = 0
@@ -249,14 +263,26 @@ class Open(_Open):
                 not pathname.dpart.strip()
             ):  # if date part is empty, retrieve all data ignoring date
                 retrieve_all = 1
-            return super()._read_ts_normal(
+            tss = super()._read_ts_normal(
                 pathname.text(), retrieve_flag, boolRetrieveAllTimes=retrieve_all
             )
 
+        if location:
+            loc = None
+            try:
+                loc = super()._read_location(pathname.text())
+            except Exception:
+                logging.warning("No location record found for '%s'.", pathname.text())
+            return tss, loc
+
+        return tss
+
 
     def put_ts(
-        self, data: Union[str, "DssPathName", "TimeSeriesContainer"],
-        **kwargs: Any
+        self,
+        data: Union[str, "DssPathName", "TimeSeriesContainer"],
+        location: Optional[LocationInfo] = None,
+        **kwargs: Any,
     ) -> None:
         """
         Write time-series data to DSS file.
@@ -314,6 +340,10 @@ class Open(_Open):
         ...                           data_type=data_type, tzid=timezone)
         >>> fid.put_ts(tsc)
 
+        location : LocationInfo or None, optional
+            If provided, write this location record to the DSS file immediately
+            after writing the time series.  Default is None.
+
         Write irregular time series without using TimeSeriesContainer:
 
         >>> pathname = r"/A/B/C//IR-DAY/F/"
@@ -323,6 +353,12 @@ class Open(_Open):
         >>> values = [1, 20, 30, 40, 50]
         >>> fid.put_ts(pathname, values=values, times=times, julian_base=julian_base,
         ...            data_units=data_units, data_type=data_type, tzid=timezone)
+
+        Write time series with location metadata:
+
+        >>> from pydsstools.core.location import LocationInfo
+        >>> loc = LocationInfo("/A/B/C//1HOUR/F/", x=-118.5, y=34.0)
+        >>> fid.put_ts(tsc, location=loc)
         """
 
         if self.mode != "rw":
@@ -376,6 +412,11 @@ class Open(_Open):
             tsc = TimeSeriesContainer(pathname.text(), count, interval, **kwargs)
 
         super()._put(tsc)
+
+        if location is not None:
+            if not isinstance(location, LocationInfo):
+                raise TypeError(f"Expected LocationInfo for location, got {type(location).__name__}")
+            super()._put_location(location)
 
     def read_pd(
         self,
