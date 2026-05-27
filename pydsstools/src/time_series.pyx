@@ -353,15 +353,20 @@ cdef class TimeSeriesStruct:
         """
         Returns variable-length character notes as a list of str, one per value,
         or None if not retrieved.  Mutually exclusive with integer_notes.
+        Empty notes are preserved at their index.
         """
         cdef:
             int total
+            int n
             const unsigned char *ptr
         if self.tss and self.tss[0].cnotesLengthTotal > 0 and self.tss[0].cnotes != NULL:
             total = self.tss[0].cnotesLengthTotal
+            n = self.tss[0].numberValues
             ptr = <const unsigned char *>self.tss[0].cnotes
             raw = ptr[:total]   # bytes — cast avoids c_string_type=str auto-coercion
-            return [s.decode('ascii') for s in raw.split(b'\0') if s]
+            # take exactly numberValues items; trailing sentinel \0 produces a spurious
+            # empty string at end of split which is excluded by the [:n] slice
+            return [s.decode('ascii') for s in raw.split(b'\0')[:n]]
         return None
 
     @property
@@ -393,6 +398,20 @@ cdef class TimeSeriesContainer:
         int* _times_ptr
         char *_ctzid
 
+        # quality and notes
+        np.ndarray _quality_flags
+        int _quality_elem_size
+        int[:] _quality_mv
+        int* _quality_ptr
+
+        np.ndarray _integer_notes
+        int _inote_elem_size
+        int[:] _inotes_mv
+        int* _inotes_ptr
+
+        bytes _text_notes_buf
+        int _cnotes_length
+
     def __init__(self,pathname,count,interval,**kwargs):
         self.pathname = pathname
         self.count = count
@@ -403,6 +422,9 @@ cdef class TimeSeriesContainer:
         self.julian_base = kwargs.pop("julian_base",HecTime("31DEC1899:0000",granularity=60))    
         self.values = kwargs.pop("values",None)
         self.times = kwargs.pop("times",None)
+        self.quality_flags = kwargs.pop("quality_flags", None)
+        self.integer_notes = kwargs.pop("integer_notes", None)
+        self.text_notes    = kwargs.pop("text_notes", None)
         start_time = kwargs.pop("start_time",None)
         if start_time is not None:
             self.start_time = start_time
@@ -570,6 +592,200 @@ cdef class TimeSeriesContainer:
             else:
                 raise TypeError(f"Julian base date for irregular timeseries must be HecTime or date string, got {type(date).__name__}") 
 
+    @property
+    def quality_flags(self):
+        """
+        Quality flags array for the time series values.
+
+        Each value in the time series can have one or more associated quality integers.
+        The number of integers per value is the element size (second dimension).
+
+        A single quality integer uses the following 32-bit layout:
+
+        * Bit 1      - Screened: must be set before any other bit can be set.
+        * Bits 2-5   - Validity (mutually exclusive): Okay / Missing / Questionable / Reject.
+        * Bits 6-7   - Current data range (0-3).
+        * Bit 8      - Value differs from original.
+        * Bits 9-11  - Revision cause (0-7).
+        * Bits 12-15 - Replacement method (0-15).
+        * Bits 16-26 - Test failure indicators (multiple can be set simultaneously).
+        * Bit 32     - Protect from automatic modification.
+
+        Parameters
+        ----------
+        data : array-like of int or None
+            * 1-D array of shape ``(count,)`` - one quality integer per value
+              (element size = 1).
+            * 2-D array of shape ``(count, element_size)`` - multiple quality integers
+              per value.
+            * ``None`` clears quality flags.
+
+        Returns
+        -------
+        numpy.ndarray of int32 with shape ``(count, element_size)``, or ``None``.
+
+        Raises
+        ------
+        ValueError
+            If the first dimension does not match ``count``.
+
+        Examples
+        --------
+        Single quality integer per value (screened + okay):
+
+        >>> tsc.quality_flags = [0b00000011] * count   # screened + okay
+
+        Two quality integers per value:
+
+        >>> import numpy as np
+        >>> tsc.quality_flags = np.array([[3, 0], [3, 1]], dtype=np.int32)
+        """
+        return self._quality_flags
+
+    @quality_flags.setter
+    def quality_flags(self, data):
+        if data is None:
+            self._quality_flags = None
+            self._quality_elem_size = 0
+            return
+        arr = np.ascontiguousarray(data, dtype=np.int32)
+        if arr.ndim == 1:
+            arr = arr.reshape(-1, 1)
+        if arr.ndim != 2:
+            raise ValueError("quality_flags must be 1-D or 2-D")
+        if arr.shape[0] != self._count:
+            raise ValueError(
+                f"quality_flags first dimension ({arr.shape[0]}) must match count ({self._count})")
+        self._quality_flags = arr
+        self._quality_elem_size = arr.shape[1]
+        self._quality_mv = arr.ravel()
+        self._quality_ptr = &self._quality_mv[0]
+
+    @property
+    def integer_notes(self):
+        """
+        Fixed-length integer notes for the time series values.
+
+        Integer notes provide structured integer metadata alongside each value —
+        for example, a sensor ID, a flag code, or a revision counter. Each value
+        has a fixed number of integers (the element size).
+
+        Integer notes and text notes are mutually exclusive for a given time series
+        record. Only one type can be stored at a time.
+
+        Parameters
+        ----------
+        data : array-like of int or None
+            * 1-D array of shape ``(count,)`` — one integer note per value
+              (element size = 1).
+            * 2-D array of shape ``(count, element_size)`` — multiple integers
+              per value.
+            * ``None`` clears integer notes.
+
+        Returns
+        -------
+        numpy.ndarray of int32 with shape ``(count, element_size)``, or ``None``.
+
+        Raises
+        ------
+        ValueError
+            If the first dimension does not match ``count``, or if ``text_notes``
+            is already set.
+
+        Examples
+        --------
+        >>> tsc.integer_notes = [101, 102, 103]   # one int note per value
+
+        Two integer notes per value:
+
+        >>> import numpy as np
+        >>> tsc.integer_notes = np.array([[1, 0], [2, 1], [3, 0]], dtype=np.int32)
+        """
+        return self._integer_notes
+
+    @integer_notes.setter
+    def integer_notes(self, data):
+        if data is None:
+            self._integer_notes = None
+            self._inote_elem_size = 0
+            return
+        if self._text_notes_buf is not None:
+            raise ValueError("Cannot set integer_notes when text_notes is already set")
+        arr = np.ascontiguousarray(data, dtype=np.int32)
+        if arr.ndim == 1:
+            arr = arr.reshape(-1, 1)
+        if arr.ndim != 2:
+            raise ValueError("integer_notes must be 1-D or 2-D")
+        if arr.shape[0] != self._count:
+            raise ValueError(
+                f"integer_notes first dimension ({arr.shape[0]}) must match count ({self._count})")
+        self._integer_notes = arr
+        self._inote_elem_size = arr.shape[1]
+        self._inotes_mv = arr.ravel()
+        self._inotes_ptr = &self._inotes_mv[0]
+
+    @property
+    def text_notes(self):
+        """
+        Variable-length text notes for the time series values.
+
+        Text notes provide a free-text comment per value — for example,
+        ``"manual edit"``, ``"sensor malfunction"``, or an empty string when
+        no comment applies. Every value must have exactly one note entry, even
+        if it is an empty string.
+
+        Notes are stored internally as a single ASCII buffer with each note
+        separated by a null character (``\\0``). Empty notes are preserved at
+        their index.
+
+        Integer notes and text notes are mutually exclusive for a given time series
+        record. Only one type can be stored at a time.
+
+        Parameters
+        ----------
+        notes : list of str or None
+            List of ASCII strings, one per value. Length must equal ``count``.
+            Empty strings are allowed. ``None`` clears text notes.
+
+        Returns
+        -------
+        list of str, one per value, or ``None``.
+
+        Raises
+        ------
+        ValueError
+            If ``len(notes)`` does not match ``count``, or if ``integer_notes``
+            is already set.
+        UnicodeEncodeError
+            If any note contains non-ASCII characters.
+
+        Examples
+        --------
+        >>> tsc.text_notes = ["ok", "manual edit", "", "sensor fault", "ok"]
+
+        Clear notes:
+
+        >>> tsc.text_notes = None
+        """
+        if self._text_notes_buf is None:
+            return None
+        return [s.decode('ascii') for s in self._text_notes_buf.split(b'\0')[:self._count]]
+
+    @text_notes.setter
+    def text_notes(self, notes):
+        if notes is None:
+            self._text_notes_buf = None
+            self._cnotes_length = 0
+            return
+        if self._integer_notes is not None:
+            raise ValueError("Cannot set text_notes when integer_notes is already set")
+        if len(notes) != self._count:
+            raise ValueError(
+                f"text_notes length ({len(notes)}) must match count ({self._count})")
+        buf = '\0'.join(str(n) for n in notes) + '\0'
+        self._text_notes_buf = buf.encode('ascii')
+        self._cnotes_length = len(self._text_notes_buf)
+
     cdef TimeSeriesStruct create_tss(self):
         cdef:
             zStructTimeSeries *tss=NULL
@@ -622,6 +838,17 @@ cdef class TimeSeriesContainer:
                                           data_units,data_type)
         if self._tzid:
             tss[0].timeZoneName = self._ctzid
+
+        if self._quality_flags is not None:
+            tss[0].quality = self._quality_ptr
+            tss[0].qualityElementSize = self._quality_elem_size
+
+        if self._integer_notes is not None:
+            tss[0].inotes = self._inotes_ptr
+            tss[0].inoteElementSize = self._inote_elem_size
+        elif self._text_notes_buf is not None:
+            tss[0].cnotes = PyBytes_AS_STRING(self._text_notes_buf)
+            tss[0].cnotesLengthTotal = self._cnotes_length
 
         ts_st = createTSS(tss)
         #logging.debug("length = {}".format(ts_st.count))
