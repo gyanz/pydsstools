@@ -474,6 +474,12 @@ class Open(_Open):
                     f"Invalid store_flag {_flag!r} for irregular time series. "
                     f"Use IrregStoreFlag or one of {sorted(valid)}."
                 )
+        if tsc.quality_flags is not None and tsc._quality_elem_size > 1 and self.version == 6:
+            raise ValueError(
+                "DSS-6 supports only one quality integer per value "
+                "(qualityElementSize must be 1). "
+                "Use a 1-D array or a 2-D array with a single column."
+            )
         super()._put(tsc, _flag)
 
         if location is not None:

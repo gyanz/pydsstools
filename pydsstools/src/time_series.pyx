@@ -611,6 +611,13 @@ cdef class TimeSeriesContainer:
         * Bits 16-26 - Test failure indicators (multiple can be set simultaneously).
         * Bit 32     - Protect from automatic modification.
 
+        Note
+        ----
+        DSS-6 supports only a single quality integer per value (element size = 1).
+        Passing an array with element size > 1 to a DSS-6 file raises a ``ValueError``
+        at write time. DSS-7 supports element size > 1, though older programs may not
+        read multi-integer quality flags correctly.
+
         Parameters
         ----------
         data : array-like of int or None
