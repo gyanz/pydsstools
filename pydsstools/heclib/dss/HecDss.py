@@ -48,7 +48,7 @@ from ...core import Open as _Open
 from ...core import TimeSeriesStruct, TimeSeriesContainer
 from ...core import PairedDataStruct, PairedDataContainer
 from ...core import SpatialGridStruct
-from ...core.enums import GridType
+from ...core.enums import GridType, RegStoreFlag, IrregStoreFlag
 from ...core.gridinfo import GridInfo
 from ...core.gridinfo.v6 import gridinfo7_to_gridinfo6, GridInfo6
 #from ...core.gridv6_internals import gridinfo7_to_gridinfo6, GridInfo6
@@ -310,6 +310,7 @@ class Open(_Open):
         self,
         data: Union[str, "DssPathName", "TimeSeriesContainer"],
         location: Optional[LocationInfo] = None,
+        store_flag: Union[RegStoreFlag, IrregStoreFlag, int] = 0,
         **kwargs: Any,
     ) -> None:
         """
@@ -319,6 +320,25 @@ class Open(_Open):
         ----------
         data : str or DssPathName or TimeSeriesContainer
             Either a pathname string or a TimeSeriesContainer object.
+        location : LocationInfo or None, optional
+            If provided, write this location record after writing the time series.
+            Default is None.
+        store_flag : RegStoreFlag or IrregStoreFlag or int, optional
+            Controls how existing data is handled on write. Default is 0.
+
+            For regular time series (use ``RegStoreFlag``):
+
+            * 0 : Always replace data.
+            * 1 : Only replace missing values.
+            * 2 : Write even if all values are missing.
+            * 3 : If all missing, do not write and delete record if it exists.
+            * 4 : Do not allow a missing input value to replace a valid value.
+
+            For irregular time series (use ``IrregStoreFlag``):
+
+            * 0 : Merge — insert new values; replace existing values at the same time.
+            * 1 : Replace — remove all data in the start-to-end range and rewrite.
+
         **kwargs : Any
             Keyword arguments for TimeSeriesContainer when ``data`` is a pathname.
 
@@ -439,7 +459,22 @@ class Open(_Open):
 
             tsc = TimeSeriesContainer(pathname.text(), count, interval, **kwargs)
 
-        super()._put(tsc)
+        _flag = int(store_flag)
+        if tsc.interval > 0:
+            valid = set(m.value for m in RegStoreFlag)
+            if _flag not in valid:
+                raise ValueError(
+                    f"Invalid store_flag {_flag!r} for regular time series. "
+                    f"Use RegStoreFlag or one of {sorted(valid)}."
+                )
+        else:
+            valid = set(m.value for m in IrregStoreFlag)
+            if _flag not in valid:
+                raise ValueError(
+                    f"Invalid store_flag {_flag!r} for irregular time series. "
+                    f"Use IrregStoreFlag or one of {sorted(valid)}."
+                )
+        super()._put(tsc, _flag)
 
         if location is not None:
             if not isinstance(location, LocationInfo):

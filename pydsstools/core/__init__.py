@@ -17,6 +17,8 @@ __all__ = [
     "DataType",
     "CompressionMethod",
     "LocationInfo",
+    "RegStoreFlag",
+    "IrregStoreFlag",
     #"gridinfo"
 ]
 
@@ -27,3 +29,4 @@ from .gridinfo.v6 import *
 from .grid import SpatialGridStruct
 from . import grid_accessors
 from .location import LocationInfo
+from .enums import RegStoreFlag, IrregStoreFlag

@@ -238,6 +238,17 @@ cdef extern from "heclib.h":
         char *pathnameInternal
         int boolRetrieveAllTimes
         char *timeZoneName
+        # --- Quality and Notes (Optional) ---
+        int *quality           # int quality[numberValues][qualityElementSize]
+        int qualityElementSize # length of each quality element; 0 = no quality
+        int qualityArraySize   # retrieval only: total int size allocated; not used for storing
+        # inotes and cnotes are mutually exclusive (they occupy the same space)
+        int *inotes            # fixed-length integer notes (one per value)
+        int inoteElementSize
+        int inotesArraySize    # retrieval only: total int size allocated; not used for storing
+        char *cnotes           # variable-length char notes; one per value, each \0-terminated
+        int cnotesSize         # on retrieval: size of cnotes buffer
+        int cnotesLengthTotal  # set for storage; returns actual length on retrieval
 
     const char *ztypeName(int recordType, int boolAbbreviation)
     int ztsPathCheckInterval(long long *ifltab, char *pathname, size_t sizeofPathname)

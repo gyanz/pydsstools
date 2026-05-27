@@ -308,10 +308,67 @@ cdef class TimeSeriesStruct:
         return timezone        
 
     @property
+    def quality_flags(self):
+        """
+        Returns quality array as a 2-D numpy int32 array of shape
+        (numberValues, qualityElementSize), or None if not retrieved.
+        """
+        cdef:
+            int n
+            int elem_size
+            view.array mview
+        if self.tss and self.tss[0].qualityElementSize > 0 and self.tss[0].quality != NULL:
+            n = self.tss[0].numberValues
+            elem_size = self.tss[0].qualityElementSize
+            mview = view.array(shape=(n * elem_size,),
+                               itemsize=sizeof(int), format='i',
+                               allocate_buffer=False)
+            mview.data = <char *>self.tss[0].quality
+            return np.asarray(mview).reshape(n, elem_size)
+        return None
+
+    @property
+    def integer_notes(self):
+        """
+        Returns fixed-length integer notes as a 2-D numpy int32 array of shape
+        (numberValues, inoteElementSize), or None if not retrieved.
+        Mutually exclusive with text_notes.
+        """
+        cdef:
+            int n
+            int elem_size
+            view.array mview
+        if self.tss and self.tss[0].inoteElementSize > 0 and self.tss[0].inotes != NULL:
+            n = self.tss[0].numberValues
+            elem_size = self.tss[0].inoteElementSize
+            mview = view.array(shape=(n * elem_size,),
+                               itemsize=sizeof(int), format='i',
+                               allocate_buffer=False)
+            mview.data = <char *>self.tss[0].inotes
+            return np.asarray(mview).reshape(n, elem_size)
+        return None
+
+    @property
+    def text_notes(self):
+        """
+        Returns variable-length character notes as a list of str, one per value,
+        or None if not retrieved.  Mutually exclusive with integer_notes.
+        """
+        cdef:
+            int total
+            const unsigned char *ptr
+        if self.tss and self.tss[0].cnotesLengthTotal > 0 and self.tss[0].cnotes != NULL:
+            total = self.tss[0].cnotesLengthTotal
+            ptr = <const unsigned char *>self.tss[0].cnotes
+            raw = ptr[:total]   # bytes — cast avoids c_string_type=str auto-coercion
+            return [s.decode('ascii') for s in raw.split(b'\0') if s]
+        return None
+
+    @property
     def julian(self):
         if self.interval <= 0:
             return self.tss[0].julianBaseDate
-        
+
         else:
             return (self.tss[0].startJulianDate,self.tss[0].endJulianDate)
 

@@ -79,3 +79,16 @@ class LocVertDatum(IntEnum):
     local = 3
 
 
+class RegStoreFlag(IntEnum):
+    replace       = 0  # always replace data
+    fill_missing  = 1  # only replace missing values
+    write_always  = 2  # write even if all values are missing
+    skip_all_miss = 3  # if all missing, do not write and delete record if it exists
+    no_overwrite  = 4  # do not allow a missing input value to replace a valid value
+
+
+class IrregStoreFlag(IntEnum):
+    merge   = 0  # insert new values; replace existing values at the same time
+    replace = 1  # remove all data in the start-to-end range and rewrite
+
+
