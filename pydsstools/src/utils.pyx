@@ -292,8 +292,44 @@ cdef class DssPathName:
     def parts(self):
         return list(self._parts.values())
 
+    def normalize_period(self):
+        """Correct d-part and e-part datetime strings for gridded DSS data.
+
+        For gridded (time-stamped) records the d-part must express midnight as
+        00:00 of the current day (midnight_as_2400=False) and the e-part must
+        express midnight as 24:00 of the *previous* day (midnight_as_2400=True).
+        Both d-part and e-part are corrected in a new DssPathName object; the
+        original is not modified. If either part cannot be parsed the original
+        is returned unchanged.
+
+        Returns
+        -------
+        DssPathName
+            New instance with corrected d-part and e-part, or this instance if
+            parsing fails.
+
+        Examples
+        --------
+        >>> path = DssPathName("/A/B/C/01JAN2025:2300/02JAN2025:0000/F/")
+        >>> fixed = path.normalize_period()
+        >>> fixed.dpart
+        '01JAN2025:2300'
+        >>> fixed.epart
+        '01JAN2025:2400'
+        """
+        try:
+            stime = HecTime(self.dpart, midnight_as_2400=False, date_style=104, time_style=0)
+            etime = HecTime(self.epart, midnight_as_2400=True, date_style=104, time_style=0)
+        except Exception as e:
+            logging.warning(f"normalize_period: could not parse d/e-part datetime: {e}")
+            return self
+        new_path = DssPathName(self)
+        new_path.dpart = stime.text()
+        new_path.epart = etime.text()
+        return new_path
+
     def epart_to_interval(self,dss_ver=7):
-        return DssPathName._epart_operations(self.epart, dss_ver, opt = 1) 
+        return DssPathName._epart_operations(self.epart, dss_ver, opt = 1)
 
     @staticmethod
     def interval_to_epart(int interval, dss_ver=7):

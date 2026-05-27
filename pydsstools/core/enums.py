@@ -40,3 +40,42 @@ class Datum(IntEnum):
     nad83 = 2
 
 
+class LocCoordSystem(IntEnum):
+    none = 0
+    lat_long = 1
+    state_plane_fips = 2
+    state_plane_ads = 3
+    utm = 4
+    local = 5
+
+
+class LocHorizUnits(IntEnum):
+    unspecified = 0
+    feet = 1
+    meters = 2
+    decimal_degrees = 3
+    degrees_minutes_seconds = 4
+
+
+class LocHorizDatum(IntEnum):
+    unset = 0
+    nad83 = 1
+    nad27 = 2
+    wgs84 = 3
+    wgs72 = 4
+    local = 5
+
+
+class LocVertUnits(IntEnum):
+    unspecified = 0
+    feet = 1
+    meters = 2
+
+
+class LocVertDatum(IntEnum):
+    unset = 0
+    navd88 = 1
+    ngvd29 = 2
+    local = 3
+
+

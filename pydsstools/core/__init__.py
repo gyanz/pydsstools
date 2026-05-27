@@ -16,6 +16,7 @@ __all__ = [
     "GridType",
     "DataType",
     "CompressionMethod",
+    "LocationInfo",
     #"gridinfo"
 ]
 
@@ -25,3 +26,4 @@ from .gridinfo import *
 from .gridinfo.v6 import *
 from .grid import SpatialGridStruct
 from . import grid_accessors
+from .location import LocationInfo

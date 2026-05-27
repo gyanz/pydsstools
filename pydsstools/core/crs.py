@@ -1,10 +1,11 @@
 import logging
 from pyproj import CRS
 from . import HRAP_WKT, SHG_WKT
-from .enums import Datum
+from .enums import Datum, LocCoordSystem, LocHorizUnits, LocHorizDatum
 
 
-__all__ = ["hrap", "shg", "albers", "make_albers", "wkt_to_crs", "albers_params_from_wkt", "crs_short_name","is_equal_area_conic","is_hrap"]
+__all__ = ["hrap", "shg", "albers", "make_albers", "wkt_to_crs", "albers_params_from_wkt",
+           "crs_short_name", "is_equal_area_conic", "is_hrap", "crs_to_location_attrs"]
 
 ALBERS_WKT = SHG_WKT
 
@@ -154,6 +155,82 @@ def albers_params_from_wkt(wkt):
     info["false_easting"] = crs["x_0"]
     info["false_northing"] = crs["y_0"]
     return info
+
+def crs_to_location_attrs(crs_input):
+    """Map a CRS string or object to LocationInfo-compatible attribute values.
+
+    Returns a dict with keys ``coordinate_system``, ``horizontal_units``,
+    ``horizontal_datum``, and ``coordinate_id``, or None if the CRS cannot
+    be parsed.
+    """
+    if not isinstance(crs_input, CRS):
+        try:
+            crs = CRS.from_user_input(crs_input)
+        except Exception:
+            logging.warning("Could not parse CRS: %s", crs_input)
+            return None
+    else:
+        crs = crs_input
+
+    # --- coordinate_system and coordinate_id ---
+    coord_sys = LocCoordSystem.none
+    coordinate_id = 0
+    if crs.is_geographic:
+        coord_sys = LocCoordSystem.lat_long
+    elif crs.is_projected:
+        utm_zone = crs.utm_zone
+        name = (crs.name or "").lower()
+        if utm_zone is not None:
+            coord_sys = LocCoordSystem.utm
+            coordinate_id = int("".join(filter(str.isdigit, utm_zone)))
+        elif "state plane" in name or "spcs" in name:
+            coord_sys = LocCoordSystem.state_plane_fips
+        elif is_equal_area_conic(crs) or is_hrap(crs):
+            coord_sys = LocCoordSystem.local
+        else:
+            coord_sys = LocCoordSystem.local
+
+    # --- horizontal_units ---
+    # crs.linear_units  → PROJ abbreviation: "m", "ft", "us-ft", etc.
+    # axis.unit_name    → EPSG full name:    "metre", "US survey foot", etc.
+    # Both are checked so neither spelling convention is missed.
+    horiz_units = LocHorizUnits.unspecified
+    if crs.is_geographic:
+        horiz_units = LocHorizUnits.decimal_degrees
+    elif crs.is_projected:
+        proj_unit = crs.linear_units.lower()          # "m", "ft", "us-ft", ...
+        axis_unit = crs.axis_info[0].unit_name.lower() if crs.axis_info else ""
+        combined  = proj_unit + " " + axis_unit
+        if proj_unit == "m" or "metre" in combined or "meter" in combined:
+            horiz_units = LocHorizUnits.meters
+        elif "ft" in proj_unit or "foot" in combined or "feet" in combined:
+            horiz_units = LocHorizUnits.feet
+
+    # --- horizontal_datum ---
+    horiz_datum = LocHorizDatum.unset
+    try:
+        datum_name = (crs.geodetic_crs.datum.name or "").upper()
+    except Exception:
+        try:
+            datum_name = (crs.datum.name or "").upper()
+        except Exception:
+            datum_name = ""
+    if "NAD83" in datum_name or "NORTH AMERICAN 1983" in datum_name:
+        horiz_datum = LocHorizDatum.nad83
+    elif "NAD27" in datum_name or "NORTH AMERICAN 1927" in datum_name:
+        horiz_datum = LocHorizDatum.nad27
+    elif "WGS 84" in datum_name or "WGS84" in datum_name or "WGS_1984" in datum_name:
+        horiz_datum = LocHorizDatum.wgs84
+    elif "WGS 72" in datum_name or "WGS72" in datum_name or "WGS_1972" in datum_name:
+        horiz_datum = LocHorizDatum.wgs72
+
+    return {
+        "coordinate_system": coord_sys,
+        "horizontal_units":  horiz_units,
+        "horizontal_datum":  horiz_datum,
+        "coordinate_id":     coordinate_id,
+    }
+
 
 def crs_short_name(crs):
     if not isinstance(crs, CRS):

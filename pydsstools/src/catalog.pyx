@@ -269,7 +269,7 @@ cdef class CatalogStruct:
             return
         
         if path_count == 0:
-            logging.warning("No matching paths found.")
+            logging.debug("No matching dss paths found.")
             return
 
         ct_st = createCatalog(cts)

@@ -552,6 +552,36 @@ cdef extern from "heclib.h":
     int zspatialGridRetrieveVersion(long long *ifltab, const char *cpath, int* gridStructVersion)
     #void printGridStruct(long long *ifltab, int funtion_id, zStructSpatialGrid *gdStruct)
 
-#cdef extern from "DSSGrid_wrap.h":
-#    int RetrieveGriddedData_wrap(long long * ifltab, zStructSpatialGrid * gs, int boolRetrieveData)
+    char* zlocationPath(const char* pathname)
+    zStructLocation* zstructLocationNew(const char* pathname)
+    int zlocationStore(long long *ifltab, zStructLocation *locationStruct, int storageFlag)
+    int zlocationRetrieve(long long *ifltab, zStructLocation *locationStruct)
+
+    ctypedef struct zStructLocation:
+        #int structType                      # [private]
+        char *pathname                       # any pathname from the data set; used to form location path
+
+        # --- Location Coordinates ---
+        double xOrdinate                     # longitude / easting  (negative = western hemisphere for geographic)
+        double yOrdinate                     # latitude / northing
+        double zOrdinate                     # elevation
+
+        # coordinateSystem: 0=none  1=Lat/Long  2=State Plane FIPS  3=State Plane ADS  4=UTM  5=local
+        int coordinateSystem
+        int coordinateID                     # UTM zone #, FIPS SPCS #, or ADS SPCS #
+
+        # horizontalUnits:  0=unspecified  1=feet  2=meters  3=decimal degrees  4=degrees-minutes-seconds
+        int horizontalUnits
+        # horizontalDatum:  0=unset  1=NAD83  2=NAD27  3=WGS84  4=WGS72  5=local
+        int horizontalDatum
+        # verticalUnits:    0=unspecified  1=feet  2=meters
+        int verticalUnits
+        # verticalDatum:    0=unset  1=NAVD88  2=NGVD29  3=local
+        int verticalDatum
+
+        char *timeZoneName                   # location time zone (not data TZ); e.g. "PST", never "PDT"
+        char *supplemental                   # extra location info (NOT data); null-term, '\n'-delimited pieces
+
+        #char *pathnameInternal              # [private]
+        #char allocated[zSTRUCT_length]      # [private]
 

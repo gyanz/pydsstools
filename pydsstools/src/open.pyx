@@ -983,6 +983,57 @@ cdef class Open:
         """
         return CatalogStruct.new(self, pathname, sort, max_count, status_wanted, last_write_time_search, last_write_time_search_flag, include_dates)
 
+    cpdef object _read_location(self, str pathname):
+        cdef:
+            zStructLocation *zloc = NULL
+            bytes _bpath = pathname.encode("ascii")
+            const char *cpath = _bpath
+        zloc = zstructLocationNew(cpath)
+        try:
+            self.read_status = zlocationRetrieve(self.ifltab, zloc)
+            isError(self.read_status)
+            return _location_struct_to_info(zloc)
+        finally:
+            if zloc != NULL:
+                zstructFree(zloc)
+
+    cpdef void _put_location(self, object loc, int storageFlag=0) except *:
+        from pydsstools.core.location import LocationInfo
+        cdef:
+            zStructLocation *zloc = NULL
+            bytes _bpath
+            const char *cpath
+            bytes _btz
+            bytes _bsupp
+
+        if not isinstance(loc, LocationInfo):
+            raise TypeError(f"Expected LocationInfo, got {type(loc).__name__}")
+
+        _bpath = loc.pathname.text().encode("ascii")
+        cpath = _bpath
+        zloc = zstructLocationNew(cpath)
+        try:
+            zloc[0].xOrdinate        = loc.x
+            zloc[0].yOrdinate        = loc.y
+            zloc[0].zOrdinate        = loc.z
+            zloc[0].coordinateSystem = int(loc.coordinate_system)
+            zloc[0].coordinateID     = loc.coordinate_id
+            zloc[0].horizontalUnits  = int(loc.horizontal_units)
+            zloc[0].horizontalDatum  = int(loc.horizontal_datum)
+            zloc[0].verticalUnits    = int(loc.vertical_units)
+            zloc[0].verticalDatum    = int(loc.vertical_datum)
+            if loc.time_zone:
+                _btz = loc.time_zone.encode("ascii")
+                zloc[0].timeZoneName = PyBytes_AS_STRING(_btz)
+            if loc.supplemental:
+                _bsupp = "\n".join(loc.supplemental).encode("ascii")
+                zloc[0].supplemental = PyBytes_AS_STRING(_bsupp)
+            self.write_status = zlocationStore(self.ifltab, zloc, storageFlag)
+            isError(self.write_status)
+        finally:
+            if zloc != NULL:
+                zstructFree(zloc)
+
     def __dealloc__(self):
         if self.ifltab != NULL:
             zclose(self.ifltab)
