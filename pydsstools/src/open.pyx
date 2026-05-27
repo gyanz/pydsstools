@@ -151,6 +151,10 @@ cdef class Open:
             ztss[0].doubleValues = NULL
         elif boolRetrieveDoubles == 2:
             ztss[0].floatValues = NULL
+        # TODO: when boolRetrieveDoubles == 0 (native), the C library decides which
+        # buffer it populates; we neither NULL the unused pointer here nor know
+        # which one createTSS should prefer.  Audit createTSS and ztsRetrieve
+        # behaviour for this case to avoid a double-free or silently wrong values.
 
         tss = createTSS(ztss)
         return tss

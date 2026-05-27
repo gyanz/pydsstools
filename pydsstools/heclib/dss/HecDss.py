@@ -64,6 +64,8 @@ DateLike = TypeVar("DateLike", str, datetime, HecTime)
 DateWindow: TypeAlias = tuple[DateLike, DateLike]
 PathType: TypeAlias = Union[str, Path, PathLike]
 
+_PRECISION_MAP: dict[str, int] = {"float": 1, "double": 2, "native": 0}
+
 
 
 # ==================== Main Class ====================
@@ -138,6 +140,8 @@ class Open(_Open):
         window: Optional[DateWindow] = None,
         trim_missing: bool = False,
         window_flag: Literal[0, 1, 2, 3] = 0,
+        value_precision: Literal["float", "double", "native"] = "float",
+        quality_notes: bool = False,
         reg: Optional[bool] = False,
         ireg: Optional[bool] = False,
         location: Optional[bool] = None,
@@ -166,6 +170,15 @@ class Open(_Open):
             * 2 : Also retrieve one value immediately after the end of the window.
             * 3 : Retrieve one value immediately before the start and one immediately
               after the end of the window.
+        value_precision : {"float", "double", "native"}, optional
+            Controls the numeric precision of the retrieved values. Default is "float".
+
+            * "float"  : Return values as 32-bit floats.
+            * "double" : Return values as 64-bit doubles.
+            * "native" : Return values as stored; missing values returned as doubles.
+        quality_notes : bool, optional
+            If True, retrieve quality notes associated with each value when they exist.
+            Default is False.
         reg : bool, optional
             If True, treat the data as a regular time series. Default is False.
         ireg : bool, optional
@@ -213,6 +226,14 @@ class Open(_Open):
         """
         pathname = DssPathName(pathname)
 
+        if value_precision not in _PRECISION_MAP:
+            raise ValueError(
+                f"Invalid value_precision {value_precision!r}. "
+                f"Must be one of: {list(_PRECISION_MAP)}"
+            )
+        retrieve_doubles = _PRECISION_MAP[value_precision]
+        retrieve_quality = int(quality_notes)
+
         infer_type = True
         if reg and ireg:
             logging.info("The timeseries to be read is specified as both regular and irregular type; type will be inferred from the pathname.")
@@ -255,7 +276,11 @@ class Open(_Open):
             stime = sdate.time(2)
             eday = edate.date()
             etime = edate.time(2)
-            tss = super()._read_ts_window(pathname.text(), sday, stime, eday, etime, retrieve_flag)
+            tss = super()._read_ts_window(
+                pathname.text(), sday, stime, eday, etime, retrieve_flag,
+                boolRetrieveDoubles=retrieve_doubles,
+                boolRetrieveQualityNotes=retrieve_quality,
+            )
 
         else:
             retrieve_all = 0
@@ -264,7 +289,10 @@ class Open(_Open):
             ):  # if date part is empty, retrieve all data ignoring date
                 retrieve_all = 1
             tss = super()._read_ts_normal(
-                pathname.text(), retrieve_flag, boolRetrieveAllTimes=retrieve_all
+                pathname.text(), retrieve_flag,
+                boolRetrieveDoubles=retrieve_doubles,
+                boolRetrieveQualityNotes=retrieve_quality,
+                boolRetrieveAllTimes=retrieve_all,
             )
 
         if location:
