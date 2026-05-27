@@ -600,16 +600,96 @@ cdef class TimeSeriesContainer:
         Each value in the time series can have one or more associated quality integers.
         The number of integers per value is the element size (second dimension).
 
-        A single quality integer uses the following 32-bit layout:
+        Bit layout of a single 32-bit quality integer
+        -----------------------------------------------
 
-        * Bit 1      - Screened: must be set before any other bit can be set.
-        * Bits 2-5   - Validity (mutually exclusive): Okay / Missing / Questionable / Reject.
-        * Bits 6-7   - Current data range (0-3).
-        * Bit 8      - Value differs from original.
-        * Bits 9-11  - Revision cause (0-7).
-        * Bits 12-15 - Replacement method (0-15).
-        * Bits 16-26 - Test failure indicators (multiple can be set simultaneously).
-        * Bit 32     - Protect from automatic modification.
+        In Python, the ``0b`` prefix denotes a binary integer literal — the digits
+        following ``0b`` are individual bits (0 or 1), read from left (most significant)
+        to right (least significant). Each bit position maps to a power of 2, with bit 1
+        being the least significant (rightmost) bit::
+
+            bit position:  ...  8    7    6    5    4    3    2    1
+            power of 2:    ...  128  64   32   16   8    4    2    1
+
+        The 32 bits are grouped into fields that behave differently from one another:
+
+        **Bit 1 — Screened (single on/off flag)**
+            Must be set (= 1) before any other bit in the integer is meaningful.
+            An unscreened value (bit 1 = 0) should have all other bits set to 0.
+
+            ``SCREENED = 1 << 0  # = 1``
+
+        **Bits 2-5 — Validity (mutually exclusive, set exactly one)**
+            Encodes the QA verdict for the value. Only one of the four bits may be
+            set at a time because a value cannot simultaneously be Okay and Missing::
+
+                OKAY         = 1 << 1  # bit 2 = 2
+                MISSING      = 1 << 2  # bit 3 = 4
+                QUESTIONABLE = 1 << 3  # bit 4 = 8
+                REJECT       = 1 << 4  # bit 5 = 16
+
+        **Bits 6-7 — Current data range (2-bit encoded number, value 0-3)**
+            These two bits together represent a single integer (0 to 3), not two
+            independent flags. Extract with a right-shift and mask::
+
+                range_value = (flag >> 5) & 0b11   # shift 5, keep 2 bits
+
+            To set range = 2: ``2 << 5  # = 64``
+
+        **Bit 8 — Value differs from original (single on/off flag)**
+            Set when the stored value has been modified from its original measurement.
+
+            ``DIFFERS_FROM_ORIGINAL = 1 << 7  # = 128``
+
+        **Bits 9-11 — Revision cause (3-bit encoded number, value 0-7)**
+            Three bits encoding why the value was revised (0 = not revised). Extract::
+
+                cause = (flag >> 8) & 0b111   # shift 8, keep 3 bits
+
+            To set cause = 3: ``3 << 8  # = 768``
+
+        **Bits 12-15 — Replacement method (4-bit encoded number, value 0-15)**
+            Four bits encoding how a missing or rejected value was replaced. Extract::
+
+                method = (flag >> 11) & 0b1111   # shift 11, keep 4 bits
+
+            To set method = 5: ``5 << 11  # = 10240``
+
+        **Bits 16-26 — Test failure indicators (independent flags, any combination)**
+            Each bit represents a separate QA test. Multiple tests can fail
+            simultaneously, so any combination of these bits may be set::
+
+                TEST_A = 1 << 15  # bit 16 = 32768
+                TEST_B = 1 << 16  # bit 17 = 65536
+                # ... up to bit 26
+
+        **Bit 32 — Protect from automatic modification (single on/off flag)**
+            Prevents automated processes from overwriting this value.
+
+            ``PROTECT = 1 << 31  # = 2147483648``
+
+        Composing a complete flag with bitwise OR::
+
+            SCREENED     = 1 << 0
+            OKAY         = 1 << 1
+            MISSING      = 1 << 2
+            QUESTIONABLE = 1 << 3
+
+            # screened and valid
+            SCREENED_OKAY         = SCREENED | OKAY           # 3
+            # screened, missing, revised by interpolation (method=2), cause=1
+            SCREENED_MISSING_INTERP = SCREENED | MISSING | (1 << 8) | (2 << 11)
+
+        Reading individual fields from a retrieved flag::
+
+            flag = quality_array[i, 0]
+            screened     = bool(flag & 1)
+            validity     = (flag >> 1) & 0b1111   # 1=okay,2=missing,4=questionable,8=reject
+            data_range   = (flag >> 5) & 0b11
+            rev_cause    = (flag >> 8) & 0b111
+            rep_method   = (flag >> 11) & 0b1111
+            test_failure = (flag >> 15) & 0b11111111111   # bits 16-26
+            protected    = bool(flag & (1 << 31))
 
         Note
         ----
@@ -638,14 +718,22 @@ cdef class TimeSeriesContainer:
 
         Examples
         --------
-        Single quality integer per value (screened + okay):
+        Three-point regular time series with one quality integer per value:
 
-        >>> tsc.quality_flags = [0b00000011] * count   # screened + okay
-
-        Two quality integers per value:
-
-        >>> import numpy as np
-        >>> tsc.quality_flags = np.array([[3, 0], [3, 1]], dtype=np.int32)
+        >>> from pydsstools.core import TimeSeriesContainer
+        >>> tsc = TimeSeriesContainer(
+        ...     "/BASIN/GAGE/FLOW//1HOUR/OBS/",
+        ...     count=3, interval=1,
+        ...     values=[100.5, 95.2, -901.0],
+        ...     start_time="01JAN2020 0100",
+        ...     data_units="ft", data_type="INST-VAL",
+        ... )
+        >>> # Bit 1 (screened) must be set before any other bit is meaningful.
+        >>> # Bits 2-5 encode validity; only one validity bit may be set at a time.
+        >>> SCREENED_OKAY         = 0b00000011  # 3  — screened and valid
+        >>> SCREENED_QUESTIONABLE = 0b00001001  # 9  — screened, under review
+        >>> SCREENED_MISSING      = 0b00000101  # 5  — screened, value is missing
+        >>> tsc.quality_flags = [SCREENED_OKAY, SCREENED_QUESTIONABLE, SCREENED_MISSING]
         """
         return self._quality_flags
 
