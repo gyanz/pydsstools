@@ -57,7 +57,29 @@ cdef object _read_location_dss6(long long *ifltab, const char *pathname, int ts_
        boolIncludeDates=1; accessing them causes a null-pointer crash.
        The D-part string is parsed from pathnameList[0] instead.
 
-    3. DSS period-average midnight convention (istime=720):
+    3. zcatalog sort argument (last arg = 0) and D-part wildcard:
+       The D-part is always replaced with '*' before calling zcatalog,
+       regardless of what the caller passed:
+         - empty D-part (condensed): zcatalog treats "" literally → 0 hits
+         - date-range D-part ("01JAN2017 - 31DEC2017"): zcatalog treats the
+           full range string as a literal and finds 0 blocks
+         - specific block D-part ("01SEP2017"): would find only one block
+       Using '*' unconditionally handles all three cases uniformly, since
+       all blocks carry identical location metadata and any block is valid.
+       sort arg 0 = unsorted (fastest); confirmed in zcatalog.c source.
+       zcatalog retrieves all matching blocks (numberWanted is not exposed
+       by the public API); only pathnameList[0] is used.  Intentionally
+       inefficient for API stability: see note 8.
+
+    4. zlocationPath is DSS-7 only — no pathname transformation needed:
+       In DSS-7, zlocationRetrieve calls zlocationPath internally to
+       convert any data pathname /A/B/C/D/E/F/ into the location record
+       path /A/B/Location Info////.  That transformation happens inside
+       the library and is transparent to callers.  For DSS-6 there is no
+       separate location record — we use the original TS data pathname
+       directly with zcatalog and zrrtsc_/zritsc_.  No conversion needed.
+
+    5. DSS period-average midnight convention (istime=720):
        In DSS-6 period-average regular TS, the timestamp 00:00 on day N
        is treated as the end of the last period of day N-1 and therefore
        falls in the previous block.  Using istime=0 (midnight) causes
@@ -65,13 +87,13 @@ cdef object _read_location_dss6(long long *ifltab, const char *pathname, int ts_
        block that logically contains noon of that day.  Using istime=720
        (noon) avoids this and reliably lands in the correct block.
 
-    4. LCOORDS is a Fortran LOGICAL, not an integer count:
+    6. LCOORDS is a Fortran LOGICAL, not an integer count:
        In zrrtsi.f: "IF (COORDS(I).NE.0.0) LCOORDS = .TRUE."
        Fortran .TRUE. maps to -1 in C (all bits set), .FALSE. to 0.
        The original plan described lcoords as "0, 2, or 3" — that is
        wrong.  The correct check is (lcoords != 0), not (lcoords >= 1).
 
-    5. Fortran blank-padding of character buffers:
+    7. Fortran blank-padding of character buffers:
        Fortran CHARACTER variables are blank-padded to their declared
        length without a null terminator.  Cython's <bytes>ptr uses
        strlen, which would read past the array boundary into adjacent
@@ -81,7 +103,20 @@ cdef object _read_location_dss6(long long *ifltab, const char *pathname, int ts_
        raise an exception, and .rstrip() removes trailing Fortran spaces
        before splitting supplemental lines.
 
-    6. DSS-6 vs DSS-7 enum equivalence (no conversion needed):
+    8. Why not use ztsends_ or ztsrange_ instead of zcatalog?
+       ztsends_ returns Julian start/end dates directly (no D-part
+       string parsing), and ztsrange_ returns the first/last full
+       pathnames.  Both accept condensed pathnames and would be more
+       efficient than zcatalog for long TS records (many blocks).
+       However, ztsends_ is marked deprecated in ztsends_.c ("Use
+       ztsGetDateRange() instead"), and ztsGetDateRange only supports
+       DSS-7.  ztsrange_ is a DSS-6 Fortran function not exposed through
+       a versioned C wrapper, making its long-term availability uncertain.
+       zcatalog is the stable, public, version-agnostic API for both
+       DSS-6 and DSS-7, so it is used here even though it retrieves all
+       matching blocks when only one is needed.
+
+    9. DSS-6 vs DSS-7 enum equivalence (no conversion needed):
        icdesc[] integer encodings are identical in DSS-6 and DSS-7.
        Verified against zStructLocation.h (authoritative) and zrrtsi.f:
          icdesc[0]  coordinateSystem   0-5   LocCoordSystem    exact match
@@ -147,12 +182,18 @@ cdef object _read_location_dss6(long long *ifltab, const char *pathname, int ts_
     time_str[0] = 0
 
     # Step 1: catalog lookup.
-    # A condensed pathname has an empty D-part ("//") which zcatalog treats as
-    # a literal match (no D-part), not a wildcard.  Replace it with '*' so the
-    # search returns all time blocks.  A pathname that already has a D-part is
-    # left unchanged.
+    # Always replace the D-part with '*' so zcatalog returns all time blocks
+    # regardless of what was passed in the input pathname.  Three cases:
+    #   - condensed pathname (empty D-part "//"):  zcatalog would treat "" as a
+    #     literal, matching nothing; '*' makes it match all blocks.
+    #   - date-range D-part ("01JAN2017 - 31DEC2017"):  zcatalog treats this as
+    #     a literal string and finds 0 matching blocks (no block carries that
+    #     exact D-part); '*' makes it match all blocks.
+    #   - specific block D-part ("01SEP2017"):  would match only that one block;
+    #     '*' matches all blocks equally (correct, since all blocks carry the
+    #     same location metadata — we just need any one block).
     parts = pathname_str.split('/')
-    if len(parts) == 8 and parts[4] == '':
+    if len(parts) == 8:
         parts[4] = '*'
     wildcard_bytes = '/'.join(parts).encode('ascii')
 
@@ -314,3 +355,205 @@ cdef object _read_location_dss6(long long *ifltab, const char *pathname, int ts_
         time_zone=tz_str,
         supplemental=supplemental,
     )
+
+
+cdef void _write_location_dss6(long long *ifltab, TimeSeriesContainer tsc,
+                                object loc, int storageFlag) except *:
+    """Write TS data + location metadata to a DSS-6 file via zsrtsc_/zsitsc_.
+
+    DSS-6 stores location in the TS internal header (IIHEAD words), not a
+    separate record.  zlocationStore is DSS-7 only.  The only path to embed
+    location in DSS-6 is zsrtsc_ (regular) or zsitsc_ (irregular), which
+    accept the full TS dataset and all location arguments in a single call.
+
+    No read-modify-write is performed: TimeSeriesContainer already holds the
+    complete dataset.  storageFlag (IPLAN/inflag) controls how new data merges
+    with any existing blocks, identical to the DSS-7 ztsStore behaviour.
+
+    Error checking uses istat (0=OK, 4=all-missing not stored, >9=bad call).
+    DssLastError / isError() are not reliable for these Fortran wrappers.
+
+    Timezone: DSS-6 has one slot per record shared by both the TS and the
+    location record.  If loc.time_zone is non-empty it is used; otherwise
+    tsc.tzid is used.  When both are non-empty and differ, loc.time_zone wins
+    and a warning is logged.
+
+    NCOORDS is always 3 when LocationInfo is provided: this writes X, Y, Z
+    and all six ICDESC fields unconditionally.  Zero coordinates are valid
+    (e.g., the grid origin) and the caller explicitly requested location
+    storage, so we never suppress it.
+    """
+    from pydsstools.core.location import LocationInfo
+
+    cdef:
+        double coords[3]
+        int icdesc[6]
+        int ncoords = 3     # always 3: write X/Y/Z + all icdesc fields
+        int ncdesc = 6
+        int itzone = 0      # numeric offset; named zone goes in ctzone
+        char ctzone[64]
+        char csupp[512]
+        char cunits[40]
+        char ctype[40]
+        int istat = 0
+        int ldouble = 0     # 0 = use svalues (float), 1 = use dvalues (double)
+        int jcomp = 0
+        double basev = 0.0
+        int lbasev = 0
+        int ldhigh = 0
+        int nprec = 0
+        double null_dbl = 0.0   # placeholder for unused dvalues argument
+        double *null_dbl_ptr = &null_dbl
+        int jqual_dummy[1]
+        int *jqual_ptr
+        int lqual = 0
+        int nvals
+        int ibdate
+        int inflag
+        int i
+        bytes _bpath, _bdate, _btime, _bunits, _btype, _bsupp, _btz
+        const char *cpath
+
+    if not isinstance(loc, LocationInfo):
+        raise TypeError(f"Expected LocationInfo, got {type(loc).__name__}")
+
+    _bpath = tsc._pathname.encode("ascii")
+    cpath = PyBytes_AS_STRING(_bpath)
+
+    # --- Coordinates and ICDESC ---
+    coords[0] = loc.x
+    coords[1] = loc.y
+    coords[2] = loc.z
+    icdesc[0] = int(loc.coordinate_system)
+    icdesc[1] = loc.coordinate_id
+    icdesc[2] = int(loc.horizontal_units)
+    icdesc[3] = int(loc.horizontal_datum)
+    icdesc[4] = int(loc.vertical_units)
+    icdesc[5] = int(loc.vertical_datum)
+
+    # --- Timezone (single slot; loc.time_zone has priority over tsc.tzid) ---
+    ctzone[0] = 0
+    tz_str = ""
+    if loc.time_zone:
+        tz_str = loc.time_zone
+        if tsc.tzid and tsc.tzid != loc.time_zone:
+            logging.warning(
+                "DSS-6 write: one timezone slot per record; using "
+                "loc.time_zone=%r (tsc.tzid=%r is ignored)",
+                loc.time_zone, tsc.tzid,
+            )
+    elif tsc.tzid:
+        tz_str = tsc.tzid
+    if tz_str:
+        _btz = tz_str.encode("ascii")
+        if len(_btz) >= sizeof(ctzone):
+            _btz = _btz[:sizeof(ctzone) - 1]
+        memcpy(ctzone, PyBytes_AS_STRING(_btz), len(_btz))
+        ctzone[len(_btz)] = 0
+
+    # --- Supplemental ---
+    csupp[0] = 0
+    if loc.supplemental:
+        _bsupp = "\n".join(loc.supplemental).encode("ascii")
+        if len(_bsupp) >= sizeof(csupp):
+            _bsupp = _bsupp[:sizeof(csupp) - 1]
+        memcpy(csupp, PyBytes_AS_STRING(_bsupp), len(_bsupp))
+        csupp[len(_bsupp)] = 0
+
+    # --- Units and type (from TimeSeriesContainer) ---
+    cunits[0] = ctype[0] = 0
+    _bunits = tsc._data_units.encode("ascii")
+    _btype  = tsc._data_type.encode("ascii")
+    if len(_bunits) >= sizeof(cunits):
+        _bunits = _bunits[:sizeof(cunits) - 1]
+    if len(_btype) >= sizeof(ctype):
+        _btype = _btype[:sizeof(ctype) - 1]
+    memcpy(cunits, PyBytes_AS_STRING(_bunits), len(_bunits))
+    cunits[len(_bunits)] = 0
+    memcpy(ctype, PyBytes_AS_STRING(_btype), len(_btype))
+    ctype[len(_btype)] = 0
+
+    # --- Quality (DSS-6: at most one integer quality per value) ---
+    jqual_dummy[0] = 0
+    if tsc._quality_flags is not None:
+        lqual = 1
+        jqual_ptr = tsc._quality_ptr
+    else:
+        lqual = 0
+        jqual_ptr = jqual_dummy
+
+    # --- Dispatch on TS type ---
+    if tsc._interval > 0:
+        # ---- Regular time series via zsrtsc_ ----
+        if tsc._start_time is None:
+            raise ValueError(
+                f"start_time is required for regular TS DSS-6 write: {tsc._pathname!r}"
+            )
+        nvals = tsc._count
+        _bdate = tsc._start_time.date().encode("ascii")
+        _btime = tsc._start_time.time().encode("ascii")
+
+        logging.debug(
+            "write_location dss6: zsrtsc_ path=%r date=%s time=%s nvals=%d iplan=%d",
+            tsc._pathname,
+            _bdate.decode("ascii"),
+            _btime.decode("ascii"),
+            nvals,
+            storageFlag,
+        )
+
+        zsrtsc_(ifltab, cpath,
+                PyBytes_AS_STRING(_bdate), PyBytes_AS_STRING(_btime),
+                &nvals, &ldouble,
+                tsc._values_ptr, null_dbl_ptr,
+                jqual_ptr, &lqual,
+                cunits, ctype,
+                coords, &ncoords, icdesc, &ncdesc,
+                csupp, &itzone, ctzone,
+                &storageFlag, &jcomp,
+                &basev, &lbasev, &ldhigh, &nprec,
+                &istat,
+                strlen(cpath), len(_bdate), len(_btime),
+                sizeof(cunits), sizeof(ctype),
+                sizeof(csupp), sizeof(ctzone))
+
+    else:
+        # ---- Irregular time series via zsitsc_ ----
+        if tsc._times is None:
+            raise ValueError(
+                f"times is required for irregular TS DSS-6 write: {tsc._pathname!r}"
+            )
+        nvals = tsc._count
+        ibdate = tsc._julian_base.julian()
+        inflag = storageFlag
+
+        logging.debug(
+            "write_location dss6: zsitsc_ path=%r nvals=%d ibdate=%d inflag=%d",
+            tsc._pathname, nvals, ibdate, inflag,
+        )
+
+        zsitsc_(ifltab, cpath,
+                <int *>&tsc._times_mv[0], tsc._values_ptr, null_dbl_ptr,
+                &ldouble, &nvals, &ibdate,
+                jqual_ptr, &lqual,
+                cunits, ctype,
+                coords, &ncoords, icdesc, &ncdesc,
+                csupp, &itzone, ctzone,
+                &inflag, &istat,
+                strlen(cpath), sizeof(cunits), sizeof(ctype),
+                sizeof(csupp), sizeof(ctzone))
+
+    # --- Error check: DssLastError / isError() are not reliable here ---
+    logging.debug("write_location dss6: istat=%d path=%r", istat, tsc._pathname)
+    if istat == 4:
+        logging.warning(
+            "DSS-6 write: all values are missing for %r; "
+            "record may not have been stored (istat=4, storageFlag=%d)",
+            tsc._pathname, storageFlag,
+        )
+    elif istat != 0:
+        raise RuntimeError(
+            f"DSS-6 TS+location write failed for {tsc._pathname!r}: "
+            f"istat={istat} (>9=illegal call — check pathname, date/time, or "
+            f"interval; 4=all-missing not stored)"
+        )

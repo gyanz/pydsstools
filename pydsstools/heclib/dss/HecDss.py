@@ -480,12 +480,35 @@ class Open(_Open):
                 "(qualityElementSize must be 1). "
                 "Use a 1-D array or a 2-D array with a single column."
             )
-        super()._put(tsc, _flag)
-
         if location is not None:
             if not isinstance(location, LocationInfo):
-                raise TypeError(f"Expected LocationInfo for location, got {type(location).__name__}")
-            super()._put_location(location)
+                raise TypeError(
+                    f"Expected LocationInfo for location, got {type(location).__name__}"
+                )
+            # The pathname in put_ts (tsc.pathname) is authoritative.
+            # loc.pathname is used only for metadata; it has no effect on which
+            # DSS record the location is attached to.  For DSS-7, _put_location
+            # keys the location record via zlocationPath(loc.pathname), so a
+            # mismatch would write location to a different namespace.  Normalize
+            # here so the caller never has to keep the two in sync.
+            if location.pathname.text() != tsc.pathname:
+                logging.warning(
+                    "put_ts: loc.pathname %r differs from tsc.pathname %r; "
+                    "using tsc.pathname for the location record",
+                    location.pathname.text(), tsc.pathname,
+                )
+                location.pathname = DssPathName(tsc.pathname)
+
+        if location is not None and self.version == 6:
+            # DSS-6: location must be embedded inside the TS record.
+            # ztsStore (used by _put) has no location fields in zStructTimeSeries,
+            # and zlocationStore is DSS-7 only.  _put_dss6 calls zsrtsc_/zsitsc_
+            # which write TS data and location in one Fortran call.
+            super()._put_dss6(tsc, location, _flag)
+        else:
+            super()._put(tsc, _flag)
+            if location is not None:
+                super()._put_location(location)
 
     def read_pd(
         self,

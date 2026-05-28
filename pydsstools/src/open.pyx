@@ -1019,39 +1019,31 @@ cdef class Open:
             if zloc != NULL:
                 zstructFree(zloc)
 
-    # ---------------------------------------------------------------------------
-    # TODO (DSS-6 location write — next stage)
-    #
-    # DSS-6 has no standalone zlocationStore equivalent.  Writing location
-    # metadata to a DSS-6 file requires rewriting the full time-series record
-    # via the Fortran wrappers that accept location arguments:
-    #
-    #   zsrtsc_  — regular interval time series
-    #   zsitsc_  — irregular interval time series
-    #
-    # Suggested sub-tasks:
-    #
-    # 1. Declare zsrtsc_ and zsitsc_ in checlib.pxd under hecdssFort.h.
-    #    Signature mirrors zrrtsc_/zritsc_ with store-specific parameters
-    #    (storageFlag, compression, baseValue, deltaPrecision, etc.).
-    #
-    # 2. Add _write_location_dss6(ifltab, pathname, ts_type, loc) in
-    #    location.pyx:
-    #      a. Read the existing record with zrrtsc_/zritsc_ (kvals = full
-    #         record) to preserve values, units, type, quality, and times.
-    #      b. Overwrite only the location-related output arguments
-    #         (coords, icdesc, lcoords, ctzone, itzone, csupp) from `loc`.
-    #      c. Rewrite the record with zsrtsc_/zsitsc_.
-    #
-    # 3. Update _put_location below to dispatch on self.version == 6,
-    #    calling _write_location_dss6 instead of zlocationStore.
-    #
-    # 4. For new DSS-6 records (no prior values), build a minimal record
-    #    and call zsrtsc_/zsitsc_ directly rather than read-modify-write.
-    #
-    # 5. Non-TS DSS-6 records (grid, paired data, text) have no location
-    #    header slot; _put_location should raise NotImplementedError for them.
-    # ---------------------------------------------------------------------------
+    cpdef void _put_dss6(self, TimeSeriesContainer tsc,
+                         object location, int storageFlag=0) except *:
+        """Write TS data + location to a DSS-6 file in one call.
+
+        Called by put_ts when self.version == 6 and a LocationInfo is provided.
+        Uses zsrtsc_/zsitsc_ instead of ztsStore so that location metadata is
+        embedded in the TS internal header in a single write.
+
+        DSS-6 has no separate location record (zlocationStore is DSS-7 only).
+        ztsStore works for DSS-6 but its zStructTimeSeries has no location
+        fields, so location would be silently discarded.  zsrtsc_/zsitsc_ are
+        the only path to persist location in a DSS-6 file.
+
+        If location is None the call falls back to the normal _put path so
+        that callers do not need to branch themselves.
+        """
+        if location is None:
+            self._put(tsc, storageFlag)
+            return
+        logging.info(
+            "DSS-6 write: using low-level Fortran zsrtsc_/zsitsc_ (not ztsStore) "
+            "to embed location metadata in TS record for %r",
+            tsc.pathname,
+        )
+        _write_location_dss6(self.ifltab, tsc, location, storageFlag)
 
     cpdef void _put_location(self, object loc, int storageFlag=0) except *:
         from pydsstools.core.location import LocationInfo
@@ -1064,6 +1056,15 @@ cdef class Open:
 
         if not isinstance(loc, LocationInfo):
             raise TypeError(f"Expected LocationInfo, got {type(loc).__name__}")
+
+        if self.version == 6:
+            # DSS-6 has no standalone location record; zlocationStore is DSS-7 only.
+            # Location must be written together with TS data via _put_dss6,
+            # which is called from put_ts when location= is provided.
+            raise NotImplementedError(
+                "Cannot write location to a DSS-6 file independently. "
+                "Pass location= to put_ts() so it is embedded in the TS record."
+            )
 
         _bpath = loc.pathname.text().encode("ascii")
         cpath = _bpath

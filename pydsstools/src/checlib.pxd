@@ -640,3 +640,35 @@ cdef extern from "hecdssFort.h":
                  size_t cpath_len, size_t cunits_len, size_t ctype_len,
                  size_t csupp_len, size_t ctzone_len)
 
+    # DSS-6 regular time-series write with embedded location arguments.
+    # C wrapper -> zsrtsc6.f (timezone globals, CSUPP->IUHEAD) -> zsrtsi6.f (header write).
+    # istat: 0=OK, 4=all-missing not stored (for iplan!=2), >9=illegal call.
+    void zsrtsc_(long long *ifltab, const char *cpath,
+                 const char *cdate, const char *ctime,
+                 int *nvals, int *ldouble,
+                 float *svalues, double *dvalues,
+                 int *jqual, int *lqual,
+                 char *cunits, char *ctype,
+                 double *coords, int *ncoords, int *icdesc, int *ncdesc,
+                 char *csupp, int *itzone, char *ctzone,
+                 int *iplan, int *jcomp,
+                 double *basev, int *lbasev, int *ldhigh, int *nprec,
+                 int *istat,
+                 size_t cpath_len, size_t cdate_len, size_t ctime_len,
+                 size_t cunits_len, size_t ctype_len,
+                 size_t csupp_len, size_t ctzone_len)
+
+    # DSS-6 irregular time-series write with embedded location arguments.
+    # C wrapper -> zsitsc6.f -> zsitsi6.f (header write).
+    # istat: 0=OK, >0=error.
+    void zsitsc_(long long *ifltab, const char *cpath,
+                 int *itimes, float *svalues, double *dvalues,
+                 int *ldouble, int *nvalue, int *ibdate,
+                 int *jqual, int *lsqual,
+                 char *cunits, char *ctype,
+                 double *coords, int *ncoords, int *icdesc, int *ncdesc,
+                 char *csupp, int *itzone, char *ctzone,
+                 int *inflag, int *istat,
+                 size_t cpath_len, size_t cunits_len, size_t ctype_len,
+                 size_t csupp_len, size_t ctzone_len)
+
