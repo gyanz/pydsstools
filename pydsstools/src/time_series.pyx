@@ -923,13 +923,17 @@ cdef class TimeSeriesContainer:
             granularity = self._granularity
 
             julian_base = NULL
-            # _times_mv stores absolute minutes from Julian day 0 (Dec 31 1899).
+            # _times_mv always stores absolute minutes from Julian day 0 (Dec 31 1899).
+            # This is true regardless of what _julian_base the user supplied:
+            #   - HecTime/str/datetime inputs → HecTime.value() → absolute minutes
+            #   - HecTime(int, julian_base=X) converts relative→absolute at construction,
+            #     so value() still returns absolute; the base is consumed at that point
+            #   - Raw int inputs are stored as-is, but DSS interprets them with ibdate=0
             # zStructTimeSeries.times[] must be offsets from julianBaseDate, so
-            # julianBaseDate must be 0 for absolute times to be correct.
-            # Only pass startDateBase when _julian_base is the epoch (julian=0);
-            # for any other base, julianBaseDate would be non-zero and ztsStore
-            # would misinterpret the absolute times as relative offsets.
-            # TODO: store _times_mv relative to _julian_base so arbitrary bases work.
+            # julianBaseDate=0 (epoch) is the only correct choice here.
+            # Only pass startDateBase when _julian_base is the epoch (julian=0) to
+            # be explicit; any other value would cause ztsStore to double-count the
+            # base when computing stored dates.
             if isinstance(self._julian_base, HecTime) and self._julian_base.julian() == 0:
                 _julian_base = self._julian_base.date()
                 julian_base = _julian_base
