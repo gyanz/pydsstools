@@ -923,8 +923,8 @@ cdef class TimeSeriesContainer:
             granularity = self._granularity
 
             julian_base = NULL
-            if self._julian_base is HecTime:
-                _julian_base = self.julian_base.date()
+            if isinstance(self._julian_base, HecTime):
+                _julian_base = self._julian_base.date()
                 julian_base = _julian_base
 
             tss = zstructTsNewIrregFloats(pathname,val_ptr, count,
