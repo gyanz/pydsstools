@@ -337,6 +337,13 @@ cdef class HecTime:
 
         increments_in_day = <int>(SECONDS_PER_DAY / granularity)
         increments_in_sec = <int>(seconds / granularity)
+        # TODO: value() always returns absolute minutes from the epoch (Dec 31 1899),
+        # completely ignoring self._julian_base.  _value_to_julian_seconds2 uses
+        # julian_base to convert a relative int offset back to an absolute julian,
+        # so the two are asymmetric: construction from int(+base) → absolute, but
+        # value() never subtracts base to restore the original relative offset.
+        # For full round-trip support with non-epoch bases, value() should subtract
+        # self._julian_base from days before computing the result.
         value = days * increments_in_day + increments_in_sec
         return value
 
