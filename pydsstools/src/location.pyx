@@ -131,7 +131,10 @@ cdef object _read_location_dss6(long long *ifltab, const char *pathname, int ts_
        without remapping, confirming identical encodings.
 
     Returns None if no matching record is found (zcatalog returns 0
-    blocks) or if zrrtsc_/zritsc_ returns a non-zero istat.
+    blocks) or if zrrtsc_/zritsc_ returns an unrecognised non-zero istat.
+    istat=4 (all values missing) and istat=1 (value buffer too small) are
+    treated as non-fatal: the location header is populated before either
+    condition terminates the Fortran routine, so the location is valid.
     """
     from pydsstools.core.location import LocationInfo
 
@@ -263,7 +266,15 @@ cdef object _read_location_dss6(long long *ifltab, const char *pathname, int ts_
                 sizeof(csupp), sizeof(ctzone))
 
     else:
-        # Irregular time series — zritsc_ takes Julian bounds directly
+        # Irregular time series — zritsc_ takes Julian bounds directly.
+        # Limit jule to juls (the first block's start day) so the read covers
+        # only that block.  Without this, jule=9999999 would span all future
+        # blocks; with kvals=1, reading a second block overflows the buffer and
+        # DSS prints "Number of Data Found Exceeds Dimension Limit".
+        # The block is opened whenever juls falls on its D-part date, so the
+        # location header is always populated even if no values fall in the
+        # narrow [juls 00:00 … juls 24:00] window.
+        jule = juls
         logging.debug(
             f"read_location dss6: zritsc_ "
             f"juls={juls} istime={istime} jule={jule} ietime={ietime}"
@@ -298,7 +309,22 @@ cdef object _read_location_dss6(long long *ifltab, const char *pathname, int ts_
         f"ctzone={(<bytes>ctzone).decode('ascii', 'replace').rstrip()!r}"
     )
 
-    if istat != 0:
+    if istat == 4:
+        # All values are missing — record may not have been stored, but the
+        # location header (coords, icdesc, ctzone, csupp) is populated before
+        # Fortran returns istat=4.  Treat as non-fatal.
+        logging.debug(
+            f"read_location dss6: istat=4 (all values missing) for {pathname_str!r}; "
+            "location header still populated, continuing"
+        )
+    elif istat == 1:
+        # Value buffer too small (kvals=1 < actual nvals) — Fortran fills the
+        # location header before hitting the size limit.  Treat as non-fatal.
+        logging.debug(
+            f"read_location dss6: istat=1 (value buffer too small) for {pathname_str!r}; "
+            "location header still populated, continuing"
+        )
+    elif istat != 0:
         logging.debug(
             f"read_location dss6: zrrtsc_/zritsc_ istat={istat} for {pathname_str!r}, returning None"
         )
@@ -408,7 +434,7 @@ cdef void _write_location_dss6(long long *ifltab, TimeSeriesContainer tsc,
         int *jqual_ptr
         int lqual = 0
         int nvals
-        int ibdate
+        int ibdate = 0
         int inflag
         int i
         bytes _bpath, _bdate, _btime, _bunits, _btype, _bsupp, _btz
@@ -515,7 +541,7 @@ cdef void _write_location_dss6(long long *ifltab, TimeSeriesContainer tsc,
                 &istat,
                 strlen(cpath), len(_bdate), len(_btime),
                 sizeof(cunits), sizeof(ctype),
-                sizeof(csupp), sizeof(ctzone))
+                400, sizeof(ctzone))
 
     else:
         # ---- Irregular time series via zsitsc_ ----
@@ -524,7 +550,13 @@ cdef void _write_location_dss6(long long *ifltab, TimeSeriesContainer tsc,
                 f"times is required for irregular TS DSS-6 write: {tsc._pathname!r}"
             )
         nvals = tsc._count
-        ibdate = tsc._julian_base.julian()
+        # ibdate=0 (Dec 31 1899 = epoch) so that tsc._times_mv — which stores
+        # absolute minutes from that same epoch via HecTime.value() — can be
+        # passed directly without any offset adjustment.  This matches what
+        # ztsStore does internally for DSS-6 writes: zstructTsNewIrregFloats
+        # always receives julian_base=NULL, which leaves startJulian=0 in the
+        # struct, so ztsStore also uses ibdate=0 and absolute times.
+        ibdate = 0
         inflag = storageFlag
 
         logging.debug(
@@ -541,7 +573,7 @@ cdef void _write_location_dss6(long long *ifltab, TimeSeriesContainer tsc,
                 csupp, &itzone, ctzone,
                 &inflag, &istat,
                 strlen(cpath), sizeof(cunits), sizeof(ctype),
-                sizeof(csupp), sizeof(ctzone))
+                400, sizeof(ctzone))
 
     # --- Error check: DssLastError / isError() are not reliable here ---
     logging.debug("write_location dss6: istat=%d path=%r", istat, tsc._pathname)
