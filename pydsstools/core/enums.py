@@ -79,6 +79,10 @@ class LocVertDatum(IntEnum):
     local = 3
 
 
+class LocStoreFlag(IntEnum):
+    no_overwrite  = 0  # do not write over an existing location record
+    overwrite     = 1  # update or overwrite an existing location record
+
 class RegStoreFlag(IntEnum):
     replace       = 0  # always replace data
     fill_missing  = 1  # only replace missing values

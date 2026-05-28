@@ -1,4 +1,34 @@
-#cdef int STATUS_OK= 0 #0 or greater for no error 
+# HEC-DSS C error API reference
+#
+# zerrorCheck()
+#     Return the severity of the most recent saved HEC-DSS error.
+#
+#     Returns 0 when no error is currently saved, otherwise returns the saved
+#     error severity. This is a quick global check and does not provide error
+#     details.
+#
+# zerror(errorStruct)
+#     Copy the most recent saved HEC-DSS error into ``errorStruct``.
+#
+#     Returns the saved error severity. Use this after a DSS call fails when
+#     detailed diagnostics are needed, such as the encoded error code, DSS error
+#     number, system error, function ID, error message, pathname, and filename.
+#
+# zerrorSeverity(errorCode)
+#     Decode and return the severity component of an encoded HEC-DSS error code.
+#
+#     This operates only on the ``errorCode`` argument. It does not inspect the
+#     saved global last-error state.
+#
+# zisError(status)
+#     Return true when a DSS status code represents an actual error.
+#
+#     Status values greater than or equal to 0 are not errors. Record-not-found
+#     status is also not treated as an error. Encoded DSS error codes are decoded
+#     and treated as errors only when their severity is at least
+#     ``INVALID_ARGUMENT``.
+
+#cdef int STATUS_OK= 0 #0 or greater for no error
 #cdef int STATUS_NOT_OKAY = -1 # negative integer for error, severity greater with larger negative code??
 #cdef int STATUS_RECORD_NOT_FOUND = -1
 cdef int ok = STATUS_OKAY
@@ -35,6 +65,9 @@ cdef class DssLastError:
         self.err= <hec_zdssLastError *>PyMem_Malloc(sizeof(hec_zdssLastError))
         if not self.err:
             raise MemoryError()
+        # zerror simply copies the static hec_zdssLastError into err
+        # zerrorCheck returns err.severity
+        # zerrorStructClear resets err
         self.status = zerror(self.err)
         
     property errorCode:
@@ -83,7 +116,7 @@ class DssStatusException(Exception):
         self.status=status
 
 def isError(int status):
-    # TODO: Not working as expected
+    # TODO: Not working as expected, not useful for DSS v6
     cdef:
         DssLastError err_obj
 

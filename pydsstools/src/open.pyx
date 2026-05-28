@@ -991,7 +991,25 @@ cdef class Open:
         cdef:
             zStructLocation *zloc = NULL
             bytes _bpath = pathname.encode("ascii")
-            const char *cpath = _bpath
+            char *cpath = _bpath
+            int ts_type
+
+        if self.version == 6:
+            # zlocationRetrieve is DSS-7 only; extract location from the
+            # time-series internal header via ztsinfo_ + zrrtsc_/zritsc_.
+            ts_type = self._ts_type_from_pathname(cpath)
+            if ts_type == 0:
+                # DSS-6 location metadata lives in the time-series internal
+                # header; non-TS records have no such slot.
+                raise NotImplementedError(
+                    f"Cannot read location from a non-time-series DSS-6 record: {pathname!r}"
+                )
+            ts_label = "regular" if ts_type == 1 else "irregular"
+            logging.debug(f"read_location: DSS-6 {ts_label} TS path via zcatalog+z{'rr' if ts_type == 1 else 'ri'}tsc_ for {pathname!r}")
+            return _read_location_dss6(self.ifltab, cpath, ts_type)
+
+        # DSS-7 path
+        logging.debug(f"read_location: DSS-7 via zlocationRetrieve for {pathname!r}")
         zloc = zstructLocationNew(cpath)
         try:
             self.read_status = zlocationRetrieve(self.ifltab, zloc)
@@ -1000,6 +1018,40 @@ cdef class Open:
         finally:
             if zloc != NULL:
                 zstructFree(zloc)
+
+    # ---------------------------------------------------------------------------
+    # TODO (DSS-6 location write — next stage)
+    #
+    # DSS-6 has no standalone zlocationStore equivalent.  Writing location
+    # metadata to a DSS-6 file requires rewriting the full time-series record
+    # via the Fortran wrappers that accept location arguments:
+    #
+    #   zsrtsc_  — regular interval time series
+    #   zsitsc_  — irregular interval time series
+    #
+    # Suggested sub-tasks:
+    #
+    # 1. Declare zsrtsc_ and zsitsc_ in checlib.pxd under hecdssFort.h.
+    #    Signature mirrors zrrtsc_/zritsc_ with store-specific parameters
+    #    (storageFlag, compression, baseValue, deltaPrecision, etc.).
+    #
+    # 2. Add _write_location_dss6(ifltab, pathname, ts_type, loc) in
+    #    location.pyx:
+    #      a. Read the existing record with zrrtsc_/zritsc_ (kvals = full
+    #         record) to preserve values, units, type, quality, and times.
+    #      b. Overwrite only the location-related output arguments
+    #         (coords, icdesc, lcoords, ctzone, itzone, csupp) from `loc`.
+    #      c. Rewrite the record with zsrtsc_/zsitsc_.
+    #
+    # 3. Update _put_location below to dispatch on self.version == 6,
+    #    calling _write_location_dss6 instead of zlocationStore.
+    #
+    # 4. For new DSS-6 records (no prior values), build a minimal record
+    #    and call zsrtsc_/zsitsc_ directly rather than read-modify-write.
+    #
+    # 5. Non-TS DSS-6 records (grid, paired data, text) have no location
+    #    header slot; _put_location should raise NotImplementedError for them.
+    # ---------------------------------------------------------------------------
 
     cpdef void _put_location(self, object loc, int storageFlag=0) except *:
         from pydsstools.core.location import LocationInfo

@@ -29,12 +29,12 @@ cdef extern from "heclib.h":
     int UNDEFINED_TIME
     int zisMissingDouble(double value)
     int zisMissingFloat(float value)
+    int zerror(hec_zdssLastError *errorStruct)  
+    int zerrorCheck()
     int zisError(int status)
     int zerrorSeverity(int errorCode)
-    int zerrorCheck()
     void zsetMessageLevel(int methodID, int levelID)
     int zdataType (long long *ifltab, const char* pathname)
-    int zerror(hec_zdssLastError *errorStruct)  
     char* HRAP_SRC_DEFINITION
     char* SHG_SRC_DEFINITION
     char* UTM_SRC_DEFINITION
@@ -595,4 +595,48 @@ cdef extern from "heclib.h":
 
         #char *pathnameInternal              # [private]
         #char allocated[zSTRUCT_length]      # [private]
+
+# DSS-6 Fortran wrappers that expose time-series internal header metadata,
+# including location fields (coordinates, timezone, supplemental info).
+# zrrtsc_ / zritsc_ are used instead of zlocationRetrieve (DSS-7 only).
+cdef extern from "hecdssFort.h":
+    # Declared but NOT used in practice: ztsinfo_ requires a full pathname
+    # with a non-empty D-part and returns lfound=0 for condensed pathnames
+    # (empty D-part, e.g. "//A/B//E/F/"), which is the standard form from
+    # the public API.  Use zcatalog + zrrtsc_/zritsc_ instead.
+    void ztsinfo_(long long *ifltab, const char *cpath,
+                  int *juls, int *istime, int *jule, int *ietime,
+                  char *cunits, char *ctype,
+                  int *lqual, int *ldouble, int *lfound,
+                  size_t cpath_len, size_t cunits_len, size_t ctype_len)
+
+    void zrrtsc_(long long *ifltab, const char *cpath,
+                 const char *cdate, const char *ctime,
+                 int *kvals, int *nvals,
+                 int *lgetdob, int *lfildob,
+                 float *svalues, double *dvalues,
+                 int *jqual, int *lqual, int *lqread,
+                 char *cunits, char *ctype,
+                 char *csupp,
+                 int *iofset, int *jcomp,
+                 int *itzone, char *ctzone,
+                 double *coords, int *icdesc, int *lcoords,
+                 int *istat,
+                 size_t cpath_len, size_t cdate_len, size_t ctime_len,
+                 size_t cunits_len, size_t ctype_len,
+                 size_t csupp_len, size_t ctzone_len)
+
+    void zritsc_(long long *ifltab, const char *cpath,
+                 int *juls, int *istime, int *jule, int *ietime,
+                 int *lgetdob, int *lfildob,
+                 int *itimes, float *svalues, double *dvalues,
+                 int *kvals, int *nvals, int *ibdate,
+                 int *iqual, int *lqual, int *lqread,
+                 char *cunits, char *ctype,
+                 char *csupp,
+                 int *itzone, char *ctzone,
+                 double *coords, int *icdesc, int *lcoords,
+                 int *inflag, int *istat,
+                 size_t cpath_len, size_t cunits_len, size_t ctype_len,
+                 size_t csupp_len, size_t ctzone_len)
 
