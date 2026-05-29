@@ -131,10 +131,11 @@ cdef object _read_location_dss6(long long *ifltab, const char *pathname, int ts_
        without remapping, confirming identical encodings.
 
     Returns None if no matching record is found (zcatalog returns 0
-    blocks) or if zrrtsc_/zritsc_ returns an unrecognised non-zero istat.
-    istat=4 (all values missing) and istat=1 (value buffer too small) are
-    treated as non-fatal: the location header is populated before either
-    condition terminates the Fortran routine, so the location is valid.
+    blocks). Raises RuntimeError for any unrecognised non-zero istat via
+    _check_dss6_istat. istat=1 and istat=4 are non-fatal (debug-logged):
+    the location header is populated before either condition terminates the
+    Fortran routine. istat=1 means missing value sentinels for zrrtsc_, or
+    nvals exceeded kvals (data truncated) for zritsc_.
     """
     from pydsstools.core.location import LocationInfo
 
@@ -250,6 +251,7 @@ cdef object _read_location_dss6(long long *ifltab, const char *pathname, int ts_
             f"date={(<bytes>date_str).decode()} time={(<bytes>time_str).decode()}"
         )
 
+        func_name = "zrrtsc_"
         zrrtsc_(ifltab, pathname, date_str, time_str,
                 &kvals, &nvals,
                 &lgetdob, &lfildob,
@@ -280,6 +282,7 @@ cdef object _read_location_dss6(long long *ifltab, const char *pathname, int ts_
             f"juls={juls} istime={istime} jule={jule} ietime={ietime}"
         )
 
+        func_name = "zritsc_"
         zritsc_(ifltab, pathname,
                 &juls, &istime, &jule, &ietime,
                 &lgetdob, &lfildob,
@@ -309,26 +312,7 @@ cdef object _read_location_dss6(long long *ifltab, const char *pathname, int ts_
         f"ctzone={(<bytes>ctzone).decode('ascii', 'replace').rstrip()!r}"
     )
 
-    if istat == 4:
-        # All values are missing — record may not have been stored, but the
-        # location header (coords, icdesc, ctzone, csupp) is populated before
-        # Fortran returns istat=4.  Treat as non-fatal.
-        logging.debug(
-            f"read_location dss6: istat=4 (all values missing) for {pathname_str!r}; "
-            "location header still populated, continuing"
-        )
-    elif istat == 1:
-        # Value buffer too small (kvals=1 < actual nvals) — Fortran fills the
-        # location header before hitting the size limit.  Treat as non-fatal.
-        logging.debug(
-            f"read_location dss6: istat=1 (value buffer too small) for {pathname_str!r}; "
-            "location header still populated, continuing"
-        )
-    elif istat != 0:
-        logging.debug(
-            f"read_location dss6: zrrtsc_/zritsc_ istat={istat} for {pathname_str!r}, returning None"
-        )
-        return None
+    _check_dss6_istat(istat, func_name, pathname_str)
 
     # Map outputs to LocationInfo.
     # Both ctzone and csupp are Fortran character buffers: blank-padded to
@@ -528,6 +512,7 @@ cdef void _write_location_dss6(long long *ifltab, TimeSeriesContainer tsc,
             storageFlag,
         )
 
+        func_name = "zsrtsc_"
         zsrtsc_(ifltab, cpath,
                 PyBytes_AS_STRING(_bdate), PyBytes_AS_STRING(_btime),
                 &nvals, &ldouble,
@@ -564,6 +549,7 @@ cdef void _write_location_dss6(long long *ifltab, TimeSeriesContainer tsc,
             tsc._pathname, nvals, ibdate, inflag,
         )
 
+        func_name = "zsitsc_"
         zsitsc_(ifltab, cpath,
                 <int *>&tsc._times_mv[0], tsc._values_ptr, null_dbl_ptr,
                 &ldouble, &nvals, &ibdate,
@@ -576,16 +562,4 @@ cdef void _write_location_dss6(long long *ifltab, TimeSeriesContainer tsc,
                 400, sizeof(ctzone))
 
     # --- Error check: DssLastError / isError() are not reliable here ---
-    logging.debug("write_location dss6: istat=%d path=%r", istat, tsc._pathname)
-    if istat == 4:
-        logging.warning(
-            "DSS-6 write: all values are missing for %r; "
-            "record may not have been stored (istat=4, storageFlag=%d)",
-            tsc._pathname, storageFlag,
-        )
-    elif istat != 0:
-        raise RuntimeError(
-            f"DSS-6 TS+location write failed for {tsc._pathname!r}: "
-            f"istat={istat} (>9=illegal call — check pathname, date/time, or "
-            f"interval; 4=all-missing not stored)"
-        )
+    _check_dss6_istat(istat, func_name, tsc._pathname)

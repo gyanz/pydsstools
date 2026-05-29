@@ -610,65 +610,135 @@ cdef extern from "hecdssFort.h":
                   int *lqual, int *ldouble, int *lfound,
                   size_t cpath_len, size_t cunits_len, size_t ctype_len)
 
-    void zrrtsc_(long long *ifltab, const char *cpath,
-                 const char *cdate, const char *ctime,
-                 int *kvals, int *nvals,
-                 int *lgetdob, int *lfildob,
-                 float *svalues, double *dvalues,
-                 int *jqual, int *lqual, int *lqread,
-                 char *cunits, char *ctype,
-                 char *csupp,
-                 int *iofset, int *jcomp,
-                 int *itzone, char *ctzone,
-                 double *coords, int *icdesc, int *lcoords,
-                 int *istat,
-                 size_t cpath_len, size_t cdate_len, size_t ctime_len,
-                 size_t cunits_len, size_t ctype_len,
-                 size_t csupp_len, size_t ctzone_len)
+    void zrrtsc_(long long *ifltab,        # opaque DSS file table
+                 const char *cpath,        # record pathname string
+                 const char *cdate,        # block start date, e.g. "01JAN2000"
+                 const char *ctime,        # block start time, e.g. "0720"
+                 int *kvals,               # caller buffer size; nvals returns actual count
+                 int *nvals,               # number of values actually returned
+                 int *lgetdob,             # flag: 1 = populate dvalues instead of svalues
+                 int *lfildob,             # flag: 1 = file stores double-precision data
+                 float *svalues,           # single-precision output value array
+                 double *dvalues,          # double-precision output value array
+                 int *jqual,               # per-value quality flag array
+                 int *lqual,               # flag: quality data is present in the file
+                 int *lqread,              # flag: jqual was successfully populated
+                 char *cunits,             # data units string, e.g. "cfs"
+                 char *ctype,              # data type string, e.g. "INST-VAL"
+                 char *csupp,              # supplemental header text (newline-delimited key=value)
+                 int *iofset,              # period-average time offset in minutes
+                 int *jcomp,               # block compression code
+                 int *itzone,              # numeric UTC timezone offset (minutes)
+                 char *ctzone,             # timezone name string, e.g. "PST"
+                 double *coords,           # [x, y, z] coordinate array (3 elements)
+                 int *icdesc,              # coordinate descriptor codes (6: sys,id,Hu,Hd,Vu,Vd)
+                 int *lcoords,             # flag: coords and icdesc were filled (out)
+                 int *istat,               # 0=OK; 1=some values missing (-901 sentinel); 2=missing blocks but data found; 3=1+2; 4=no data returned; 5=no pathname; 11=nvals<1; 12=bad interval; 15=bad date/time; 20=not regular TS; 24=bad pathname; >9=illegal call
+                 size_t cpath_len,         # Fortran hidden length of cpath
+                 size_t cdate_len,         # Fortran hidden length of cdate
+                 size_t ctime_len,         # Fortran hidden length of ctime
+                 size_t cunits_len,        # Fortran hidden length of cunits
+                 size_t ctype_len,         # Fortran hidden length of ctype
+                 size_t csupp_len,         # Fortran hidden length of csupp
+                 size_t ctzone_len)        # Fortran hidden length of ctzone
 
-    void zritsc_(long long *ifltab, const char *cpath,
-                 int *juls, int *istime, int *jule, int *ietime,
-                 int *lgetdob, int *lfildob,
-                 int *itimes, float *svalues, double *dvalues,
-                 int *kvals, int *nvals, int *ibdate,
-                 int *iqual, int *lqual, int *lqread,
-                 char *cunits, char *ctype,
-                 char *csupp,
-                 int *itzone, char *ctzone,
-                 double *coords, int *icdesc, int *lcoords,
-                 int *inflag, int *istat,
-                 size_t cpath_len, size_t cunits_len, size_t ctype_len,
-                 size_t csupp_len, size_t ctzone_len)
+    void zritsc_(long long *ifltab,        # opaque DSS file table
+                 const char *cpath,        # record pathname string
+                 int *juls,                # search window start Julian day
+                 int *istime,              # search window start time (minutes since midnight)
+                 int *jule,                # search window end Julian day
+                 int *ietime,              # search window end time (minutes since midnight)
+                 int *lgetdob,             # flag: 1 = populate dvalues instead of svalues
+                 int *lfildob,             # flag: 1 = file stores double-precision data
+                 int *itimes,              # per-value times in minutes from ibdate (out)
+                 float *svalues,           # single-precision output value array
+                 double *dvalues,          # double-precision output value array
+                 int *kvals,               # caller buffer size; nvals returns actual count
+                 int *nvals,               # number of values actually returned
+                 int *ibdate,              # base Julian date for itimes (0 = Dec 31 1899 epoch)
+                 int *iqual,               # per-value quality flag array
+                 int *lqual,               # flag: quality data is present in the file
+                 int *lqread,              # flag: iqual was successfully populated
+                 char *cunits,             # data units string
+                 char *ctype,              # data type string
+                 char *csupp,              # supplemental header text (newline-delimited key=value)
+                 int *itzone,              # numeric UTC timezone offset (minutes)
+                 char *ctzone,             # timezone name string
+                 double *coords,           # [x, y, z] coordinate array (3 elements)
+                 int *icdesc,              # coordinate descriptor codes (6 elements)
+                 int *lcoords,             # flag: coords and icdesc were filled (out)
+                 int *inflag,              # read behavior flag (controls block selection)
+                 int *istat,               # 0=OK; 1=nvals exceeded kvals (data truncated, header still populated); 3=no values in window; 4=block not found; 20=not irregular TS; 21=buffer too small; 24=not irregular TS pathname
+                 size_t cpath_len,         # Fortran hidden length of cpath
+                 size_t cunits_len,        # Fortran hidden length of cunits
+                 size_t ctype_len,         # Fortran hidden length of ctype
+                 size_t csupp_len,         # Fortran hidden length of csupp
+                 size_t ctzone_len)        # Fortran hidden length of ctzone
 
     # DSS-6 regular time-series write with embedded location arguments.
     # C wrapper -> zsrtsc6.f (timezone globals, CSUPP->IUHEAD) -> zsrtsi6.f (header write).
     # istat: 0=OK, 4=all-missing not stored (for iplan!=2), >9=illegal call.
-    void zsrtsc_(long long *ifltab, const char *cpath,
-                 const char *cdate, const char *ctime,
-                 int *nvals, int *ldouble,
-                 float *svalues, double *dvalues,
-                 int *jqual, int *lqual,
-                 char *cunits, char *ctype,
-                 double *coords, int *ncoords, int *icdesc, int *ncdesc,
-                 char *csupp, int *itzone, char *ctzone,
-                 int *iplan, int *jcomp,
-                 double *basev, int *lbasev, int *ldhigh, int *nprec,
-                 int *istat,
-                 size_t cpath_len, size_t cdate_len, size_t ctime_len,
-                 size_t cunits_len, size_t ctype_len,
-                 size_t csupp_len, size_t ctzone_len)
+    void zsrtsc_(long long *ifltab,        # opaque DSS file table
+                 const char *cpath,        # record pathname string
+                 const char *cdate,        # block start date string
+                 const char *ctime,        # block start time string
+                 int *nvals,               # number of values to write
+                 int *ldouble,             # flag: 0 = use svalues, 1 = use dvalues
+                 float *svalues,           # single-precision input value array
+                 double *dvalues,          # double-precision input value array (unused when ldouble=0)
+                 int *jqual,               # per-value quality flag array
+                 int *lqual,               # flag: 1 = write quality flags from jqual
+                 char *cunits,             # data units string
+                 char *ctype,              # data type string
+                 double *coords,           # [x, y, z] coordinate array
+                 int *ncoords,             # number of coordinates to write (typically 3)
+                 int *icdesc,              # coordinate descriptor codes
+                 int *ncdesc,              # number of descriptor codes to write (typically 6)
+                 char *csupp,              # supplemental header text
+                 int *itzone,              # numeric UTC timezone offset (minutes)
+                 char *ctzone,             # timezone name string
+                 int *iplan,               # storage plan: how to merge with existing data
+                 int *jcomp,               # block compression code
+                 double *basev,            # compression base value
+                 int *lbasev,              # flag: basev is active
+                 int *ldhigh,              # flag: use high-precision double storage
+                 int *nprec,               # number of precision digits (for compression)
+                 int *istat,               # 0=OK; 4=all-missing not stored (unless iplan=2); 11=nvals<1; 12=bad interval; 15=bad date/time; 16=out of memory; 20=wrong record type; 24=bad pathname; 30=read-only file; 51=bad compression scheme; 52=bad precision; 511=record type mismatch; >9=illegal call
+                 size_t cpath_len,         # Fortran hidden length of cpath
+                 size_t cdate_len,         # Fortran hidden length of cdate
+                 size_t ctime_len,         # Fortran hidden length of ctime
+                 size_t cunits_len,        # Fortran hidden length of cunits
+                 size_t ctype_len,         # Fortran hidden length of ctype
+                 size_t csupp_len,         # Fortran hidden length of csupp
+                 size_t ctzone_len)        # Fortran hidden length of ctzone
 
     # DSS-6 irregular time-series write with embedded location arguments.
     # C wrapper -> zsitsc6.f -> zsitsi6.f (header write).
     # istat: 0=OK, >0=error.
-    void zsitsc_(long long *ifltab, const char *cpath,
-                 int *itimes, float *svalues, double *dvalues,
-                 int *ldouble, int *nvalue, int *ibdate,
-                 int *jqual, int *lsqual,
-                 char *cunits, char *ctype,
-                 double *coords, int *ncoords, int *icdesc, int *ncdesc,
-                 char *csupp, int *itzone, char *ctzone,
-                 int *inflag, int *istat,
-                 size_t cpath_len, size_t cunits_len, size_t ctype_len,
-                 size_t csupp_len, size_t ctzone_len)
+    void zsitsc_(long long *ifltab,        # opaque DSS file table
+                 const char *cpath,        # record pathname string
+                 int *itimes,              # per-value times in minutes from ibdate
+                 float *svalues,           # single-precision input value array
+                 double *dvalues,          # double-precision input value array (unused when ldouble=0)
+                 int *ldouble,             # flag: 0 = use svalues, 1 = use dvalues
+                 int *nvalue,              # number of values to write
+                 int *ibdate,              # base Julian date for itimes (0 = Dec 31 1899 epoch)
+                 int *jqual,               # per-value quality flag array
+                 int *lsqual,              # flag: 1 = write quality flags from jqual
+                 char *cunits,             # data units string
+                 char *ctype,              # data type string
+                 double *coords,           # [x, y, z] coordinate array
+                 int *ncoords,             # number of coordinates to write (typically 3)
+                 int *icdesc,              # coordinate descriptor codes
+                 int *ncdesc,              # number of descriptor codes to write (typically 6)
+                 char *csupp,              # supplemental header text
+                 int *itzone,              # numeric UTC timezone offset (minutes)
+                 char *ctzone,             # timezone name string
+                 int *inflag,              # storage flag: how to merge with existing data
+                 int *istat,               # 0=OK; 4=nvals=0 so nothing was written; 21=buffer too small; 24=not irregular TS pathname; 30=read-only file; >0=error
+                 size_t cpath_len,         # Fortran hidden length of cpath
+                 size_t cunits_len,        # Fortran hidden length of cunits
+                 size_t ctype_len,         # Fortran hidden length of ctype
+                 size_t csupp_len,         # Fortran hidden length of csupp
+                 size_t ctzone_len)        # Fortran hidden length of ctzone
 

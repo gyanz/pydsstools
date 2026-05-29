@@ -152,7 +152,65 @@ class ArgumentException(Exception):
 class DssPathException(BaseException):
     def __init__(self,msg):
         self.msg = msg
-    
+
     def __repr__(self):
         return self.msg
-    
+
+
+# ---------------------------------------------------------------------------
+# DSS-6 Fortran istat checker
+# ---------------------------------------------------------------------------
+
+_DSS6_ISTAT_MSG = {
+    1:   "some data values are missing sentinels (-901)",
+    2:   "some requested time blocks not found, partial data returned",
+    3:   "missing time blocks and missing value sentinels",
+    4:   "no data returned / all values missing",
+    5:   "pathname not found in file",
+    11:  "number of values < 1 (illegal call)",
+    12:  "non-standard or missing time interval",
+    15:  "illegal starting date or time",
+    16:  "insufficient internal memory",
+    20:  "record is not the expected time-series type",
+    21:  "buffer size not large enough",
+    24:  "pathname not recognised as expected record type",
+    30:  "file is opened read-only",
+    51:  "illegal data compression scheme",
+    52:  "illegal data compression precision value",
+    511: "record type mismatch with existing record in file",
+}
+
+# Non-fatal istat codes per function, mapped to the logging function to use.
+# Any non-zero code absent from a function's entry raises RuntimeError.
+_DSS6_FUNC_LENIENCY = {
+    # Read regular TS: 1=missing sentinels, 2=missing blocks, 3=both, 4=no data.
+    # All are non-fatal because the location header is populated before Fortran
+    # returns any of these codes, so the header fields are valid.
+    "zrrtsc_": {1: logging.debug, 2: logging.debug,
+                3: logging.debug, 4: logging.debug},
+    # Read irregular TS: 1=nvals exceeded kvals (data truncated, header ok),
+    # 3=no values in window (header still populated), 4=block not found.
+    "zritsc_": {1: logging.debug, 3: logging.debug, 4: logging.debug},
+    # Write regular TS: 4=all values missing, record may not be stored.
+    "zsrtsc_": {4: logging.warning},
+    # Write irregular TS: 4=nvals=0, nothing was written.
+    "zsitsc_": {4: logging.warning},
+}
+
+def _check_dss6_istat(istat, func, pathname):
+    """Check a DSS-6 Fortran istat return code.
+
+    istat=0 returns silently.  Non-zero codes in _DSS6_FUNC_LENIENCY for
+    the given func are logged at the registered level and then return
+    normally.  Any other non-zero code raises RuntimeError.
+    """
+    if istat == 0:
+        return
+    msg = _DSS6_ISTAT_MSG.get(istat, f"unknown status code {istat}")
+    text = f"{func} istat={istat} ({msg}) for {pathname!r}"
+    log_fn = _DSS6_FUNC_LENIENCY.get(func, {}).get(istat)
+    if log_fn is not None:
+        log_fn(text)
+    else:
+        raise RuntimeError(text)
+
