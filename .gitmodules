@@ -1,3 +1,6 @@
+# master branch: DSS-6 and DSS-7 support (Fortran source in heclib/heclib_f/)
+# main  branch: DSS-7 only (Fortran and DSS-6 headers removed since 7-JA)
 [submodule "pydsstools/src/external/hec-dss"]
 	path = pydsstools/src/external/hec-dss
 	url = https://github.com/HydrologicEngineeringCenter/hec-dss
+	branch = master
