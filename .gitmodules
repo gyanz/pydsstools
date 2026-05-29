@@ -1,0 +1,3 @@
+[submodule "pydsstools/src/external/hec-dss"]
+	path = pydsstools/src/external/hec-dss
+	url = https://github.com/HydrologicEngineeringCenter/hec-dss

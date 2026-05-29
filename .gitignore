@@ -44,6 +44,9 @@ setup.cfg
 *.obj
 *.lib
 !pydsstools/src/external/zlib/zlibstatic.lib
+!pydsstools/src/external/dss/win64/heclib_c.lib
+!pydsstools/src/external/dss/win64/heclib_f.lib
+!pydsstools/src/external/dss/win64/heclib.lib
 *.manifest
 *.exp
 *.py[oc]

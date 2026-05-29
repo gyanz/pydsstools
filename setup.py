@@ -172,7 +172,7 @@ if is_platform_windows():
     library_dirs.append(r"pydsstools/src/external/zlib")
     # libs
     # libraries = ['heclib_c', 'heclib_f', 'zlibstatic', 'grid']
-    libraries = ["heclib_c", "heclib_f", "zlibstatic"]
+    libraries = ["heclib", "zlibstatic"]
     # extra compile args
     extra_compile_args = []
     extra_link_args = ["/NODEFAULTLIB:LIBCMT"]
