@@ -242,7 +242,7 @@ cdef class Open:
         ts_st = tsc.create_tss()
         tss = ts_st.tss
         if tss == NULL:
-            logging.error("Failed to write time-series")
+            logger.error("Failed to write time-series")
             return
         self.write_status = ztsStore(self.ifltab, tss, storageFlag)
         isError(self.write_status)
@@ -436,7 +436,7 @@ cdef class Open:
         rows = info["data_no"]
         cols = info["curve_no"]
         label_size = info['label_size']
-        logging.debug(f"Average label size of preallocated paired data = {label_size}")
+        logger.debug(f"Average label size of preallocated paired data = {label_size}")
         pdc.set_clabels(pdc_mode.one, label_size)
 
         if col_index < 1 or col_index > cols:
@@ -557,7 +557,7 @@ cdef class Open:
             zStructSpatialGrid *zsgs = NULL
         zsgs = zstructSpatialGridNew(pathname)
         status = read_grid0_as_grid100(self.ifltab, zsgs, gridinfo6, retrieve_data)
-        logging.debug(f"Read grid0 status = {status}")
+        logger.debug(f"Read grid0 status = {status}")
         updateSGS(sg_st, zsgs)
 
     cpdef np.ndarray _read_grid0_array(self, const char *pathname, object gridinfo6, bint retrieve_data):
@@ -734,7 +734,7 @@ cdef class Open:
         data['data_no'] = result[1]
         data['dtype'] = result[3]
         data['label_size'] = result[4]
-        logging.debug(f"Paired data queried info: {data}")
+        logger.debug(f"Paired data queried info: {data}")
         return data
 
     cpdef int _record_type_code(self, str pathname):
@@ -791,7 +791,7 @@ cdef class Open:
 
         name = None
         typecode = zdataType(self.ifltab, pathname)
-        logging.debug(f"dss record typecode:{typecode}")
+        logger.debug(f"dss record typecode:{typecode}")
 
         # cname is static char* and shouldn't be freed manually
         cname = ztypeName(typecode, abbr)
@@ -898,7 +898,7 @@ cdef class Open:
             int interval
 
         cresult = ztsPathCheckInterval(self.ifltab, pathname, path_len)
-        logging.debug(f"path interval check returned {cresult}.")
+        logger.debug(f"path interval check returned {cresult}.")
 
         if cresult == nok: #-1
             # not a timeseries pathname
@@ -1005,11 +1005,11 @@ cdef class Open:
                     f"Cannot read location from a non-time-series DSS-6 record: {pathname!r}"
                 )
             ts_label = "regular" if ts_type == 1 else "irregular"
-            logging.debug(f"read_location: DSS-6 {ts_label} TS path via zcatalog+z{'rr' if ts_type == 1 else 'ri'}tsc_ for {pathname!r}")
+            logger.debug(f"read_location: DSS-6 {ts_label} TS path via zcatalog+z{'rr' if ts_type == 1 else 'ri'}tsc_ for {pathname!r}")
             return _read_location_dss6(self.ifltab, cpath, ts_type)
 
         # DSS-7 path
-        logging.debug(f"read_location: DSS-7 via zlocationRetrieve for {pathname!r}")
+        logger.debug(f"read_location: DSS-7 via zlocationRetrieve for {pathname!r}")
         zloc = zstructLocationNew(cpath)
         try:
             self.read_status = zlocationRetrieve(self.ifltab, zloc)
@@ -1038,7 +1038,7 @@ cdef class Open:
         if location is None:
             self._put(tsc, storageFlag)
             return
-        logging.info(
+        logger.info(
             "DSS-6 write: using low-level Fortran zsrtsc_/zsitsc_ (not ztsStore) "
             "to embed location metadata in TS record for %r",
             tsc.pathname,

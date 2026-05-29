@@ -224,33 +224,33 @@ cdef class CatalogStruct:
         #   2:  time >  lastWriteTimeSearch
 
         #if "*" in pathname and collection:
-        #    logging.warning(f"Wild card expression in pathname is not allowed when collection flag is set: {pathname}.")
+        #    logger.warning(f"Wild card expression in pathname is not allowed when collection flag is set: {pathname}.")
         #    return
         
         if record_type_code_start < 0 or record_type_code_end < 0:
-            logging.warn("Negative code of record type is not valid")
+            logger.warning("Negative code of record type is not valid")
             return
 
         if record_type_code_start > record_type_code_end:
-            logging.warn("record type code for start can not be greater than type code of end.")
+            logger.warning("record type code for start can not be greater than type code of end.")
             return
         
         if not status_wanted in (0,1,2,11,12,100):
-            logging.warn("status_wanted must be 0 (all valid includes primary and alaises), 1 (primary only), 2 (allias only), 11 (deleted only), 12 (renamed only) or 100 (any, deleted, renamed ..).")
+            logger.warning("status_wanted must be 0 (all valid includes primary and alaises), 1 (primary only), 2 (allias only), 11 (deleted only), 12 (renamed only) or 100 (any, deleted, renamed ..).")
             return
 
         if last_write_time_search:
             if not last_write_time_search_flag in (-2,-1,0,1,2):
-                logging.warn(f"Expected values for last_write_time_search_flag are -2,-1,0,1 and 2; got '{last_write_time_search_flag}'.")
+                logger.warning(f"Expected values for last_write_time_search_flag are -2,-1,0,1 and 2; got '{last_write_time_search_flag}'.")
                 return
 
         if max_count < 0:
-            logging.warn("Maximum number of paths is less than 0. Valid values are 0 or greater. Specify 0 to return all matching paths.")
+            logger.warning("Maximum number of paths is less than 0. Valid values are 0 or greater. Specify 0 to return all matching paths.")
 
         cts = zstructCatalogNew()
 
         if cts == NULL:
-            logging.warning("Error while create Catalog object.")
+            logger.warning("Error while create Catalog object.")
             return
 
         cts[0].statusWanted = status_wanted 
@@ -265,11 +265,11 @@ cdef class CatalogStruct:
         path_count = zcatalog(ifltab,pathname,cts,sort)
 
         if path_count < 0:
-            logging.warning("Error while create Catalog object.")
+            logger.warning("Error while create Catalog object.")
             return
         
         if path_count == 0:
-            logging.debug("No matching dss paths found.")
+            logger.debug("No matching dss paths found.")
             return
 
         ct_st = createCatalog(cts)
@@ -299,7 +299,7 @@ cpdef CatalogStruct getPathnameCatalog(Open fid,str pathWithWild, bint sort=0,
 
     negative_or_numberPathnames = zcatalog(ifltab,pathname,cts,sort)
     if negative_or_numberPathnames < 0: 
-       logging.warning('Error with retrieving catalog, CODE = %d' % negative_or_numberPathnames) 
+       logger.warning('Error with retrieving catalog, CODE = %d' % negative_or_numberPathnames) 
     #print('zcatalog return = %d'% negative_or_numberPathnames) 
     ct_st = createCatalog(cts)
     return ct_st

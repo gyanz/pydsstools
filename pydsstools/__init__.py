@@ -5,6 +5,8 @@ Copyright (c) 2017 Gyan Basyal
 
 import os
 import logging
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 __version__ = None
 
@@ -17,7 +19,7 @@ def str2ascii(file):
     elif isinstance(file, bytes):
         return file
     else:
-        logging.error("Wrong filename or encoding (not ascii or byte) ")
+        logger.error("Wrong filename or encoding (not ascii or byte) ")
 
 
 del os

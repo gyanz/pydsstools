@@ -19,6 +19,7 @@ from libc.math cimport floor,ceil
 #from _chelper cimport *
 from checlib cimport *
 import logging
+logger = logging.getLogger(__name__)
 import sys
 from datetime import datetime,timedelta
 from dateutil import parser

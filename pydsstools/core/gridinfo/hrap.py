@@ -6,6 +6,7 @@ projection commonly used for precipitation data.
 """
 
 import logging
+logger = logging.getLogger(__name__)
 from typing import Optional
 
 try:
@@ -132,7 +133,7 @@ class HrapInfo(GridInfo):
         if "crs" in self.extra_info:
             crs = self.extra_info["crs"].strip()
             if crs:
-                logging.warning(
+                logger.warning(
                     "Custom CRS found in extra_info for HRAP grid. "
                     "Using standard HRAP CRS instead."
                 )

@@ -8,6 +8,7 @@ projection with NAD83 datum.
 from __future__ import annotations
 
 import logging
+logger = logging.getLogger(__name__)
 from typing import Optional
 
 try:
@@ -245,7 +246,7 @@ class AlbersInfo(GridInfo):
             crs = self.extra_info["crs"].strip()
             if crs:
                 if not is_equal_area_conic(crs):
-                    logging.warning(
+                    logger.warning(
                         "The provided CRS does not appear to be an equal-area "
                         "conic projection. Using it anyway, but verify it's correct."
                     )
@@ -300,10 +301,10 @@ class AlbersInfo(GridInfo):
         if self.min_xy is None:
             raise ValueError("min_xy must be set to calculate lower_left_cell")
 
-        logging.info("Updating lower_left_cell indices using min_xy of Albers GridInfo")
+        logger.info("Updating lower_left_cell indices using min_xy of Albers GridInfo")
         x_cell0, y_cell0 = self.coords_cell0
         if x_cell0 != 0.0 or y_cell0 != 0.0:
-            logging.warning(
+            logger.warning(
                 "Normally, the grid origin coordinates in SHG/Albers (EPSG:5070) "
                 "grid is (0,0). coords_cell0 is not (0,0) here."
             )
@@ -338,10 +339,10 @@ class AlbersInfo(GridInfo):
                 "Cannot calculate lower_left_cell."
             )
 
-        logging.info("Updating lower_left_cell indices of Albers GridInfo")
+        logger.info("Updating lower_left_cell indices of Albers GridInfo")
         x_cell0, y_cell0 = self.coords_cell0
         if x_cell0 != 0.0 or y_cell0 != 0.0:
-            logging.warning(
+            logger.warning(
                 "Normally, the grid origin coordinates in SHG/Albers (EPSG:5070) "
                 "grid is (0,0). coords_cell0 is not (0,0) here."
             )
@@ -484,4 +485,4 @@ def update_albers_from_crs(gridinfo: AlbersInfo, crs_wkt: str) -> None:
     gridinfo.x_0 = params["false_easting"]
     gridinfo.y_0 = params["false_northing"]
 
-    logging.info("Updated Albers gridinfo from CRS WKT")
+    logger.info("Updated Albers gridinfo from CRS WKT")

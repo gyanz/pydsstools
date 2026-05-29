@@ -61,7 +61,7 @@ cdef class DssLastError:
         int status
         
     def __cinit__(self,*args,**kwargs):
-        logging.debug('Initialization of DssLastError')
+        logger.debug('Initialization of DssLastError')
         self.err= <hec_zdssLastError *>PyMem_Malloc(sizeof(hec_zdssLastError))
         if not self.err:
             raise MemoryError()
@@ -121,19 +121,19 @@ def isError(int status):
         DssLastError err_obj
 
     err_obj = DssLastError()
-    logging.debug(f"dss check: Open status = {status}, zerror status = {err_obj.status}, error code = {err_obj.errorCode}, error type = {err_obj.errorType}, message = {err_obj.errorMessage}.")
+    logger.debug(f"dss check: Open status = {status}, zerror status = {err_obj.status}, error code = {err_obj.errorCode}, error type = {err_obj.errorType}, message = {err_obj.errorMessage}.")
     if err_obj.errorCode != 0:
         if not err_obj.errorType == 1: 
             # type other than warning
             raise DssStatusException(status,err_obj.errorMessage)
-        logging.warn('%s',err_obj.errorMessage)
+        logger.warning('%s',err_obj.errorMessage)
 
     if status == nok:
         raise DssStatusException(status,f'Error code {status} returned by HEC-DSS function call. Either record does not exist or another error may have occured.')    
 
     if status == -123:
         # Line 43 in hec-dss/heclib/heclib_c/src/DssInterface/v6and7/zopen.c
-        logging.error(f'Error code {status} returned by HEC-DSS open call. DSS 6 is not supported in Linux and Mac OS.')    
+        logger.error(f'Error code {status} returned by HEC-DSS open call. DSS 6 is not supported in Linux and Mac OS.')    
         raise DssStatusException(status,f'DSS6 not supported in Mac and Linux')    
 
     return status

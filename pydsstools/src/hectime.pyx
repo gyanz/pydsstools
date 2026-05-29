@@ -223,11 +223,11 @@ cdef class HecTime:
         if granularity in VALID_GRANULARITIES:
             self._granularity = granularity
         else:
-            logging.warning(
+            logger.warning(
                 f"Expected granularity to be one of {VALID_GRANULARITIES}, "
                 f"but got {granularity}"
             )
-            logging.warning("Using default granularity of 60 seconds")
+            logger.warning("Using default granularity of 60 seconds")
             self._granularity = SECONDS_PER_MINUTE
 
         # Handle different input types
@@ -1029,12 +1029,12 @@ cdef class HecTime:
         try:
             dt = parser.parse(date_str)
         except Exception:
-            logging.debug(f"Date validation failed for: '{date_str}'")
+            logger.debug(f"Date validation failed for: '{date_str}'")
             return False
 
         # Check that parsed result has no time component
         if dt.hour != 0 or dt.minute != 0 or dt.second != 0:
-            logging.debug(f"Date '{date_str}' has non-zero time component")
+            logger.debug(f"Date '{date_str}' has non-zero time component")
             return False
 
         # Check for trailing zeros that dateutil accepts but shouldn't
@@ -1050,7 +1050,7 @@ cdef class HecTime:
                         _dt = parser.parse(_date)
                         if _dt == dt:
                             # Has meaningless trailing zeros
-                            logging.debug(f"Date '{date_str}' has trailing zeros")
+                            logger.debug(f"Date '{date_str}' has trailing zeros")
                             return False
                     except Exception:
                         pass
@@ -1142,7 +1142,7 @@ cdef class HecTime:
 
         s_stripped = s.strip()
         if s_stripped.lower() == "undefined":
-            logging.debug('Parsed as undefined ("", "")')
+            logger.debug('Parsed as undefined ("", "")')
             return ("", "")
 
         # Try dateutil first for date-only detection
@@ -1153,7 +1153,7 @@ cdef class HecTime:
             dt = parser.parse(s_stripped)
             success_with_dateutil = True
         except Exception:
-            logging.debug(
+            logger.debug(
                 f"Failed to parse '{s}' with dateutil; "
                 "trying regex-based parsing"
             )
@@ -1161,7 +1161,7 @@ cdef class HecTime:
         # Handle date-only case from dateutil
         if success_with_dateutil and dt is not None:
             if dt.hour == 0 and dt.minute == 0 and dt.second == 0:
-                logging.debug(f"Parsed via dateutil: '{s}' is date-only")
+                logger.debug(f"Parsed via dateutil: '{s}' is date-only")
 
                 # Clean trailing punctuation
                 s_clean = s.strip()
@@ -1185,7 +1185,7 @@ cdef class HecTime:
                             try:
                                 _dt = parser.parse(_date_part)
                                 if _dt == dt:
-                                    logging.debug(
+                                    logger.debug(
                                         f"Removed all-zero time suffix '{_time_part}' "
                                         f"from '{s}'"
                                     )
@@ -1196,7 +1196,7 @@ cdef class HecTime:
                             break
 
                 result = (s_clean, "")
-                logging.debug(f"Parsed as {result}")
+                logger.debug(f"Parsed as {result}")
                 return result
 
         # Try regex patterns in order of specificity
@@ -1205,7 +1205,7 @@ cdef class HecTime:
         if m:
             result = (m.group('date'), m.group('time'))
             if HecTime._validate_date_part(result[0]):
-                logging.debug(f"Parsed as ISO format: {result}")
+                logger.debug(f"Parsed as ISO format: {result}")
                 return result
 
         # 2) Grid format (exactly one colon in entire input)
@@ -1216,7 +1216,7 @@ cdef class HecTime:
                 time_part = m.group('time')
                 result = (date_part, time_part)
                 if HecTime._validate_date_part(result[0]):
-                    logging.debug(f"Parsed as GRID format: {result}")
+                    logger.debug(f"Parsed as GRID format: {result}")
                     return result
 
         # 3) Trailing hh:mm[:ss][ AM/PM]
@@ -1227,7 +1227,7 @@ cdef class HecTime:
             time_part = s_stripped[start:].strip().rstrip(' ,;')
             result = (date_part, time_part)
             if HecTime._validate_date_part(result[0]):
-                logging.debug(f"Parsed as COLON_TIME format: {result}")
+                logger.debug(f"Parsed as COLON_TIME format: {result}")
                 return result
 
         # 4) Trailing hhmm[ AM/PM]
@@ -1238,12 +1238,12 @@ cdef class HecTime:
             time_part = s_stripped[start:].strip().rstrip(' ,;')
             result = (date_part, time_part)
             if HecTime._validate_date_part(result[0]):
-                logging.debug(f"Parsed as PLAIN_TIME format: {result}")
+                logger.debug(f"Parsed as PLAIN_TIME format: {result}")
                 return result
 
         # Fall back to dateutil if it succeeded earlier
         if success_with_dateutil and dt is not None:
-            logging.info(f"Falling back to dateutil result: '{dt}'")
+            logger.info(f"Falling back to dateutil result: '{dt}'")
             return dt.strftime("%d%b%Y:%H%M%S").split(":")
 
         # All parsing strategies failed
@@ -1514,10 +1514,10 @@ cdef class HecTime:
             int seconds
             int status
 
-        logging.debug(f"Converting '{std_datetime_str}' to (julian, seconds)")
+        logger.debug(f"Converting '{std_datetime_str}' to (julian, seconds)")
 
         if not std_datetime_str:
-            logging.debug('datetime is empty or None')
+            logger.debug('datetime is empty or None')
             return None
 
         cdatetime = std_datetime_str
@@ -1920,7 +1920,7 @@ cdef class HecTime:
             secondsToTimeString(seconds, milliseconds, time_style_code, ctime, sz)
             return ctime
 
-        logging.warning(f"Unexpected time_style_code = {time_style_code} received")
+        logger.warning(f"Unexpected time_style_code = {time_style_code} received")
         return None
 
     @staticmethod

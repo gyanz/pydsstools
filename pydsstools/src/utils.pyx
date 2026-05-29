@@ -30,7 +30,7 @@ def str2ascii(file):
     elif isinstance(file,bytes):
         return file
     else:
-        logging.error("Wrong filename or encoding (not ascii or byte) ")
+        logger.error("Wrong filename or encoding (not ascii or byte) ")
 
 cpdef void setMessageLevel(int methodID,int levelID):
     zsetMessageLevel(methodID, levelID)
@@ -75,7 +75,7 @@ cdef class dss_info:
 
         # ALL
         self.dataType = self.recordSize[0].dataType
-        logging.debug(f"RecordSize: data type = {self.dataType}.")
+        logger.debug(f"RecordSize: data type = {self.dataType}.")
         self.version = self.recordSize[0].version
         self.numberValues = self.recordSize[0].numberValues
         self.logicalNumberValues = self.recordSize[0].logicalNumberValues
@@ -216,7 +216,7 @@ cdef class DssPathName:
         if isinstance(pathname,str):
             parts = pathname.split('/')[1:-1]    
             if not len(parts) == 6:
-                logging.error('Invalid dss pathname: No of pathname parts not equal to six')
+                logger.error('Invalid dss pathname: No of pathname parts not equal to six')
                 raise DssPathException('Invalid dss pathname: No of pathname parts not equal to six')
 
             return dict(zip(("A","B","C","D","E","F"),parts))
@@ -321,7 +321,7 @@ cdef class DssPathName:
             stime = HecTime(self.dpart, midnight_as_2400=False, date_style=104, time_style=0)
             etime = HecTime(self.epart, midnight_as_2400=True, date_style=104, time_style=0)
         except Exception as e:
-            logging.warning(f"normalize_period: could not parse d/e-part datetime: {e}")
+            logger.warning(f"normalize_period: could not parse d/e-part datetime: {e}")
             return self
         new_path = DssPathName(self)
         new_path.dpart = stime.text()

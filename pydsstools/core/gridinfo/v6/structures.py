@@ -22,6 +22,7 @@ conversion : Conversion functions between v6 and v7 formats
 from __future__ import annotations
 
 import logging
+logger = logging.getLogger(__name__)
 import ctypes
 import numpy as np
 from typing import Optional
@@ -208,7 +209,7 @@ class GridInfo6Base:
 
         grid_type = ar[1]
         if self.grid_type != grid_type:
-            logging.error(
+            logger.error(
                 f"Cannot update info6 object (grid_type={self.grid_type}) with int "
                 f"array of different grid_type ({grid_type})"
             )

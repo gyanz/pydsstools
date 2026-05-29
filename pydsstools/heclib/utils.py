@@ -1,4 +1,5 @@
 import logging
+logger = logging.getLogger(__name__)
 import numpy as np
 import numpy.ma as ma
 import math
@@ -75,9 +76,9 @@ def __close():
         try:
             __dsslog.close()
         except:
-            logging.error("Error closing dsslog")
+            logger.error("Error closing dsslog")
         else:
-            logging.debug("dsslog file closed")
+            logger.debug("dsslog file closed")
 
 
 def __init():
@@ -86,7 +87,7 @@ def __init():
         from os import path
 
         dss_file = path.join(path.dirname(__file__), dsslog.dss)
-        logging.info("File used to intialize pydsstools messaging is %s", dss_file)
+        logger.info("File used to intialize pydsstools messaging is %s", dss_file)
         __dsslog = _Open(dss_file)
 
 
@@ -100,10 +101,10 @@ class DssLogging(object):
         elif level in _log_level:
             level = _log_level[level]
         else:
-            logging.warn("Invalid Dss Logging Level ignored")
+            logger.warning("Invalid Dss Logging Level ignored")
             return
 
-        logging.warn("***Setting DSS Logging***")
+        logger.warning("***Setting DSS Logging***")
         setMessageLevel(0, level)
 
     def config(self, method=0, level="General"):
@@ -113,14 +114,14 @@ class DssLogging(object):
             elif level in _log_level:
                 level = _log_level[level]
             else:
-                logging.warn("Invalid Dss Logging Level ignored")
+                logger.warning("Invalid Dss Logging Level ignored")
                 return
-            logging.warn(
+            logger.warning(
                 "***Setting DSS Logging, Method = %r, Level = %r***", method, level
             )
             setMessageLevel(method, level)
         else:
-            logging.warn("Invalid Dss Logging Method ignored")
+            logger.warning("Invalid Dss Logging Method ignored")
 
 
 dss_logging = DssLogging()
@@ -140,7 +141,7 @@ def compute_grid_stats(data, compute_range=True):
             # string - quartiles, quarters, TODO
             # list/tuple - list of values (max 19 excluding nodata) to compute equal to greater than cell counts
     """
-    logging.info("Computing grid statistics")
+    logger.info("Computing grid statistics")
     result = {
         "min": None,
         "max": None,
@@ -151,7 +152,7 @@ def compute_grid_stats(data, compute_range=True):
     total_cells = data.size
 
     if total_cells == 0:
-        logging.info("Empty Grid Array!")
+        logger.info("Empty Grid Array!")
         return
 
     if isinstance(data, ma.core.MaskedArray):
@@ -206,5 +207,5 @@ def compute_grid_stats(data, compute_range=True):
         range_counts.append(count)
 
     result.update([("range_vals", range_values), ("range_counts", range_counts)])
-    logging.info(result)
+    logger.info(result)
     return result

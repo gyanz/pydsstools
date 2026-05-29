@@ -207,14 +207,14 @@ cdef object _read_location_dss6(long long *ifltab, const char *pathname, int ts_
     # Instead, extract the D-part from pathnameList[0] and parse it manually.
     zcatalog(ifltab, wildcard_bytes, zcat, 0)
 
-    logging.debug(
+    logger.debug(
         f"read_location dss6: catalog found {zcat[0].numberPathnames} "
         f"block(s) for {pathname_str!r}"
     )
 
     if zcat[0].numberPathnames == 0:
         zstructFree(zcat)
-        logging.debug(
+        logger.debug(
             f"read_location dss6: no records found for {pathname_str!r}, returning None"
         )
         return None
@@ -228,13 +228,13 @@ cdef object _read_location_dss6(long long *ifltab, const char *pathname, int ts_
     first_path_parts = first_path_bytes.decode('ascii', 'replace').split('/')
     d_part = first_path_parts[4] if len(first_path_parts) == 8 else ''
     if not d_part:
-        logging.debug(
+        logger.debug(
             f"read_location dss6: could not extract D-part from {first_path_bytes!r}, returning None"
         )
         return None
 
     juls = dateToJulian(d_part.encode('ascii'))
-    logging.debug(f"read_location dss6: D-part={d_part!r} -> juls={juls} jule={jule}")
+    logger.debug(f"read_location dss6: D-part={d_part!r} -> juls={juls} jule={jule}")
 
     # Step 2: fetch internal header (location) metadata
     if ts_type == 1:
@@ -246,7 +246,7 @@ cdef object _read_location_dss6(long long *ifltab, const char *pathname, int ts_
         julianToDate(juls, 4, date_str, sizeof(date_str))    # style 4 = "DDmmmYYYY"
         minutesToHourMin(istime, time_str, sizeof(time_str))
 
-        logging.debug(
+        logger.debug(
             f"read_location dss6: zrrtsc_ "
             f"date={(<bytes>date_str).decode()} time={(<bytes>time_str).decode()}"
         )
@@ -277,7 +277,7 @@ cdef object _read_location_dss6(long long *ifltab, const char *pathname, int ts_
         # location header is always populated even if no values fall in the
         # narrow [juls 00:00 … juls 24:00] window.
         jule = juls
-        logging.debug(
+        logger.debug(
             f"read_location dss6: zritsc_ "
             f"juls={juls} istime={istime} jule={jule} ietime={ietime}"
         )
@@ -305,7 +305,7 @@ cdef object _read_location_dss6(long long *ifltab, const char *pathname, int ts_
     ctzone[sizeof(ctzone) - 1] = 0
     csupp[sizeof(csupp) - 1] = 0
 
-    logging.debug(
+    logger.debug(
         f"read_location dss6: istat={istat} lcoords={lcoords} "
         f"coords=({coords[0]:.6g}, {coords[1]:.6g}, {coords[2]:.6g}) "
         f"icdesc={[icdesc[i] for i in range(6)]} "
@@ -447,7 +447,7 @@ cdef void _write_location_dss6(long long *ifltab, TimeSeriesContainer tsc,
     if loc.time_zone:
         tz_str = loc.time_zone
         if tsc.tzid and tsc.tzid != loc.time_zone:
-            logging.warning(
+            logger.warning(
                 "DSS-6 write: one timezone slot per record; using "
                 "loc.time_zone=%r (tsc.tzid=%r is ignored)",
                 loc.time_zone, tsc.tzid,
@@ -503,7 +503,7 @@ cdef void _write_location_dss6(long long *ifltab, TimeSeriesContainer tsc,
         _bdate = tsc._start_time.date().encode("ascii")
         _btime = tsc._start_time.time().encode("ascii")
 
-        logging.debug(
+        logger.debug(
             "write_location dss6: zsrtsc_ path=%r date=%s time=%s nvals=%d iplan=%d",
             tsc._pathname,
             _bdate.decode("ascii"),
@@ -544,7 +544,7 @@ cdef void _write_location_dss6(long long *ifltab, TimeSeriesContainer tsc,
         ibdate = 0
         inflag = storageFlag
 
-        logging.debug(
+        logger.debug(
             "write_location dss6: zsitsc_ path=%r nvals=%d ibdate=%d inflag=%d",
             tsc._pathname, nvals, ibdate, inflag,
         )

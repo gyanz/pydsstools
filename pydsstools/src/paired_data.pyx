@@ -232,7 +232,7 @@ cdef class PairedDataStruct:
             if self.zpds[0].labelsLength and self.zpds[0].labels:
                 label_length = self.zpds[0].labelsLength
                 clabel = <bytes>self.zpds[0].labels[:label_length]
-                logging.debug("paired data raw labels = ({})".format(clabel))
+                logger.debug("paired data raw labels = ({})".format(clabel))
                 _labels = clabel.split(b"\x00")
                 _labels = [x.decode().strip() for x in _labels]
                 if _labels and _labels[-1] == "":
@@ -442,7 +442,7 @@ cdef class PairedDataContainer:
         cols = self.cols
         labels = self.y_labels
         label_byte_string = b''
-        logging.debug(f"Setting clabels for paired data. y_labels given are: {labels}")
+        logger.debug(f"Setting clabels for paired data. y_labels given are: {labels}")
 
         if mode == pdc_mode.normal:
             if all(s=='' for s in labels):

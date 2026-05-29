@@ -1,4 +1,5 @@
 import logging
+logger = logging.getLogger(__name__)
 from pyproj import CRS
 from . import HRAP_WKT, SHG_WKT
 from .enums import Datum, LocCoordSystem, LocHorizUnits, LocHorizDatum
@@ -70,7 +71,7 @@ def parse_crs(crs):
         try:
             crs = CRS(crs)
         except Exception:
-            logging.warning("Could not parse CRS input: %s", crs)
+            logger.warning("Could not parse CRS input: %s", crs)
             return None
 
     crs = crs.to_dict()
@@ -81,7 +82,7 @@ def is_equal_area_conic(crs):
         try:
             crs = CRS.from_user_input(crs)
         except Exception:
-            logging.warning("Could not parse CRS input: %s", crs)
+            logger.warning("Could not parse CRS input: %s", crs)
             return False
 
     # geographic CRS → not projected at all
@@ -113,7 +114,7 @@ def is_hrap(crs) -> bool:
         try:
             crs = CRS.from_user_input(crs)
         except Exception:
-            logging.warning("Could not parse CRS input: %s", crs)
+            logger.warning("Could not parse CRS input: %s", crs)
             return False
 
     d = crs.to_dict()  # PROJ-style dict
@@ -167,7 +168,7 @@ def crs_to_location_attrs(crs_input):
         try:
             crs = CRS.from_user_input(crs_input)
         except Exception:
-            logging.warning("Could not parse CRS: %s", crs_input)
+            logger.warning("Could not parse CRS: %s", crs_input)
             return None
     else:
         crs = crs_input
@@ -237,7 +238,7 @@ def crs_short_name(crs):
         try:
             crs = CRS.from_user_input(crs)
         except Exception:
-            logging.warning("Could not parse CRS input: %s", crs)
+            logger.warning("Could not parse CRS input: %s", crs)
             return False
 
     name = crs.name

@@ -71,7 +71,7 @@ cdef class TimeSeriesStruct:
 
     def __dealloc__(self):
         if self.tss:
-            logging.debug("Freeing timeseries struct")
+            logger.debug("Freeing timeseries struct")
             zstructFree(self.tss)
 
     @property
@@ -957,5 +957,5 @@ cdef class TimeSeriesContainer:
             tss[0].cnotesLengthTotal = self._cnotes_length
 
         ts_st = createTSS(tss)
-        #logging.debug("length = {}".format(ts_st.count))
+        #logger.debug("length = {}".format(ts_st.count))
         return ts_st  

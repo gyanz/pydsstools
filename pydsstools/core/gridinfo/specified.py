@@ -8,6 +8,7 @@ any CRS via WKT, PROJ, or EPSG codes.
 from __future__ import annotations
 
 import logging
+logger = logging.getLogger(__name__)
 from typing import Optional
 
 try:
@@ -243,7 +244,7 @@ class SpecifiedInfo(GridInfo):
 
         self.coords_cell0 = self.min_xy
         self.lower_left_cell = (0, 0)
-        logging.info("Updated coords_cell0 from min_xy for specified grid")
+        logger.info("Updated coords_cell0 from min_xy for specified grid")
 
     def update_cell0_from_transform(self, transform: Affine) -> None:
         """Update coords_cell0 from affine transform.
@@ -275,7 +276,7 @@ class SpecifiedInfo(GridInfo):
         coords_cell0 = coords_of_cell0_of_specified_grid(transform, self.shape)
         self.coords_cell0 = coords_cell0
         self.lower_left_cell = (0, 0)
-        logging.info("Updated coords_cell0 from transform for specified grid")
+        logger.info("Updated coords_cell0 from transform for specified grid")
 
     def normalize(self,transform: Affine = None):
         if transform is not None:
@@ -389,7 +390,7 @@ def coords_of_cell0_of_specified_grid(
     rows = shape[0]
 
     if abs(cellsize_x) != abs(cellsize_y):
-        logging.warning(
+        logger.warning(
             "Cell sizes in x and y differ. DSS grids should have square cells. "
             f"cellsize_x={cellsize_x}, cellsize_y={cellsize_y}"
         )

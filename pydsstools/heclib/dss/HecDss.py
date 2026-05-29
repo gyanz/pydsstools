@@ -7,6 +7,7 @@ This module provides the public API for interacting with HEC-DSS files.
 __all__ = ["Open"]
 
 import logging
+logger = logging.getLogger(__name__)
 from copy import copy
 from array import array
 from datetime import datetime
@@ -236,7 +237,7 @@ class Open(_Open):
 
         infer_type = True
         if reg and ireg:
-            logging.info("The timeseries to be read is specified as both regular and irregular type; type will be inferred from the pathname.")
+            logger.info("The timeseries to be read is specified as both regular and irregular type; type will be inferred from the pathname.")
         elif reg:
             infer_type = False
             interval = 1
@@ -246,7 +247,7 @@ class Open(_Open):
 
         if infer_type:
             # find whether the ts is regular, irregular or not ts
-            logging.debug("Determining the type of timeseries record.")
+            logger.debug("Determining the type of timeseries record.")
             interval = self._ts_type_from_pathname(pathname.text())
 
             if interval == 0:
@@ -257,15 +258,15 @@ class Open(_Open):
                 )
 
         if interval == 1:
-            logging.debug("Reading regular time series.")
+            logger.debug("Reading regular time series.")
             retrieve_flag = -1 if trim_missing else 0
 
         else:
-            logging.debug("Reading irregular time series.")
+            logger.debug("Reading irregular time series.")
             if window_flag in [0, 1, 2, 3]:
                 retrieve_flag = window_flag
             else:
-                logging.error("Invalid window_flag for irregular dss record")
+                logger.error("Invalid window_flag for irregular dss record")
                 return
 
         if window:
@@ -300,7 +301,7 @@ class Open(_Open):
             try:
                 loc = super()._read_location(pathname.text())
             except Exception:
-                logging.warning("No location record found for '%s'.", pathname.text())
+                logger.warning("No location record found for '%s'.", pathname.text())
             return tss, loc
 
         return tss
@@ -410,7 +411,7 @@ class Open(_Open):
         """
 
         if self.mode != "rw":
-            logging.error(
+            logger.error(
                 "Open the dss file in 'rw' mode to be able to write data on it."
             )
             return
@@ -436,7 +437,7 @@ class Open(_Open):
         else:
             pathname = DssPathName(data)
             if "pathname" in kwargs:
-                logging.warning("Ignoring pathname for TimeSeriesContainer provided as keyword argument")
+                logger.warning("Ignoring pathname for TimeSeriesContainer provided as keyword argument")
 
             # -1 = irregular
             #  1 = regular
@@ -451,7 +452,7 @@ class Open(_Open):
 
             if _count is not None:  # noqa: SIM102
                 if _count != count:
-                    logging.warning(f"Ignoring count argument value (={_count}) as it is not equal to the length of values (={count})")
+                    logger.warning(f"Ignoring count argument value (={_count}) as it is not equal to the length of values (={count})")
 
             if interval < 0:
                 # required for irregular time-series
@@ -492,7 +493,7 @@ class Open(_Open):
             # mismatch would write location to a different namespace.  Normalize
             # here so the caller never has to keep the two in sync.
             if location.pathname.text() != tsc.pathname:
-                logging.warning(
+                logger.warning(
                     "put_ts: loc.pathname %r differs from tsc.pathname %r; "
                     "using tsc.pathname for the location record",
                     location.pathname.text(), tsc.pathname,
@@ -571,7 +572,7 @@ class Open(_Open):
         pathname = DssPathName(pathname)
 
         if window:
-            logging.debug(f"Input paired data window = '{window}'")
+            logger.debug(f"Input paired data window = '{window}'")
             size_info = self._pd_info(pathname.text())
             rows = size_info["data_no"]
             cols = size_info["curve_no"]
@@ -586,7 +587,7 @@ class Open(_Open):
             # updated zero based indices
             _row_start, _row_end, _col_start, _col_end = [x - 1 for x in window]
 
-            logging.debug(f"Updated window = '{window}'")
+            logger.debug(f"Updated window = '{window}'")
 
         pds = super()._read_pd(pathname.text(), window)
 
@@ -594,7 +595,7 @@ class Open(_Open):
             x_data = pds.x_data
             y_data = pds.y_data
             y_labels = pds.y_labels
-            logging.debug(y_labels)
+            logger.debug(y_labels)
             # The row in curves array contains curve data
             # Transpose causes the curve data to be in columns (for DataFrame purpose)
             tb = np.asarray(y_data).T
@@ -605,15 +606,15 @@ class Open(_Open):
             primary_colnames = [f"y{i}" for i in range(_col_start, _col_end + 1)]
             alias_colnames = ['' for x in range(_col_start, _col_end + 1)]
 
-            logging.debug(f'window:{window}')
-            logging.debug(f'col_start/end: {_col_start},{_col_end}')
-            logging.debug(f'primary colnames: {primary_colnames}')
-            logging.debug(f'alias columns: {alias_colnames}')
+            logger.debug(f'window:{window}')
+            logger.debug(f'col_start/end: {_col_start},{_col_end}')
+            logger.debug(f'primary colnames: {primary_colnames}')
+            logger.debug(f'alias columns: {alias_colnames}')
 
             for i, label in enumerate(y_labels):
                 alias_colnames[i] = label
 
-            logging.debug(f'Revised alias columns: {alias_colnames}')
+            logger.debug(f'Revised alias columns: {alias_colnames}')
             column_names = pd.MultiIndex.from_arrays([primary_colnames, alias_colnames], names=["primary", "labels"])
 
             indx = list(x_data[0])
@@ -768,7 +769,7 @@ class Open(_Open):
         >>> fid.put_pd(pathname, col_index=2, y_data=[1, 2, 3, 4], window=(2, 5))
         """
         if self.mode != "rw":
-            logging.error(
+            logger.error(
                 "Open the dss file in 'rw' mode to be able to write data on it."
             )
             return
@@ -783,10 +784,10 @@ class Open(_Open):
             col_index = kwargs.pop("col_index", None)
 
             if "pathname" in kwargs:
-                logging.warning("Ignoring pathname for PairedDataContainer provided as keyword argument")
+                logger.warning("Ignoring pathname for PairedDataContainer provided as keyword argument")
 
             if isinstance(y_data, pd.DataFrame):
-                logging.info('Writing paired data from DataFrame')
+                logger.info('Writing paired data from DataFrame')
                 df = y_data
                 shape = df.shape
 
@@ -808,21 +809,21 @@ class Open(_Open):
                 return
 
             elif isinstance(col_index, int):
-                logging.info('Writing single paired data curve to preallocated paired data set')
+                logger.info('Writing single paired data curve to preallocated paired data set')
                 # pd_info raise error if the record does not exist
                 size_info = self._pd_info(pathname.text())
                 rows = size_info["data_no"]
                 cols = size_info["curve_no"]
-                logging.debug(f"The paired data record ({pathname.text()}) in file has rows={rows} and cols={cols}")
+                logger.debug(f"The paired data record ({pathname.text()}) in file has rows={rows} and cols={cols}")
 
                 # 1-based col_index
-                logging.debug(f"Input 0-based col_index = {col_index}")
+                logger.debug(f"Input 0-based col_index = {col_index}")
                 col_index, _ = _normalize_span(cols, col_index, None)
-                logging.debug(f"Updated 1-based col_index = {col_index}")
+                logger.debug(f"Updated 1-based col_index = {col_index}")
 
                 # 1-based default indices
                 row_start, row_end = (1, rows)
-                logging.debug(f"1-based (row_start,row_end) assuming full curve data is replaced: ({row_start},{row_end}).")
+                logger.debug(f"1-based (row_start,row_end) assuming full curve data is replaced: ({row_start},{row_end}).")
 
                 # update indices based on input
                 window = kwargs.pop("window", None)
@@ -838,10 +839,10 @@ class Open(_Open):
 
                     # 0-based
                     _row_start, _row_end = window
-                    logging.debug(f"0-based (row_start,row_end) provided as input: ({_row_start},{_row_end}).")
+                    logger.debug(f"0-based (row_start,row_end) provided as input: ({_row_start},{_row_end}).")
                     # 1-based
                     row_start, row_end = _normalize_span(rows, _row_start, _row_end)
-                    logging.debug(f"1-based (row_start,row_end) derived from input: ({row_start},{row_end}).")
+                    logger.debug(f"1-based (row_start,row_end) derived from input: ({row_start},{row_end}).")
 
                 y_labels = kwargs.pop('y_labels', [])
 
@@ -860,7 +861,7 @@ class Open(_Open):
                     _y_data = np.ascontiguousarray(_y_data.reshape(1, -1))
 
                 if _y_data.ndim == 2 and _y_data.shape[0] != 1:
-                    logging.warning("The y_data for single curve has multiple rows; flattening the data as single row of values.")
+                    logger.warning("The y_data for single curve has multiple rows; flattening the data as single row of values.")
                     _y_data = np.ascontiguousarray(_y_data.reshape(1, -1))
 
                 y_data = _y_data
@@ -872,10 +873,10 @@ class Open(_Open):
 
                 # update  row_end based on number of y_data values
                 if row_end != row_start + shape[0] - 1:
-                    logging.debug("row_end updated based on the number of y_data")
+                    logger.debug("row_end updated based on the number of y_data")
                     row_end = row_start + shape[0] - 1
 
-                logging.debug(f"Single paired data curve to be written with 1-based row_start={row_start} and row_end={row_end}. Total rows in dss = {rows}.")
+                logger.debug(f"Single paired data curve to be written with 1-based row_start={row_start} and row_end={row_end}. Total rows in dss = {rows}.")
                 pdc = PairedDataContainer(pathname.text(), shape,
                                         y_data=y_data,
                                         x_data=None,
@@ -924,7 +925,7 @@ class Open(_Open):
         >>> fid.preallocate_pd(pathname, shape=(100, 5), x_units="ft", y_units="cfs")
         """
         if self.mode != "rw":
-            logging.error(
+            logger.error(
                 "Open the dss file in 'rw' mode to be able to write data on it."
             )
             return
@@ -980,15 +981,15 @@ class Open(_Open):
         grid_ver = self._get_gridver(pathname.text())
 
         if grid_ver is None:
-            logging.error("Invalid grid data or version")
+            logger.error("Invalid grid data or version")
             return
 
         elif grid_ver == 100:
-            logging.info("Reading modern format (DSS7) grid")
+            logger.info("Reading modern format (DSS7) grid")
             super()._read_grid100(pathname.text(), sg_st, retrieve_data)
 
         else:
-            logging.info(
+            logger.info(
                 "Read grid version {} and convert it to version 100 grid".format(
                     grid_ver
                 )
@@ -999,14 +1000,14 @@ class Open(_Open):
 
             # find grid_type and create gridinfo6
             grid_type = self._get_gridtype(pathname.text())
-            logging.debug("grid type is {}".format(grid_type))
+            logger.debug("grid type is {}".format(grid_type))
             gridinfo6 = GridInfo6.from_grid_type(grid_type)
-            logging.debug("grid type in gridinfo6 is {}".format(gridinfo6.grid_type))
+            logger.debug("grid type in gridinfo6 is {}".format(gridinfo6.grid_type))
             if grid_type == 430:
                 # add space for crs definition, tz id generously
                 # it should be more than what is in the file
                 gridinfo6 = GridInfo6.get_specinfo6(50, 200, 50)
-                logging.debug(
+                logger.debug(
                     "grid type in updated gridinfo6 is {}".format(gridinfo6.grid_type)
                 )
             super()._read_grid0(pathname.text(), sg_st, gridinfo6, retrieve_data)
@@ -1051,17 +1052,17 @@ class Open(_Open):
         retrieve_data = False if metadata_only else True
         grid_ver = self._get_gridver(pathname.text())
         if grid_ver is None:
-            logging.error("Invalid grid data or version")
+            logger.error("Invalid grid data or version")
         elif grid_ver != 0:
-            logging.info("Reading modern format (DSS7) grid")
+            logger.info("Reading modern format (DSS7) grid")
             ds = self.read_grid(pathname.text(), retrieve_data)
             if metadata_only:
-                logging.info("Returning metadata of gridded data")
+                logger.info("Returning metadata of gridded data")
                 return ds.gridinfo
             else:
                 return ds.read(), ds.gridinfo
         else:
-            logging.info("Reading older format (DSS6 or grid version 0) grid")
+            logger.info("Reading older format (DSS6 or grid version 0) grid")
 
             #if self.version == 7:
             #    raise NotImplementedError("Reading version {} from from DSS7 file is not implemented.", grid_ver)
@@ -1077,11 +1078,11 @@ class Open(_Open):
             # gridinfo6 is updated with data from the dss file
             data = super()._read_grid0_array(pathname.text(), gridinfo6, retrieve_data)
             if metadata_only:
-                logging.info("Returning metadata of gridded data")
+                logger.info("Returning metadata of gridded data")
                 if data is not None:
                     return gridinfo6
             if data is not None:
-                logging.info("Returning metadata/data of gridded data")
+                logger.info("Returning metadata/data of gridded data")
                 return data, gridinfo6
 
     def put_grid(
@@ -1173,13 +1174,13 @@ class Open(_Open):
         """
 
         if self.mode != "rw":
-            logging.error(
+            logger.error(
                 "Open the dss file in 'rw' mode to be able to write data on it."
             )
             return
 
         if self.version == 6:
-            logging.warning("Writing DSS grid record in DSS-6 file is not supported")
+            logger.warning("Writing DSS grid record in DSS-6 file is not supported")
             return
         
         if not isinstance(data, (SpatialGridStruct, np.ndarray)):
@@ -1196,11 +1197,11 @@ class Open(_Open):
 
         elif isinstance(data, np.ndarray):
             if not isinstance(gridinfo, GridInfo):
-                logging.error("GridInfo is not provided to write gridded dataset")
+                logger.error("GridInfo is not provided to write gridded dataset")
                 return
 
             if pathname is None:
-                logging.error(
+                logger.error(
                     "Provide valid pathname for grid record!", exc_info=True
                 )
                 return
@@ -1246,7 +1247,7 @@ class Open(_Open):
         if normalize:
             gridinfo.normalize(transform)
 
-        logging.debug(f"{gridinfo}")
+        logger.debug(f"{gridinfo}")
         super()._put_grid(pathname.text(), _data, gridinfo)
 
     def put_grid0(
@@ -1320,13 +1321,13 @@ class Open(_Open):
         intended for maintaining compatibility with legacy DSS-6 files.
         """
         if self.mode != "rw":
-            logging.error(
+            logger.error(
                 "Open the dss file in 'rw' mode to be able to write data on it."
             )
             return
 
         if self.version == 7:
-            logging.warning(
+            logger.warning(
                 "Writing version 0 (DSS-6 format) grid data to DSS7 file is experimental."
             )
 
@@ -1344,11 +1345,11 @@ class Open(_Open):
 
         elif isinstance(data, np.ndarray):
             if not isinstance(gridinfo, GridInfo):
-                logging.error("GridInfo is not provided to write gridded dataset")
+                logger.error("GridInfo is not provided to write gridded dataset")
                 return
 
             if pathname is None:
-                logging.error(
+                logger.error(
                     "Provide valid pathname for grid record!", exc_info=True
                 )
                 return
@@ -1440,7 +1441,7 @@ class Open(_Open):
         """
         dss_fid = dss_out if isinstance(dss_out, self.__class__) else self
         if dss_fid.mode != "rw":
-            logging.error(
+            logger.error(
                 "Open the dss file in 'rw' mode to be able to write data on it."
             )
             return
@@ -1479,7 +1480,7 @@ class Open(_Open):
         >>> fid.del_path("/A/B/*/D/E/F/")
         """
         if self.mode != "rw":
-            logging.error(
+            logger.error(
                 "Open the dss file in 'rw' mode to be able to write data on it."
             )
             return
@@ -1604,7 +1605,7 @@ class Open(_Open):
         path_list = self.search_path("")
         for path in path_list:
             name = self._record_type_name(path, abbr=True)
-            logging.debug(f"{path} is record type {name}.")
+            logger.debug(f"{path} is record type {name}.")
             name = name.upper()
             if name.startswith("RT"):
                 ts_rts.append(path)
@@ -1834,11 +1835,11 @@ def _sanitize_grid_array_for_dss_write(data,nodata,shape,flipud=True,inplace=Fal
 
         if isinstance(range_values,(list,tuple)):
             range_vals = [x for x in range_values]
-            logging.debug("range_vals from user-supplied list: %s", range_vals)
+            logger.debug("range_vals from user-supplied list: %s", range_vals)
 
         elif is_sgrid:
             range_vals = data.gridinfo.range_vals
-            logging.debug("range_vals from gridinfo: %s", range_vals)
+            logger.debug("range_vals from gridinfo: %s", range_vals)
 
         else:
             # compute range values as quartiles + mean
@@ -1848,7 +1849,7 @@ def _sanitize_grid_array_for_dss_write(data,nodata,shape,flipud=True,inplace=Fal
                 range_vals = list(np.percentile(filtered_data,[25,50,75]))
                 if mean_val is not None and not np.isnan(mean_val):
                     range_vals.append(mean_val)
-            logging.debug("range_vals from quartiles + mean: %s", range_vals)
+            logger.debug("range_vals from quartiles + mean: %s", range_vals)
 
         range_vals = sorted(set([
             x for x in range_vals
@@ -1870,7 +1871,7 @@ def _sanitize_grid_array_for_dss_write(data,nodata,shape,flipud=True,inplace=Fal
             "range_vals": range_vals,
             "range_counts": range_counts
         }
-        logging.debug("compute_stats: %s", stats)
+        logger.debug("compute_stats: %s", stats)
 
         return stats
     

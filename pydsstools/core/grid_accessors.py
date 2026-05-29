@@ -1,4 +1,5 @@
 import logging
+logger = logging.getLogger(__name__)
 import numpy as np
 from ..core import UNDEFINED
 from ._accessors import register_grid_accessor
@@ -14,7 +15,7 @@ if has_rasterio:
         #from rasterio._io import InMemoryRaster
         pass
 
-    logging.debug("Registering raster accessor for spatial grid.")
+    logger.debug("Registering raster accessor for spatial grid.")
     @register_grid_accessor("raster")
     class RasterAccessor:
         """
@@ -106,7 +107,7 @@ if has_rasterio:
             # 1. User defined
             # 2. grid_crs
             if self._obj._crs:
-                logging.debug("Using CRS defined externally for the grid raster")
+                logger.debug("Using CRS defined externally for the grid raster")
                 profile["crs"] = self._obj._crs
             else:
                 profile["crs"] = self._grid_crs
@@ -133,7 +134,7 @@ if has_rasterio:
             # change UNDEFINED to nodata
             # TODO: check if this can be implemented in the HEC-DSS C library
             if prof["nodata"] != UNDEFINED:
-                logging.info("Setting UNDEFINED value to nodata in the raster.")
+                logger.info("Setting UNDEFINED value to nodata in the raster.")
                 data = np.where(data == UNDEFINED,prof["nodata"],data) 
             with memfile.open(**prof) as ds:
                 ds.write(data, 1)
@@ -195,4 +196,4 @@ if has_rasterio:
                 self._obj._crs = crs
             else:
                 self._obj._crs=""
-                logging.warning(f"CRS override provided for grid_type = {self._grid_type} is ignored due to incompatibility.")
+                logger.warning(f"CRS override provided for grid_type = {self._grid_type} is ignored due to incompatibility.")

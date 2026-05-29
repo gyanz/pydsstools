@@ -10,6 +10,7 @@ This module provides utilities for:
 from __future__ import annotations
 
 import logging
+logger = logging.getLogger(__name__)
 from math import floor
 from typing import Optional
 
@@ -72,7 +73,7 @@ def minxy_from_transform_shape(
     ymax = transform[5]
 
     if abs(cellsize_x) != abs(cellsize_y):
-        logging.warning(
+        logger.warning(
             "Cell sizes in x and y differ. DSS grids should have square cells. "
             f"cellsize_x={cellsize_x}, cellsize_y={cellsize_y}"
         )
@@ -195,7 +196,7 @@ def lower_left_cell_from_transform(
     ymax = transform[5]
 
     if abs(cellsize_x) != abs(cellsize_y):
-        logging.warning(
+        logger.warning(
             "Cell sizes in x and y differ. DSS grids should have square cells. "
             f"cellsize_x={cellsize_x}, cellsize_y={cellsize_y}"
         )

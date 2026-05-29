@@ -1,4 +1,5 @@
 import logging
+logger = logging.getLogger(__name__)
 import numpy as np
 import numpy.ma as ma
 from collections import namedtuple
@@ -114,8 +115,8 @@ class SpatialGridStruct(SpatialGridStructBase, TransformMethodsMixin):
                 albers_params = albers_params_from_wkt(prof["crs"])
                 prof.update(albers_params)
             except Exception:
-                logging.debug("crs=\n%s",prof["crs"])
-                logging.warning("Failed to extract Albers parameters from WKT")
+                logger.debug("crs=\n%s",prof["crs"])
+                logger.warning("Failed to extract Albers parameters from WKT")
 
         return GridInfoCreate(**prof)
 

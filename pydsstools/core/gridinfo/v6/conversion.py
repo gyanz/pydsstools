@@ -18,6 +18,7 @@ Each int32 holds 4 bytes: H(72), R(82), A(65), P(80) → 0x50415248 = 1347571272
 from __future__ import annotations
 
 import logging
+logger = logging.getLogger(__name__)
 import struct
 import ctypes
 from typing import Optional
@@ -294,7 +295,7 @@ def gridinfo7_to_gridinfo6(gridinfo7, pathname: str):
     # data_units
     data_units = str_to_ints(info7.data_units)
     if len(data_units) > 3:
-        logging.warning("data_units was truncated during conversion to grid v6")
+        logger.warning("data_units was truncated during conversion to grid v6")
     info6.data_units = (ctypes.c_int32 * 3)(*data_units[0:3])
 
     # data_type
@@ -350,7 +351,7 @@ def gridinfo7_to_gridinfo6(gridinfo7, pathname: str):
         # data_source
         data_source = str_to_ints(info7.data_source)
         if len(data_source) > 3:
-            logging.warning("data_source was truncated during conversion to grid v6")
+            logger.warning("data_source was truncated during conversion to grid v6")
         info6.data_source = (ctypes.c_int32 * 3)(*data_source[0:3])
 
     elif grid_type == 420:
@@ -363,7 +364,7 @@ def gridinfo7_to_gridinfo6(gridinfo7, pathname: str):
         info6.proj_datum = info7.proj_datum.value
         proj_units = str_to_ints(info7.proj_units)
         if len(proj_units) > 3:
-            logging.warning("proj_unit was truncated during conversion to grid v6")
+            logger.warning("proj_unit was truncated during conversion to grid v6")
         info6.proj_units = (ctypes.c_int32 * 3)(*proj_units[0:3])
         info6.lat_origin = info7.lat_0
         info6.first_parallel = info7.lat_1

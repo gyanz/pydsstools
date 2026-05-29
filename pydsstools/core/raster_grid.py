@@ -1,4 +1,5 @@
 import logging
+logger = logging.getLogger(__name__)
 import traceback
 from pathlib import Path
 # from contextlib import contextmanager
@@ -24,7 +25,7 @@ try:
     import json
 except Exception:
     has_rasterio = False
-    logging.debug("Missing rasterio library ...")
+    logger.debug("Missing rasterio library ...")
     traceback.print_exc()
 else:
     try:
@@ -524,11 +525,11 @@ class RasterSpatialGrid:
 
         src_data = self.read()
         dst_data = np.empty((dst_height, dst_width), np.float32)
-        logging.info(
+        logger.info(
             "Resampling SRC transform = %r, Shape = %r,%r"
             % (src_trans, src_prof["height"], src_prof["width"])
         )
-        logging.info(
+        logger.info(
             "Resampling DST transform = %r, Shape = %r,%r"
             % (dst_trans, dst_height, dst_width)
         )
@@ -600,7 +601,7 @@ class RasterSpatialGrid:
         src_crs = self.crs
         src_nodata = self.nodata
         src_data = self.read()
-        logging.debug(
+        logger.debug(
             "reproject src: crs=%s transform=%s width=%s height=%s nodata=%s data_shape=%s dtype=%s",
             src_crs, src_trans, src_width, src_height, src_nodata, src_data.shape, src_data.dtype,
         )
@@ -608,7 +609,7 @@ class RasterSpatialGrid:
         dst_transform, dst_width, dst_height = calculate_default_transform(src_crs, dst_crs, src_width, src_height, *self.bounds, resolution=cell_size)
 
         dst_prof = self._make_gtiff_profile(dst_crs, dst_transform, dst_width, dst_height, src_nodata)
-        logging.debug("reproject dst_prof: %s", dst_prof)
+        logger.debug("reproject dst_prof: %s", dst_prof)
 
         if unit_factor is not None:
             if src_nodata is not None:
@@ -682,7 +683,7 @@ class RasterSpatialGrid:
         shapes = guard_vector_mask(poly)
         if not isinstance(shapes, (list, tuple)):
             shapes = [shapes]
-        logging.debug("Raster mask shapes = %r", shapes)
+        logger.debug("Raster mask shapes = %r", shapes)
 
         src_prof = self.profile
         ds = self._ds
