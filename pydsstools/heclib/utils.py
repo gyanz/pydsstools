@@ -10,7 +10,6 @@ from ..core import (
     GranularityException,
     ArgumentException,
     DssLastError,
-    setMessageLevel,
     squeeze_file,
 )
 from ..core import GRID_TYPE, GRID_DATA_TYPE, GRID_COMPRESSION_METHODS
@@ -20,7 +19,13 @@ import atexit
 from affine import Affine
 
 __all__ = [
+    # DSS logging — new API
+    "get_dss_logger",
+    "Level",
+    "Method",
+    # DSS logging — legacy API (kept for backward compatibility)
     "dss_logging",
+    # DSS types and helpers
     "HecTime",
     "DssStatusException",
     "GranularityException",
@@ -35,6 +40,10 @@ __all__ = [
     "BoundingBox",
 ]
 
+from .logging import Level, Method, get_dss_logger
+
+# Legacy lookup tables kept for any code that imported them directly.
+# New code should use the Level and Method enums from pydsstools.heclib.logging.
 log_level = {
     0: "None",
     1: "Error",
@@ -44,8 +53,6 @@ log_level = {
     5: "Debug",
     6: "Diagnostic",
 }
-
-_log_level = dict(zip(log_level.values(), log_level.keys()))
 
 log_method = {
     0: "ALL",
@@ -95,33 +102,81 @@ __init()
 
 
 class DssLogging(object):
-    def setLevel(self, level):
-        if level in log_level:
-            pass
-        elif level in _log_level:
-            level = _log_level[level]
-        else:
-            logger.warning("Invalid Dss Logging Level ignored")
-            return
+    """Legacy interface for controlling DSS C library message verbosity.
 
-        logger.warning("***Setting DSS Logging***")
-        setMessageLevel(0, level)
+    .. deprecated::
+        Use :func:`~pydsstools.heclib.logging.get_dss_logger` instead.
+        This class is retained for backward compatibility and delegates all
+        calls to the new :mod:`pydsstools.heclib.logging` module so that
+        state remains consistent regardless of which API is used.
+
+    Examples
+    --------
+    Old (still works)::
+
+        from pydsstools.heclib.utils import dss_logging
+        dss_logging.setLevel("General")
+        dss_logging.config(method=9, level="Critical")
+
+    New (preferred)::
+
+        from pydsstools.heclib.logging import get_dss_logger, Level, Method
+        get_dss_logger().set_level(Level.GENERAL)
+        get_dss_logger(Method.LOCKING).set_level(Level.CRITICAL)
+    """
+
+    def setLevel(self, level):
+        """Set the global (all-methods) DSS message level.
+
+        Parameters
+        ----------
+        level:
+            An integer DSS level (0–6), one of the legacy string names
+            (``"None"``, ``"Error"``, ``"Critical"``, ``"General"``,
+            ``"Info"``, ``"Debug"``, ``"Diagnostic"``), or any form
+            accepted by :meth:`~pydsstools.heclib.logging.DssLogger.set_level`.
+
+        .. deprecated::
+            Use ``get_dss_logger().set_level(level)`` instead.
+        """
+        import warnings
+        warnings.warn(
+            "dss_logging.setLevel() is deprecated. "
+            "Use get_dss_logger().set_level() from pydsstools.heclib.logging.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        try:
+            get_dss_logger().set_level(level)
+        except (ValueError, TypeError):
+            logger.warning("Invalid DSS logging level ignored: %r", level)
 
     def config(self, method=0, level="General"):
-        if method in log_method:
-            if level in log_level:
-                pass
-            elif level in _log_level:
-                level = _log_level[level]
-            else:
-                logger.warning("Invalid Dss Logging Level ignored")
-                return
-            logger.warning(
-                "***Setting DSS Logging, Method = %r, Level = %r***", method, level
-            )
-            setMessageLevel(method, level)
-        else:
-            logger.warning("Invalid Dss Logging Method ignored")
+        """Set the DSS message level for a specific method group.
+
+        Parameters
+        ----------
+        method:
+            Integer method ID (0–16 in the legacy table) or any form
+            accepted by :func:`~pydsstools.heclib.logging.get_dss_logger`.
+        level:
+            Verbosity level; accepts the same forms as
+            :meth:`~pydsstools.heclib.logging.DssLogger.set_level`.
+
+        .. deprecated::
+            Use ``get_dss_logger(method).set_level(level)`` instead.
+        """
+        import warnings
+        warnings.warn(
+            "dss_logging.config() is deprecated. "
+            "Use get_dss_logger(method).set_level(level) from pydsstools.heclib.logging.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        try:
+            get_dss_logger(method).set_level(level)
+        except (ValueError, TypeError) as exc:
+            logger.warning("Invalid DSS logging config ignored: %s", exc)
 
 
 dss_logging = DssLogging()
