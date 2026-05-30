@@ -17,6 +17,12 @@ Each DSS operation belongs to a *method group* (e.g. ``TS_READ``, ``LOCKING``)
 and each group has its own verbosity *level*.  Setting the ``GLOBAL`` group
 applies the level to every group at once.
 
+.. warning::
+
+    Always use :func:`get_dss_logger` — do not instantiate :class:`DssLogger`
+    directly.  Direct instantiation bypasses the instance cache and creates a
+    second object controlling the same underlying C state.
+
 Quick start
 -----------
 ::
@@ -115,7 +121,6 @@ from ..core import getMessageLevel as _getMessageLevel
 __all__ = [
     "Level",
     "Method",
-    "DssLogger",
     "get_dss_logger",
 ]
 
