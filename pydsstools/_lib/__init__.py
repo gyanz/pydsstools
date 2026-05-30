@@ -57,6 +57,7 @@ __all__ = [
     "DssLastError",
     "setMessageLevel",
     "set_program_name",
+    "heclib_version",
     "DssStatusException",
     "GranularityException",
     "ArgumentException",

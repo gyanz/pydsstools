@@ -1,4 +1,5 @@
 __all__ = [
+    "heclib_version",
     "Open",
     "TimeSeriesContainer",
     #"TimeSeriesStruct",

@@ -39,6 +39,16 @@ cpdef void set_program_name(str name):
     cdef bytes bname = name[:16].encode('ascii')
     zset(b"program", bname, 0)
 
+HeclibVersion = _namedtuple('HeclibVersion', ['version', 'date'])
+
+cpdef object heclib_version():
+    cdef char ver[32]
+    cdef char date[32]
+    cdef int ival
+    zquery(b"version", ver, sizeof(ver), &ival)
+    zquery(b"date", date, sizeof(date), &ival)
+    return HeclibVersion(ver, date)
+
 cdef class dss_info:
     cdef: 
         zStructRecordSize *recordSize
