@@ -1,63 +1,63 @@
-"""DSS C library message-level control.
-
-This module provides a Pythonic interface to the HEC-DSS C library's internal
-messaging system, which is controlled via ``zsetMessageLevel(group, level)``
-in the underlying C library.
+"""Control how much the HEC-DSS C library prints to the console.
 
 Overview
 --------
-The DSS C library prints diagnostic messages to stdout/stderr for every
-operation (open, read, write, locking, …).  Each operation belongs to a
-*method group* and each group has an independent verbosity *level*.  This
-module lets you control those levels from Python without touching integer IDs
-or consulting C header files.
+When pydsstools opens, reads, or writes DSS files the underlying HEC-DSS C
+library prints status lines to the console — for example::
 
-The design mirrors :mod:`logging` in two ways:
+    -----DSS---zopen   Existing file opened, File: mydata.dss
+    -----DSS---zwrite  Handle 1; Version 7: /Basin/Gauge/Flow/...
 
-* **Levels** are named constants (``Level.GENERAL``, ``Level.DEBUG``, …)
-  and Python :mod:`logging` level integers (``logging.INFO``, ``logging.DEBUG``,
-  …) are accepted and automatically mapped.
-* **Loggers** are retrieved by name via :func:`get_dss_logger`, just like
-  ``logging.getLogger()``.
+By default pydsstools keeps this output minimal (open/close events and errors
+only).  This module lets you increase verbosity for debugging or silence
+output entirely, using a :func:`get_dss_logger` factory modelled on Python's
+own :func:`logging.getLogger`.
+
+Each DSS operation belongs to a *method group* (e.g. ``TS_READ``, ``LOCKING``)
+and each group has its own verbosity *level*.  Setting the ``GLOBAL`` group
+applies the level to every group at once.
 
 Quick start
 -----------
 ::
 
     from pydsstools.heclib.logging import get_dss_logger, Level, Method
-    import logging
 
-    # Set the global (all-methods) level — equivalent to the old dss_logging.setLevel()
+    # Increase verbosity for all operations (TERSE is the pydsstools default)
     get_dss_logger().set_level(Level.GENERAL)
 
-    # Fine-grained: quieten locking noise, keep everything else at default
+    # Reduce verbosity for one noisy group while leaving others unchanged
     get_dss_logger(Method.LOCKING).set_level(Level.CRITICAL)
 
-    # Accept Python logging integers directly
-    get_dss_logger().set_level(logging.WARNING)   # → Level.TERSE
+    # Silence all DSS output permanently
+    get_dss_logger().set_level(Level.NONE)
 
-    # Accept strings (DSS names or Python logging names, case-insensitive)
-    get_dss_logger("ts_write").set_level("debug")   # → Level.USER_DIAG
-    get_dss_logger("open").set_level("WARNING")     # → Level.TERSE
-
-    # Query the current level
-    logger = get_dss_logger(Method.TS_READ)
-    print(logger.level)   # Level.GENERAL
-    print(logger)         # DssLogger(TS_READ, level=GENERAL)
-
-    # Temporarily silence all DSS output, restore on exit (even on exception)
+    # Silence all DSS output for a block only, restore the previous level on exit
     with get_dss_logger().suppress():
-        dss.read(...)
+        fid.read_ts(pathname)
 
-    # Temporarily set an arbitrary level, restore on exit
-    with get_dss_logger(Method.LOCKING).at_level(Level.CRITICAL):
-        dss.read(...)
+    # Temporarily raise verbosity for a block, restore on exit
+    with get_dss_logger(Method.TS_READ).at_level(Level.USER_DIAG):
+        fid.read_ts(pathname)
+
+    # Query the current level for a group
+    logger = get_dss_logger(Method.TS_READ)
+    print(logger.level)   # Level.TERSE
+    print(logger)         # DssLogger(TS_READ, level=TERSE)
+
+Python :mod:`logging` integers and name strings are also accepted by
+:meth:`~DssLogger.set_level`, so existing logging configuration can be
+forwarded directly::
+
+    import logging
+    get_dss_logger().set_level(logging.WARNING)      # → Level.TERSE
+    get_dss_logger("ts_write").set_level("debug")    # → Level.USER_DIAG
 
 Level mapping from Python logging integers
 ------------------------------------------
-Python's :mod:`logging` levels run in the opposite direction to DSS levels:
-a *higher* Python integer means *more* severe (less output), but a *higher*
-DSS integer means *more* verbose (more output).  The mapping is:
+Python's :mod:`logging` levels run in the *opposite* direction to DSS levels:
+a higher Python integer means more severe (less output), while a higher DSS
+integer means more verbose (more output).  The mapping is:
 
 =========================  =====  ===================  =====
 Python logging constant    int    DSS Level            int
@@ -69,6 +69,37 @@ Python logging constant    int    DSS Level            int
 ``logging.DEBUG``           10    ``Level.USER_DIAG``   4
 ``logging.NOTSET``           0    ``Level.GENERAL``     3
 =========================  =====  ===================  =====
+
+Developer notes
+---------------
+**Calling set_level before zopen is safe.**  ``zdssMessages.h`` warns that
+``zsetMessageLevel`` should only be called after an initialising function such
+as ``zopen``, and suggests using ``zset("mess", ...)`` beforehand.  In
+practice this warning is outdated: ``zsetMessageLevel`` (and ``zset``) both
+call ``zinit()`` internally when the library has not yet been initialised.
+``zinit()`` itself is idempotent — it checks ``zdssVals.integrityKey`` and
+returns immediately on any call after the first (``zinit.c`` lines 85-90).
+Consequently, levels configured before the first ``zopen`` are preserved when
+``zopen`` later triggers ``zinit()``, which becomes a no-op at that point.
+
+**Why** ``zset("mess", ...)`` **was recommended for the pre-init case.**
+When passed an empty ``charVal`` (method name), ``zset`` converts the integer
+argument from the old DSS-6 ``mlvl`` scale (where 4 = normal, 10+ =
+diagnostic) to the current DSS-7 scale (0-6) before forwarding to
+``zsetMessageGroupLevel``.  ``zsetMessageLevel`` takes DSS-7 integers
+directly, so there is no scale mismatch when this module passes our
+``Level`` enum values (0-6).
+
+**GLOBAL vs GENERAL — prefer GLOBAL.**  Both ``Method.GLOBAL`` (0) and
+``Method.GENERAL`` (1) cause the C library to copy the level to all 18
+``zmessaging.methodLevel`` slots (``zsetMessageLevel.c`` lines 107-111).
+The difference is that ``GLOBAL`` additionally calls ``zset6_("MLVL", ...)``
+which propagates the level to the DSS-6 Fortran messaging layer, making it
+effective for DSS-6 files opened with ``zopen6`` as well.  ``GENERAL`` only
+covers DSS-7.  For this reason :func:`get_dss_logger` returns the ``GLOBAL``
+logger when called with no argument.  The ``level`` property reads back from C
+via ``zgetMessageLevel`` so it always reflects the fan-out correctly for both
+methods.
 """
 
 from __future__ import annotations
@@ -79,6 +110,7 @@ from enum import IntEnum
 from typing import Union
 
 from ..core import setMessageLevel as _setMessageLevel
+from ..core import getMessageLevel as _getMessageLevel
 
 __all__ = [
     "Level",
@@ -129,7 +161,11 @@ class Level(IntEnum):
     """Alias for :attr:`TERSE` (matches Python :data:`logging.WARNING` name)."""
 
     GENERAL = 3
-    """General log messages.  This is the default level set by the C library."""
+    """General log messages: writes, reads, and housekeeping.
+
+    The HEC-DSS C library initialises all groups to this level.  pydsstools
+    overrides it to :attr:`TERSE` at import time via :attr:`Method.GLOBAL`.
+    """
 
     INFO = 3
     """Alias for :attr:`GENERAL` (matches Python :data:`logging.INFO` name)."""
@@ -163,14 +199,23 @@ class Method(IntEnum):
     """
 
     GLOBAL = 0
-    """Global group: setting this level overrides all other groups.
-    Use this when you want a single blanket verbosity for everything."""
+    """Blanket verbosity control for all method groups.
 
-    ALL = 0
-    """Alias for :attr:`GLOBAL`."""
+    Sets all 18 ``zmessaging.methodLevel`` slots **and** the legacy DSS-6
+    Fortran ``MLVL`` global (via ``zset6_``), making it effective for both
+    DSS-6 and DSS-7 files.  Prefer this over :attr:`GENERAL` when you want a
+    single level for everything.  This is what :func:`get_dss_logger` returns
+    when called with no argument.
+    """
 
     GENERAL = 1
-    """General DSS-7 operations not covered by a more specific group."""
+    """General DSS-7 operations not covered by a more specific group.
+
+    Like :attr:`GLOBAL`, also fans out to all 18 method slots — but does
+    **not** set the DSS-6 Fortran ``MLVL`` global.  Has no effect on DSS-6
+    code paths (e.g. ``zopen6``).  Use :attr:`GLOBAL` instead when broad
+    level control is needed.
+    """
 
     GET = 2
     """Low-level record-get operations (``zget``)."""
@@ -222,11 +267,8 @@ class Method(IntEnum):
 
 
 # ---------------------------------------------------------------------------
-# Internal: level-tracking state and mapping tables
+# Internal: Python logging → DSS level mapping tables
 # ---------------------------------------------------------------------------
-
-# Mirrors the C library's default of MESS_LEVEL_GENERAL (3) for all groups.
-_method_levels: dict[Method, Level] = {m: Level.GENERAL for m in Method}
 
 # Python logging integers → DSS Level.
 # logging.CRITICAL=50, ERROR=40, WARNING=30, INFO=20, DEBUG=10, NOTSET=0
@@ -381,10 +423,13 @@ class DssLogger:
     def level(self) -> Level:
         """The current :class:`Level` for this method group.
 
-        This reflects the last value set via :meth:`set_level` (or the
-        C library default of :attr:`~Level.GENERAL` if never changed).
+        Reads directly from the C library's internal ``zmessaging.methodLevel``
+        array via ``zgetMessageLevel``, so it always reflects the true state —
+        including propagation from :attr:`~Method.GLOBAL` or
+        :attr:`~Method.GENERAL` set_level calls, which the C library
+        fans out to all 18 method slots automatically.
         """
-        return _method_levels[self._method]
+        return Level(_getMessageLevel(int(self._method)))
 
     def set_level(self, level: Union[Level, int, str]) -> None:
         """Set the verbosity level for this method group.
@@ -426,7 +471,6 @@ class DssLogger:
         """
         resolved = _resolve_level(level)
         _setMessageLevel(int(self._method), int(resolved))
-        _method_levels[self._method] = resolved
 
     @contextmanager
     def suppress(self):
@@ -435,12 +479,18 @@ class DssLogger:
         On exit — even if an exception is raised — the level is restored to
         whatever it was before entering the block.
 
+        To silence output permanently (not just for a block), set
+        :attr:`~Level.NONE` directly::
+
+            get_dss_logger().set_level(Level.NONE)
+
         Example
         -------
         ::
 
+            # Temporary — previous level restored after the block
             with get_dss_logger().suppress():
-                dss.read(...)   # no DSS messages printed
+                fid.read_ts(pathname)   # no DSS messages printed
         """
         old = self.level
         try:
@@ -466,8 +516,8 @@ class DssLogger:
         ::
 
             with get_dss_logger(Method.LOCKING).at_level(Level.CRITICAL):
-                dss.read(...)   # locking messages silenced
-            # locking level restored
+                fid.read_ts(pathname)   # locking limited to errors only
+            # locking level restored to what it was before
         """
         old = self.level
         try:
@@ -551,8 +601,8 @@ def get_dss_logger(
 
         # Query
         logger = get_dss_logger(Method.TS_READ)
-        print(logger)          # DssLogger(TS_READ, level=GENERAL)
-        print(logger.level)    # Level.GENERAL
+        print(logger)          # DssLogger(TS_READ, level=TERSE)
+        print(logger.level)    # Level.TERSE
 
         # Context managers
         with get_dss_logger().suppress():
@@ -565,3 +615,22 @@ def get_dss_logger(
     if key not in _loggers:
         _loggers[key] = DssLogger(key)
     return _loggers[key]
+
+
+# ---------------------------------------------------------------------------
+# Library default
+# ---------------------------------------------------------------------------
+
+# Set DSS C library messaging to TERSE at import time via GLOBAL.
+#
+# Why GLOBAL: it writes all 18 zmessaging.methodLevel slots AND sets the
+# DSS-6 Fortran MLVL global (via zset6_), making it effective for both
+# DSS-6 and DSS-7 files.  The C library's own zresetMessageLevel() (called
+# inside zinit()) writes the array directly and does not touch the Fortran
+# layer, so this call is also the first proper initialisation of that layer.
+#
+# Why TERSE: the C library default (GENERAL) prints a line for every open,
+# close, and write.  TERSE limits output to open/close events and errors,
+# which is a quieter and more appropriate default for a Python library.
+# Users who need more detail call get_dss_logger().set_level(Level.GENERAL).
+get_dss_logger().set_level(Level.TERSE)

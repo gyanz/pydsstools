@@ -56,6 +56,7 @@ __all__ = [
     # Logging and Exceptions
     "DssLastError",
     "setMessageLevel",
+    "getMessageLevel",
     "set_program_name",
     "heclib_version",
     "DssStatusException",

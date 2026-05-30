@@ -34,6 +34,7 @@ cdef extern from "heclib.h":
     int zisError(int status)
     int zerrorSeverity(int errorCode)
     void zsetMessageLevel(int methodID, int levelID)
+    int zgetMessageLevel(int group)
     int zdataType (long long *ifltab, const char* pathname)
     char* HRAP_SRC_DEFINITION
     char* SHG_SRC_DEFINITION

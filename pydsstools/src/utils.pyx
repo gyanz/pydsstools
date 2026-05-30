@@ -35,6 +35,9 @@ def str2ascii(file):
 cpdef void setMessageLevel(int methodID,int levelID):
     zsetMessageLevel(methodID, levelID)
 
+cpdef int getMessageLevel(int methodID):
+    return zgetMessageLevel(methodID)
+
 cpdef void set_program_name(str name):
     cdef bytes bname = name[:16].encode('ascii')
     zset(b"program", bname, 0)
