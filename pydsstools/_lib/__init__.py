@@ -56,6 +56,7 @@ __all__ = [
     # Logging and Exceptions
     "DssLastError",
     "setMessageLevel",
+    "set_program_name",
     "DssStatusException",
     "GranularityException",
     "ArgumentException",

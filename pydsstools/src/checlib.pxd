@@ -157,6 +157,7 @@ cdef extern from "heclib.h":
     int zopen6(long long *ifltab, const char *dssFilename)
     int zopen7(long long *ifltab, const char *dssFilename)
     int zclose(long long *ifltab)
+    int zset(const char* parameter, const char* charVal, int integerValue)
     int zset7(const char* parameter, const char* charVal, int integerValue)
     # following low level function needed to write grid to DSS6 file
     void zreadx(long long *ifltab, 

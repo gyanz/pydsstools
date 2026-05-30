@@ -30,3 +30,12 @@ try:
     __version__ = _version.get_versions()["version"]
 except:
     pass
+
+try:
+    from .core import set_program_name
+
+    _prog = f"pydsstools {__version__}" if __version__ else "pydsstools"
+    set_program_name(_prog)
+    del _prog, set_program_name
+except Exception:
+    pass
