@@ -73,8 +73,13 @@ Python logging constant    int    DSS Level            int
 ``logging.WARNING``         30    ``Level.TERSE``       2
 ``logging.INFO``            20    ``Level.GENERAL``     3
 ``logging.DEBUG``           10    ``Level.USER_DIAG``   4
-``logging.NOTSET``           0    ``Level.GENERAL``     3
 =========================  =====  ===================  =====
+
+``logging.NOTSET`` (integer 0) is treated as a **no-op** by
+:meth:`~DssLogger.set_level` — the level is left unchanged.  This prevents
+forwarding a Python logger's effective level from accidentally silencing
+DSS output when the Python logger has no level set.  To silence DSS output
+permanently, use ``Level.NONE`` explicitly.
 
 Developer notes
 ---------------
@@ -117,6 +122,8 @@ from typing import Union
 
 from ..core import setMessageLevel as _setMessageLevel
 from ..core import getMessageLevel as _getMessageLevel
+
+_logger = _logging.getLogger(__name__)
 
 __all__ = [
     "Level",
@@ -276,17 +283,19 @@ class Method(IntEnum):
 # ---------------------------------------------------------------------------
 
 # Python logging integers → DSS Level.
-# logging.CRITICAL=50, ERROR=40, WARNING=30, INFO=20, DEBUG=10, NOTSET=0
+# logging.CRITICAL=50, ERROR=40, WARNING=30, INFO=20, DEBUG=10
+# logging.NOTSET=0 is intentionally excluded — it is treated as a no-op in
+# set_level() before this table is consulted.
 _PYTHON_INT_TO_DSS: dict[int, Level] = {
     _logging.CRITICAL: Level.CRITICAL,
     _logging.ERROR:    Level.CRITICAL,
     _logging.WARNING:  Level.TERSE,
     _logging.INFO:     Level.GENERAL,
     _logging.DEBUG:    Level.USER_DIAG,
-    _logging.NOTSET:   Level.GENERAL,
 }
 
 # Python logging name strings → DSS Level (case-insensitive keys stored lower).
+# "notset" is intentionally excluded — handled as a no-op in set_level().
 _PYTHON_NAME_TO_DSS: dict[str, Level] = {
     "debug":    Level.USER_DIAG,
     "info":     Level.GENERAL,
@@ -294,7 +303,6 @@ _PYTHON_NAME_TO_DSS: dict[str, Level] = {
     "warn":     Level.TERSE,
     "error":    Level.CRITICAL,
     "critical": Level.CRITICAL,
-    "notset":   Level.GENERAL,
 }
 
 
@@ -459,8 +467,14 @@ class DssLogger:
         ``logging.WARNING``   30   ``TERSE``
         ``logging.INFO``      20   ``GENERAL``
         ``logging.DEBUG``     10   ``USER_DIAG``
-        ``logging.NOTSET``     0   ``GENERAL``
         ==================  =====  ==============
+
+        .. note::
+
+            ``logging.NOTSET`` (integer ``0``) and the string ``"notset"``
+            are treated as a **no-op**: the call returns immediately without
+            changing the current level.  To silence all DSS output, pass
+            :attr:`Level.NONE` explicitly.
 
         Parameters
         ----------
@@ -474,6 +488,24 @@ class DssLogger:
         TypeError
             If *level* has an unexpected type.
         """
+        # logging.NOTSET (== 0) means "no preference" — treat as a no-op so
+        # that forwarding a Python logger's effective level never accidentally
+        # silences DSS output.  Level.NONE (also == 0 but an IntEnum instance)
+        # is NOT caught here — it is an explicit request to silence everything.
+        if isinstance(level, int) and not isinstance(level, Level) and level == 0:
+            _logger.debug(
+                "%r: set_level(NOTSET) is a no-op — level unchanged (%s).",
+                self,
+                self.level.name,
+            )
+            return
+        if isinstance(level, str) and level.lower() == "notset":
+            _logger.debug(
+                "%r: set_level('notset') is a no-op — level unchanged (%s).",
+                self,
+                self.level.name,
+            )
+            return
         resolved = _resolve_level(level)
         _setMessageLevel(int(self._method), int(resolved))
 
