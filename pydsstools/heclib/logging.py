@@ -35,8 +35,9 @@ Quick start
     # Reduce verbosity for one noisy group while leaving others unchanged
     get_dss_logger(Method.LOCKING).set_level(Level.CRITICAL)
 
-    # Silence all DSS output permanently
+    # Silence all DSS output permanently ("none" is a terse string equivalent)
     get_dss_logger().set_level(Level.NONE)
+    get_dss_logger().set_level("none")    # same effect
 
     # Silence all DSS output for a block only, restore the previous level on exit
     with get_dss_logger().suppress():
@@ -79,7 +80,7 @@ Python logging constant    int    DSS Level            int
 :meth:`~DssLogger.set_level` — the level is left unchanged.  This prevents
 forwarding a Python logger's effective level from accidentally silencing
 DSS output when the Python logger has no level set.  To silence DSS output
-permanently, use ``Level.NONE`` explicitly.
+permanently, use ``Level.NONE`` or the string ``"none"`` explicitly.
 
 Developer notes
 ---------------
@@ -453,7 +454,7 @@ class DssLogger:
         * A DSS integer 0–6 (``3``).
         * A Python :mod:`logging` integer (``logging.WARNING`` → ``Level.TERSE``).
         * A DSS level name string, case-insensitive
-          (``"TERSE"``, ``"user_diag"``).
+          (``"TERSE"``, ``"user_diag"``, ``"none"``).
         * A Python :mod:`logging` name string, case-insensitive
           (``"WARNING"`` → ``Level.TERSE``, ``"debug"`` → ``Level.USER_DIAG``).
 
@@ -474,7 +475,7 @@ class DssLogger:
             ``logging.NOTSET`` (integer ``0``) and the string ``"notset"``
             are treated as a **no-op**: the call returns immediately without
             changing the current level.  To silence all DSS output, pass
-            :attr:`Level.NONE` explicitly.
+            :attr:`Level.NONE` or the equivalent string ``"none"`` explicitly.
 
         Parameters
         ----------
