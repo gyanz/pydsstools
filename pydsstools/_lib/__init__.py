@@ -40,6 +40,14 @@ __all__ = [
     "PairedDataContainer",
     "PairedDataStruct",  # can't use this from python directly
 
+    # Array
+    "ArrayContainer",
+    "ArrayStruct",
+
+    # Text
+    "TextContainer",
+    "TextStruct",
+
     # Gridded Data
     "SpatialGridStruct",
     "GRID_DATA_TYPE",
