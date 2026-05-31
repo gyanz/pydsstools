@@ -516,7 +516,8 @@ class Open(_Open):
         pathname: Union[str, "DssPathName"],
         window: Optional[tuple[int, int, int, int]] = None,
         dataframe: Optional[bool] = True,
-    ) -> Union[pd.DataFrame, PairedDataStruct]:
+        location: Optional[bool] = None,
+    ) -> Union[pd.DataFrame, PairedDataStruct, tuple]:
         """
         Read paired data from DSS file.
 
@@ -544,16 +545,25 @@ class Open(_Open):
         dataframe : bool, optional
             If True, return a pandas DataFrame. If False, return a PairedDataStruct
             object. Default is True.
+        location : bool or None, optional
+            If True, also read the location record associated with the pathname
+            and return ``(result, LocationInfo)``.  If no location record exists
+            a warning is logged and ``None`` is returned in its place.  Default
+            is None (return data only).  DSS-6 files raise ``NotImplementedError``.
 
         Returns
         -------
         pandas.DataFrame or PairedDataStruct
             Paired data in the requested format.
+        tuple of (pandas.DataFrame or PairedDataStruct, LocationInfo or None)
+            Returned when ``location=True``.
 
         Raises
         ------
         IndexError
             If window indices are invalid or out of range.
+        NotImplementedError
+            If ``location=True`` and the file is DSS-6.
 
         Examples
         --------
@@ -568,6 +578,10 @@ class Open(_Open):
         Read as PairedDataStruct:
 
         >>> pds = fid.read_pd(pathname, dataframe=False)
+
+        Read paired data and its location record together:
+
+        >>> df, loc = fid.read_pd(pathname, location=True)
         """
         pathname = DssPathName(pathname)
 
@@ -590,6 +604,7 @@ class Open(_Open):
             logger.debug(f"Updated window = '{window}'")
 
         pds = super()._read_pd(pathname.text(), window)
+        result = pds
 
         if dataframe:
             x_data = pds.x_data
@@ -622,9 +637,21 @@ class Open(_Open):
                 data=tb, index=indx, columns=column_names, copy=True
             )
             df.index.name = "x_data"
-            return df
+            result = df
 
-        return pds
+        if location:
+            if self.version == 6:
+                raise NotImplementedError(
+                    "Location records are not supported for paired data in DSS-6 files."
+                )
+            loc = None
+            try:
+                loc = super()._read_location(pathname.text())
+            except Exception:
+                logger.warning("No location record found for '%s'.", pathname.text())
+            return result, loc
+
+        return result
 
     def read_pd_labels(self, pathname: Union[str, "DssPathName"]) -> dict[str, str]:
         """
@@ -687,6 +714,7 @@ class Open(_Open):
     def put_pd(
         self,
         data: Union["PairedDataContainer", str, "DssPathName"],
+        location: Optional[LocationInfo] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -699,6 +727,10 @@ class Open(_Open):
 
             * A PairedDataContainer object.
             * A string or DssPathName specifying an existing or new DSS record pathname.
+
+        location : LocationInfo or None, optional
+            If provided, write this location record after writing the paired data.
+            DSS-7 only; DSS-6 files raise ``NotImplementedError``. Default is None.
 
         **kwargs : Any
             Additional keyword arguments or attributes for the PairedDataContainer.
@@ -774,8 +806,28 @@ class Open(_Open):
             )
             return
 
+        if location is not None:
+            if not isinstance(location, LocationInfo):
+                raise TypeError(
+                    f"Expected LocationInfo for location, got {type(location).__name__}"
+                )
+            if self.version == 6:
+                raise NotImplementedError(
+                    "Location records are not supported for paired data in DSS-6 files."
+                )
+
         if isinstance(data, PairedDataContainer):
             super()._put_pd(data)
+            if location is not None:
+                record_path = data.pathname
+                if location.pathname.text() != record_path:
+                    logger.warning(
+                        "put_pd: loc.pathname %r differs from record pathname %r; "
+                        "using record pathname for the location record",
+                        location.pathname.text(), record_path,
+                    )
+                    location.pathname = DssPathName(record_path)
+                super()._put_location(location)
             return
 
         if isinstance(data, (str, DssPathName)):
@@ -806,6 +858,16 @@ class Open(_Open):
 
                 pdc.y_labels = y_labels
                 super()._put_pd(pdc)
+                if location is not None:
+                    record_path = pathname.text()
+                    if location.pathname.text() != record_path:
+                        logger.warning(
+                            "put_pd: loc.pathname %r differs from record pathname %r; "
+                            "using record pathname for the location record",
+                            location.pathname.text(), record_path,
+                        )
+                        location.pathname = DssPathName(record_path)
+                    super()._put_location(location)
                 return
 
             elif isinstance(col_index, int):
@@ -888,6 +950,16 @@ class Open(_Open):
                                         )
 
                 super()._put_one_pd(pdc, col_index, (row_start, row_end))
+                if location is not None:
+                    record_path = pathname.text()
+                    if location.pathname.text() != record_path:
+                        logger.warning(
+                            "put_pd: loc.pathname %r differs from record pathname %r; "
+                            "using record pathname for the location record",
+                            location.pathname.text(), record_path,
+                        )
+                        location.pathname = DssPathName(record_path)
+                    super()._put_location(location)
                 return
 
         raise ValueError('Incompatible input parameters provided to write paired data to dss file')
