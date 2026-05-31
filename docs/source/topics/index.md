@@ -8,4 +8,5 @@ hectime
 timeseries
 paired_data
 grid
+logging
 ```
