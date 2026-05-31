@@ -1091,6 +1091,167 @@ cdef class Open:
             if zloc != NULL:
                 zstructFree(zloc)
 
+    # ------------------------------------------------------------------ array --
+
+    cpdef ArrayStruct _read_array(self, char *pathname):
+        """Read an array record from the DSS file (internal method).
+
+        Parameters
+        ----------
+        pathname : bytes
+            DSS pathname (ASCII encoded).
+
+        Returns
+        -------
+        ArrayStruct
+            Structure containing int, float, and/or double arrays.
+        """
+        cdef zStructArray *zarr = NULL
+        zarr = zstructArrayNew(pathname)
+        self.read_status = zarrayRetrieve(self.ifltab, zarr)
+        isError(self.read_status)
+        return createArrayStruct(zarr)
+
+    cpdef void _put_array(self, ArrayContainer arr) except *:
+        """Write an array record to the DSS file (internal method).
+
+        Parameters
+        ----------
+        arr : ArrayContainer
+            Container with the arrays to write.
+
+        Notes
+        -----
+        DSS-6 files can hold only one array type per record (int, float, or
+        double).  Exactly one of the three arrays must be set for DSS-6.
+        """
+        cdef ArrayStruct arr_st
+        if self.version == 6:
+            n_types = sum([
+                arr._int_array is not None,
+                arr._float_array is not None,
+                arr._double_array is not None,
+            ])
+            if n_types > 1:
+                raise ValueError(
+                    "DSS-6 array records can hold only one array type "
+                    "(int, float, or double) per record. "
+                    f"ArrayContainer has {n_types} arrays set."
+                )
+        arr_st = _build_array_struct(arr)
+        self.write_status = zarrayStore(self.ifltab, arr_st.zarr)
+        isError(self.write_status)
+
+    # ------------------------------------------------------------------- text --
+
+    cpdef TextStruct _read_text(self, char *pathname):
+        """Read a text or text-table record from the DSS file (internal method).
+
+        Parameters
+        ----------
+        pathname : bytes
+            DSS pathname (ASCII encoded).
+
+        Returns
+        -------
+        TextStruct
+            Structure with either a ``text`` string or a ``table`` list.
+        """
+        cdef zStructText *ztxt = NULL
+        ztxt = zstructTextNew(pathname)
+        self.read_status = ztextRetrieve(self.ifltab, ztxt)
+        isError(self.read_status)
+        return createTextStruct(ztxt)
+
+    cpdef void _put_text_string(self, char *pathname, char *text_str) except *:
+        """Write a simple text string record to the DSS file (internal method).
+
+        Parameters
+        ----------
+        pathname : bytes
+            DSS pathname (ASCII encoded).
+        text_str : bytes
+            Text to store (ASCII encoded, null-terminated).
+        """
+        cdef zStructText *ztxt = NULL
+        ztxt = zstructTextStringNew(pathname, text_str)
+        self.write_status = ztextStore(self.ifltab, ztxt)
+        zstructFree(ztxt)
+        isError(self.write_status)
+
+    cpdef void _put_text_table(self, char *pathname,
+                               bytes table_bytes, int nrows, int ncols,
+                               bytes labels_bytes) except *:
+        """Write a text table (or list) record to the DSS file (internal method).
+
+        Parameters
+        ----------
+        pathname : bytes
+            DSS pathname (ASCII encoded).
+        table_bytes : bytes
+            Null-delimited cell values packed in column-major order.
+        nrows : int
+            Number of rows in the table.
+        ncols : int
+            Number of columns in the table.
+        labels_bytes : bytes
+            Null-delimited column labels, or b'' if none.
+        """
+        cdef zStructText *ztxt = NULL
+        ztxt = zstructTextNew(pathname)
+        ztxt[0].textTable = <char *>table_bytes
+        ztxt[0].numberTableChars = len(table_bytes)
+        ztxt[0].numberRows = nrows
+        ztxt[0].numberColumns = ncols
+        if labels_bytes:
+            ztxt[0].labels = <char *>labels_bytes
+            ztxt[0].numberLabelChars = len(labels_bytes)
+        self.write_status = ztextStore(self.ifltab, ztxt)
+        # textTable/labels point into Python buffers; zstructFree will not free
+        # them because their allocated bits were never set by the C library.
+        zstructFree(ztxt)
+        isError(self.write_status)
+
+    cpdef void _put_text_combined(self, char *pathname,
+                                  char *text_str, int text_len,
+                                  bytes table_bytes, int nrows, int ncols,
+                                  bytes labels_bytes) except *:
+        """Write a record containing both a text string and a text table (internal method).
+
+        Parameters
+        ----------
+        pathname : bytes
+            DSS pathname (ASCII encoded).
+        text_str : bytes
+            Text string to store (ASCII encoded, null-terminated).
+        text_len : int
+            Number of characters in text_str including the null terminator.
+        table_bytes : bytes
+            Null-delimited cell values packed in row-major order.
+        nrows : int
+            Number of rows in the table.
+        ncols : int
+            Number of columns in the table.
+        labels_bytes : bytes
+            Null-delimited column labels, or b'' if none.
+        """
+        cdef zStructText *ztxt = NULL
+        ztxt = zstructTextNew(pathname)
+        ztxt[0].textString = text_str
+        ztxt[0].numberTextChars = text_len
+        ztxt[0].textTable = <char *>table_bytes
+        ztxt[0].numberTableChars = len(table_bytes)
+        ztxt[0].numberRows = nrows
+        ztxt[0].numberColumns = ncols
+        if labels_bytes:
+            ztxt[0].labels = <char *>labels_bytes
+            ztxt[0].numberLabelChars = len(labels_bytes)
+        self.write_status = ztextStore(self.ifltab, ztxt)
+        # All three pointers are into Python buffers; zstructFree will not free
+        # them because their allocated bits were never set by the C library.
+        zstructFree(ztxt)
+        isError(self.write_status)
+
     def __dealloc__(self):
         if self.ifltab != NULL:
             zclose(self.ifltab)
