@@ -350,6 +350,51 @@ cdef extern from "heclib.h":
                                            const char *unitsDependent, 
                                            const char *typeDependent)
     int zpdStore(long long *ifltab, zStructPairedData *pds, int storageFlag)
+
+    ctypedef struct zStructArray:
+        int structType          # private
+        char *pathname
+        int *intArray
+        int numberIntArray
+        float *floatArray
+        int numberFloatArray
+        double *doubleArray
+        int numberDoubleArray
+        int *userHeader
+        int userHeaderSize
+        int userHeaderNumber
+        int dataType
+        long long lastWrittenTime
+        long long fileLastWrittenTime
+        char programName[17]
+
+    zStructArray* zstructArrayNew(const char* pathname)
+    int zarrayStore(long long *ifltab, zStructArray *arrayStruct)
+    int zarrayRetrieve(long long *ifltab, zStructArray *arrayStruct)
+
+    ctypedef struct zStructText:
+        int structType          # private
+        char *pathname
+        char *textString
+        int numberTextChars
+        char *textTable
+        int numberTableChars
+        int numberRows
+        int numberColumns
+        char *labels
+        int numberLabelChars
+        int *userHeader
+        int userHeaderNumber
+        int dataType
+        long long lastWrittenTime
+        long long fileLastWrittenTime
+        char programName[17]
+
+    zStructText* zstructTextNew(const char* pathname)
+    zStructText* zstructTextStringNew(const char* pathname, char *text)
+    int ztextStore(long long *ifltab, zStructText *textStruct)
+    int ztextRetrieve(long long *ifltab, zStructText *textStruct)
+
     int zgetRecordSize(long long *ifltab, zStructRecordSize *recordSize)
     zStructRecordSize* zstructRecordSizeNew(const char* pathname)
 

@@ -6,6 +6,19 @@
 # UNDEFINED_DOUBLE -(double)FLT_MAX
 
 # zdataTypeDescriptions.h
+# Array data types (DATA_TYPE_ARRAY = 90, etc.)
+ARRAY_TYPE_MIXED  = 90   # DSS-7: one record holds int + float + double together
+ARRAY_TYPE_INT    = 91   # DSS-6: integer-only record
+ARRAY_TYPE_FLOAT  = 92   # DSS-6: float-only record
+ARRAY_TYPE_DOUBLE = 93   # DSS-6: double-only record
+
+# Text data types (dataType field in zStructText)
+# 300 covers plain text strings AND single-column text lists (numberColumns <= 1)
+# 310 covers multi-column text tables (numberColumns > 1), DSS-7 only
+# DSS-6 always stores dataType = 300 regardless of content
+TEXT_TYPE_STRING = 300   # plain text string or text list
+TEXT_TYPE_TABLE  = 310   # multi-column text table, DSS-7 only
+
 # DATA_TYPE_UGT  400
 # DATA_TYPE_UG   401
 # DATA_TYPE_HGT  410

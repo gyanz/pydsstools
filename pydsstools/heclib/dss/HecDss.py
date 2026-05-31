@@ -49,6 +49,7 @@ from ...core import Open as _Open
 from ...core import TimeSeriesStruct, TimeSeriesContainer
 from ...core import PairedDataStruct, PairedDataContainer
 from ...core import SpatialGridStruct
+from ...core import TextStruct, TextContainer
 from ...core.enums import GridType, RegStoreFlag, IrregStoreFlag
 from ...core.gridinfo import GridInfo
 from ...core.gridinfo.v6 import gridinfo7_to_gridinfo6, GridInfo6
@@ -66,7 +67,6 @@ DateWindow: TypeAlias = tuple[DateLike, DateLike]
 PathType: TypeAlias = Union[str, Path, PathLike]
 
 _PRECISION_MAP: dict[str, int] = {"float": 1, "double": 2, "native": 0}
-
 
 
 # ==================== Main Class ====================
@@ -933,6 +933,257 @@ class Open(_Open):
         pathname = DssPathName(pathname)
         pdc = PairedDataContainer(pathname.text(), shape, **kwargs)
         super()._prealloc_pd(pdc)
+
+    # ------------------------------------------------------------------ array --
+
+    def read_array(
+        self,
+        pathname: Union[str, "DssPathName"],
+    ) -> dict:
+        """Read an array record from the DSS file.
+
+        Parameters
+        ----------
+        pathname : str or DssPathName
+            DSS record pathname.
+
+        Returns
+        -------
+        dict
+            Dictionary with any of the following keys, depending on what was
+            stored:
+
+            * ``'int_array'`` : numpy.ndarray of int32
+            * ``'float_array'`` : numpy.ndarray of float32
+            * ``'double_array'`` : numpy.ndarray of float64
+
+        Examples
+        --------
+        >>> result = fid.read_array("/A/B/COUNTS/D/E/F/")
+        >>> int_vals = result.get('int_array')
+        >>> float_vals = result.get('float_array')
+        """
+        pathname = DssPathName(pathname)
+        arr_st = super()._read_array(pathname.text())
+        result = {}
+        if arr_st.int_array is not None:
+            result['int_array'] = np.array(arr_st.int_array)
+        if arr_st.float_array is not None:
+            result['float_array'] = np.array(arr_st.float_array)
+        if arr_st.double_array is not None:
+            result['double_array'] = np.array(arr_st.double_array)
+        return result
+
+    def put_array(
+        self,
+        pathname: Union[str, "DssPathName"],
+        *,
+        int_array: Optional[npt.ArrayLike] = None,
+        float_array: Optional[npt.ArrayLike] = None,
+        double_array: Optional[npt.ArrayLike] = None,
+    ) -> None:
+        """Write an array record to the DSS file.
+
+        Parameters
+        ----------
+        pathname : str or DssPathName
+            DSS record pathname.
+        int_array : array-like or None, optional
+            Integer values to store. Converted to int32.
+        float_array : array-like or None, optional
+            Float values to store. Converted to float32.
+        double_array : array-like or None, optional
+            Double values to store. Converted to float64.
+
+        Notes
+        -----
+        At least one of the three array arguments must be provided.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> fid.put_array("/A/B/COUNTS/D/E/F/", int_array=[1, 2, 3])
+        >>> fid.put_array("/A/B/DATA/D/E/F/", float_array=np.array([1.0, 2.0]),
+        ...               double_array=np.array([3.14, 2.72]))
+        """
+        if self.mode != "rw":
+            logger.error("Open the dss file in 'rw' mode to be able to write data on it.")
+            return
+        from ...core import ArrayContainer
+        pathname = DssPathName(pathname)
+        arr = ArrayContainer(
+            pathname.text(),
+            int_array=int_array,
+            float_array=float_array,
+            double_array=double_array,
+        )
+        super()._put_array(arr)
+
+    # ------------------------------------------------------------------- text --
+
+    def read_text(
+        self,
+        pathname: Union[str, "DssPathName"],
+    ) -> "TextStruct":
+        """Read a text or text-table record from the DSS file.
+
+        Parameters
+        ----------
+        pathname : str or DssPathName
+            DSS record pathname.
+
+        Returns
+        -------
+        TextStruct
+            Structure wrapping the raw C record.  Applicable to both plain
+            text and text-table records.
+
+            Key properties:
+
+            * ``text`` : str or None — plain text content.
+            * ``table`` : list of list of str, or None — table content.
+              Outer list is rows, inner list is columns.
+            * ``labels`` : list of str — column labels (empty list if none).
+            * ``rows`` : int — number of table rows (0 for text-only records).
+            * ``cols`` : int — number of table columns (0 for text-only).
+            * ``dtype`` : str or None — one of ``'text'``, ``'text_list'``,
+              ``'text_table'``, or ``None``.
+
+        Examples
+        --------
+        >>> ts = fid.read_text("/A/B/NOTE/D/E/F/")
+        >>> ts.text
+        'some note'
+        >>> ts = fid.read_text("/A/B/COLORS-PROPS/D/E/F/")
+        >>> ts.table
+        [['Red', 'long'], ['Blue', 'short']]
+        >>> ts.rows, ts.cols
+        (2, 2)
+        """
+        pathname = DssPathName(pathname)
+        return super()._read_text(pathname.text())
+
+    def put_text(
+        self,
+        pathname: Union[str, "DssPathName"],
+        data: Union[TextContainer, TextStruct, "pd.DataFrame"],
+    ) -> None:
+        """Write a text or text-table record to the DSS file.
+
+        Parameters
+        ----------
+        pathname : str or DssPathName
+            DSS record pathname.
+        data : TextContainer or TextStruct or pandas.DataFrame
+            Content to write.  The ``text``, ``table``, and ``labels``
+            properties are read from the object and control which C-level
+            write function is called:
+
+            * text only → plain text record (DSS-6 and DSS-7).
+            * table only → text-table record (DSS-7 only).
+            * text and table → combined record (DSS-7 only).
+
+            Passing a ``TextStruct`` returned by ``read_text`` allows
+            round-trip reads and writes without unpacking.
+
+            Passing a ``pandas.DataFrame`` saves it as a text table (DSS-7
+            only).  Column names become the table labels.  Numeric columns
+            are converted to strings using ``float32`` → 7 significant
+            figures and ``float64`` → 15 significant figures (``g`` format,
+            trailing zeros stripped).  ``NaN`` values become ``""``.
+
+        Raises
+        ------
+        TypeError
+            If ``data`` is not a ``TextContainer``, ``TextStruct``, or
+            ``pandas.DataFrame``.
+        ValueError
+            If the data has no text or table content, or if the DSS file
+            version does not support the requested record type.
+
+        Examples
+        --------
+        Plain text (DSS-6 or DSS-7):
+
+        >>> fid.put_text("/A/B/NOTE/D/E/F/", TextContainer("/A/B/NOTE/D/E/F/", text="Hello"))
+
+        Text list (DSS-7 only):
+
+        >>> tc = TextContainer("/A/B/COLORS/D/E/F/", table=[["Red"], ["Blue"], ["Yellow"]])
+        >>> fid.put_text("/A/B/COLORS/D/E/F/", tc)
+
+        Full table with labels (DSS-7 only):
+
+        >>> tc = TextContainer(
+        ...     "/A/B/COLORS-PROPS/D/E/F/",
+        ...     table=[["long", "hot"], ["short", "cool"]],
+        ...     labels=["wave length", "temperature"],
+        ... )
+        >>> fid.put_text("/A/B/COLORS-PROPS/D/E/F/", tc)
+
+        Round-trip via TextStruct:
+
+        >>> ts = fid.read_text("/A/B/NOTE/D/E/F/")
+        >>> fid2.put_text("/A/B/NOTE/D/E/F/", ts)
+
+        DataFrame (DSS-7 only):
+
+        >>> import pandas as pd
+        >>> df = pd.DataFrame({"Color": ["Red", "Blue"], "Wavelength": [700.0, 450.0]})
+        >>> fid.put_text("/A/B/COLORS/D/E/F/", df)
+        """
+        if isinstance(data, pd.DataFrame):
+            rows, labels = _dataframe_to_table(data)
+            data = TextContainer(
+                DssPathName(pathname).text(), table=rows, labels=labels
+            )
+        if not isinstance(data, (TextContainer, TextStruct)):
+            raise TypeError(
+                f"data must be a TextContainer, TextStruct, or DataFrame, "
+                f"got {type(data).__name__}"
+            )
+        if self.mode != "rw":
+            logger.error("Open the dss file in 'rw' mode to be able to write data on it.")
+            return
+
+        text = data.text
+        table = data.table
+        labels = data.labels
+        pathname = DssPathName(pathname)
+        data_pathname = data.pathname
+        if data_pathname and DssPathName(data_pathname).text() != pathname.text():
+            logger.warning(
+                "put_text: pathname argument %r differs from data pathname %r; "
+                "writing to %r",
+                pathname.text(), data_pathname, pathname.text(),
+            )
+
+        if text is not None and table is not None:
+            if self.version == 6:
+                raise ValueError(
+                    "DSS-6 does not support combined text+table records. "
+                    "Use text-only content for DSS-6 files."
+                )
+            table_bytes, nrows, ncols, labels_bytes = _pack_table(table, labels)
+            text_bytes = text.encode("ascii") + b"\x00"
+            super()._put_text_combined(
+                pathname.text(),
+                text_bytes, len(text_bytes),
+                table_bytes, nrows, ncols,
+                labels_bytes,
+            )
+        elif table is not None:
+            if self.version == 6:
+                raise ValueError(
+                    "DSS-6 does not support text table records. "
+                    "Use text-only content for DSS-6 files."
+                )
+            table_bytes, nrows, ncols, labels_bytes = _pack_table(table, labels)
+            super()._put_text_table(pathname.text(), table_bytes, nrows, ncols, labels_bytes)
+        elif text is not None:
+            super()._put_text_string(pathname.text(), text)
+        else:
+            raise ValueError("data has no text or table content")
 
     def read_grid(
         self, pathname: Union[str, "DssPathName"], metadata_only: Optional[bool] = False
@@ -1905,3 +2156,84 @@ def _process_pathname_pattern(pathname: Union[str, DssPathName]) -> str:
     """
     pathname_obj = DssPathName(pathname)
     return pathname_obj.text().replace("//", "/*/")
+
+
+def _dataframe_to_table(df: "pd.DataFrame"):
+    """Convert a DataFrame to (rows, labels) suitable for TextContainer.
+
+    Column names become labels.  Per-column conversion:
+      - float32  : f"{v:.7g}"  (7 significant figures, trailing zeros stripped)
+      - float64  : f"{v:.15g}" (15 significant figures, trailing zeros stripped)
+      - integer  : str(int(v))
+      - boolean  : str(v)
+      - other    : str(v)
+    NaN / None values become "".
+
+    Raises ValueError for MultiIndex columns or an empty DataFrame.
+    """
+    if isinstance(df.columns, pd.MultiIndex):
+        raise ValueError("DataFrame with MultiIndex columns is not supported")
+    if df.empty:
+        raise ValueError("DataFrame must have at least one row and one column")
+
+    labels = list(df.columns.astype(str))
+
+    def _convert_col(series):
+        kind = series.dtype.kind
+        result = []
+        for v in series:
+            if kind == 'f':
+                if pd.isna(v):
+                    result.append("")
+                elif series.dtype == np.float32:
+                    result.append(f"{v:.7g}")
+                else:
+                    result.append(f"{v:.15g}")
+            elif kind in ('i', 'u'):
+                result.append(str(int(v)))
+            elif kind == 'b':
+                result.append(str(v))
+            else:
+                result.append("" if pd.isna(v) else str(v))
+        return result
+
+    columns = [_convert_col(df[col]) for col in df.columns]
+    rows = [list(row) for row in zip(*columns)]
+    return rows, labels
+
+
+def _pack_table(table, labels):
+    """Pack table rows and optional labels into null-delimited byte strings.
+
+    Returns (table_bytes, nrows, ncols, labels_bytes).
+    """
+    if isinstance(table, np.ndarray):
+        if table.ndim != 2:
+            raise ValueError(
+                f"numpy table array must be 2-dimensional, got {table.ndim}d"
+            )
+        if table.dtype.kind == 'S':
+            table = [[cell.decode("ascii") for cell in row] for row in table]
+        else:
+            table = [[str(cell) for cell in row] for row in table]
+    nrows = len(table)
+    if nrows == 0:
+        raise ValueError("table must have at least one row")
+    ncols = len(table[0])
+    if ncols == 0:
+        raise ValueError("table must have at least one column")
+    for i, row in enumerate(table):
+        if len(row) != ncols:
+            raise ValueError(
+                f"all rows must have the same number of columns: "
+                f"row 0 has {ncols}, row {i} has {len(row)}"
+            )
+    cells = []
+    for row in table:
+        for cell in row:
+            cells.append(cell.encode("ascii"))
+    table_bytes = b"\x00".join(cells) + b"\x00"
+    labels_bytes = b""
+    if labels:
+        labels_bytes = b"\x00".join(lbl.encode("ascii") for lbl in labels) + b"\x00"
+    return table_bytes, nrows, ncols, labels_bytes
