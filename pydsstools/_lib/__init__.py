@@ -48,6 +48,11 @@ __all__ = [
     "TextContainer",
     "TextStruct",
 
+    # Binary
+    "BinaryType",
+    "BinaryStruct",
+    "BinaryContainer",
+
     # Gridded Data
     "SpatialGridStruct",
     "GRID_DATA_TYPE",

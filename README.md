@@ -13,6 +13,7 @@ A Cython-based Python library for reading and writing [HEC-DSS](http://www.hec.u
 - Paired data series
 - Array records
 - Text records
+- Binary records (FILE, IMAGE, BLOB)
 - Spatial grid records (HRAP, Albers/SHG, Specified, Undefined)
 - Compatible with 64-bit Python on Windows and Linux
 

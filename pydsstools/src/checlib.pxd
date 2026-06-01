@@ -171,8 +171,10 @@ cdef extern from "heclib.h":
                 int *readPlan,                                                                 # &0 
                 int *recordFound)                                                              # &found
 
-    # This is preferred to zreadx - compatible with both DSS-6 and DSS-7 
+    # This is preferred to zreadx - compatible with both DSS-6 and DSS-7
     int zread(long long *ifltab, zStructTransfer* ztransfer)
+    zStructTransfer* zstructTransferNew(const char *pathname, int mode)
+    int zwrite(long long *ifltab, zStructTransfer *ztransfer)
 
     # most of these parameters are in ZStructTransfer.h
     void zwritex(long long *ifltab, 

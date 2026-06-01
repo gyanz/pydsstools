@@ -50,6 +50,7 @@ from ...core import TimeSeriesStruct, TimeSeriesContainer
 from ...core import PairedDataStruct, PairedDataContainer
 from ...core import SpatialGridStruct
 from ...core import TextStruct, TextContainer
+from ...core import BinaryType, BinaryStruct, BinaryContainer
 from ...core.enums import GridType, RegStoreFlag, IrregStoreFlag
 from ...core.gridinfo import GridInfo
 from ...core.gridinfo.v6 import gridinfo7_to_gridinfo6, GridInfo6
@@ -1256,6 +1257,196 @@ class Open(_Open):
             super()._put_text_string(pathname.text(), text)
         else:
             raise ValueError("data has no text or table content")
+
+    # ----------------------------------------------------------------- binary --
+
+    def read_binary(
+        self,
+        pathname: Union[str, "DssPathName"],
+    ) -> "BinaryStruct":
+        """Read a binary (FILE, IMAGE, or BLOB) record from the DSS file.
+
+        Parameters
+        ----------
+        pathname : str or DssPathName
+            DSS record pathname.
+
+        Returns
+        -------
+        BinaryStruct
+            Structure wrapping the raw C record.
+
+            Key properties:
+
+            * ``data`` : bytes — raw binary content, exact byte count.
+            * ``filename`` : str — filename from the C-part of the pathname.
+            * ``extension`` : str — file extension from the E-part (no dot).
+            * ``data_type`` : BinaryType — FILE, IMAGE, or UNDEFINED.
+            * ``is_image`` : bool — True for IMAGE records.
+            * ``size`` : int — byte count.
+            * ``save_to(path)`` — write bytes to a file; returns Path.
+
+        Examples
+        --------
+        >>> bs = fid.read_binary("/a/b/report.pdf/FILE/pdf/f/")
+        >>> bs.data
+        b'%PDF-1.4 ...'
+        >>> bs.filename
+        'report.pdf'
+        >>> bs.data_type
+        <BinaryType.FILE: 600>
+        """
+        pathname = DssPathName(pathname)
+        return super()._read_binary(pathname.text())
+
+    def put_binary(
+        self,
+        pathname: Union[str, "DssPathName"],
+        data: Union["BinaryContainer", "BinaryStruct", bytes],
+        *,
+        data_type: Optional["BinaryType"] = None,
+    ) -> None:
+        """Write a binary record to the DSS file.
+
+        Parameters
+        ----------
+        pathname : str or DssPathName
+            DSS record pathname.  D-part is forced to match data_type.
+        data : BinaryContainer or BinaryStruct or bytes
+            Content to write.  When *data* is a ``BinaryContainer`` or
+            ``BinaryStruct`` the embedded data and data_type are used
+            directly.  When *data* is ``bytes``, the record is constructed
+            from *pathname* and optional *data_type*.
+        data_type : BinaryType or None, optional
+            Override only when *data* is ``bytes``.  If None the type is
+            inferred from the D-part or E-part of *pathname*.  Ignored when
+            *data* is ``BinaryContainer`` or ``BinaryStruct``.
+
+        Raises
+        ------
+        TypeError
+            If *data* is not a BinaryContainer, BinaryStruct, or bytes.
+
+        Examples
+        --------
+        >>> fid.put_binary("/a/b/report.pdf/FILE/pdf/f/", pdf_bytes)
+        >>> fid.put_binary("/a/b/photo.jpg/IMAGE/jpg/f/", jpeg_bytes,
+        ...                data_type=BinaryType.IMAGE)
+        >>> container = BinaryContainer("/a/b/report.pdf/FILE/pdf/f/", pdf_bytes)
+        >>> fid.put_binary("/a/b/report.pdf/FILE/pdf/f/", container)
+        """
+        if self.mode != "rw":
+            logger.error("Open the dss file in 'rw' mode to be able to write data on it.")
+            return
+        pathname = DssPathName(pathname)
+        if isinstance(data, BinaryContainer):
+            container = data
+        elif isinstance(data, BinaryStruct):
+            container = BinaryContainer(
+                pathname.text(), data.data, data_type=data.data_type
+            )
+        elif isinstance(data, (bytes, bytearray)):
+            container = BinaryContainer(
+                pathname.text(), data, data_type=data_type
+            )
+        else:
+            raise TypeError(
+                "data must be a BinaryContainer, BinaryStruct, or bytes, "
+                "got {!r}".format(type(data).__name__)
+            )
+        data_pathname = container.pathname
+        if DssPathName(data_pathname).text() != pathname.text():
+            logger.warning(
+                "put_binary: pathname argument %r differs from container pathname %r; "
+                "writing to %r",
+                pathname.text(), data_pathname, pathname.text(),
+            )
+            container = BinaryContainer(pathname.text(), container.data,
+                                        data_type=container.data_type)
+        super()._put_binary(container)
+
+    def export_binary(
+        self,
+        pathname: Union[str, "DssPathName"],
+        output_dir: Union[str, Path] = ".",
+        output_path: Optional[Union[str, Path]] = None,
+    ) -> Path:
+        """Read a binary record and save it to a file on disk.
+
+        Parameters
+        ----------
+        pathname : str or DssPathName
+            DSS record pathname to read.
+        output_dir : str or Path, optional
+            Directory to write to.  The filename is taken from the C-part of
+            *pathname*.  Defaults to the current directory.
+        output_path : str or Path, optional
+            Full destination path.  When given, *output_dir* is ignored.
+
+        Returns
+        -------
+        Path
+            Path to the written file.
+
+        Examples
+        --------
+        >>> dest = fid.export_binary("/a/b/report.pdf/FILE/pdf/f/",
+        ...                          output_dir="C:/output")
+        >>> dest
+        PosixPath('C:/output/report.pdf')
+        """
+        bs = self.read_binary(pathname)
+        if output_path is not None:
+            dest = Path(output_path)
+        else:
+            if not bs.filename:
+                raise ValueError(
+                    f"Cannot derive a filename from pathname {str(pathname)!r} (C-part is empty). "
+                    "Pass output_path explicitly."
+                )
+            dest = Path(output_dir) / bs.filename
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_bytes(bs.data)
+        return dest
+
+    def import_binary(
+        self,
+        filepath: Union[str, Path],
+        pathname: Optional[str] = None,
+        *,
+        a: str = "",
+        b: str = "",
+        f: str = "",
+    ) -> None:
+        """Read a file from disk and store it as a binary DSS record.
+
+        The data_type and D-part are always derived automatically from the
+        file extension; known image extensions yield BinaryType.IMAGE (610),
+        all other extensions yield BinaryType.FILE (600).
+
+        Parameters
+        ----------
+        filepath : str or Path
+            Path to the file to import.
+        pathname : str or None, optional
+            DSS pathname to store under.  If None, an auto-built pathname is
+            used: C-part = filename, D-part = ``'IMAGE'`` or ``'FILE'``,
+            E-part = extension without dot.
+        a, b, f : str
+            A, B, F parts of the auto-built pathname (used only when
+            *pathname* is None).
+
+        Examples
+        --------
+        >>> fid.import_binary("C:/reports/summary.pdf", b="ProjectX")
+        >>> fid.import_binary("C:/photos/site.jpg")
+        """
+        if self.mode != "rw":
+            logger.error("Open the dss file in 'rw' mode to be able to write data on it.")
+            return
+        container = BinaryContainer.from_file(filepath, pathname=pathname,
+                                              a=a, b=b, f=f)
+        super()._put_binary(container)
 
     def read_grid(
         self, pathname: Union[str, "DssPathName"], metadata_only: Optional[bool] = False

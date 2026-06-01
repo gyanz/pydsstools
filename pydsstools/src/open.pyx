@@ -1252,6 +1252,58 @@ cdef class Open:
         zstructFree(ztxt)
         isError(self.write_status)
 
+    # ----------------------------------------------------------------- binary --
+
+    cpdef BinaryStruct _read_binary(self, char *pathname):
+        """Read a binary (FILE, IMAGE, or BLOB) record from the DSS file (internal method).
+
+        Parameters
+        ----------
+        pathname : bytes
+            DSS pathname (ASCII encoded).
+
+        Returns
+        -------
+        BinaryStruct
+            Wrapper holding the raw C zStructTransfer.
+        """
+        cdef:
+            str pathname_str = (<bytes>pathname).decode('ascii')
+            zStructTransfer *zt = NULL
+        zt = zstructTransferNew(pathname, 1)  # mode=1: allocate read buffers
+        self.read_status = zread(self.ifltab, zt)
+        isError(self.read_status)
+        return _createBinaryStruct(zt, pathname_str)
+
+    cpdef void _put_binary(self, object container) except *:
+        """Write a binary record to the DSS file (internal method).
+
+        Parameters
+        ----------
+        container : BinaryContainer
+            Container holding the pathname, data, and data_type.
+
+        Notes
+        -----
+        values1 is pointed at the Python bytes buffer for the duration of
+        zwrite and nulled before zstructFree so the C library does not
+        attempt to free Python-managed memory.
+        """
+        cdef:
+            bytes enc_path = container.pathname.encode('ascii')
+            bytes data = container.data
+            int nbytes = len(data)
+            zStructTransfer *zt = NULL
+        zt = zstructTransferNew(enc_path, 0)  # mode=0: write, no buffer pre-allocation
+        zt[0].dataType = <int>container.data_type
+        zt[0].values1 = <int *><char *>data
+        zt[0].values1Number = (nbytes + 3) // 4
+        zt[0].logicalNumberValues = nbytes
+        self.write_status = zwrite(self.ifltab, zt)
+        zt[0].values1 = NULL
+        zstructFree(zt)
+        isError(self.write_status)
+
     def __dealloc__(self):
         if self.ifltab != NULL:
             zclose(self.ifltab)
