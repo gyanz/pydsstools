@@ -62,7 +62,9 @@ cdef class BinaryStruct:
         n = self._ptr[0].logicalNumberValues
         if n <= 0:
             return b''
-        return (<char *>self._ptr[0].values1)[:n]
+        # PyBytes_FromStringAndSize bypasses the c_string_type=str/ascii directive
+        # in core_heclib.pyx, which would otherwise mis-decode binary content.
+        return PyBytes_FromStringAndSize(<char *>self._ptr[0].values1, n)
 
     @property
     def pathname(self):

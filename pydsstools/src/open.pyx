@@ -1288,6 +1288,15 @@ cdef class Open:
         values1 is pointed at the Python bytes buffer for the duration of
         zwrite and nulled before zstructFree so the C library does not
         attempt to free Python-managed memory.
+
+        Endianness: values1 is typed ``int *`` in zStructTransfer (the only
+        general-purpose data carrier the DSS API provides).  If the C library
+        applies int-level byte-swapping for cross-platform file compatibility,
+        each 4-byte group of the payload would be reversed on a big-endian
+        host.  In practice HEC-DSS 7 targets x86-64 exclusively (Windows and
+        Linux are both little-endian), so round-trips are byte-perfect on all
+        real-world deployments.  logicalNumberValues preserves the exact byte
+        count regardless.
         """
         cdef:
             bytes enc_path = container.pathname.encode('ascii')
