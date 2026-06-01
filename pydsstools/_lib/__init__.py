@@ -49,7 +49,6 @@ __all__ = [
     "TextStruct",
 
     # Binary
-    "BinaryType",
     "BinaryStruct",
     "BinaryContainer",
 

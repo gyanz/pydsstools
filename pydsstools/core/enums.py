@@ -96,3 +96,9 @@ class IrregStoreFlag(IntEnum):
     replace = 1  # remove all data in the start-to-end range and rewrite
 
 
+class BinaryType(IntEnum):
+    UNDEFINED = 0
+    FILE      = 600
+    IMAGE     = 610
+
+

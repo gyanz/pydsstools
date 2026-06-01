@@ -50,8 +50,9 @@ from ...core import TimeSeriesStruct, TimeSeriesContainer
 from ...core import PairedDataStruct, PairedDataContainer
 from ...core import SpatialGridStruct
 from ...core import TextStruct, TextContainer
-from ...core import BinaryType, BinaryStruct, BinaryContainer
-from ...core.enums import GridType, RegStoreFlag, IrregStoreFlag
+from ...core import BinaryStruct, BinaryContainer
+from ...core import ArrayContainer
+from ...core.enums import GridType, RegStoreFlag, IrregStoreFlag, BinaryType
 from ...core.gridinfo import GridInfo
 from ...core.gridinfo.v6 import gridinfo7_to_gridinfo6, GridInfo6
 #from ...core.gridv6_internals import gridinfo7_to_gridinfo6, GridInfo6
@@ -1082,7 +1083,6 @@ class Open(_Open):
         if self.mode != "rw":
             logger.error("Open the dss file in 'rw' mode to be able to write data on it.")
             return
-        from ...core import ArrayContainer
         pathname = DssPathName(pathname)
         arr = ArrayContainer(
             pathname.text(),

@@ -35,3 +35,4 @@ np.import_array()
 np.seterr(over='raise')
 import re
 from collections import namedtuple as _namedtuple
+from pydsstools.core.enums import BinaryType

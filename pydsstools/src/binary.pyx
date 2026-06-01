@@ -1,23 +1,3 @@
-from enum import IntEnum
-
-
-class BinaryType(IntEnum):
-    """Record type for DSS binary (FILE / IMAGE / BLOB) records.
-
-    Attributes
-    ----------
-    UNDEFINED : 0
-        Opaque BLOB.  DSSVue cannot display this type.
-    FILE : 600
-        Generic binary file (.pdf, .mp3, .xlsx, …).
-    IMAGE : 610
-        Image file (.jpg, .png, …).  DSSVue renders the record inline as
-        an image.
-    """
-    UNDEFINED = 0
-    FILE      = 600
-    IMAGE     = 610
-
 
 _IMAGE_EXTENSIONS = frozenset({
     'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif', 'webp', 'ico', 'svg', 'raw',
