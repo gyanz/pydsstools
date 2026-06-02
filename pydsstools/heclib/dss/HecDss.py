@@ -2086,7 +2086,7 @@ class Open(_Open):
         True
         """
         path = DssPathName(pathname)
-        if ':' in path.dpart and ':' in path.epart:
+        if ':' in path.dpart or ':' in path.epart:
             logger.debug("path_exists(): normalizing pathname: %s", path.text())
             path = path.normalize_period(date_style=104, time_style=0)
             logger.debug("path_exists(): normalized pathname:  %s", path.text())

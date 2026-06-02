@@ -315,9 +315,10 @@ cdef class DssPathName:
         For gridded (time-stamped) records the d-part must express midnight as
         00:00 of the current day (midnight_as_2400=False) and the e-part must
         express midnight as 24:00 of the *previous* day (midnight_as_2400=True).
-        Both d-part and e-part are corrected in a new DssPathName object; the
-        original is not modified. If either part cannot be parsed the original
-        is returned unchanged.
+        Each part is normalized independently in a new DssPathName object; the
+        original is not modified. An empty e-part (instantaneous grid) is left
+        unchanged. If a part cannot be parsed a warning is logged and that part
+        is left unchanged.
 
         Parameters
         ----------
@@ -331,8 +332,7 @@ cdef class DssPathName:
         Returns
         -------
         DssPathName
-            New instance with corrected d-part and e-part, or this instance if
-            parsing fails.
+            New instance with corrected d-part and/or e-part.
 
         Examples
         --------
@@ -343,15 +343,18 @@ cdef class DssPathName:
         >>> fixed.epart
         '01JAN2025:2400'
         """
+        new_path = DssPathName(self)
         try:
             stime = HecTime(self.dpart, midnight_as_2400=False, date_style=date_style, time_style=time_style)
-            etime = HecTime(self.epart, midnight_as_2400=True, date_style=date_style, time_style=time_style)
+            new_path.dpart = stime.text()
         except Exception as e:
-            logger.warning(f"normalize_period: could not parse d/e-part datetime: {e}")
-            return self
-        new_path = DssPathName(self)
-        new_path.dpart = stime.text()
-        new_path.epart = etime.text()
+            logger.warning(f"normalize_period: could not parse d-part datetime: {e}")
+        if self.epart.strip():
+            try:
+                etime = HecTime(self.epart, midnight_as_2400=True, date_style=date_style, time_style=time_style)
+                new_path.epart = etime.text()
+            except Exception as e:
+                logger.warning(f"normalize_period: could not parse e-part datetime: {e}")
         return new_path
 
     def epart_to_interval(self,dss_ver=7):
