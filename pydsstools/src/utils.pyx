@@ -309,7 +309,7 @@ cdef class DssPathName:
     def parts(self):
         return list(self._parts.values())
 
-    def normalize_period(self):
+    def normalize_period(self, date_style=104, time_style=0):
         """Correct d-part and e-part datetime strings for gridded DSS data.
 
         For gridded (time-stamped) records the d-part must express midnight as
@@ -318,6 +318,15 @@ cdef class DssPathName:
         Both d-part and e-part are corrected in a new DssPathName object; the
         original is not modified. If either part cannot be parsed the original
         is returned unchanged.
+
+        Parameters
+        ----------
+        date_style : int, optional
+            Date formatting style code passed to HecTime (see HecTime._date_style_codes()).
+            Default is 104 (``02JAN2025`` style).
+        time_style : int, optional
+            Time formatting style code passed to HecTime.
+            0: ``0830``, 1: ``08:30``, 2: ``08:30:00``. Default is 0.
 
         Returns
         -------
@@ -335,8 +344,8 @@ cdef class DssPathName:
         '01JAN2025:2400'
         """
         try:
-            stime = HecTime(self.dpart, midnight_as_2400=False, date_style=104, time_style=0)
-            etime = HecTime(self.epart, midnight_as_2400=True, date_style=104, time_style=0)
+            stime = HecTime(self.dpart, midnight_as_2400=False, date_style=date_style, time_style=time_style)
+            etime = HecTime(self.epart, midnight_as_2400=True, date_style=date_style, time_style=time_style)
         except Exception as e:
             logger.warning(f"normalize_period: could not parse d/e-part datetime: {e}")
             return self

@@ -2046,6 +2046,51 @@ class Open(_Open):
             path_list = catalog.paths()
         return path_list
 
+    def path_exists(self, pathname: Union[str, "DssPathName"]) -> bool:
+        """Check if a DSS pathname exists in the file.
+
+        For pathnames whose D-part and E-part both contain a date and time
+        component (e.g. ``2 June 2026:0000``), both parts are normalized before
+        the lookup: the D-part expresses midnight as ``0000`` of the current
+        day and the E-part expresses midnight as ``2400`` of the previous day.
+        This resolves day-boundary ambiguity without changing non-datetime parts
+        (interval names, empty parts, etc.).
+
+        .. note::
+            DSS stores grid D-part and E-part dates internally using
+            ``date_style=2`` (HecTime), which produces the format
+            ``"2 June 2026"`` — e.g. ``"2 June 2026:1400"``.  Normalization
+            here uses the same style so the lookup pathname matches exactly
+            what is stored on disk.
+
+        Parameters
+        ----------
+        pathname : str or DssPathName
+            DSS pathname to check.
+
+        Returns
+        -------
+        bool
+            True if the record exists, False otherwise.
+
+        Examples
+        --------
+        >>> fid.path_exists("/A/B/PRECIP/1 January 2020:0000/1 January 2020:2400/F/")
+        True
+
+        >>> # Day-boundary variant is normalized before lookup
+        >>> fid.path_exists("/A/B/PRECIP/31 December 2019:2400/1 January 2020:2400/F/")
+        True
+        """
+        path = DssPathName(pathname)
+        if ':' in path.dpart and ':' in path.epart:
+            logger.debug("path_exists(): normalizing pathname: %s", path.text())
+            path = path.normalize_period(date_style=2, time_style=0)
+            logger.debug("path_exists(): normalized pathname:  %s", path.text())
+        result = super()._path_exists(path.text())
+        logger.debug("path_exists(): %s -> %s", path.text(), result)
+        return result
+
     def path_dict(self, sub_type: Optional[bool] = False) -> dict[str, list[str]]:
         """
         Get all pathnames in DSS file organized by data type.

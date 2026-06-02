@@ -759,6 +759,36 @@ cdef class Open:
         typecode = zdataType(self.ifltab, pathname)
         return typecode
 
+    cpdef bint _path_exists(self, str pathname):
+        """Check if a DSS pathname exists (internal method).
+
+        Parameters
+        ----------
+        pathname : str
+            Full DSS pathname to check.  Must already be normalized to the
+            exact form stored in the file (case-insensitive match only).
+
+        Returns
+        -------
+        bool
+            True if the record exists, False if it does not.
+
+        Notes
+        -----
+        This is an internal method. Use path_exists from the public API instead.
+        Calls zcheck, which returns STATUS_RECORD_FOUND (0) when found,
+        STATUS_RECORD_NOT_FOUND (-1) when not found, and a negative error
+        code less than -1 on a file error.
+        """
+        cdef int status
+        status = zcheck(self.ifltab, pathname)
+        if status == rfound:
+            return True
+        if status == rnfound:
+            return False
+        isError(status)
+        return False
+
     cpdef str _record_type_name(self, str pathname, bint abbr=False):
         """
         Get record type name for a DSS pathname (internal method).
