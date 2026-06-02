@@ -37,6 +37,12 @@ else:
 
 __all__ = ["RasterSpatialGrid"]
 
+_VSI_WRAPPERS = {
+    ".gz":  "/vsigzip/",
+    ".bz2": "/vsibzip2/",
+    ".zst": "/vsizstd/",
+}
+
 class RasterSpatialGrid:
     """
     Lightweight raster wrapper around an in-memory rasterio dataset.
@@ -90,7 +96,10 @@ class RasterSpatialGrid:
         -------
         RasterSpatialGrid
         """
-        ds = rasterio.open(path)
+        p = Path(path) if not isinstance(path, Path) else path
+        vsi_prefix = _VSI_WRAPPERS.get(p.suffix.lower())
+        open_path = f"{vsi_prefix}{p.as_posix()}" if vsi_prefix else path
+        ds = rasterio.open(open_path)
         obj = cls(ds, **kwargs)
         obj._owns_ds = True
         return obj
