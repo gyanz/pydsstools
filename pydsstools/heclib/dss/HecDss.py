@@ -1729,8 +1729,8 @@ class Open(_Open):
             try:
                 # check if dpart, epart or both are not datetime
                 # TODO: Found out HecTime('1') passes this test
-                stime = HecTime(dpart, midnight_as_2400=False, date_style=2, time_style=0)
-                etime = HecTime(epart, midnight_as_2400=True, date_style=2, time_style=0)
+                stime = HecTime(dpart, midnight_as_2400=False, date_style=104, time_style=0)
+                etime = HecTime(epart, midnight_as_2400=True, date_style=104, time_style=0)
             except:
                 raise Exception(
                     "For %s grid type, DPart and EPart of pathname must be datetime string"
@@ -1748,7 +1748,7 @@ class Open(_Open):
 
         if grid_type == GridType.specified or grid_type == GridType.specified_time:
             nodata = gridinfo.nodata
-        
+
         _data,stats = _sanitize_grid_array_for_dss_write(data,nodata,shape,flipud,inplace,compute_stats)
 
         if stats:
@@ -1881,8 +1881,8 @@ class Open(_Open):
             try:
                 # check if dpart, epart or both are not datetime
                 # TODO: Found out HecTime('1') passes this test
-                stime = HecTime(dpart, midnight_as_2400=False, date_style=4, time_style=0)
-                etime = HecTime(epart, midnight_as_2400=True, date_style=4, time_style=0)
+                stime = HecTime(dpart, midnight_as_2400=False, date_style=104, time_style=0)
+                etime = HecTime(epart, midnight_as_2400=True, date_style=104, time_style=0)
             except:
                 raise Exception(
                     "For %s grid type, DPart and EPart of pathname must be datetime string"
@@ -1900,7 +1900,7 @@ class Open(_Open):
 
         if grid_type == GridType.specified or grid_type == GridType.specified_time:
             nodata = gridinfo.nodata
-        
+
         _data,stats = _sanitize_grid_array_for_dss_write(data,nodata,shape,flipud,inplace,compute_stats)
 
         if stats:
@@ -2057,9 +2057,12 @@ class Open(_Open):
         (interval names, empty parts, etc.).
 
         .. note::
-            DSS stores grid D-part and E-part dates internally using
-            ``date_style=2`` (HecTime), which produces the format
-            ``"2 June 2026"`` — e.g. ``"2 June 2026:1400"``.  Normalization
+            Grid D-part and E-part dates are stored verbatim in the DSS file.
+            The standard DSS date format used here is ``date_style=104``
+            (HecTime), which produces ``"02JUN2026"`` — e.g.
+            ``"02JUN2026:1400"``.  DSS pathname lookup is case-insensitive
+            so ``date_style=4`` (``"02Jun2026"``) is equivalent, but 104 is
+            used to match the canonical uppercase DSS convention.  Normalization
             here uses the same style so the lookup pathname matches exactly
             what is stored on disk.
 
@@ -2075,17 +2078,17 @@ class Open(_Open):
 
         Examples
         --------
-        >>> fid.path_exists("/A/B/PRECIP/1 January 2020:0000/1 January 2020:2400/F/")
+        >>> fid.path_exists("/A/B/PRECIP/01JAN2020:0000/01JAN2020:2400/F/")
         True
 
         >>> # Day-boundary variant is normalized before lookup
-        >>> fid.path_exists("/A/B/PRECIP/31 December 2019:2400/1 January 2020:2400/F/")
+        >>> fid.path_exists("/A/B/PRECIP/31DEC2019:2400/01JAN2020:2400/F/")
         True
         """
         path = DssPathName(pathname)
         if ':' in path.dpart and ':' in path.epart:
             logger.debug("path_exists(): normalizing pathname: %s", path.text())
-            path = path.normalize_period(date_style=2, time_style=0)
+            path = path.normalize_period(date_style=104, time_style=0)
             logger.debug("path_exists(): normalized pathname:  %s", path.text())
         result = super()._path_exists(path.text())
         logger.debug("path_exists(): %s -> %s", path.text(), result)
