@@ -102,3 +102,29 @@ class BinaryType(IntEnum):
     IMAGE     = 610
 
 
+class CopyRecordFlag(IntEnum):
+    """Record-status filter for ``copy_file`` / ``copy_file_to``.
+
+    Mirrors the ``REC_STATUS_*`` constants in the HEC-DSS C library
+    (``zdssVals.h``).  Because this is an ``IntEnum``, values can be
+    passed wherever a plain ``int`` is expected.
+
+    Members
+    -------
+    valid   = 0   All valid records — primary records and their aliases.
+                  This is the default for a normal file merge.
+    primary = 1   Primary records only (excludes aliases).
+    alias   = 2   Alias records only.
+    deleted = 11  Records that have been deleted (soft-delete in DSS-7).
+    renamed = 12  Records that have been renamed (the old-name tombstones).
+    any     = 100 Every record regardless of status, including deleted /
+                  renamed.  Use for damaged-file recovery.
+    """
+    valid   = 0
+    primary = 1
+    alias   = 2
+    deleted = 11
+    renamed = 12
+    any     = 100
+
+

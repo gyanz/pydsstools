@@ -25,6 +25,7 @@ from ..core import set_program_name, heclib_version
 from ..core import pd_size, copy_record_to
 from ..core import delete_pathname, rename_pathname, get_grid_version
 from ..core import copy_file, copy_file_to, convert_version, check_file
+from ..core import CopyRecordFlag
 
 __all__ = [
     # DSS logging — new API
@@ -61,6 +62,7 @@ __all__ = [
     "copy_file_to",
     "convert_version",
     "check_file",
+    "CopyRecordFlag",
 ]
 
 from .logging import Level, Method, get_dss_logger

@@ -209,7 +209,22 @@ cpdef int copy_record_to(Open copyFrom, str copyToFile, str pathnameFrom, str pa
         return status
 
 cpdef int copy_file(Open src, Open dst, int status_wanted=0):
-    """Copy records from one open DSS file into another open DSS file.
+    """Copy (merge) records from one open DSS file into another open DSS file.
+
+    Wraps ``zcopyFile``.  Uses a brute-force byte scan of the source file, so
+    it can recover records from a damaged file that is otherwise unreadable via
+    normal catalog/index access.  Cross-version copies (DSS-6 ↔ DSS-7) are
+    handled transparently.
+
+    Behaviour when a record already exists in *dst*
+    ------------------------------------------------
+    There is no skip-if-exists option at the C level.  Every record that
+    matches *status_wanted* is always written:
+
+    - **Time series** – values are *merged* with what is already in *dst* at
+      the same pathname (blocks are appended / overlapping blocks replaced).
+    - **All other types** (paired data, grid, array, text, binary) – the
+      existing *dst* record is *replaced* entirely.
 
     Parameters
     ----------
@@ -217,14 +232,21 @@ cpdef int copy_file(Open src, Open dst, int status_wanted=0):
         Source DSS file handle (already open).
     dst : Open
         Destination DSS file handle (already open).
-    status_wanted : int
-        Record filter: 0=all valid (default), 1=primary only, 2=alias only,
-        11=deleted only, 12=renamed only, 100=any (including deleted/renamed).
+    status_wanted : int or CopyRecordFlag
+        Selects which records to copy.  Accepts plain ``int`` or a
+        ``CopyRecordFlag`` enum member (both are equivalent)::
+
+            CopyRecordFlag.valid   = 0   all valid records (default)
+            CopyRecordFlag.primary = 1   primary records only
+            CopyRecordFlag.alias   = 2   alias records only
+            CopyRecordFlag.deleted = 11  soft-deleted records only
+            CopyRecordFlag.renamed = 12  renamed-tombstone records only
+            CopyRecordFlag.any     = 100 every record, regardless of status
 
     Returns
     -------
     int
-        STATUS_OKAY (0) on success, negative error code on failure.
+        0 (STATUS_OKAY) on success, negative DSS error code on failure.
     """
     cdef:
         long long *ifltabFrom = src.ifltab
@@ -234,24 +256,27 @@ cpdef int copy_file(Open src, Open dst, int status_wanted=0):
     return status
 
 cpdef int copy_file_to(Open src, str dst_path, int status_wanted=0):
-    """Copy records from an open DSS file into a DSS file at dst_path.
+    """Copy (merge) records from an open DSS file into a DSS file at *dst_path*.
 
-    Opens dst_path automatically, performs the copy, then closes it.
+    Convenience wrapper around ``copy_file``: opens *dst_path* automatically,
+    performs the copy, then closes it.  See ``copy_file`` for full behaviour
+    details including cross-version support and existing-record semantics.
 
     Parameters
     ----------
     src : Open
         Source DSS file handle (already open).
     dst_path : str
-        File path of the destination DSS file.
-    status_wanted : int
-        Record filter: 0=all valid (default), 1=primary only, 2=alias only,
-        11=deleted only, 12=renamed only, 100=any (including deleted/renamed).
+        Path of the destination DSS file.  Created if it does not exist;
+        otherwise opened and records are merged in.
+    status_wanted : int or CopyRecordFlag
+        Selects which records to copy (default 0 = all valid).
+        See ``CopyRecordFlag`` for the full set of values.
 
     Returns
     -------
     int
-        STATUS_OKAY (0) on success, negative error code on failure.
+        0 (STATUS_OKAY) on success, negative DSS error code on failure.
     """
     cdef:
         long long *ifltabFrom = src.ifltab
@@ -266,21 +291,38 @@ cpdef int copy_file_to(Open src, str dst_path, int status_wanted=0):
 cpdef int convert_version(str src_path, str dst_path):
     """Convert a DSS file between version 6 and version 7.
 
-    Detects the source version automatically and creates the destination file
-    with the opposite version.  The source file must exist and may be open
-    elsewhere; the destination file must not exist.
+    Wraps ``zconvertVersion``.  Detects the source version automatically and
+    creates (or opens) *dst_path* with the opposite version, then copies all
+    records via ``zcopyFile``.
+
+    Destination file rules (enforced by the C library)
+    ---------------------------------------------------
+    +--------------------------+----------------------------------------------+
+    | *dst_path* state         | behaviour                                    |
+    +==========================+==============================================+
+    | does not exist           | created with the opposite version, then      |
+    |                          | populated — the normal case                  |
+    +--------------------------+----------------------------------------------+
+    | exists, same version     | returns a negative ``FILE_EXISTS`` error;    |
+    | as *src_path*            | use the *force* option on ``HecDss.Open``   |
+    |                          | ``.convert_version()`` to remove it first    |
+    +--------------------------+----------------------------------------------+
+    | exists, different        | opened and records are merged in             |
+    | version from *src_path*  |                                              |
+    +--------------------------+----------------------------------------------+
 
     Parameters
     ----------
     src_path : str
-        Path to the source DSS file.
+        Path to the source DSS file (must exist; may be open elsewhere).
     dst_path : str
-        Path for the new destination DSS file (will be created).
+        Path for the output file.  Should not exist when converting to a
+        fresh file; see table above for existing-file behaviour.
 
     Returns
     -------
     int
-        STATUS_OKAY (0) on success, negative error code on failure.
+        0 (STATUS_OKAY) on success, negative DSS error code on failure.
     """
     cdef int status
     status = zconvertVersion(src_path, dst_path)
@@ -289,9 +331,17 @@ cpdef int convert_version(str src_path, str dst_path):
 cpdef int check_file(Open fid):
     """Run a thorough integrity check on an open DSS file.
 
-    Checks all components, addresses, links, pathname tables, and (for DSS-7)
-    the hash table.  This is the most resource-intensive function in the DSS
-    library; use it for diagnostics, not routine access.
+    Wraps ``zcheckFile``.  Runs each sub-check in sequence and returns on the
+    first failure, so the count reflects errors from that sub-check only:
+
+    - **DSS-6**: checks page/node blocks (``zckpnb6``), links (``zcklnk6``),
+      and pathname tables (``zckpat6``).
+    - **DSS-7**: checks links (``zcheckLinks``), pathname tables
+      (``zcheckPathnames``), pathname bins (``zcheckPathnameBins``), and the
+      hash table (``zcheckHashTable``).
+
+    This is the most resource-intensive function in the DSS library; use it
+    for diagnostics and file-recovery workflows, not routine access.
 
     Parameters
     ----------
@@ -301,8 +351,11 @@ cpdef int check_file(Open fid):
     Returns
     -------
     int
-        0 for no errors, positive integer = number of errors found,
-        negative errorCode for a severe/unrecoverable error.
+        * ``0``   – file is clean (STATUS_OKAY)
+        * ``> 0`` – error count from the first failing sub-check
+          (subsequent sub-checks are not run)
+        * ``< 0`` – negative DSS error code indicating a severe /
+          unrecoverable error
     """
     cdef:
         long long *ifltab = fid.ifltab

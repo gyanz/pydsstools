@@ -52,7 +52,8 @@ from ...core import SpatialGridStruct
 from ...core import TextStruct, TextContainer
 from ...core import BinaryStruct, BinaryContainer
 from ...core import ArrayContainer
-from ...core.enums import GridType, RegStoreFlag, IrregStoreFlag, BinaryType
+from ...core.enums import GridType, RegStoreFlag, IrregStoreFlag, BinaryType, CopyRecordFlag
+from ...core import DssStatusException
 from ...core.gridinfo import GridInfo
 from ...core.gridinfo.v6 import gridinfo7_to_gridinfo6, GridInfo6
 #from ...core.gridv6_internals import gridinfo7_to_gridinfo6, GridInfo6
@@ -63,6 +64,9 @@ from ...core import (
     UNDEFINED,
 )
 from ...core.location import LocationInfo
+from ...heclib.utils import check_file as _check_file
+from ...heclib.utils import copy_file as _copy_file
+from ...heclib.utils import squeeze_file as _squeeze_file
 
 DateLike = TypeVar("DateLike", str, datetime, HecTime)
 DateWindow: TypeAlias = tuple[DateLike, DateLike]
@@ -2320,6 +2324,177 @@ class Open(_Open):
             }
 
         return result
+
+    # ------------------------------------------------------------------
+    # File-level utilities
+    # ------------------------------------------------------------------
+
+    def check_file(self) -> int:
+        """Run a thorough integrity check on this DSS file.
+
+        Wraps ``zcheckFile`` via :func:`~pydsstools.heclib.utils.check_file`.
+        Runs sub-checks in sequence and returns on the first failure, so the
+        returned count reflects only the first failing sub-check:
+
+        - **DSS-6**: page/node blocks, links, pathname tables.
+        - **DSS-7**: links, pathname tables, pathname bins, hash table.
+
+        This is the most resource-intensive function in the DSS library; use it
+        for diagnostics and file-recovery workflows, not routine access.
+
+        Returns
+        -------
+        int
+            * ``0``   — file is clean.
+            * ``> 0`` — error count from the first failing sub-check.
+
+        Raises
+        ------
+        DssStatusException
+            If ``zcheckFile`` returns a negative DSS error code (severe /
+            unrecoverable error).
+
+        Examples
+        --------
+        >>> with Open("data.dss") as fid:
+        ...     errors = fid.check_file()
+        ...     if errors:
+        ...         print(f"{errors} integrity error(s) found")
+        """
+        status = _check_file(self)
+        if status < 0:
+            raise DssStatusException(
+                f"DSS file integrity check failed with error code {status}"
+            )
+        return status
+
+    def copy_from_file(
+        self,
+        src: "Open",
+        status_wanted: CopyRecordFlag = CopyRecordFlag.valid,
+    ) -> int:
+        """Bulk-copy records from *src* into this file.
+
+        Wraps :func:`~pydsstools.heclib.utils.copy_file`.  Both files must
+        already be open.  See :meth:`export_file` for full behaviour details,
+        including existing-record semantics.
+
+        Parameters
+        ----------
+        src : Open
+            Source DSS file handle (already open).
+        status_wanted : CopyRecordFlag, optional
+            Which records to copy.  Default is :attr:`CopyRecordFlag.valid`.
+
+        Returns
+        -------
+        int
+            0 (STATUS_OKAY) on success, negative DSS error code on failure.
+
+        Examples
+        --------
+        >>> with Open("source.dss") as src, Open("dest.dss") as dst:
+        ...     dst.copy_from_file(src)
+        """
+        return _copy_file(src, self, int(status_wanted))
+
+    def export_file(
+        self,
+        dst_path: PathType,
+        version: Optional[Literal[6, 7]] = None,
+        *,
+        overwrite: bool = False,
+        status_wanted: CopyRecordFlag = CopyRecordFlag.valid,
+        squeeze_after: bool = False,
+    ) -> int:
+        """Export this DSS file to *dst_path*, optionally changing the DSS version.
+
+        Uses ``zcopyFile`` for all cases — both same-version and cross-version —
+        so *status_wanted* applies uniformly regardless of the target version.
+        Cross-version data translation (DSS-6 ↔ DSS-7) is handled transparently
+        by the C library at the record level.
+
+        The destination version is controlled entirely by how *dst_path* is
+        opened or created:
+
+        - **New file** — created at *target_version*.
+        - **Existing file, matching version** — opened as-is; records are
+          merged in (time series) or replaced (all other types).
+        - **Existing file, wrong version** — ``ValueError`` is raised unless
+          *overwrite=True*, in which case the file is deleted and recreated at
+          *target_version*.
+
+        Parameters
+        ----------
+        dst_path : str or Path
+            Path for the output file.
+        version : {6, 7} or None, optional
+            Target DSS version.  ``None`` (default) uses ``self.version``.
+        overwrite : bool, keyword-only, optional
+            If *dst_path* exists at a different version than *target_version*,
+            delete it before writing.  Default ``False``.
+        status_wanted : CopyRecordFlag, keyword-only, optional
+            Which records to copy.  Default :attr:`CopyRecordFlag.valid`.
+        squeeze_after : bool, keyword-only, optional
+            If ``True``, squeeze *dst_path* after copying to reclaim freed
+            space left by replaced records.  Default ``False``.
+
+        Returns
+        -------
+        int
+            0 (STATUS_OKAY) on success.
+
+        Raises
+        ------
+        ValueError
+            If *dst_path* exists at a different version than *target_version*
+            and *overwrite* is ``False``.
+        DssStatusException
+            If ``zcopyFile`` returns a negative error code.
+
+        Examples
+        --------
+        Copy to a new file (same version):
+
+        >>> fid.export_file("backup.dss")
+
+        Convert DSS-7 to DSS-6:
+
+        >>> fid.export_file("data_v6.dss", version=6)
+
+        Overwrite an existing file at a different version:
+
+        >>> fid.export_file("data_v6.dss", version=6, overwrite=True)
+
+        Copy primary records only and compact the result:
+
+        >>> fid.export_file("primary.dss", status_wanted=CopyRecordFlag.primary,
+        ...                 squeeze_after=True)
+        """
+        dst = Path(dst_path)
+        target_version = version if version is not None else self.version
+
+        if overwrite and dst.exists():
+            dst.unlink()
+
+        if dst.exists():
+            with _Open(str(dst)) as dst_fid:
+                if version is not None and dst_fid.version != target_version:
+                    raise ValueError(
+                        f"'{dst}' already exists at DSS-{dst_fid.version}, but "
+                        f"version={target_version} was requested. "
+                        "Pass overwrite=True to replace it."
+                    )
+                status = _copy_file(self, dst_fid, int(status_wanted))
+        else:
+            with _Open(str(dst), target_version) as dst_fid:
+                status = _copy_file(self, dst_fid, int(status_wanted))
+
+        if status < 0:
+            raise DssStatusException(f"zcopyFile failed with error code {status}")
+        if squeeze_after:
+            _squeeze_file(str(dst))
+        return status
 
 
 # ==================== Helper Functions ====================
