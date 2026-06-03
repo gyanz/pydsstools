@@ -37,4 +37,13 @@ from .gridinfo.v6 import *
 from .grid import SpatialGridStruct
 from . import grid_accessors
 from .location import LocationInfo
-from .enums import RegStoreFlag, IrregStoreFlag, BinaryType, CopyRecordFlag
+from .enums import (
+    GridType,
+    DataType,
+    CompressionMethod,
+    Datum,
+    RegStoreFlag,
+    IrregStoreFlag,
+    BinaryType,
+    CopyRecordFlag,
+)
