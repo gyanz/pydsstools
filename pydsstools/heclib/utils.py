@@ -24,6 +24,7 @@ from ..core import set_message_level, get_message_level
 from ..core import set_program_name, heclib_version
 from ..core import pd_size, copy_record_to
 from ..core import delete_pathname, rename_pathname, get_grid_version
+from ..core import copy_file, copy_file_to, convert_version, check_file
 
 __all__ = [
     # DSS logging — new API
@@ -56,6 +57,10 @@ __all__ = [
     "delete_pathname",
     "rename_pathname",
     "get_grid_version",
+    "copy_file",
+    "copy_file_to",
+    "convert_version",
+    "check_file",
 ]
 
 from .logging import Level, Method, get_dss_logger

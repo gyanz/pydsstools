@@ -208,6 +208,108 @@ cpdef int copy_record_to(Open copyFrom, str copyToFile, str pathnameFrom, str pa
         status = zcopyRecord(ifltabFrom,ifltabTo,pathFrom,pathTo)
         return status
 
+cpdef int copy_file(Open src, Open dst, int status_wanted=0):
+    """Copy records from one open DSS file into another open DSS file.
+
+    Parameters
+    ----------
+    src : Open
+        Source DSS file handle (already open).
+    dst : Open
+        Destination DSS file handle (already open).
+    status_wanted : int
+        Record filter: 0=all valid (default), 1=primary only, 2=alias only,
+        11=deleted only, 12=renamed only, 100=any (including deleted/renamed).
+
+    Returns
+    -------
+    int
+        STATUS_OKAY (0) on success, negative error code on failure.
+    """
+    cdef:
+        long long *ifltabFrom = src.ifltab
+        long long *ifltabTo = dst.ifltab
+        int status
+    status = zcopyFile(ifltabFrom, ifltabTo, status_wanted)
+    return status
+
+cpdef int copy_file_to(Open src, str dst_path, int status_wanted=0):
+    """Copy records from an open DSS file into a DSS file at dst_path.
+
+    Opens dst_path automatically, performs the copy, then closes it.
+
+    Parameters
+    ----------
+    src : Open
+        Source DSS file handle (already open).
+    dst_path : str
+        File path of the destination DSS file.
+    status_wanted : int
+        Record filter: 0=all valid (default), 1=primary only, 2=alias only,
+        11=deleted only, 12=renamed only, 100=any (including deleted/renamed).
+
+    Returns
+    -------
+    int
+        STATUS_OKAY (0) on success, negative error code on failure.
+    """
+    cdef:
+        long long *ifltabFrom = src.ifltab
+        long long *ifltabTo = NULL
+        Open fid
+        int status
+    with Open(dst_path) as fid:
+        ifltabTo = fid.ifltab
+        status = zcopyFile(ifltabFrom, ifltabTo, status_wanted)
+    return status
+
+cpdef int convert_version(str src_path, str dst_path):
+    """Convert a DSS file between version 6 and version 7.
+
+    Detects the source version automatically and creates the destination file
+    with the opposite version.  The source file must exist and may be open
+    elsewhere; the destination file must not exist.
+
+    Parameters
+    ----------
+    src_path : str
+        Path to the source DSS file.
+    dst_path : str
+        Path for the new destination DSS file (will be created).
+
+    Returns
+    -------
+    int
+        STATUS_OKAY (0) on success, negative error code on failure.
+    """
+    cdef int status
+    status = zconvertVersion(src_path, dst_path)
+    return status
+
+cpdef int check_file(Open fid):
+    """Run a thorough integrity check on an open DSS file.
+
+    Checks all components, addresses, links, pathname tables, and (for DSS-7)
+    the hash table.  This is the most resource-intensive function in the DSS
+    library; use it for diagnostics, not routine access.
+
+    Parameters
+    ----------
+    fid : Open
+        DSS file handle (already open).
+
+    Returns
+    -------
+    int
+        0 for no errors, positive integer = number of errors found,
+        negative errorCode for a severe/unrecoverable error.
+    """
+    cdef:
+        long long *ifltab = fid.ifltab
+        int status
+    status = zcheckFile(ifltab)
+    return status
+
 cpdef int delete_pathname(Open fid, str pathname):
     cdef:
         long long *ifltab = fid.ifltab

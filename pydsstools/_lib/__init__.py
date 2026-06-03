@@ -83,5 +83,9 @@ __all__ = [
     "copy_record_to",
     "rename_pathname",
     "get_grid_version",
+    "copy_file",
+    "copy_file_to",
+    "convert_version",
+    "check_file",
 ]
 

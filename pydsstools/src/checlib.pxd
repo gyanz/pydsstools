@@ -127,6 +127,9 @@ cdef extern from "heclib.h":
 
     int zsqueeze(const char *dssFilename)
 
+cdef extern from "hecdss7.h":
+    int zcheckFile(long long *ifltab)
+
 cdef extern from "heclib.h":
     int spatialDateTime(char *dateTimeString, int *julian, int *seconds)
     int dateToJulian(const char *dateString)
