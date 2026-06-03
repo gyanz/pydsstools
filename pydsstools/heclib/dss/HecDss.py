@@ -1924,55 +1924,105 @@ class Open(_Open):
     def copy_path(
         self,
         pathname_in: Union[str, "DssPathName"],
-        pathname_out: Union[str, "DssPathName"],
+        pathname_out: Optional[Union[str, "DssPathName"]] = None,
+        *,
         dss_out: Optional["Open"] = None,
-    ) -> None:
-        """
-        Copy a DSS record from one pathname to another.
-
-        Can copy within the same file or to a different DSS file.
+        transform: Optional[Callable[[str], str]] = None,
+    ) -> int:
+        """Copy one or more DSS records, optionally to a different file or pathname.
 
         Parameters
         ----------
         pathname_in : str or DssPathName
-            Source pathname to copy from.
-        pathname_out : str or DssPathName
-            Destination pathname to copy to.
-        dss_out : Open or None, optional
-            Destination DSS file object. If None, copies within the same file.
-            Default is None.
+            Source pathname.  May contain ``*`` wildcards when using *transform*
+            or doing a same-path batch copy to *dss_out*.
+        pathname_out : str or DssPathName, optional
+            Destination pathname.  Defaults to *pathname_in* when omitted, which
+            is the common case when copying to a different file.  Must not be
+            combined with *transform*, and must not be used when *pathname_in*
+            contains wildcards.
+        dss_out : Open, keyword-only, optional
+            Destination DSS file.  Must be open in ``"rw"`` mode.  When omitted
+            the copy is within this file (useful for duplicating a record under a
+            new name).
+        transform : callable, keyword-only, optional
+            A function ``(str) -> str`` applied to every pathname matched by
+            *pathname_in*.  Receives the full source pathname string and must
+            return a valid DSS pathname string for the destination.  Must not be
+            combined with *pathname_out*.
 
         Returns
         -------
-        None
+        int
+            Number of records copied.
+
+        Raises
+        ------
+        ValueError
+            If *pathname_out* and *transform* are both supplied; if *pathname_in*
+            contains wildcards and *pathname_out* is also supplied; or if the
+            destination file is not open in ``"rw"`` mode.
 
         Examples
         --------
-        Copy within same file:
+        Copy within the same file (rename-by-copy):
 
         >>> fid.copy_path("/A/B/C/D/E/F/", "/A/B/C_COPY/D/E/F/")
 
-        Copy to different file:
+        Cross-file copy, keeping the same pathname (no need to repeat it):
 
-        >>> with Open("target.dss", mode="rw") as fid_out:
-        ...     fid.copy_path("/A/B/C/D/E/F/", "/A/B/C/D/E/F/", dss_out=fid_out)
+        >>> with Open("target.dss", mode="rw") as dst:
+        ...     fid.copy_path("/A/B/C/D/E/F/", dss_out=dst)
+
+        Batch copy all matching records to another file, same pathnames:
+
+        >>> with Open("target.dss", mode="rw") as dst:
+        ...     n = fid.copy_path("/A/B/*/D/E/F/", dss_out=dst)
+
+        Batch copy with path rewriting via transform:
+
+        >>> with Open("target.dss", mode="rw") as dst:
+        ...     fid.copy_path(
+        ...         "/A/B/*/D/E/F/",
+        ...         transform=lambda p: p.replace("/OLD_BASIN/", "/NEW_BASIN/"),
+        ...         dss_out=dst,
+        ...     )
         """
-        dss_fid = dss_out if isinstance(dss_out, self.__class__) else self
-        if dss_fid.mode != "rw":
-            logger.error(
-                "Open the dss file in 'rw' mode to be able to write data on it."
+        if pathname_out is not None and transform is not None:
+            raise ValueError("Provide either 'pathname_out' or 'transform', not both.")
+
+        dest = dss_out if isinstance(dss_out, self.__class__) else self
+        if dest.mode != "rw":
+            raise ValueError(
+                f"Destination DSS file must be opened in 'rw' mode (got {dest.mode!r})."
             )
-            return
 
-        pathname_in = DssPathName(pathname_in)
-        pathname_out = DssPathName(pathname_out)
+        path_in_str = DssPathName(pathname_in).text()
+        has_wildcard = "*" in path_in_str
 
-        if (
-            pathname_in.text().lower() == pathname_out.text().lower()
-        ) and dss_fid is self:
-            # overwriting with exact data is pointless
-            return
-        self._copy_records_to(dss_fid, pathname_in.text(), pathname_out.text())
+        if has_wildcard and pathname_out is not None:
+            raise ValueError(
+                "Wildcard patterns in 'pathname_in' are not allowed when "
+                "'pathname_out' is supplied. Use 'transform' for batch copy "
+                "with path rewriting."
+            )
+
+        if not has_wildcard and transform is None:
+            out_str = DssPathName(pathname_out).text() if pathname_out is not None else path_in_str
+            if path_in_str.lower() == out_str.lower() and dest is self:
+                return 0
+            self._copy_records_to(dest, path_in_str, out_str)
+            return 1
+
+        pattern = _process_pathname_pattern(pathname_in)
+        count = 0
+        for pth in self.search_path(pattern):
+            out_pth = transform(pth) if transform is not None else pth
+            if pth.lower() == out_pth.lower() and dest is self:
+                continue
+            self._copy_records_to(dest, pth, out_pth)
+            count += 1
+        return count
 
     def ren_path(
         self,
