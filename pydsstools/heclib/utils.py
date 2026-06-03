@@ -19,6 +19,12 @@ from ..core import UNDEFINED, SHG_WKT, HRAP_WKT
 import atexit
 from affine import Affine
 
+# Public functions from utils.pyx / core_heclib
+from ..core import set_message_level, get_message_level
+from ..core import set_program_name, heclib_version
+from ..core import pd_size, copy_record_to
+from ..core import delete_pathname, rename_pathname, get_grid_version
+
 __all__ = [
     # DSS logging — new API
     "get_dss_logger",
@@ -39,6 +45,17 @@ __all__ = [
     "HRAP_WKT",
     "SHG_WKT",
     "BoundingBox",
+    # utils.pyx public functions
+    "set_message_level",
+    "get_message_level",
+    "set_program_name",
+    "heclib_version",
+    "squeeze_file",
+    "pd_size",
+    "copy_record_to",
+    "delete_pathname",
+    "rename_pathname",
+    "get_grid_version",
 ]
 
 from .logging import Level, Method, get_dss_logger

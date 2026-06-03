@@ -21,7 +21,7 @@ cdef class dss_info:
 
 cdef int copyRecord(Open copyFrom, Open copyTo, str pathnameFrom, str pathnameTo):
 
-cpdef int copyRecordTo(Open copyFrom, str copyToFile, str pathnameFrom, str pathnameTo):
+cpdef int copy_record_to(Open copyFrom, str copyToFile, str pathnameFrom, str pathnameTo):
 
 '''
 def str2ascii(file):
@@ -32,10 +32,10 @@ def str2ascii(file):
     else:
         logger.error("Wrong filename or encoding (not ascii or byte) ")
 
-cpdef void setMessageLevel(int methodID,int levelID):
+cpdef void set_message_level(int methodID,int levelID):
     zsetMessageLevel(methodID, levelID)
 
-cpdef int getMessageLevel(int methodID):
+cpdef int get_message_level(int methodID):
     return zgetMessageLevel(methodID)
 
 cpdef void set_program_name(str name):
@@ -176,7 +176,7 @@ cdef int copyRecord(Open copyFrom, Open copyTo, str pathnameFrom, str pathnameTo
     status = zcopyRecord(ifltabFrom,ifltabTo,pathFrom,pathTo)
     return status
 
-cpdef int copyRecordTo(Open copyFrom, str copyToFile, str pathnameFrom, str pathnameTo):
+cpdef int copy_record_to(Open copyFrom, str copyToFile, str pathnameFrom, str pathnameTo):
     """Copy a record from one hec-dss file (From-) to another (To-)
 
     Parameter

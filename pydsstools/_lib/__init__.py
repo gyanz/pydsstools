@@ -59,7 +59,7 @@ __all__ = [
 
     # Catalog
     "CatalogStruct",
-    "getPathnameCatalog",
+    "get_pathname_catalog",
     "delete_pathname",
 
     # Time
@@ -67,8 +67,8 @@ __all__ = [
 
     # Logging and Exceptions
     "DssLastError",
-    "setMessageLevel",
-    "getMessageLevel",
+    "set_message_level",
+    "get_message_level",
     "set_program_name",
     "heclib_version",
     "DssStatusException",
@@ -80,5 +80,8 @@ __all__ = [
     "dss_info",
     "pd_size",
     "squeeze_file",
+    "copy_record_to",
+    "rename_pathname",
+    "get_grid_version",
 ]
 

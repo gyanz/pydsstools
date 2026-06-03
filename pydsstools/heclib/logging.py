@@ -121,8 +121,8 @@ from contextlib import contextmanager
 from enum import IntEnum
 from typing import Union
 
-from ..core import setMessageLevel as _setMessageLevel
-from ..core import getMessageLevel as _getMessageLevel
+from ..core import set_message_level as _setMessageLevel
+from ..core import get_message_level as _getMessageLevel
 
 _logger = _logging.getLogger(__name__)
 

@@ -281,26 +281,26 @@ cdef class CatalogStruct:
         if self.cts:
             zstructFree(self.cts)
 
-cpdef CatalogStruct getPathnameCatalog(Open fid,str pathWithWild, bint sort=0,
-                                       int statusWanted=0, int typeWantedStart=0, int typeWantedEnd=0):
+cpdef CatalogStruct get_pathname_catalog(Open fid, str path_with_wild, bint sort=0,
+                                        int status_wanted=0, int type_wanted_start=0, int type_wanted_end=0):
     cdef:
         long long *ifltab = fid.ifltab
-        char *pathname = pathWithWild
+        char *pathname = path_with_wild
         zStructCatalog *cts = NULL
         CatalogStruct ct_st
         int negative_or_numberPathnames = 0
 
     # set warning with this check??
     cts = zstructCatalogNew()
-    #if statusWanted or typeWantedStart or typeWantedEnd:
-    cts[0].statusWanted = statusWanted 
-    cts[0].typeWantedStart = typeWantedStart 
-    cts[0].typeWantedEnd = typeWantedEnd  
+    #if status_wanted or type_wanted_start or type_wanted_end:
+    cts[0].statusWanted = status_wanted
+    cts[0].typeWantedStart = type_wanted_start
+    cts[0].typeWantedEnd = type_wanted_end
 
-    negative_or_numberPathnames = zcatalog(ifltab,pathname,cts,sort)
-    if negative_or_numberPathnames < 0: 
-       logger.warning('Error with retrieving catalog, CODE = %d' % negative_or_numberPathnames) 
-    #print('zcatalog return = %d'% negative_or_numberPathnames) 
+    negative_or_numberPathnames = zcatalog(ifltab, pathname, cts, sort)
+    if negative_or_numberPathnames < 0:
+       logger.warning('Error with retrieving catalog, CODE = %d' % negative_or_numberPathnames)
+    #print('zcatalog return = %d'% negative_or_numberPathnames)
     ct_st = createCatalog(cts)
     return ct_st
 

@@ -10,7 +10,7 @@ cdef class Open:
 
     Parameters
     ----------
-    dssFilename : str or bytes
+    dss_filename : str or bytes
         Path to the DSS file (ASCII encoded).
     version : {6, 7} or None, optional
         DSS file version to use. Default is None.
@@ -47,16 +47,16 @@ cdef class Open:
         readonly int read_status
         readonly int write_status
 
-    def __init__(self, dssFilename, version=None):
+    def __init__(self, dss_filename, version=None):
         if version == 6:
-            self.file_status = zopen6(self.ifltab, dssFilename)
+            self.file_status = zopen6(self.ifltab, dss_filename)
         elif version == 7:
-            self.file_status = zopen7(self.ifltab, dssFilename)
+            self.file_status = zopen7(self.ifltab, dss_filename)
         else:
-            self.file_status = hec_dss_zopen(self.ifltab, dssFilename)
+            self.file_status = hec_dss_zopen(self.ifltab, dss_filename)
         isError(self.file_status)
         self.version = zgetVersion(self.ifltab)
-        self.filename = dssFilename
+        self.filename = dss_filename
 
     def __enter__(self):
         return self
@@ -247,7 +247,7 @@ cdef class Open:
         self.write_status = ztsStore(self.ifltab, tss, storageFlag)
         isError(self.write_status)
 
-    cpdef int _copyRecordsFrom(self, Open copyFrom, str pathnameFrom, str pathnameTo="") except *:
+    cpdef int _copy_records_from(self, Open copyFrom, str pathnameFrom, str pathnameTo="") except *:
         """
         Copy records from another DSS file to this file (internal method).
 
@@ -275,7 +275,7 @@ cdef class Open:
         status = copyRecord(copyFrom, self, pathnameFrom, pathnameTo)
         return status
 
-    cpdef int _copyRecordsTo(self, Open copyTo, str pathnameFrom, str pathnameTo="") except *:
+    cpdef int _copy_records_to(self, Open copyTo, str pathnameFrom, str pathnameTo="") except *:
         """
         Copy records from this file to another DSS file (internal method).
 
@@ -590,7 +590,7 @@ cdef class Open:
         data = read_grid0(self.ifltab, pathname, gridinfo6, retrieve_data)
         return data
 
-    def _get_gridver(self, const char *pathname):
+    def _get_grid_ver(self, const char *pathname):
         """
         Get grid version from DSS record (internal method).
 
@@ -613,7 +613,7 @@ cdef class Open:
             return
         return ver
 
-    def _get_gridtype(self, const char *pathname):
+    def _get_grid_type(self, const char *pathname):
         """
         Get grid type from DSS record (internal method).
 

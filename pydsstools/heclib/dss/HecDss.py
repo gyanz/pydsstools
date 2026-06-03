@@ -1492,7 +1492,7 @@ class Open(_Open):
         pathname = DssPathName(pathname)
         sg_st = SpatialGridStruct()
         retrieve_data = False if metadata_only else True
-        grid_ver = self._get_gridver(pathname.text())
+        grid_ver = self._get_grid_ver(pathname.text())
 
         if grid_ver is None:
             logger.error("Invalid grid data or version")
@@ -1513,7 +1513,7 @@ class Open(_Open):
             #    raise NotImplementedError("Reading version {} from from DSS7 file is not implemented.", grid_ver)
 
             # find grid_type and create gridinfo6
-            grid_type = self._get_gridtype(pathname.text())
+            grid_type = self._get_grid_type(pathname.text())
             logger.debug("grid type is {}".format(grid_type))
             gridinfo6 = GridInfo6.from_grid_type(grid_type)
             logger.debug("grid type in gridinfo6 is {}".format(gridinfo6.grid_type))
@@ -1564,7 +1564,7 @@ class Open(_Open):
         """
         pathname = DssPathName(pathname)
         retrieve_data = False if metadata_only else True
-        grid_ver = self._get_gridver(pathname.text())
+        grid_ver = self._get_grid_ver(pathname.text())
         if grid_ver is None:
             logger.error("Invalid grid data or version")
         elif grid_ver != 0:
@@ -1582,7 +1582,7 @@ class Open(_Open):
             #    raise NotImplementedError("Reading version {} from from DSS7 file is not implemented.", grid_ver)
 
             # find grid_type and create gridinfo6
-            grid_type = self._get_gridtype(pathname.text())
+            grid_type = self._get_grid_type(pathname.text())
             gridinfo6 = GridInfo6.from_grid_type(grid_type)
             if grid_type == 430:
                 # TODO: Investigate why locally run pytest randomly corrupts the spec type grid data
@@ -1968,7 +1968,7 @@ class Open(_Open):
         ) and dss_fid is self:
             # overwriting with exact data is pointless
             return
-        self._copyRecordsTo(dss_fid, pathname_in.text(), pathname_out.text())
+        self._copy_records_to(dss_fid, pathname_in.text(), pathname_out.text())
 
     def ren_path(
         self,
