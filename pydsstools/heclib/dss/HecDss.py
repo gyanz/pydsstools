@@ -1970,6 +1970,92 @@ class Open(_Open):
             return
         self._copyRecordsTo(dss_fid, pathname_in.text(), pathname_out.text())
 
+    def ren_path(
+        self,
+        pathname_in: Union[str, "DssPathName"],
+        pathname_out: Optional[Union[str, "DssPathName"]] = None,
+        transform: Optional[Callable[[str], str]] = None,
+    ) -> None:
+        """Rename one or more DSS records.
+
+        Exactly one of *pathname_out* or *transform* must be supplied.
+
+        For time-series records (RTS/ITS) the D and E parts encode the time
+        window and cannot be changed by rename; a ``ValueError`` is raised if
+        the caller attempts to do so.
+
+        Parameters
+        ----------
+        pathname_in : str or DssPathName
+            Source pathname, or a wildcard pattern (when using *transform*).
+        pathname_out : str or DssPathName, optional
+            New pathname for a direct one-to-one rename.  Must not be given
+            together with *transform*.
+        transform : callable, optional
+            A function ``(str) -> str`` applied to every pathname that matches
+            *pathname_in*.  Receives the full pathname string and must return a
+            valid DSS pathname string.  Must not be given together with
+            *pathname_out*.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        ValueError
+            If both *pathname_out* and *transform* are supplied, if neither is
+            supplied, or if a rename would change the D or E part of a
+            time-series record.
+
+        Examples
+        --------
+        Direct rename:
+
+        >>> fid.ren_path("/A/B/FLOW/D/E/F/", "/A/B/FLOW_CFS/D/E/F/")
+
+        Batch rename using a transform (change C-part for all matching records):
+
+        >>> fid.ren_path("/A/B/*/D/E/F/", transform=lambda p: p.replace("/OLD/", "/NEW/", 1))
+        """
+        if self.mode != "rw":
+            logger.error(
+                "Open the dss file in 'rw' mode to be able to write data on it."
+            )
+            return
+
+        if pathname_out is not None and transform is not None:
+            raise ValueError(
+                "Provide either 'pathname_out' or 'transform', not both."
+            )
+        if pathname_out is None and transform is None:
+            raise ValueError(
+                "One of 'pathname_out' or 'transform' must be provided."
+            )
+
+        if pathname_out is not None:
+            path_in = DssPathName(pathname_in)
+            if "*" in path_in.text():
+                raise ValueError(
+                    "Wildcard patterns are not allowed in 'pathname_in' when "
+                    "'pathname_out' is supplied. Use 'transform' for batch rename."
+                )
+            path_out = DssPathName(pathname_out)
+            if path_in == path_out:
+                return
+            _validate_rename(self, path_in, path_out)
+            self._rename_pathname(path_in.text(), path_out.text())
+        else:
+            pattern = _process_pathname_pattern(pathname_in)
+            for pth in self.search_path(pattern):
+                new_pth_str = transform(pth)
+                path_in = DssPathName(pth)
+                path_out = DssPathName(new_pth_str)
+                if path_in == path_out:
+                    continue
+                _validate_rename(self, path_in, path_out)
+                self._rename_pathname(path_in.text(), path_out.text())
+
     def del_path(self, pathname: Union[str, "DssPathName"]) -> None:
         """
         Delete DSS record(s) matching the given pathname pattern.
@@ -2548,3 +2634,18 @@ def _pack_table(table, labels):
     if labels:
         labels_bytes = b"\x00".join(lbl.encode("ascii") for lbl in labels) + b"\x00"
     return table_bytes, nrows, ncols, labels_bytes
+
+
+def _validate_rename(
+    fid: "Open",
+    path_in: "DssPathName",
+    path_out: "DssPathName",
+) -> None:
+    """Raise ValueError if the rename would change D or E part of a TS record."""
+    if (fid._is_record_timeseries(path_in.text()) and
+            (path_in.dpart.lower() != path_out.dpart.lower() or
+             path_in.epart.lower() != path_out.epart.lower())):
+        raise ValueError(
+            f"Cannot change D or E part of a time-series record: "
+            f"{path_in.text()}"
+        )

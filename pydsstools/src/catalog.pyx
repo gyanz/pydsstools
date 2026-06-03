@@ -304,12 +304,4 @@ cpdef CatalogStruct getPathnameCatalog(Open fid,str pathWithWild, bint sort=0,
     ct_st = createCatalog(cts)
     return ct_st
 
-cpdef int delete_pathname(Open fid,str pathname):
-    cdef:
-        long long *ifltab = fid.ifltab
-        const char *path_name = pathname
-        int status
-
-    status = zdelete(ifltab,path_name)
-    return status
 

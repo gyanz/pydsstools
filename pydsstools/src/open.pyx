@@ -967,6 +967,49 @@ cdef class Open:
         status = delete_pathname(self, pathname)
         return status
 
+    cpdef bint _is_record_timeseries(self, str pathname):
+        """Return True if the record at *pathname* is a time-series type (internal method).
+
+        Covers regular time series (RTS, type codes 100–109) and irregular time
+        series (ITS, type codes 110–119).  Use this before rename to enforce the
+        D/E-part restriction: those parts cannot be changed for TS records.
+
+        Parameters
+        ----------
+        pathname : str
+            Full DSS pathname of the record to check.
+
+        Returns
+        -------
+        bool
+            True if the record is any time-series type, False otherwise.
+        """
+        cdef int typecode
+        typecode = zdataType(self.ifltab, pathname)
+        return 100 <= typecode < 200  # DATA_TYPE_RTS=100 to DATA_TYPE_PD=200
+
+    cpdef int _rename_pathname(self, str old_pathname, str new_pathname):
+        """Rename a DSS record (internal method).
+
+        This is an internal method. Use ren_path from
+        pydsstools.heclib.dss.HecDss.Open instead.
+
+        Parameters
+        ----------
+        old_pathname : str
+            Existing DSS pathname.
+        new_pathname : str
+            New DSS pathname.
+
+        Returns
+        -------
+        int
+            Status code from zrename.
+        """
+        cdef int status
+        status = rename_pathname(self, old_pathname, new_pathname)
+        return status
+
     cpdef CatalogStruct _get_catalog(self,
                                     str pathname,
                                     bint sort=0,

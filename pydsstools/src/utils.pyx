@@ -208,6 +208,23 @@ cpdef int copyRecordTo(Open copyFrom, str copyToFile, str pathnameFrom, str path
         status = zcopyRecord(ifltabFrom,ifltabTo,pathFrom,pathTo)
         return status
 
+cpdef int delete_pathname(Open fid, str pathname):
+    cdef:
+        long long *ifltab = fid.ifltab
+        const char *path_name = pathname
+        int status
+    status = zdelete(ifltab, path_name)
+    return status
+
+cpdef int rename_pathname(Open fid, str old_pathname, str new_pathname):
+    cdef:
+        long long *ifltab = fid.ifltab
+        const char *old_path = old_pathname
+        const char *new_path = new_pathname
+        int status
+    status = zrename(ifltab, old_path, new_path)
+    return status
+
 cpdef int get_grid_version(Open _open, str pathname):
     cdef:
         long long *ifltab= _open.ifltab
@@ -246,6 +263,16 @@ cdef class DssPathName:
 
     def __repr__(self):
         return self.text()
+
+    def __eq__(self, other):
+        if isinstance(other, str):
+            try:
+                other = DssPathName(other)
+            except DssPathException:
+                return NotImplemented
+        elif not isinstance(other, DssPathName):
+            return NotImplemented
+        return self.text().lower() == other.text().lower()
 
     def text(self):
         txt = "/"

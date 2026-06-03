@@ -117,6 +117,7 @@ cdef extern from "heclib.h":
     int zcopyRecord (long long *ifltabFrom, long long *ifltabTo, const char *pathnameFrom, const char *pathnameTo)
     int zduplicateRecord (long long *ifltab, const char *pathnameFrom, const char *pathnameTo) 
     int zdelete(long long *ifltab, const char* pathname)
+    int zrename(long long *ifltab, const char* oldPathname, const char* newPathname)
     # 
     int zcheck(long long *ifltab, const char* pathname)
     int zcatalog(long long *ifltab, const char *pathWithWild, zStructCatalog *catStruct, int boolSorted)
