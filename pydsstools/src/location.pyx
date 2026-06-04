@@ -500,8 +500,12 @@ cdef void _write_location_dss6(long long *ifltab, TimeSeriesContainer tsc,
                 f"start_time is required for regular TS DSS-6 write: {tsc._pathname!r}"
             )
         nvals = tsc._count
-        _bdate = tsc._start_time.date().encode("ascii")
-        _btime = tsc._start_time.time().encode("ascii")
+        # zsrtsc_/IHM2M parses time right-to-left into a 4-char HHMM buffer.
+        # Passing "HH:MM:SS" (time_style=2) fills the buffer with seconds
+        # digits, discarding the hours — returning 0 (midnight) instead of
+        # the real time.  Use style 0 ("HHMM") as documented in zsrtsi6.f.
+        _bdate = tsc._start_time.date(104).encode("ascii")  # "01JAN2020"
+        _btime = tsc._start_time.time(0).encode("ascii")   # "0100"
 
         logger.debug(
             "write_location dss6: zsrtsc_ path=%r date=%s time=%s nvals=%d iplan=%d",
