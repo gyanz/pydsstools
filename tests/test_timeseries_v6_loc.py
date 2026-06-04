@@ -79,7 +79,7 @@ def test_write_read_reg_ts_with_location(dss6_file):
     fid.put_ts(tsc, location=REG_LOC)
 
     # --- Read back ---
-    tss, loc = fid.read_ts(REG_PATHNAME, location=True)
+    tss, loc = fid.read_ts(REG_PATHNAME, location=True, trim_missing=True)
     assert loc is not None, "Location should be present after write"
 
     # Values
