@@ -7,10 +7,9 @@ zlocationStore) so that TS data and location are written together in one call.
 """
 import pytest
 from datetime import datetime as dt
-from pathlib import Path
 
 from pydsstools.heclib.dss import HecDss
-from pydsstools.core import TimeSeriesContainer, UNDEFINED
+from pydsstools.core import TimeSeriesContainer
 from pydsstools.core.location import LocationInfo
 from pydsstools.core.enums import (
     LocCoordSystem,
@@ -41,6 +40,7 @@ def dss6_file(tmp_path):
 REG_PATHNAME = "/SITE/GAUGE/FLOW//1HOUR/DSS6TEST/"
 REG_VALUES   = [100.0, 200.0, 300.0, 400.0]
 REG_START    = "01JAN2020 0100"
+REG_END      = "01JAN2020 0400"
 REG_TIMES_EXPECTED = [
     dt.strptime("01Jan2020 01:00", "%d%b%Y %H:%M"),
     dt.strptime("01Jan2020 02:00", "%d%b%Y %H:%M"),
@@ -79,7 +79,7 @@ def test_write_read_reg_ts_with_location(dss6_file):
     fid.put_ts(tsc, location=REG_LOC)
 
     # --- Read back ---
-    tss, loc = fid.read_ts(REG_PATHNAME, location=True, trim_missing=True)
+    tss, loc = fid.read_ts(REG_PATHNAME, window=(REG_START, REG_END), location=True)
     assert loc is not None, "Location should be present after write"
 
     # Values
