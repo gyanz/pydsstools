@@ -24,6 +24,8 @@ __all__ = [
     "DataType",
     "CompressionMethod",
     "LocationInfo",
+    "VerticalDatumInfo",
+    "vdi_from_location",
     "RegStoreFlag",
     "IrregStoreFlag",
     "CopyRecordFlag",
@@ -37,6 +39,7 @@ from .gridinfo.v6 import *
 from .grid import SpatialGridStruct
 from . import grid_accessors
 from .location import LocationInfo
+from .vdi import VerticalDatumInfo
 from .enums import (
     GridType,
     DataType,

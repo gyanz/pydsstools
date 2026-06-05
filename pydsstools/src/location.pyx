@@ -567,3 +567,68 @@ cdef void _write_location_dss6(long long *ifltab, TimeSeriesContainer tsc,
 
     # --- Error check: DssLastError / isError() are not reliable here ---
     _check_dss6_istat(istat, func_name, tsc._pathname)
+
+
+cpdef object vdi_from_location(object loc):
+    """Extract :class:`~pydsstools.core.vdi.VerticalDatumInfo` from a
+    :class:`~pydsstools.core.location.LocationInfo` supplemental list.
+
+    DSS-6 tools store VDI in the CSUPP field as a semicolon- or
+    newline-delimited entry of the form::
+
+        verticalDatumInfo:<compressed_xml>
+
+    where ``<compressed_xml>`` is the same gzip+base64 XML string used by
+    DSS-7.  ``_read_location_dss6`` splits CSUPP by ``\\n`` and stores the
+    result in ``LocationInfo.supplemental``, so the VDI entry appears as one
+    element in that list.
+
+    Parameters
+    ----------
+    loc : LocationInfo
+        Location record previously returned by ``read_ts(location=True)``
+        or ``read_location``.
+
+    Returns
+    -------
+    VerticalDatumInfo or None
+        Parsed VDI, or ``None`` if no ``verticalDatumInfo`` entry was found
+        in the supplemental list or if parsing fails.
+
+    .. note::
+        **Not yet validated against a real DSS-6 file written by old HEC
+        tools.**  The CSUPP format assumed here is based on source-code
+        analysis of ``copyVdiFromLocationStructToUserHeader`` in
+        ``verticalDatum.c``.  Confirm correctness once a test file with
+        DSS-6 native VDI is available.
+    """
+    from pydsstools.core.vdi import VerticalDatumInfo
+    cdef:
+        verticalDatumInfo vdi_c
+        char *err_msg = NULL
+        bytes _b
+        double undef = UNDEFINED_VERTICAL_DATUM_VALUE
+
+    prefix = "verticalDatumInfo:"
+    for line in loc.supplemental:
+        if line.startswith(prefix):
+            _b = line[len(prefix):].strip().encode("ascii")
+            err_msg = stringToVerticalDatumInfo(&vdi_c, _b)
+            if err_msg != NULL:
+                logger.debug(
+                    "vdi_from_location: stringToVerticalDatumInfo failed: %s",
+                    (<bytes>err_msg).decode("ascii", "replace"),
+                )
+                free(err_msg)
+                return None
+            return VerticalDatumInfo(
+                native_datum=(<bytes>vdi_c.nativeDatum).decode("ascii", "replace").rstrip('\x00').strip(),
+                unit=(<bytes>vdi_c.unit).decode("ascii", "replace").rstrip('\x00').strip(),
+                offset_to_navd88=(None if vdi_c.offsetToNavd88 == undef
+                                  else vdi_c.offsetToNavd88),
+                navd88_is_estimate=bool(vdi_c.offsetToNavd88IsEstimate),
+                offset_to_ngvd29=(None if vdi_c.offsetToNgvd29 == undef
+                                  else vdi_c.offsetToNgvd29),
+                ngvd29_is_estimate=bool(vdi_c.offsetToNgvd29IsEstimate),
+            )
+    return None

@@ -137,6 +137,7 @@ cdef class Open:
         cdef:
             zStructTimeSeries *ztss = NULL
         ztss = zstructTsNew(pathname)
+        ztss[0].userHeaderSize = 1  # auto-alloc: library malloc's exact buffer on retrieve
 
         if boolRetrieveAllTimes:
             ztss[0].boolRetrieveAllTimes = 1
@@ -204,6 +205,7 @@ cdef class Open:
         cdef:
             zStructTimeSeries *ztss = NULL
         ztss = zstructTsNewTimes(pathname, startDate, startTime, endDate, endTime)
+        ztss[0].userHeaderSize = 1  # auto-alloc: library malloc's exact buffer on retrieve
         self.read_status = ztsRetrieve(self.ifltab, ztss, retrieveFlag,
                                        boolRetrieveDoubles,
                                        boolRetrieveQualityNotes)

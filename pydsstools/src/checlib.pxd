@@ -259,6 +259,11 @@ cdef extern from "heclib.h":
         int cnotesSize         # on retrieval: size of cnotes buffer
         int cnotesLengthTotal  # set for storage; returns actual length on retrieval
 
+        int *userHeader
+        int userHeaderSize    # 1 = auto-alloc flag (set by zstructTsNew); 0 = skip; >1 = caller buffer cap
+        int userHeaderNumber  # ints actually populated (set by library on retrieve)
+        char allocated[25]    # zSTRUCT_length=25; allocated[4]=zSTRUCT_userHeader: 1 means free userHeader
+
     const char *ztypeName(int recordType, int boolAbbreviation)
     int ztsPathCheckInterval(long long *ifltab, char *pathname, size_t sizeofPathname)
     int ztsGetStandardInterval(int dssVersion, int *intervalSeconds, char *Epart, size_t sizeofEpart, int *operation)
@@ -649,6 +654,32 @@ cdef extern from "heclib.h":
 
         #char *pathnameInternal              # [private]
         #char allocated[zSTRUCT_length]      # [private]
+
+cdef extern from "verticalDatum.h":
+    # Sentinel value stored in offsetToNavd88 / offsetToNgvd29 when the offset
+    # is unknown.  Equals -FLT_MAX (~-3.4028e+38).  Compare with == in Cython
+    # using a local cdef double; do NOT use math.isinf (it is not infinity).
+    double UNDEFINED_VERTICAL_DATUM_VALUE
+
+    ctypedef struct verticalDatumInfo:
+        char   nativeDatum[17]          # datum name, e.g. "NAVD-88", "LOCAL"
+        char   unit[17]                 # offset unit, e.g. "ft", "m"
+        double offsetToNgvd29
+        int    offsetToNgvd29IsEstimate # 0=precisely measured, 1=estimated
+        double offsetToNavd88
+        int    offsetToNavd88IsEstimate # 0=precisely measured, 1=estimated
+
+    void  initializeVerticalDatumInfo(verticalDatumInfo *vdi)
+    char* verticalDatumInfoToString(char **results,
+                                    const verticalDatumInfo *vdi,
+                                    int generate_compressed)
+    char* stringToVerticalDatumInfo(verticalDatumInfo *vdi,
+                                    const char *inputStr)
+    verticalDatumInfo* extractVerticalDatumInfoFromUserHeader(
+                                    const int *userHeader, int userHeaderSize)
+    int*  stringToUserHeader(const char *s, int *userHeaderNumber)
+    char* userHeaderToString(const int *userHeader, int userHeaderNumber)
+
 
 # DSS-6 Fortran wrappers that expose time-series internal header metadata,
 # including location fields (coordinates, timezone, supplemental info).

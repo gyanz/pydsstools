@@ -77,6 +77,7 @@ __all__ = [
 
     # Utilities
     "DssPathName",
+    "vdi_from_location",
     "dss_info",
     "pd_size",
     "squeeze_file",

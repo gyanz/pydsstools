@@ -80,6 +80,24 @@ class LocationInfo:
                 f"Expected str or list[str] for 'supplemental', got {type(self.supplemental).__name__}"
             )
 
+    @property
+    def vdi(self):
+        """Return :class:`~pydsstools.core.vdi.VerticalDatumInfo` parsed from
+        the ``supplemental`` list, or ``None`` if no VDI entry is found.
+
+        Old-style DSS-6 files written by HEC tools store vertical datum info
+        as a ``verticalDatumInfo:<compressed_xml>`` entry in the CSUPP field,
+        which is surfaced here via ``LocationInfo.supplemental``.  Use this
+        when ``TimeSeriesStruct.vdi`` returns ``None`` and you know the record
+        originated from an old DSS-6 file.
+
+        .. note::
+            **Not yet validated against a real DSS-6 file written by old HEC
+            tools.**  Confirm correctness once such a test file is available.
+        """
+        from pydsstools._lib import vdi_from_location
+        return vdi_from_location(self)
+
     def update_from_crs(self, crs_input):
         """Update coordinate attributes from a CRS string or object (WKT, EPSG, PROJ, etc.).
 

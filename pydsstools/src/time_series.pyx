@@ -75,6 +75,36 @@ cdef class TimeSeriesStruct:
             zstructFree(self.tss)
 
     @property
+    def vdi(self):
+        """Return :class:`VerticalDatumInfo` extracted from the user header, or
+        ``None`` if no VDI is present or the user header was not read
+        (``boolRetrieveVdi=False`` on the read call)."""
+        from pydsstools.core.vdi import VerticalDatumInfo
+        cdef:
+            verticalDatumInfo *vdi = NULL
+            double undef = UNDEFINED_VERTICAL_DATUM_VALUE
+        if not (self.tss and
+                self.tss[0].userHeaderNumber > 0 and
+                self.tss[0].userHeader != NULL):
+            return None
+        vdi = extractVerticalDatumInfoFromUserHeader(
+            self.tss[0].userHeader, self.tss[0].userHeaderNumber)
+        if vdi == NULL:
+            return None
+        result = VerticalDatumInfo(
+            native_datum=(<bytes>vdi[0].nativeDatum).decode("ascii", "replace").rstrip('\x00').strip(),
+            unit=(<bytes>vdi[0].unit).decode("ascii", "replace").rstrip('\x00').strip(),
+            offset_to_navd88=(None if vdi[0].offsetToNavd88 == undef
+                              else vdi[0].offsetToNavd88),
+            navd88_is_estimate=bool(vdi[0].offsetToNavd88IsEstimate),
+            offset_to_ngvd29=(None if vdi[0].offsetToNgvd29 == undef
+                              else vdi[0].offsetToNgvd29),
+            ngvd29_is_estimate=bool(vdi[0].offsetToNgvd29IsEstimate),
+        )
+        free(vdi)
+        return result
+
+    @property
     def count(self):
         """ 
         Returns
@@ -412,6 +442,8 @@ cdef class TimeSeriesContainer:
         bytes _text_notes_buf
         int _cnotes_length
 
+        object _vdi  # VerticalDatumInfo or None
+
     def __init__(self,pathname,count,interval,**kwargs):
         self.pathname = pathname
         self.count = count
@@ -425,6 +457,7 @@ cdef class TimeSeriesContainer:
         self.quality_flags = kwargs.pop("quality_flags", None)
         self.integer_notes = kwargs.pop("integer_notes", None)
         self.text_notes    = kwargs.pop("text_notes", None)
+        self.vdi = kwargs.pop("vdi", None)
         start_time = kwargs.pop("start_time",None)
         if start_time is not None:
             self.start_time = start_time
@@ -881,6 +914,24 @@ cdef class TimeSeriesContainer:
         self._text_notes_buf = buf.encode('ascii')
         self._cnotes_length = len(self._text_notes_buf)
 
+    @property
+    def vdi(self):
+        """Return the :class:`~pydsstools.core.vdi.VerticalDatumInfo` to write
+        into the DSS user header, or ``None`` if not set."""
+        return self._vdi
+
+    @vdi.setter
+    def vdi(self, value):
+        if value is None:
+            self._vdi = None
+            return
+        from pydsstools.core.vdi import VerticalDatumInfo
+        if not isinstance(value, VerticalDatumInfo):
+            raise TypeError(
+                f"Expected VerticalDatumInfo or None, got {type(value).__name__}"
+            )
+        self._vdi = value
+
     cdef TimeSeriesStruct create_tss(self):
         cdef:
             zStructTimeSeries *tss=NULL
@@ -896,6 +947,12 @@ cdef class TimeSeriesContainer:
             char *start_date
             char *start_time
             char *julian_base
+            # VDI write
+            verticalDatumInfo vdi_c
+            char *xml_ptr
+            char *err_msg
+            int *uh_ptr
+            int uh_num
 
         if self._values is None:
             raise ValueError("Timeseries values is not defined")
@@ -955,6 +1012,37 @@ cdef class TimeSeriesContainer:
         elif self._text_notes_buf is not None:
             tss[0].cnotes = PyBytes_AS_STRING(self._text_notes_buf)
             tss[0].cnotesLengthTotal = self._cnotes_length
+
+        if self._vdi is not None:
+            xml_ptr = NULL
+            err_msg = NULL
+            uh_ptr = NULL
+            uh_num = 0
+            initializeVerticalDatumInfo(&vdi_c)
+            _bnd = self._vdi.native_datum.encode("ascii")
+            _bu  = self._vdi.unit.encode("ascii")
+            memcpy(vdi_c.nativeDatum, PyBytes_AS_STRING(_bnd), len(_bnd))
+            vdi_c.nativeDatum[len(_bnd)] = 0
+            memcpy(vdi_c.unit, PyBytes_AS_STRING(_bu), len(_bu))
+            vdi_c.unit[len(_bu)] = 0
+            if self._vdi.offset_to_navd88 is not None:
+                vdi_c.offsetToNavd88 = <double>self._vdi.offset_to_navd88
+                vdi_c.offsetToNavd88IsEstimate = 1 if self._vdi.navd88_is_estimate else 0
+            if self._vdi.offset_to_ngvd29 is not None:
+                vdi_c.offsetToNgvd29 = <double>self._vdi.offset_to_ngvd29
+                vdi_c.offsetToNgvd29IsEstimate = 1 if self._vdi.ngvd29_is_estimate else 0
+            err_msg = verticalDatumInfoToString(&xml_ptr, &vdi_c, 0)
+            if err_msg != NULL:
+                _err = (<bytes>err_msg).decode("ascii", "replace")
+                free(err_msg)
+                raise RuntimeError(f"verticalDatumInfoToString: {_err}")
+            uh_ptr = stringToUserHeader(xml_ptr, &uh_num)
+            free(xml_ptr)
+            if uh_ptr == NULL:
+                raise MemoryError("stringToUserHeader: memory allocation failed")
+            tss[0].userHeader = uh_ptr
+            tss[0].userHeaderNumber = uh_num
+            tss[0].allocated[4] = 1  # zSTRUCT_userHeader=4: tells zstructFree to free uh_ptr
 
         ts_st = createTSS(tss)
         #logger.debug("length = {}".format(ts_st.count))
