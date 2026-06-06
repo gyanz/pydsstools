@@ -1,5 +1,16 @@
 pydsstools changelog
 ================
+3.0.2 (05-08-2026)
+-----------------
+* RasterSpatialGrid: added from_file classmethod and context manager support
+* Fixed float32 precision, overflow, and stats robustness in grid write path
+* Added unit_factor to RasterSpatialGrid.reproject; fixed nodata defaults
+* Input dss_path validated and normalized before opening file
+
+3.0.1 (05-01-2026)
+-----------------
+* Fixed start_time setter shadowing datetime type; scoped to regular interval series only
+
 3.0.0 (05-01-2026)
 -----------------
 * First stable 3.x release
@@ -15,6 +26,32 @@ pydsstools changelog
 * HecTime parsing fixes; irregular time-series ordering check
 * Removed `pydsstools.utils.contrail` and `pydsstools.utils.usgs` (revised versions will ship in a separate library)
 
+3.0.0b5 (02-09-2026)
+-----------------
+* Linux wheels upgraded to manylinux_2_28; added PROJ system dependencies
+
+3.0.0b4 (02-08-2026)
+-----------------
+* Dropped Python 3.8 support; modernized type hints
+* NumPy 2.0 and Cython 3.0 compatibility
+* Sphinx documentation and ReadTheDocs configuration
+* Paired data: 0-based indexing; put_pd accepts DataFrame; single-curve write
+* HecTime parsing fixes; irregular time-series ordering check
+
+3.0.0b3 (10-11-2025)
+-----------------
+* DSS-6 files now raise an error on Linux and Mac (unsupported)
+* Pytest corrections for grid version 0 and DSS filename handling
+
+3.0.0b2 (10-09-2025)
+-----------------
+* TimeSeriesContainer API overhaul: new positional init args (pathname, count, interval);
+  properties renamed (startDateTime→start_time, endDateTime→end_time, units→data_units,
+  timezone→tzid); values/times/data_type exposed as settable properties
+* Fixed HecTime-to-datetime conversion
+* Fixed error when DSS record is not found
+* Paired data API revisions and additional pytests
+
 3.0.0b1 (09-22-2025)
 -----------------
 * HEC-DSS 7-IV-1, released July 30, 2025
@@ -22,6 +59,10 @@ pydsstools changelog
 * Gridded data write support for verion 0 grid
 * Added pytests
 * Added github action to build, test and publish wheels
+
+2.4.1 (08-27-2025)
+-----------------
+* Added timezone info to TimeSeriesContainer
 
 2.4.0 (08-13-2025)
 -----------------
