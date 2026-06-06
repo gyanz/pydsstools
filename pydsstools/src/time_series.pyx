@@ -1031,13 +1031,17 @@ cdef class TimeSeriesContainer:
             if self._vdi.offset_to_ngvd29 is not None:
                 vdi_c.offsetToNgvd29 = <double>self._vdi.offset_to_ngvd29
                 vdi_c.offsetToNgvd29IsEstimate = 1 if self._vdi.ngvd29_is_estimate else 0
-            err_msg = verticalDatumInfoToString(&xml_ptr, &vdi_c, 0)
+            # 1 = gzip+base64 — the standard stored format per HEC DSS programmer's guide.
+            err_msg = verticalDatumInfoToString(&xml_ptr, &vdi_c, 1)
             if err_msg != NULL:
                 _err = (<bytes>err_msg).decode("ascii", "replace")
                 free(err_msg)
                 raise RuntimeError(f"verticalDatumInfoToString: {_err}")
-            uh_ptr = stringToUserHeader(xml_ptr, &uh_num)
+            # extractVerticalDatumInfoFromUserHeader expects the key-value format
+            # "verticalDatumInfo:b64_here;" — wrap before packing into int array.
+            _header_bytes = b"verticalDatumInfo:" + (<bytes>xml_ptr) + b";"
             free(xml_ptr)
+            uh_ptr = stringToUserHeader(PyBytes_AS_STRING(_header_bytes), &uh_num)
             if uh_ptr == NULL:
                 raise MemoryError("stringToUserHeader: memory allocation failed")
             tss[0].userHeader = uh_ptr
