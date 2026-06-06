@@ -37,6 +37,7 @@ See the [installation guide](docs/source/installation.md).
 ## Contributing
 
 All contributions, bug reports, bug fixes, documentation improvements, enhancements, and ideas are welcome.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines, the versioning policy, and how to report bugs or request features.
 Feel free to ask questions via [email](mailto:gyanBasyalz@gmail.com).
 
 ## License
