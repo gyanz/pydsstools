@@ -192,8 +192,14 @@ class Level(IntEnum):
     INTERNAL_DIAG_1 = 5
     """Internal debug messages (level 1).  Not recommended for end-users."""
 
+    DIAG1 = 5
+    """Alias for :attr:`INTERNAL_DIAG_1`."""
+
     INTERNAL_DIAG_2 = 6
     """Full internal trace (level 2).  Extremely verbose."""
+
+    DIAG2 = 6
+    """Alias for :attr:`INTERNAL_DIAG_2`."""
 
 
 # ---------------------------------------------------------------------------
@@ -509,6 +515,12 @@ class DssLogger:
             return
         resolved = _resolve_level(level)
         _setMessageLevel(int(self._method), int(resolved))
+        _logger.info(
+            "%r: level set — method=%s, level=%s.",
+            self,
+            self._method.name,
+            resolved.name,
+        )
 
     @contextmanager
     def suppress(self):
