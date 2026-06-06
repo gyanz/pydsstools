@@ -1,5 +1,26 @@
 pydsstools changelog
 ================
+3.1.0 (06-06-2026)
+-----------------
+* Location: `LocationInfo` dataclass and DSS-7/DSS-6 location record read/write via `read_ts`, `put_ts`, `read_pd`, `put_pd`
+* Vertical Datum: `VerticalDatumInfo` (VDI) read/write for DSS-7 and DSS-6
+* Time series: quality flags and notes read/write (`store_flag`, `value_precision`, `quality_notes` params on `read_ts`/`put_ts`)
+* Text and array record read/write API (`read_text`, `put_text`, `read_array`, `put_array`)
+* Binary record read/write support
+* Logging: `pydsstools.heclib.logging` with Pythonic DSS message-level control; `DIAG1`/`DIAG2` aliases added to `Level`; `pydsstools` set as program name in DSS records
+* File utilities: `ren_path()`, `path_exists()`, `copy_from_file()`, `copy_file()`, `copy_file_to()`, `convert_version()`, `check_file()`, `export_file()`, `CopyRecordFlag` enum
+* `copy_path`: wildcard batch mode, optional `pathname_out`, transform callable, returns count
+* `heclib_version()` to query the HEC-DSS C library version and date
+* Renamed camelCase public functions to snake_case; full API exposed via `pydsstools.heclib.utils`
+* `DssPathName.__eq__` added; D-part and E-part normalized independently in `normalize_period`
+* RasterSpatialGrid: VSI wrapper support for compressed rasters in `from_file`
+* Fixed grid D/E-part `date_style` in `put_grid`, `put_grid0`, `path_exists`
+* Fixed `isinstance` check and property access in `TimeSeriesContainer.to_struct`
+* Fixed DSS-6 regular time-series time assertion: use window read instead of trim_missing
+* Fixed missing `Datum`, `GridType`, `DataType`, `CompressionMethod` exports in `core/__init__.py`
+* Fixed `__all__` mismatches in `heclib`; added import-star smoke tests
+* Added `CODE_OF_CONDUCT.md` and `CONTRIBUTING.md`
+
 3.0.2 (05-08-2026)
 -----------------
 * RasterSpatialGrid: added from_file classmethod and context manager support
