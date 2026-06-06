@@ -63,7 +63,7 @@ guide may not always be feasible. The changelog will document notable changes on
 best-effort basis.
 
 pydsstools has a small public API. The large majority of read/write operations are
-methods on `pydsstools.heclib.dss.HecDss`, so the scope of any migration is limited.
+methods on `pydsstools.heclib.dss.HecDss.Open`, so the scope of any migration is limited.
 The [API documentation](https://pydsstools.readthedocs.io/) is the authoritative
 reference for current method signatures and is often the fastest way to find the
 equivalent of a renamed or restructured call.
