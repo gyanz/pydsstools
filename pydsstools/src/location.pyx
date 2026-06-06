@@ -409,7 +409,7 @@ cdef void _write_location_dss6(long long *ifltab, TimeSeriesContainer tsc,
         int istat = 0
         int ldouble = 0     # 0 = use svalues (float), 1 = use dvalues (double)
         int jcomp = 0
-        double basev = 0.0
+        float basev = 0.0
         int lbasev = 0
         int ldhigh = 0
         int nprec = 0

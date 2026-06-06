@@ -784,7 +784,7 @@ cdef extern from "hecdssFort.h":
                  char *ctzone,             # timezone name string
                  int *iplan,               # storage plan: how to merge with existing data
                  int *jcomp,               # block compression code
-                 double *basev,            # compression base value
+                 float *basev,             # compression base value
                  int *lbasev,              # flag: basev is active
                  int *ldhigh,              # flag: use high-precision double storage
                  int *nprec,               # number of precision digits (for compression)
