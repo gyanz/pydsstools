@@ -515,7 +515,7 @@ class Open(_Open):
         else:
             super()._put(tsc, _flag)
             if location is not None:
-                super()._put_location(location)
+                super()._put_location(location, storageFlag=1)
 
     def read_pd(
         self,

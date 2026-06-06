@@ -4,7 +4,6 @@ cdef object _location_struct_to_info(zStructLocation *zloc):
         str pathname_str = ""
         str time_zone_str = ""
         str supp_str
-        list supplemental
 
     if zloc[0].pathname != NULL:
         pathname_str = zloc[0].pathname
@@ -12,9 +11,10 @@ cdef object _location_struct_to_info(zStructLocation *zloc):
         time_zone_str = zloc[0].timeZoneName
     if zloc[0].supplemental != NULL:
         supp_str = zloc[0].supplemental
-        supplemental = [s for s in supp_str.split("\n") if s]
+        supplemental = {k: v for k, _, v in
+                        (line.partition(":") for line in supp_str.split("\n") if line)}
     else:
-        supplemental = []
+        supplemental = {}
 
     return LocationInfo(
         pathname=pathname_str,
@@ -174,7 +174,7 @@ cdef object _read_location_dss6(long long *ifltab, const char *pathname, int ts_
         str pathname_str = (<bytes>pathname).decode("ascii", "strict")
         str tz_str = ""
         str supp_str
-        list supplemental
+        dict supplemental
 
     # Initialise output buffers
     for i in range(3):
@@ -324,9 +324,10 @@ cdef object _read_location_dss6(long long *ifltab, const char *pathname, int ts_
         tz_str = (<bytes>ctzone).decode("ascii", "replace").rstrip()
     if csupp[0] != 0:
         supp_str = (<bytes>csupp).decode("ascii", "replace").rstrip()
-        supplemental = [s for s in supp_str.split("\n") if s]
+        supplemental = {k: v for k, _, v in
+                        (line.partition(":") for line in supp_str.split("\n") if line)}
     else:
-        supplemental = []
+        supplemental = {}
 
     # -----------------------------------------------------------------------
     # DSS-6 vs DSS-7 enum compatibility (verified against zStructLocation.h
@@ -464,7 +465,7 @@ cdef void _write_location_dss6(long long *ifltab, TimeSeriesContainer tsc,
     # --- Supplemental ---
     csupp[0] = 0
     if loc.supplemental:
-        _bsupp = "\n".join(loc.supplemental).encode("ascii")
+        _bsupp = "\n".join(f"{k}:{v}" for k, v in loc.supplemental.items()).encode("ascii")
         if len(_bsupp) >= sizeof(csupp):
             _bsupp = _bsupp[:sizeof(csupp) - 1]
         memcpy(csupp, PyBytes_AS_STRING(_bsupp), len(_bsupp))
@@ -609,26 +610,25 @@ cpdef object vdi_from_location(object loc):
         bytes _b
         double undef = UNDEFINED_VERTICAL_DATUM_VALUE
 
-    prefix = "verticalDatumInfo:"
-    for line in loc.supplemental:
-        if line.startswith(prefix):
-            _b = line[len(prefix):].strip().encode("ascii")
-            err_msg = stringToVerticalDatumInfo(&vdi_c, _b)
-            if err_msg != NULL:
-                logger.debug(
-                    "vdi_from_location: stringToVerticalDatumInfo failed: %s",
-                    (<bytes>err_msg).decode("ascii", "replace"),
-                )
-                free(err_msg)
-                return None
-            return VerticalDatumInfo(
-                native_datum=(<bytes>vdi_c.nativeDatum).decode("ascii", "replace").rstrip('\x00').strip(),
-                unit=(<bytes>vdi_c.unit).decode("ascii", "replace").rstrip('\x00').strip(),
-                offset_to_navd88=(None if vdi_c.offsetToNavd88 == undef
-                                  else vdi_c.offsetToNavd88),
-                navd88_is_estimate=bool(vdi_c.offsetToNavd88IsEstimate),
-                offset_to_ngvd29=(None if vdi_c.offsetToNgvd29 == undef
-                                  else vdi_c.offsetToNgvd29),
-                ngvd29_is_estimate=bool(vdi_c.offsetToNgvd29IsEstimate),
-            )
-    return None
+    vdi_str = loc.supplemental.get("verticalDatumInfo")
+    if vdi_str is None:
+        return None
+    _b = vdi_str.strip().encode("ascii")
+    err_msg = stringToVerticalDatumInfo(&vdi_c, _b)
+    if err_msg != NULL:
+        logger.debug(
+            "vdi_from_location: stringToVerticalDatumInfo failed: %s",
+            (<bytes>err_msg).decode("ascii", "replace"),
+        )
+        free(err_msg)
+        return None
+    return VerticalDatumInfo(
+        native_datum=(<bytes>vdi_c.nativeDatum).decode("ascii", "replace").rstrip('\x00').strip(),
+        unit=(<bytes>vdi_c.unit).decode("ascii", "replace").rstrip('\x00').strip(),
+        offset_to_navd88=(None if vdi_c.offsetToNavd88 == undef
+                          else vdi_c.offsetToNavd88),
+        navd88_is_estimate=bool(vdi_c.offsetToNavd88IsEstimate),
+        offset_to_ngvd29=(None if vdi_c.offsetToNgvd29 == undef
+                          else vdi_c.offsetToNgvd29),
+        ngvd29_is_estimate=bool(vdi_c.offsetToNgvd29IsEstimate),
+    )

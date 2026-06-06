@@ -1120,7 +1120,27 @@ cdef class Open:
         )
         _write_location_dss6(self.ifltab, tsc, location, storageFlag)
 
-    cpdef void _put_location(self, object loc, int storageFlag=0) except *:
+    cpdef void _put_location(self, object loc, int storageFlag=1) except *:
+        """Write a DSS-7 location record.
+
+        Parameters
+        ----------
+        loc : LocationInfo
+            Location metadata to store.
+        storageFlag : int, optional
+            Controls how an existing location record is handled.
+
+            * ``0`` — skip write if a location record already exists for this
+              pathname.  Useful when you want to set a location once and never
+              accidentally overwrite it.  **Caution**: passing ``0`` when a
+              record already exists silently discards all fields in *loc*,
+              including supplemental and verticalDatum.
+            * ``1`` — always write, overwriting any existing record.  Use this
+              when the caller intends to update the location (the default chosen
+              by ``put_ts`` when ``location=`` is supplied).
+
+            Default is ``1``.
+        """
         from pydsstools.core.location import LocationInfo
         cdef:
             zStructLocation *zloc = NULL
@@ -1158,7 +1178,10 @@ cdef class Open:
                 _btz = loc.time_zone.encode("ascii")
                 zloc[0].timeZoneName = PyBytes_AS_STRING(_btz)
             if loc.supplemental:
-                _bsupp = "\n".join(loc.supplemental).encode("ascii")
+                _supp_parts = []
+                for _sk, _sv in loc.supplemental.items():
+                    _supp_parts.append(_sk + ":" + _sv)
+                _bsupp = "\n".join(_supp_parts).encode("ascii")
                 zloc[0].supplemental = PyBytes_AS_STRING(_bsupp)
             self.write_status = zlocationStore(self.ifltab, zloc, storageFlag)
             isError(self.write_status)

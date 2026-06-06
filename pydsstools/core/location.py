@@ -30,7 +30,7 @@ class LocationInfo:
     vertical_units: LocVertUnits = LocVertUnits.unspecified
     vertical_datum: LocVertDatum = LocVertDatum.unset
     time_zone: str = ""
-    supplemental: list = field(default_factory=list)
+    supplemental: dict = field(default_factory=dict)
 
     def __post_init__(self):
         if isinstance(self.pathname, (str, DssPathName)):
@@ -65,19 +65,31 @@ class LocationInfo:
                 f"Expected str for 'time_zone', got {type(self.time_zone).__name__}"
             )
 
-        if isinstance(self.supplemental, str):
-            self.supplemental = [self.supplemental] if self.supplemental else []
-        elif isinstance(self.supplemental, list):
-            for i, item in enumerate(self.supplemental):
-                if isinstance(item, (int, float)):
-                    self.supplemental[i] = str(item)
-                elif not isinstance(item, str):
+        if isinstance(self.supplemental, dict):
+            for k, v in self.supplemental.items():
+                if not isinstance(k, str):
                     raise TypeError(
-                        f"Expected str, int, or float in 'supplemental' at index {i}, got {type(item).__name__}"
+                        f"Expected str key in 'supplemental', got {type(k).__name__}"
                     )
+                if not isinstance(v, str):
+                    raise TypeError(
+                        f"Expected str value in 'supplemental' for key {k!r}, got {type(v).__name__}"
+                    )
+        elif isinstance(self.supplemental, list):
+            # Accept list[str] of "key:value" lines for convenience; convert to dict.
+            d = {}
+            for item in self.supplemental:
+                if not isinstance(item, str):
+                    raise TypeError(
+                        f"Expected str in 'supplemental' list, got {type(item).__name__}"
+                    )
+                k, _, v = item.partition(":")
+                d[k] = v
+            self.supplemental = d
         else:
             raise TypeError(
-                f"Expected str or list[str] for 'supplemental', got {type(self.supplemental).__name__}"
+                f"Expected dict[str, str] or list[str] for 'supplemental', "
+                f"got {type(self.supplemental).__name__}"
             )
 
     @property
@@ -87,7 +99,7 @@ class LocationInfo:
 
         Old-style DSS-6 files written by HEC tools store vertical datum info
         as a ``verticalDatumInfo:<compressed_xml>`` entry in the CSUPP field,
-        which is surfaced here via ``LocationInfo.supplemental``.  Use this
+        which is surfaced here via ``LocationInfo.supplemental`` dict.  Use this
         when ``TimeSeriesStruct.vdi`` returns ``None`` and you know the record
         originated from an old DSS-6 file.
 
