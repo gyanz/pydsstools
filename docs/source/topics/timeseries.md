@@ -387,35 +387,7 @@ with HecDss.Open(dss_file) as fid:
 
 ---
 
-## Example 10 — Configure DSS Logging
-
-Control the verbosity of HEC-DSS library messages.
-
-```python
-from pydsstools.heclib.dss.HecDss import Open
-from pydsstools.heclib.utils import dss_logging
-
-# Set logging level: "None", "General", "Diagnostic"
-dss_logging.config(level="General")
-
-dss_file = "example.dss"
-pathname = "/REGULAR/TIMESERIES/FLOW//1HOUR/Ex1/"
-
-with Open(dss_file) as fid:
-    ts = fid.read_ts(pathname)
-```
-
-**Available logging levels:**
-
-| Level | Description |
-|-------|-------------|
-| `"None"` | Suppress all DSS messages |
-| `"General"` | Standard operational messages |
-| `"Diagnostic"` | Verbose debugging output |
-
----
-
-## Example 11 — Check for Missing Data
+## Example 10 — Check for Missing Data
 
 Use the `nodata` mask and `UNDEFINED` sentinel to handle missing values.
 
